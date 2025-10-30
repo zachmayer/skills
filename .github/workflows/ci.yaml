@@ -1,0 +1,36 @@
+name: Lint and Test
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    types: ["opened", "reopened", "synchronize"]
+
+jobs:
+  basic-ci:
+    name: run linting and testing
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: get UV version
+      id: uv-version
+      run: echo "uv_version=$(cat UV_VERSION)" >> "$GITHUB_OUTPUT"
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: ${{ steps.uv-version.outputs.uv_version }}
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+
+    - name: Install Dependencies
+      run: make install
+
+    - name: Lint
+      run: make lint
+
+    - name: Test
+      run: make test
+
+    - name: Build
+      run: make build

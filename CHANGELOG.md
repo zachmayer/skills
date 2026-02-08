@@ -7,15 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- 11 agent skills following the Agent Skills open standard
+- Skills: ask-questions, concise-writing, discussion-partners, heartbeat,
+  hierarchical-memory, mental-models, pdf-to-markdown, ralph-loop,
+  senior-engineer, skill-stealer, ultra-think
+- CLAUDE.md for repo context
+- .claude-plugin/marketplace.json for Claude Code plugin registry
+- Makefile targets: install-local, uninstall-local, pull-external
+
 ### Changed
 
-### Deprecated
+- Renamed project from python-boilerplate to agent-skills
+- Added click, httpx, marker-pdf as dependencies
 
 ### Removed
 
-### Fixed
-
-### Security
+- Boilerplate demo function and demo-script entry point
 
 ## [0.1.0] - 2025-10-28
 

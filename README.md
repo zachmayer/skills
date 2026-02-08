@@ -1,149 +1,100 @@
-# Python Boilerplate Template
+# Agent Skills
 
-## What Is This?
+A shared, open-source collection of agent skills following the [Agent Skills](https://agentskills.io) open standard. Works with Claude Code, Cursor, Codex, Gemini CLI, and 30+ other AI coding agents.
 
-These are my own preferences for setting up a python package and/or repo.
-It collects tools and dev dependencies for all the things I like when
-I start a new python project.
+## Skills
 
-- pytest
-- pre-commit: If you don't use it, you should start.
-- ruff: For all your linting and formatting needs.
-- uv: A fast package/environment manager
-- ipython: Run with `uv run ipython`. Nicer than regular interpreter
-- github actions: There are basic github action for CI
-- Makefile: a convenient way to run scripts
+| Skill | Type | Description |
+|-------|------|-------------|
+| [ask-questions](skills/ask-questions/) | Prompt | Structured questioning framework: clarify before acting |
+| [concise-writing](skills/concise-writing/) | Prompt | Writing principles for tight, scannable prose |
+| [discussion-partners](skills/discussion-partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
+| [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous task processing for Claude Code |
+| [hierarchical-memory](skills/hierarchical-memory/) | Python | ISO-timestamped notes aggregated into daily/weekly/overall summaries |
+| [mental-models](skills/mental-models/) | Prompt | Reasoning frameworks: inversion, second-order thinking, pre-mortems |
+| [pdf-to-markdown](skills/pdf-to-markdown/) | Python | Convert PDFs to clean markdown using marker |
+| [ralph-loop](skills/ralph-loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
+| [senior-engineer](skills/senior-engineer/) | Prompt | Performance-first engineering principles and coding standards |
+| [skill-stealer](skills/skill-stealer/) | Prompt | Extract skills from URLs (repos, tweets, blog posts) into SKILL.md format |
+| [ultra-think](skills/ultra-think/) | Prompt | Activate deep extended thinking for complex decisions |
 
-You can use this repo as a template.
-see: https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template
+## Install
 
-## Dev Install
+### Via npx (recommended, works with all agents)
 
-This requires [uv package manager](https://docs.astral.sh/uv/getting-started/installation/)
-They have installation instructions.
+```bash
+# Install all skills
+npx skills add zachmayer/skills
 
-### Linux/Mac
+# Install a specific skill
+npx skills add zachmayer/skills -s pdf-to-markdown
 
-`make install`
-
-### Windows
-
-You will first need to install `make`.
-
-`make` is standard on linux devices but needs to be installed on Windows.
-see: https://stackoverflow.com/a/32127632 for a long discussion or ...
-
-1. install [chocolatey](https://chocolatey.org/install)
-2. run `choco install make`
-
-then `make install`
-
-## Running Stuff
-
-### With `make`
-
-You can run most commands you want from the `Makefile`
-
-- `make install`
-- `make lint`
-- `make test`
-- `make build` to build the package
-- `make upgrade` to upgrade all of the libraries and pre-commit
-
-### With `uv run`
-
-Any commands that would run in your envronment, you can do with a `uv run`
-prefix.  So `pytest`, `ipython`, `pre-commit` just add `uv run <command> <args>`
-like `uv run pytest -s -v --durations=10`
-
-If you have built the package, you should be able to `uv run demo-script`
-
-### Pre-Commit
-
-Sometimes you'll have a commit that won't pass but you'll fix it later.
-Bypass checks on your commit with the `-n` flag. So instead of
-`git commit -am 'my message'`, do `git commit -am 'my message' -n`.
-
-
-## Repo Setup
-
-### Github Actions
-
-github actions must always be located in `.github/workflows`
-
-This repo contains two actions
-
-- Lint And Test: Run linter and pytest on PRs and merge to main.
-  Located in: `.github/workflows/ci.yaml`
-- Update Dependencies: Run a weekly update job and open PR on changes.
-  Located in: `.github/workflows/updater.yaml`
-
-#### Using the Update Dependencies Action
-
-**If you use this action remove `eric-s-s` as an assignee in `updater.yaml`!**
-
-This runs updates to all libraries on a weekly basis. If there are file
-changes, it automatically creates a PR and assigns me (eric-s-s) to the PR.
-If you want something like this you'll need to do some updating. Including
-from the next section with personal access token management.
-
-#### Personal Access Token Management for PR actions
-
-**Use the new fine-grained access tokens!** You have no good reason
-not to, and they are more secure.
-
-The `create-pull-request` github action explains the following for
-tokens and their requirements. I've also included the example I used.
-
-- https://github.com/peter-evans/create-pull-request?tab=readme-ov-file#token
-- https://github.com/peter-evans/create-pull-request/blob/main/docs/examples.md#update-npm-dependencies
-
-And GitHub explains about personal access tokens and repo secrets here:
-
-- https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token
-- https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository
-
-### Repo Settings
-
-#### General Repo Settings - Pull Request Section
-
-`Pull Request` section let's you specify what kind of PR merging to allow
-I tend to only do  `Allow squash merging` with `Default commit message`
-set to `Pull request title and commit details`.
-
-It also contains the `Automatically delete head branches`
-
-#### Branch Rulesets
-
-rulesets are available in the repo-rulesets directory. You can import them in your repo
-in `settings > general > code and automation > rules > rulesets`
-
-the green `New ruleset` button on the right has a drop-down arrow that allows you to
-import. It should just work, but if it doesn't ..
-
-#### Branch Ruleset Required Status Checks
-
-The required status checks part is a bit annoying. You need to pick
-from an auto-generated list and you might need to run the action first
-
-For the github action below I've seen it auto-complete on either
-
-- basic-ci
-- run linting and testing
-
-```
-jobs:
-  basic-ci:
-    name: run linting and testing
+# Install globally (available in all projects)
+npx skills add zachmayer/skills -g
 ```
 
-## Random Helpful Notes
+### Via Makefile (Claude Code, symlinks)
 
-### Pycharm Settings
+```bash
+git clone https://github.com/zachmayer/skills.git
+cd skills
+make install        # Install Python deps
+make install-local  # Symlink skills to ~/.claude/skills/
+```
 
-For some reason, Pycharm uses an incorrect json schema for `.github/dependabot.yml`. You can set
-this manually by going to:
+### Pull external skills (FUTURE_TOKENS)
 
-`Settings -> Languages & Frameworks -> Schemas and DTDs -> JSON Schema Mappings` and adding
-a mapping for https://www.schemastore.org/dependabot-2.0.json with JSON version 7 pointing to
-your dependabot file.
+```bash
+make pull-external  # Clone and copy FUTURE_TOKENS skills
+make install-local  # Link everything including external skills
+```
+
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
+
+```bash
+make install   # Install Python + deps + pre-commit hooks
+make lint      # Run ruff linting and formatting
+make test      # Run pytest
+make upgrade   # Upgrade all dependencies
+```
+
+## Creating a New Skill
+
+Each skill is a directory under `skills/` with a `SKILL.md` file:
+
+```
+skills/my-skill/
+├── SKILL.md           # Required: instructions + YAML frontmatter
+└── scripts/           # Optional: bundled code
+    └── my_script.py
+```
+
+The `SKILL.md` format:
+
+```yaml
+---
+name: my-skill
+description: >
+  WHEN to use: <specific triggers>.
+  WHEN NOT to use: <boundaries>.
+---
+
+Your instructions here. For skills with code, reference scripts:
+
+uv run --directory SKILL_DIR python scripts/my_script.py $ARGUMENTS
+```
+
+Use the `/skill-stealer` skill to extract skills from URLs automatically.
+
+## Python Skills
+
+Skills that bundle Python code use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Dependencies are managed in the root `pyproject.toml`.
+
+Required environment variables for specific skills:
+- `discussion-partners`: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`
+
+## License
+
+MIT

@@ -12,6 +12,7 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 | [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous task processing for Claude Code |
 | [hierarchical-memory](skills/hierarchical-memory/) | Python | ISO-timestamped notes aggregated into daily/weekly/overall summaries |
 | [mental-models](skills/mental-models/) | Prompt | Reasoning frameworks: inversion, second-order thinking, pre-mortems |
+| [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
 | [pdf-to-markdown](skills/pdf-to-markdown/) | Python | Convert PDFs to clean markdown using marker |
 | [ralph-loop](skills/ralph-loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
 | [senior-engineer](skills/senior-engineer/) | Prompt | Performance-first engineering principles and coding standards |

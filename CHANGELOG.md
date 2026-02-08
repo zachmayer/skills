@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 11 agent skills following the Agent Skills open standard
+- 12 agent skills following the Agent Skills open standard
 - Skills: ask-questions, concise-writing, discussion-partners, heartbeat,
-  hierarchical-memory, mental-models, pdf-to-markdown, ralph-loop,
+  hierarchical-memory, mental-models, obsidian, pdf-to-markdown, ralph-loop,
   senior-engineer, skill-stealer, ultra-think
+- Dependabot auto-merge workflow and grouped updates
 - CLAUDE.md for repo context
 - .claude-plugin/marketplace.json for Claude Code plugin registry
 - Makefile targets: install-local, uninstall-local, pull-external

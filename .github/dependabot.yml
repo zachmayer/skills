@@ -4,8 +4,13 @@
 version: 2
 updates:
   - package-ecosystem: "uv"
-    directory: "/" # Location of package manifests
+    directory: "/"
     schedule:
       interval: "weekly"
     reviewers:
-      - "eric-s-s"
+      - "zachmayer"
+    open-pull-requests-limit: 1
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"

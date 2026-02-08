@@ -2,45 +2,51 @@ SKILLS_DIR := skills
 INSTALL_DIR := $(HOME)/.claude/skills
 EXTERNAL_DIR := $(SKILLS_DIR)/.external
 
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
+.PHONY: help
+.DEFAULT_GOAL := help
+
+
 check-requirements:
 	uv --version
 .PHONY: check-requirements
 
 
-install: check-requirements
+install: check-requirements ## Install dependencies and pre-commit hooks
 	uv python install
 	uv sync --locked --all-groups
 	uv run pre-commit install
 .PHONY: install
 
 
-upgrade:
+upgrade: ## Upgrade all dependencies
 	uv lock --upgrade
 	uv run pre-commit autoupdate
 .PHONY: upgrade
 
 
-lint:
+lint: ## Run linters and formatters
 	uv run pre-commit run -a
 .PHONY: lint
 
 
-typecheck:
+typecheck: ## Run type checker
 	uv run ty check skills/ main/
 .PHONY: typecheck
 
 
-test:
+test: ## Run tests
 	uv run pytest
 .PHONY: test
 
 
-build:
+build: ## Build package
 	uv build
 .PHONY: build
 
 
-install-local:
+install-local: ## Symlink skills to ~/.claude/skills/
 	@echo "Installing skills to $(INSTALL_DIR)..."
 	@mkdir -p $(INSTALL_DIR)
 	@for skill_dir in $(SKILLS_DIR)/*/; do \
@@ -54,7 +60,7 @@ install-local:
 .PHONY: install-local
 
 
-uninstall-local:
+uninstall-local: ## Remove skills from ~/.claude/skills/
 	@echo "Removing skills from $(INSTALL_DIR)..."
 	@for skill_dir in $(SKILLS_DIR)/*/; do \
 		skill_name=$$(basename "$$skill_dir"); \
@@ -66,7 +72,7 @@ uninstall-local:
 .PHONY: uninstall-local
 
 
-pull-external:
+pull-external: ## Pull external skills from FUTURE_TOKENS
 	@mkdir -p $(EXTERNAL_DIR)
 	@echo "Pulling FUTURE_TOKENS skills..."
 	@if [ -d "/tmp/FUTURE_TOKENS" ]; then \

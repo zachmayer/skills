@@ -11,25 +11,16 @@ description: >
 
 Apply these in order. Each level beats micro-optimization at the level below it:
 
-1. **Eliminate > Optimize** - The fastest code is code that doesn't exist. Remove features, delete dead paths, simplify requirements before optimizing what remains.
-
-2. **Static > Dynamic** - Parse, don't execute. Resolve at compile/build time what you can. Config files over runtime computation. Types over runtime checks.
-
-3. **Strict > Permissive** - Reject bad input at the boundary. No fallback logic, no "best effort" parsing. Fail fast, fail loud.
-
-4. **Narrow > Broad** - Tight specs enable fast paths. A function that handles one case well beats a function that handles ten cases poorly.
-
-5. **First hit > Exhaustive** - Stop early. Return on first match. Short-circuit evaluation. Don't scan what you don't need.
-
-6. **Upfront > Reactive** - Resolve before acting. Validate inputs before processing. Plan before executing. Prefetch before needing.
-
-7. **Share > Copy** - One cache, not many. Hardlinks over copies. References over clones. Singleton over instance.
-
-8. **Parallel > Serial** - When there are no dependencies, run concurrently. I/O-bound work should never block.
-
-9. **Architecture > Language** - Dropping a feature beats rewriting in a faster language. Design changes beat micro-optimization.
-
-10. **Backward compatibility is a performance tax** - Every compatibility shim costs. Be deliberate about what you maintain.
+1. **Eliminate > Optimize** — fastest code doesn't exist
+2. **Static > Dynamic** — parse, don't execute
+3. **Strict > Permissive** — reject bad input, skip fallback logic
+4. **Narrow > Broad** — tight spec = fast path
+5. **First hit > Exhaustive** — stop early
+6. **Upfront > Reactive** — resolve before acting
+7. **Share > Copy** — one cache, hardlinks
+8. **Parallel > Serial** — when no dependency
+9. **Architecture > Language** — dropping features beats micro-optimization
+10. **Backward compatibility is a performance tax**
 
 ## Engineering Standards
 

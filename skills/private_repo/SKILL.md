@@ -4,7 +4,7 @@ description: >
   Create or connect a private GitHub repository for backing up sensitive local
   data (memory, notes, config). Use when another skill needs git-backed storage
   with a private remote, when the user mentions wanting to back up or sync
-  local data, or when you detect a ~/.claude directory without a remote.
+  local data, or when you detect a ~/claude directory without a remote.
   Do NOT use for public repos or code projects.
 allowed-tools: Bash(gh *), Bash(git *)
 ---
@@ -62,8 +62,8 @@ cd TARGET_DIR && git push
 
 This skill is called by other skills that need private remote storage:
 
-- **hierarchical_memory**: backs up `~/.claude/memory/` - suggest repo name `claude-memory-private`
-- **obsidian**: backs up `~/.claude/obsidian/` - suggest repo name `obsidian-vault-private`
+- **hierarchical_memory**: backs up `~/claude/memory/` - suggest repo name `claude-memory-private`
+- **obsidian**: backs up `~/claude/obsidian/` - suggest repo name `obsidian-vault-private`
 
 ## Important
 

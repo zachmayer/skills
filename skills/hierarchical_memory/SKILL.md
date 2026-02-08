@@ -8,7 +8,7 @@ description: >
 allowed-tools: Bash(uv run *), Bash(git *), Read, Write, Glob
 ---
 
-Manage notes in the hierarchical memory at `~/.claude/memory/`.
+Manage notes in the hierarchical memory at `~/claude/memory/`.
 
 ## Commands
 
@@ -44,7 +44,7 @@ Where `SKILL_DIR` is the directory containing this skill.
 ## File Structure
 
 ```
-~/.claude/memory/
+~/claude/memory/
 ├── memory.md           # Overall summary (aggregated)
 ├── 2026-W06.md         # Weekly summary
 ├── 2026-02-08.md       # Daily notes
@@ -57,17 +57,17 @@ Where `SKILL_DIR` is the directory containing this skill.
 After saving notes or aggregating, commit and push:
 
 ```bash
-cd ~/.claude/memory && git add -A && git commit -m "memory update" && git push 2>/dev/null; true
+cd ~/claude/memory && git add -A && git commit -m "memory update" && git push 2>/dev/null; true
 ```
 
 ### First-time setup
 ```bash
-mkdir -p ~/.claude/memory && cd ~/.claude/memory && git init
+mkdir -p ~/claude/memory && cd ~/claude/memory && git init
 ```
 
 ### Remote sync
 
-If no remote is configured, use the `private_repo` skill to create or connect a private GitHub repo for `~/.claude/memory/`.
+If no remote is configured, use the `private_repo` skill to create or connect a private GitHub repo for `~/claude/memory/`.
 
 ## When the User Asks
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import click
 
-MEMORY_DIR = Path.home() / ".claude" / "memory"
+MEMORY_DIR = Path.home() / "claude" / "memory"
 
 
 def daily_path(date: datetime | None = None) -> Path:

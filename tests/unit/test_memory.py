@@ -11,7 +11,11 @@ from click.testing import CliRunner
 # Import memory.py from the skill directory
 _spec = importlib.util.spec_from_file_location(
     "memory",
-    Path(__file__).resolve().parents[2] / "skills" / "hierarchical_memory" / "scripts" / "memory.py",
+    Path(__file__).resolve().parents[2]
+    / "skills"
+    / "hierarchical_memory"
+    / "scripts"
+    / "memory.py",
 )
 assert _spec is not None and _spec.loader is not None
 memory = importlib.util.module_from_spec(_spec)

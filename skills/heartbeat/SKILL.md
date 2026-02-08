@@ -15,8 +15,8 @@ Set up or manage a heartbeat for autonomous Claude Code task processing.
 ### 1. Create a task queue file
 
 ```bash
-mkdir -p ~/.claude/heartbeat
-cat > ~/.claude/heartbeat/tasks.md << 'EOF'
+mkdir -p ~/claude/heartbeat
+cat > ~/claude/heartbeat/tasks.md << 'EOF'
 # Heartbeat Tasks
 
 Tasks for Claude to process on each heartbeat cycle.
@@ -44,7 +44,7 @@ chmod +x SKILL_DIR/scripts/heartbeat.sh
 crontab -e
 
 # Add this line (runs every 15 minutes):
-*/15 * * * * SKILL_DIR/scripts/heartbeat.sh >> ~/.claude/heartbeat/heartbeat.log 2>&1
+*/15 * * * * SKILL_DIR/scripts/heartbeat.sh >> ~/claude/heartbeat/heartbeat.log 2>&1
 ```
 
 Adjust the interval as needed. Common intervals:
@@ -55,7 +55,7 @@ Adjust the interval as needed. Common intervals:
 
 ## Task Queue Format
 
-Edit `~/.claude/heartbeat/tasks.md`:
+Edit `~/claude/heartbeat/tasks.md`:
 
 ```markdown
 ## Pending
@@ -71,7 +71,7 @@ Edit `~/.claude/heartbeat/tasks.md`:
 
 ## Managing the Heartbeat
 
-- **Check status**: `cat ~/.claude/heartbeat/heartbeat.log | tail -20`
-- **Check tasks**: `cat ~/.claude/heartbeat/tasks.md`
+- **Check status**: `cat ~/claude/heartbeat/heartbeat.log | tail -20`
+- **Check tasks**: `cat ~/claude/heartbeat/tasks.md`
 - **Pause**: Comment out the cron entry with `#`
 - **Stop**: Remove the cron entry entirely

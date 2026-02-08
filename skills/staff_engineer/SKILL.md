@@ -1,10 +1,10 @@
 ---
-name: senior-engineer
+name: staff_engineer
 description: >
-  Write code like a senior engineer. Apply performance-first principles and
-  rigorous engineering standards. Use when writing production code, reviewing
-  architecture, or when quality and performance matter. Do NOT use for
-  quick prototypes, throwaway scripts, or exploration.
+  Apply performance-first principles and rigorous engineering standards.
+  Use when writing production code, reviewing architecture, optimizing
+  performance, or doing code review. Do NOT use for quick prototypes,
+  throwaway scripts, or exploration.
 ---
 
 ## Performance Hierarchy

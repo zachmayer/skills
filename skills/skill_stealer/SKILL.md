@@ -1,12 +1,12 @@
 ---
-name: skill-stealer
+name: skill_stealer
 description: >
   Extract a reusable agent skill from a URL (GitHub repo, blog post, tweet,
   or any source describing an AI workflow or prompt). Distills the core idea
   into a clean SKILL.md following the Agent Skills standard. Use when the user
-  shares a link and wants to turn it into an installable skill. Do NOT use
-  for general web browsing or research.
-disable-model-invocation: true
+  shares a link to a repo, skill, prompt, or workflow and you want to capture
+  its essence as a reusable skill. Also use when you encounter a useful
+  pattern that should be preserved. Do NOT use for general web browsing.
 ---
 
 Given $ARGUMENTS (a URL or description of a skill idea), extract and create a new skill:

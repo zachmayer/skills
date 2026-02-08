@@ -1,5 +1,5 @@
 ---
-name: pdf-to-markdown
+name: pdf_to_markdown
 description: >
   Convert PDF files to clean markdown using marker. Use when the user wants to
   extract text from a PDF, convert a PDF to markdown for processing, or needs

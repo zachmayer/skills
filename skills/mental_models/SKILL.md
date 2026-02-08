@@ -1,5 +1,5 @@
 ---
-name: mental-models
+name: mental_models
 description: >
   Apply mental models to reason about problems, decisions, and systems.
   Use when making architectural decisions, debugging complex issues, evaluating

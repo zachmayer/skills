@@ -3,8 +3,8 @@ name: heartbeat
 description: >
   Set up or run a cron-based heartbeat that periodically invokes Claude Code
   to check for and process pending tasks. Use when the user wants autonomous
-  periodic task processing. Do NOT use for one-time tasks or interactive work.
-disable-model-invocation: true
+  periodic task processing or asks about running Claude on a schedule.
+  Do NOT use for one-time tasks or interactive work.
 allowed-tools: Bash(*)
 ---
 

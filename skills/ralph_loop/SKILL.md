@@ -1,12 +1,12 @@
 ---
-name: ralph-loop
+name: ralph_loop
 description: >
   Execute an autonomous development loop: decompose a feature into right-sized
   tasks, implement one per iteration with fresh context, validate with tests,
   persist via git commits, and repeat until complete. Based on the Ralph pattern
-  (snarktank/ralph). Use when building a complete feature from a PRD or spec.
-  Do NOT use for single-task fixes, quick edits, or exploratory work.
-disable-model-invocation: true
+  (snarktank/ralph). Use when building a complete feature, working through a
+  PRD or spec, or tackling a multi-step implementation. Do NOT use for
+  single-task fixes or quick edits.
 ---
 
 Execute a Ralph-style autonomous development loop for: $ARGUMENTS

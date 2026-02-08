@@ -1,5 +1,5 @@
 ---
-name: ask-questions
+name: ask_questions
 description: >
   Structure your approach by asking clarifying questions before acting.
   Use when requirements are ambiguous, the task has multiple valid approaches,

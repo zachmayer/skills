@@ -1,5 +1,5 @@
 ---
-name: concise-writing
+name: concise_writing
 description: >
   Write clearly and concisely. Use when drafting documentation, messages,
   technical writing, READMEs, or any prose that should be tight and scannable.

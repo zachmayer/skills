@@ -60,19 +60,13 @@ Follow-up tasks are tracked in [[2026-02-08 TODO]].
 
 ## Git Integration
 
-After creating or modifying notes, commit changes:
+After creating or modifying notes, commit and push:
 
 ```bash
-cd ~/.claude/obsidian && git add -A && git commit -m "note: brief description of change"
+cd ~/.claude/obsidian && git add -A && git commit -m "note: brief description" && git push 2>/dev/null; true
 ```
 
 ### First-time setup
-
-```bash
-cd ~/.claude/obsidian && git init
-```
-
-If the vault directory does not exist yet, create it first:
 
 ```bash
 mkdir -p ~/.claude/obsidian && cd ~/.claude/obsidian && git init
@@ -80,18 +74,7 @@ mkdir -p ~/.claude/obsidian && cd ~/.claude/obsidian && git init
 
 ### Remote sync
 
-Encourage the user to set up a PRIVATE remote repository to back up their notes:
-
-```bash
-cd ~/.claude/obsidian && git remote add origin git@github.com:USER/obsidian-vault-private.git
-cd ~/.claude/obsidian && git push -u origin main
-```
-
-After setting up a remote, push after each commit:
-
-```bash
-cd ~/.claude/obsidian && git push
-```
+If no remote is configured, use the `private_repo` skill to create or connect a private GitHub repo for `~/.claude/obsidian/`.
 
 ## When the User Asks
 

@@ -1,5 +1,5 @@
 ---
-name: ultra-think
+name: ultra_think
 description: >
   Activate extended deep thinking before responding. Use when facing complex
   architectural decisions, subtle bugs, multi-step reasoning, or any task

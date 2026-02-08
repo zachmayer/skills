@@ -1,11 +1,11 @@
 ---
-name: discussion-partners
+name: discussion_partners
 description: >
   Ask a question to another AI model (OpenAI, Anthropic, or Google). Use when
-  you want a second opinion, need to compare model outputs, or want to delegate
-  a subtask to a different model. Do NOT use for tasks you can handle directly.
+  you want a second opinion, need to compare model outputs, want to delegate
+  a subtask to a specialized model, or want to cross-check your own reasoning.
+  Do NOT use for tasks you can handle directly.
 allowed-tools: Bash(uv run *)
-disable-model-invocation: true
 ---
 
 Query another AI model for input on the current task.

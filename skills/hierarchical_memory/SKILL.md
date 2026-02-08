@@ -1,5 +1,5 @@
 ---
-name: hierarchical-memory
+name: hierarchical_memory
 description: >
   Manage a simple hierarchical memory system stored as markdown files.
   Use when the user wants to save a note, recall past context, review
@@ -54,27 +54,20 @@ Where `SKILL_DIR` is the directory containing this skill.
 
 ## Git Integration
 
-After saving notes or aggregating, commit changes using git directly:
+After saving notes or aggregating, commit and push:
 
 ```bash
-cd ~/.claude/memory && git add -A && git commit -m "memory update"
+cd ~/.claude/memory && git add -A && git commit -m "memory update" && git push 2>/dev/null; true
 ```
 
 ### First-time setup
 ```bash
-cd ~/.claude/memory && git init
+mkdir -p ~/.claude/memory && cd ~/.claude/memory && git init
 ```
 
-### Remote sync (optional, use a PRIVATE repo)
-```bash
-cd ~/.claude/memory && git remote add origin git@github.com:USER/claude-memory-private.git
-cd ~/.claude/memory && git push -u origin main
-```
+### Remote sync
 
-After setting up a remote, push after each commit:
-```bash
-cd ~/.claude/memory && git push
-```
+If no remote is configured, use the `private_repo` skill to create or connect a private GitHub repo for `~/.claude/memory/`.
 
 ## When the User Asks
 

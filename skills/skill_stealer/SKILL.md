@@ -80,7 +80,7 @@ Apply the [Agent Skills Best Practices](https://platform.claude.com/docs/en/agen
 **Checklist**:
 - Description uses WHEN/WHEN NOT pattern
 - Instructions are actionable, not philosophical
-- Under 200 lines for SKILL.md (split into reference files if needed)
+- Under 500 lines for SKILL.md (split into reference files if needed)
 - Name is kebab-case, memorable, and descriptive
 - No time-sensitive information
 

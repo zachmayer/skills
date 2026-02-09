@@ -24,11 +24,10 @@ Notes are plain markdown files. Use `[[Note Title]]` wiki-links to connect relat
 ├── todo/                # TODO lists
 │   ├── human.md         # Tasks requiring human action
 │   └── claude.md        # Tasks Claude can do autonomously
-├── Zach/                # Personal knowledge (curated, durable)
-│   ├── Work/
-│   ├── Technical/
-│   ├── Personal/
-│   └── Interests/
+├── personal/            # Personal knowledge (curated, durable)
+│   ├── work/
+│   ├── technical/
+│   └── interests/
 └── ...                  # Other topic notes
 ```
 

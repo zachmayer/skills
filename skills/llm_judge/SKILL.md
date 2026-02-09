@@ -35,7 +35,8 @@ One narrow, specific failure mode:
 Use the `discussion_partners` skill to send the judge prompt to an external model:
 
 ```bash
-uv run --directory DISCUSSION_PARTNERS_SKILL_DIR python scripts/ask_model.py -p openai "$(cat <<'EOF'
+# SKILL_DIR below refers to the discussion_partners skill directory
+uv run --directory SKILL_DIR python scripts/ask_model.py -p openai "$(cat <<'EOF'
 You are evaluating an AI response for [CRITERION].
 
 Context: [what the AI was asked to do]
@@ -69,7 +70,3 @@ Other skills (like `prompt_evolution`) can use this pattern by:
 1. Defining their specific criterion
 2. Launching a sub-agent that sends the judge prompt via `discussion_partners`
 3. Parsing the PASS/FAIL result from the response
-
-## Key Insight
-
-Building a judge forces you to look at your data and articulate what quality means. The judge itself is secondary — the clarity it forces is the real value.

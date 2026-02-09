@@ -1,51 +1,77 @@
 ---
 name: discussion_partners
 description: >
-  Ask a question to another AI model (OpenAI, Anthropic, or Google). Use when
-  you want a second opinion, need to compare model outputs, want to delegate
-  a subtask to a specialized model, or want to cross-check your own reasoning.
-  Do NOT use for tasks you can handle directly.
+  Ask a question to another AI model (OpenAI, Anthropic, or Google) with
+  extended thinking enabled. Use when you are stuck on a difficult problem,
+  suspect you are spinning your wheels, or sense there is an angle you have
+  not considered. Do NOT use for routine tasks you can handle directly.
 allowed-tools: Bash(uv run *)
 ---
 
-Query another AI model for input on the current task.
+Query another AI model for an outside perspective on a difficult problem.
+
+## Why This Exists
+
+Different models have different strengths. When you hit a wall — circling the same approaches, missing subtle interactions, or unable to see past your own framing — an outside perspective from a model with a different architecture and training can break the deadlock.
+
+This is not delegation. This is consultation: you send one message, you get one message back. Make it count.
+
+## Recommended Model
+
+**GPT-5.2 with xhigh thinking** (`--provider openai`) is the default and recommended discussion partner. It has exceptional attention to detail and a strong ability to detect subtle interactions and dependencies that can be difficult to spot from inside a problem. Use it when:
+
+- You suspect a bug has a non-obvious root cause
+- You are going in circles on an architectural decision
+- You need someone to poke holes in your reasoning
+- A problem has interacting constraints that are hard to hold in your head simultaneously
+
+The other providers (Anthropic, Google) are available for comparison or when you want multiple perspectives.
+
+## Framing Your Question
+
+You get **one message out and one message back**. There is no follow-up. This means your question must be self-contained:
+
+1. **Include all relevant context**: code snippets, error messages, constraints, what you have tried
+2. **State what you are stuck on**: not just "help me with X" but "I have tried A, B, C and none work because D"
+3. **Ask a specific question**: "What am I missing?" or "Is there an interaction between X and Y I am not seeing?"
+4. **Set the frame**: tell it what kind of answer you need (a diagnosis, an alternative approach, a code review, etc.)
+
+Bad: "How do I fix this auth bug?"
+Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 instead of 401. I have verified the token validation logic is correct and the error handler is registered. The 500 comes from [stack trace]. What could cause the error handler to be bypassed?"
 
 ## Usage
 
 ```bash
-uv run --directory SKILL_DIR python scripts/ask_model.py --provider <provider> --model <model> "Your question here"
+uv run --directory SKILL_DIR python scripts/ask_model.py --provider <provider> "Your detailed question with full context"
 ```
 
 Where `SKILL_DIR` is the directory containing this skill.
 
 ## Providers and Models
 
-### OpenAI (requires OPENAI_API_KEY)
+All providers default to their best thinking model with maximum thinking effort.
+
+### OpenAI (requires OPENAI_API_KEY) — Recommended
 ```bash
-uv run ... --provider openai --model gpt-4o "question"
-uv run ... --provider openai --model o1 "question"
+# GPT-5.2 with xhigh reasoning (default)
+uv run --directory SKILL_DIR python scripts/ask_model.py -p openai "question"
 ```
 
 ### Anthropic (requires ANTHROPIC_API_KEY)
 ```bash
-uv run ... --provider anthropic --model claude-sonnet-4-20250514 "question"
+# Claude Opus 4.6 with adaptive thinking at max effort
+uv run --directory SKILL_DIR python scripts/ask_model.py -p anthropic "question"
 ```
 
 ### Google (requires GOOGLE_API_KEY)
 ```bash
-uv run ... --provider google --model gemini-2.0-flash "question"
+# Gemini 2.5 Pro with thinking enabled
+uv run --directory SKILL_DIR python scripts/ask_model.py -p google "question"
 ```
 
 ## Options
 
 - `--provider` / `-p`: openai, anthropic, or google
-- `--model` / `-m`: Model name (provider-specific)
-- `--system` / `-s`: Optional system prompt
-- `--max-tokens`: Max response tokens (default: 4096)
-
-## When to Use
-
-- Getting a second opinion on architectural decisions
-- Comparing how different models approach a problem
-- Delegating specialized tasks (e.g., use o1 for math-heavy reasoning)
-- Cross-checking your own analysis
+- `--model` / `-m`: Override model name (defaults to best thinking model per provider)
+- `--system` / `-s`: Optional system prompt override
+- `--thinking` / `--no-thinking`: Toggle extended thinking (default: on)

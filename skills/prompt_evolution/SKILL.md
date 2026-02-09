@@ -23,11 +23,20 @@ Define before starting:
 
 ### 2. Generate variants
 
-Launch parallel sub-agents, each using `discussion_partners` to generate a prompt variant:
+Launch parallel sub-agents, each using `discussion_partners` to produce one variant. Apply two genetic operators:
 
-> Here is a prompt: [SEED]. Generate a variant that might perform better at [CRITERION]. Change the structure, wording, emphasis, or approach — but preserve the core intent. Return ONLY the new prompt text, nothing else.
+**Mutation** (always): Literally change words in the prompt. Swap synonyms, delete filler, add specificity, reorder sentences, strengthen or weaken qualifiers. Each mutation should change 1-5 words or phrases — small, targeted edits, not wholesale rewrites.
 
-For generation 1, all variants mutate from the seed. For later generations, also recombine: give the sub-agent the top 2 prompts and ask it to combine their strengths.
+> Here is a prompt: [SEED]. Mutate it: change 1-5 specific words or phrases to potentially improve [CRITERION]. Keep the core intent. Return ONLY the new prompt text.
+
+**Crossover** (generation 2+): Literally splice sections from two parent prompts. Split each parent into numbered sections (by paragraph or logical block), then take section 1 from parent A, section 2 from parent B, etc. — producing a child that inherits concrete text from both parents.
+
+> Here are two prompts that scored well:
+> Parent A: [PROMPT_A]
+> Parent B: [PROMPT_B]
+> Split each into sections. Combine: take some sections from A and some from B to create a child prompt. Then apply 1-3 word-level mutations. Return ONLY the new prompt text.
+
+For generation 1, all variants mutate from the seed. For later generations, half the population uses crossover from the top 2 parents, half uses mutation from a random survivor.
 
 ### 3. Score each variant
 

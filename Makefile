@@ -24,10 +24,12 @@ install-settings: ## Copy settings template to ~/.claude/settings.json
 .PHONY: install-settings
 
 
-install: check-requirements install-settings ## Install dependencies, settings, and pre-commit hooks
+install: check-requirements install-settings ## Install dependencies, settings, skills, and hooks
 	uv python install
 	uv sync --locked --all-groups
 	uv run pre-commit install
+	$(MAKE) pull-external
+	$(MAKE) install-local
 .PHONY: install
 
 

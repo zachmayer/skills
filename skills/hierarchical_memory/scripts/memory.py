@@ -88,53 +88,5 @@ def search(query: str) -> None:
         click.echo(f"No matches for '{query}'")
 
 
-@cli.command()
-def aggregate() -> None:
-    """Aggregate daily notes into monthly summaries and overall memory."""
-    daily_files = sorted(MEMORY_DIR.glob("????-??-??.md"))
-
-    if not daily_files:
-        click.echo("No daily notes to aggregate.")
-        return
-
-    # Group by month
-    months: dict[str, list[Path]] = {}
-    for df in daily_files:
-        date_str = df.stem
-        date = datetime.strptime(date_str, "%Y-%m-%d")
-        month_key = date.strftime("%Y-%m")
-        months.setdefault(month_key, []).append(df)
-
-    # Write monthly summaries
-    for month_key, files in months.items():
-        mp = MEMORY_DIR / f"{month_key}.md"
-        lines = [f"# Month {month_key}\n\n"]
-        for f in sorted(files):
-            content = f.read_text().strip()
-            note_lines = content.splitlines()
-            if note_lines and note_lines[0].startswith("# "):
-                note_lines = note_lines[1:]
-            if note_lines:
-                lines.append(f"## {f.stem}\n\n")
-                lines.extend(line + "\n" for line in note_lines if line.strip())
-                lines.append("\n")
-        mp.write_text("".join(lines))
-        click.echo(f"Updated {mp}")
-
-    # Write overall memory
-    overall = MEMORY_DIR / "memory.md"
-    lines = ["# Memory\n\n"]
-    lines.append(f"Last aggregated: {datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}\n\n")
-
-    for month_key in sorted(months.keys(), reverse=True):
-        mp = MEMORY_DIR / f"{month_key}.md"
-        if mp.exists():
-            content = mp.read_text().strip()
-            lines.append(content + "\n\n---\n\n")
-
-    overall.write_text("".join(lines))
-    click.echo(f"Updated {overall}")
-
-
 if __name__ == "__main__":
     cli()

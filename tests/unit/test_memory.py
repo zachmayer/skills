@@ -99,22 +99,3 @@ class TestSearchCommand:
 
     def test_no_matches(self, mem_dir: Path) -> None:
         assert "No matches" in CliRunner().invoke(memory.cli, ["search", "nothing"]).output
-
-
-class TestAggregateCommand:
-    def test_creates_monthly_and_overall(self, mem_dir: Path) -> None:
-        (mem_dir / "2026-01-12.md").write_text("# Notes for 2026-01-12\n\n- monday\n")
-        (mem_dir / "2026-01-13.md").write_text("# Notes for 2026-01-13\n\n- tuesday\n")
-        result = CliRunner().invoke(memory.cli, ["aggregate"])
-        assert result.exit_code == 0
-
-        monthly = list(mem_dir.glob("????-??.md"))
-        assert len(monthly) == 1
-        assert "monday" in monthly[0].read_text()
-
-        overall = mem_dir / "memory.md"
-        assert overall.exists()
-        assert "# Memory" in overall.read_text()
-
-    def test_no_daily_notes(self, mem_dir: Path) -> None:
-        assert "No daily notes" in CliRunner().invoke(memory.cli, ["aggregate"]).output

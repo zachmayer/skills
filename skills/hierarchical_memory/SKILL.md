@@ -29,12 +29,6 @@ uv run --directory SKILL_DIR python scripts/memory.py show YYYY-MM-DD
 uv run --directory SKILL_DIR python scripts/memory.py show YYYY-MM
 ```
 
-### Aggregate daily notes into monthly and overall summaries
-```bash
-uv run --directory SKILL_DIR python scripts/memory.py aggregate
-```
-Rolls up daily notes into monthly summaries (`YYYY-MM.md`) and an overall `memory.md`.
-
 ### Search notes
 ```bash
 uv run --directory SKILL_DIR python scripts/memory.py search "query"
@@ -46,15 +40,13 @@ Where `SKILL_DIR` is the directory containing this skill.
 
 ```
 ~/claude/memory/
-├── memory.md           # Overall summary (aggregated from monthly)
+├── memory.md           # Overall working memory (synthesized from monthly)
 ├── 2026-02.md          # Monthly summary (sortable YYYY-MM)
-├── 2026-02-08.md       # Daily notes
+├── 2026-02-08.md       # Daily notes (append-only)
 └── ...
 ```
 
 ## Memory Hierarchy
-
-Each level serves a distinct purpose:
 
 | Level | Purpose | Freedom |
 |-------|---------|---------|
@@ -65,19 +57,25 @@ Each level serves a distinct purpose:
 
 ## Aggregation
 
-The `aggregate` command does a mechanical rollup. For intelligent summarization, use a sub-agent.
+Aggregation is done by launching sub-agents, not by a mechanical script. This gives the model freedom to filter noise, compress events, and apply last-write-wins for facts.
 
-### Monthly summary sub-agent
+### Monthly summary
 
-Launch a sub-agent to read all daily files for a month and write the monthly summary:
+Launch a sub-agent with this prompt:
 
-> Read all daily notes in `~/claude/memory/` for YYYY-MM. Write a monthly summary to `~/claude/memory/YYYY-MM.md`. Include: key decisions, important events, learnings, and any facts that changed (new job, new tools, new preferences). Drop noise (test notes, trivial observations, routine operations). Organize by theme, not by date. Keep it concise.
+> Read all daily notes in `~/claude/memory/` for YYYY-MM. Write a monthly summary to `~/claude/memory/YYYY-MM.md`. Include: key decisions, important events, learnings, and any facts that changed (new job, new tools, new preferences). Drop noise (test notes, trivial observations, routine operations). Organize by theme, not by date. More recent notes take priority over older ones. Keep it concise.
 
-### Overall memory sub-agent
+### Overall working memory
 
-Launch a sub-agent to read all monthly summaries and write the overall memory:
+Launch a sub-agent with this prompt:
 
 > Read all monthly summaries in `~/claude/memory/` chronologically. Write `~/claude/memory/memory.md` as a current-state working memory. Rules: (1) Facts use last-write-wins — if the user changed jobs, reflect only the current employer. (2) Key learnings and preferences persist across time. (3) Events compress — keep milestones, drop details. (4) The result should read like a living profile: "here is what I know about this user and their world right now." Not a changelog.
+
+### When to aggregate
+
+- After a significant session (many notes added)
+- When the user asks to summarize recent work
+- Periodically via the `heartbeat` skill
 
 ## Git Integration
 
@@ -100,4 +98,4 @@ If no remote is configured, use the `private_repo` skill to create or connect a 
 
 - "Remember this..." or "Save this..." -> Use the `note` command, then git commit
 - "What did we discuss..." or "What do you know about..." -> Use `search` or `show`
-- "Summarize recent work..." -> Use `aggregate` then read memory.md
+- "Summarize recent work..." -> Run monthly then overall aggregation sub-agents, then read memory.md

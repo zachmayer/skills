@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Bash(echo *)",
       "Bash(git *)",
       "Bash(gh --help*)",
       "Bash(gh help *)",

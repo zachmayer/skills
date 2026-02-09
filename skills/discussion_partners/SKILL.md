@@ -74,4 +74,3 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -p google "question"
 - `--provider` / `-p`: openai, anthropic, or google
 - `--model` / `-m`: Override model name (defaults to best thinking model per provider)
 - `--system` / `-s`: Optional system prompt override
-- `--thinking` / `--no-thinking`: Toggle extended thinking (default: on)

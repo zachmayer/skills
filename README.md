@@ -7,17 +7,21 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 | Skill | Type | Description |
 |-------|------|-------------|
 | [ask_questions](skills/ask_questions/) | Prompt | Structured questioning framework: clarify before acting |
+| [beast_mode](skills/beast_mode/) | Prompt | Autonomous problem-solving with deep research and iteration |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
-| [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
+| [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models via pydantic-ai |
+| [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
+| [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous task processing for Claude Code |
-| [hierarchical_memory](skills/hierarchical_memory/) | Python | ISO-timestamped notes aggregated into daily/weekly/overall summaries |
-| [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, second-order thinking, pre-mortems |
+| [hierarchical_memory](skills/hierarchical_memory/) | Python | Notes aggregated into daily/weekly/monthly/overall summaries |
+| [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems |
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
 | [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown using marker |
-| [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for sensitive data like memory or notes |
+| [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for sensitive data |
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
-| [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
 | [skill_stealer](skills/skill_stealer/) | Prompt | Extract skills from URLs (repos, tweets, blog posts) into SKILL.md format |
+| [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
 | [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
 
 ## Install
@@ -56,8 +60,10 @@ make install-local  # Link everything including external skills
 Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
+make help      # Show all available targets
 make install   # Install Python + deps + pre-commit hooks
 make lint      # Run ruff linting and formatting
+make typecheck # Run ty type checker
 make test      # Run pytest
 make upgrade   # Upgrade all dependencies
 ```
@@ -95,7 +101,7 @@ Use the `/skill_stealer` skill to extract skills from URLs automatically.
 Skills that bundle Python code use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Dependencies are managed in the root `pyproject.toml`.
 
 Required environment variables for specific skills:
-- `discussion_partners`: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`
+- `discussion_partners`: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GOOGLE_API_KEY`
 
 ## License
 

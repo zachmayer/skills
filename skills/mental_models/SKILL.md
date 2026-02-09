@@ -39,6 +39,12 @@ When analyzing the problem, select and apply the most relevant mental models fro
 
 **Pre-Mortem** - Imagine the project failed. What went wrong? Fix those things now.
 
+## Design & Communication
+
+**Pattern Language** (Christopher Alexander) - Solutions to recurring problems exist as interconnected patterns. Name them. A pattern has: context, problem, forces in tension, solution, consequences. Good architecture is a network of patterns that reinforce each other.
+
+**Small Multiples** (Edward Tufte) - Show the same data structure repeated with one variable changed. Enables comparison without cognitive load. Works for charts, UI states, code examples, test cases. "At the heart of quantitative reasoning is a single question: Compared to what?"
+
 ## Application
 
 When applying a model:

@@ -40,9 +40,9 @@ class TestDailyPath:
         assert memory.daily_path(datetime(2026, 1, 15)).name == "2026-01-15.md"
 
 
-class TestWeeklyPath:
+class TestMonthlyPath:
     def test_specific_date(self) -> None:
-        assert memory.weekly_path(datetime(2026, 1, 15)).name == "2026-W03.md"
+        assert memory.monthly_path(datetime(2026, 1, 15)).name == "2026-01.md"
 
 
 class TestNoteCommand:
@@ -102,15 +102,15 @@ class TestSearchCommand:
 
 
 class TestAggregateCommand:
-    def test_creates_weekly_and_overall(self, mem_dir: Path) -> None:
+    def test_creates_monthly_and_overall(self, mem_dir: Path) -> None:
         (mem_dir / "2026-01-12.md").write_text("# Notes for 2026-01-12\n\n- monday\n")
         (mem_dir / "2026-01-13.md").write_text("# Notes for 2026-01-13\n\n- tuesday\n")
         result = CliRunner().invoke(memory.cli, ["aggregate"])
         assert result.exit_code == 0
 
-        weekly = list(mem_dir.glob("????-W??.md"))
-        assert len(weekly) == 1
-        assert "monday" in weekly[0].read_text()
+        monthly = list(mem_dir.glob("????-??.md"))
+        assert len(monthly) == 1
+        assert "monday" in monthly[0].read_text()
 
         overall = mem_dir / "memory.md"
         assert overall.exists()

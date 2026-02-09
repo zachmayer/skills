@@ -16,17 +16,16 @@ def daily_path(date: datetime | None = None) -> Path:
     return MEMORY_DIR / f"{date.strftime('%Y-%m-%d')}.md"
 
 
-def weekly_path(date: datetime | None = None) -> Path:
-    """Get the path for a weekly summary file."""
+def monthly_path(date: datetime | None = None) -> Path:
+    """Get the path for a monthly summary file."""
     if date is None:
         date = datetime.now()
-    year, week, _ = date.isocalendar()
-    return MEMORY_DIR / f"{year}-W{week:02d}.md"
+    return MEMORY_DIR / f"{date.strftime('%Y-%m')}.md"
 
 
 @click.group()
 def cli() -> None:
-    """Hierarchical memory: daily notes, weekly summaries, overall memory."""
+    """Hierarchical memory: daily notes, monthly summaries, overall memory."""
     MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -60,7 +59,7 @@ def today() -> None:
 @cli.command()
 @click.argument("date_str")
 def show(date_str: str) -> None:
-    """Show notes for a specific date (YYYY-MM-DD) or week (YYYY-WXX)."""
+    """Show notes for a specific date (YYYY-MM-DD) or month (YYYY-MM)."""
     path = MEMORY_DIR / f"{date_str}.md"
     if path.exists():
         click.echo(path.read_text())
@@ -91,26 +90,25 @@ def search(query: str) -> None:
 
 @cli.command()
 def aggregate() -> None:
-    """Aggregate daily notes into weekly summaries and overall memory."""
+    """Aggregate daily notes into monthly summaries and overall memory."""
     daily_files = sorted(MEMORY_DIR.glob("????-??-??.md"))
 
     if not daily_files:
         click.echo("No daily notes to aggregate.")
         return
 
-    # Group by week
-    weeks: dict[str, list[Path]] = {}
+    # Group by month
+    months: dict[str, list[Path]] = {}
     for df in daily_files:
         date_str = df.stem
         date = datetime.strptime(date_str, "%Y-%m-%d")
-        year, week, _ = date.isocalendar()
-        week_key = f"{year}-W{week:02d}"
-        weeks.setdefault(week_key, []).append(df)
+        month_key = date.strftime("%Y-%m")
+        months.setdefault(month_key, []).append(df)
 
-    # Write weekly summaries
-    for week_key, files in weeks.items():
-        wp = MEMORY_DIR / f"{week_key}.md"
-        lines = [f"# Week {week_key}\n\n"]
+    # Write monthly summaries
+    for month_key, files in months.items():
+        mp = MEMORY_DIR / f"{month_key}.md"
+        lines = [f"# Month {month_key}\n\n"]
         for f in sorted(files):
             content = f.read_text().strip()
             note_lines = content.splitlines()
@@ -120,18 +118,18 @@ def aggregate() -> None:
                 lines.append(f"## {f.stem}\n\n")
                 lines.extend(line + "\n" for line in note_lines if line.strip())
                 lines.append("\n")
-        wp.write_text("".join(lines))
-        click.echo(f"Updated {wp}")
+        mp.write_text("".join(lines))
+        click.echo(f"Updated {mp}")
 
     # Write overall memory
     overall = MEMORY_DIR / "memory.md"
     lines = ["# Memory\n\n"]
     lines.append(f"Last aggregated: {datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}\n\n")
 
-    for week_key in sorted(weeks.keys(), reverse=True):
-        wp = MEMORY_DIR / f"{week_key}.md"
-        if wp.exists():
-            content = wp.read_text().strip()
+    for month_key in sorted(months.keys(), reverse=True):
+        mp = MEMORY_DIR / f"{month_key}.md"
+        if mp.exists():
+            content = mp.read_text().strip()
             lines.append(content + "\n\n---\n\n")
 
     overall.write_text("".join(lines))

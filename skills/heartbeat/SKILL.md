@@ -12,7 +12,7 @@ Set up or manage a heartbeat for autonomous Claude Code task processing.
 
 ## Setup
 
-### 1. Create a task queue file
+### 1. Create the heartbeat directory
 
 ```bash
 mkdir -p ~/claude/heartbeat
@@ -20,7 +20,6 @@ cat > ~/claude/heartbeat/tasks.md << 'EOF'
 # Heartbeat Tasks
 
 Tasks for Claude to process on each heartbeat cycle.
-Add tasks below. Mark completed tasks with [x].
 
 ## Pending
 
@@ -31,29 +30,16 @@ Add tasks below. Mark completed tasks with [x].
 EOF
 ```
 
-### 2. Install the heartbeat script
+### 2. Add a cron entry
 
 ```bash
-chmod +x SKILL_DIR/scripts/heartbeat.sh
+# Add heartbeat cron (runs every 4 hours)
+(crontab -l 2>/dev/null; echo "0 */4 * * * SKILL_DIR/scripts/heartbeat.sh >> ~/claude/heartbeat/heartbeat.log 2>&1") | crontab -
 ```
 
-### 3. Add a cron entry
+Verify with `crontab -l`.
 
-```bash
-# Edit crontab
-crontab -e
-
-# Add this line (runs every 15 minutes):
-*/15 * * * * SKILL_DIR/scripts/heartbeat.sh >> ~/claude/heartbeat/heartbeat.log 2>&1
-```
-
-Adjust the interval as needed. Common intervals:
-- `*/5 * * * *` - Every 5 minutes (aggressive)
-- `*/15 * * * *` - Every 15 minutes (balanced)
-- `0 * * * *` - Every hour (conservative)
-- `0 9,12,17 * * *` - 9am, noon, 5pm (business hours)
-
-## Task Queue Format
+## Task Queue
 
 Edit `~/claude/heartbeat/tasks.md`:
 
@@ -62,16 +48,27 @@ Edit `~/claude/heartbeat/tasks.md`:
 
 - [ ] Check for new issues in zachmayer/myrepo and triage them
 - [ ] Review open PRs that have been waiting more than 24 hours
-- [ ] Run the test suite and report any failures
 
 ## Completed
 
 - [x] 2026-02-08T10:15: Updated dependencies in project-alpha
 ```
 
-## Managing the Heartbeat
+## Managing
 
-- **Check status**: `cat ~/claude/heartbeat/heartbeat.log | tail -20`
+- **Check log**: `tail -20 ~/claude/heartbeat/heartbeat.log`
 - **Check tasks**: `cat ~/claude/heartbeat/tasks.md`
-- **Pause**: Comment out the cron entry with `#`
-- **Stop**: Remove the cron entry entirely
+- **Pause**: `crontab -l | sed 's|^|#|' | crontab -`
+- **Stop**: `crontab -l | grep -v heartbeat | crontab -`
+
+## Git Integration
+
+After the heartbeat processes tasks, commit and push:
+
+```bash
+cd ~/claude/heartbeat && git add -A && git commit -m "heartbeat update" && git push 2>/dev/null; true
+```
+
+### Remote sync
+
+If no remote is configured, use the `private_repo` skill to create or connect a private GitHub repo for `~/claude/heartbeat/`.

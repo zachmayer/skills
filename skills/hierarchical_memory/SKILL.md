@@ -23,16 +23,17 @@ Appends an ISO-timestamped entry to today's daily file (`YYYY-MM-DD.md`).
 uv run --directory SKILL_DIR python scripts/memory.py today
 ```
 
-### View notes for a specific date
+### View notes for a specific date or month
 ```bash
 uv run --directory SKILL_DIR python scripts/memory.py show YYYY-MM-DD
+uv run --directory SKILL_DIR python scripts/memory.py show YYYY-MM
 ```
 
-### Aggregate daily notes into weekly and overall summaries
+### Aggregate daily notes into monthly and overall summaries
 ```bash
 uv run --directory SKILL_DIR python scripts/memory.py aggregate
 ```
-Rolls up daily notes into weekly summaries (`YYYY-WXX.md`) and an overall `memory.md`.
+Rolls up daily notes into monthly summaries (`YYYY-MM.md`) and an overall `memory.md`.
 
 ### Search notes
 ```bash
@@ -45,12 +46,19 @@ Where `SKILL_DIR` is the directory containing this skill.
 
 ```
 ~/claude/memory/
-├── memory.md           # Overall summary (aggregated)
-├── 2026-W06.md         # Weekly summary
+├── memory.md           # Overall summary (aggregated from monthly)
+├── 2026-02.md          # Monthly summary (sortable YYYY-MM)
 ├── 2026-02-08.md       # Daily notes
-├── 2026-02-07.md
 └── ...
 ```
+
+## Aggregation Strategy
+
+Use sub-agents for aggregation to keep context windows clean:
+
+1. **Daily → Monthly**: Run `aggregate` command to roll up daily notes into monthly summaries
+2. **Monthly → Overall memory**: The `aggregate` command builds `memory.md` from monthly summaries
+3. **Working memory review**: Periodically launch a sub-agent to read all notes and produce a concise working memory summary
 
 ## Git Integration
 

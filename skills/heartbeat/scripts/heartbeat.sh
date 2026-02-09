@@ -2,7 +2,7 @@
 # Heartbeat: Periodically invoke Claude Code to process pending tasks.
 set -euo pipefail
 
-TASKS_FILE="${CLAUDE_HEARTBEAT_TASKS:-$HOME/claude/heartbeat/tasks.md}"
+TASKS_FILE="${CLAUDE_HEARTBEAT_TASKS:-$HOME/claude/obsidian/heartbeat/tasks.md}"
 LOCK_FILE="/tmp/claude-heartbeat.lock"
 LOG_PREFIX="[$(date -u +%Y-%m-%dT%H:%M:%SZ)]"
 

@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Hierarchical memory management stored as markdown files."""
 
+import os
 from datetime import datetime
 from pathlib import Path
 
 import click
 
-MEMORY_DIR = Path.home() / "claude" / "memory"
+MEMORY_DIR = Path(
+    os.environ.get("CLAUDE_MEMORY_DIR", str(Path.home() / "claude" / "obsidian" / "memory"))
+)
 
 
 def daily_path(date: datetime | None = None) -> Path:

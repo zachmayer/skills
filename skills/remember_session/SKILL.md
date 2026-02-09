@@ -1,7 +1,7 @@
 ---
 name: remember_session
 description: >
-  Review the current session and persist what matters to memory and obsidian.
+  Review the current session and persist what matters to the obsidian vault.
   Use at the end of a work session, when the user says "remember this session",
   "take notes", or "save what we did". Do NOT use mid-session.
 allowed-tools: Bash(uv run *), Bash(git *), Read, Write, Glob, Grep
@@ -46,11 +46,11 @@ Save one note per distinct topic that isn't already in today's file. Include:
 
 Be specific. "Updated auth" is useless. "Replaced JWT middleware with session cookies because latency was too high on mobile" is useful.
 
-### 4. Save big-picture items to obsidian
+### 4. Save big-picture items to obsidian notes
 
-If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in obsidian using the `obsidian` skill.
+If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in `~/claude/obsidian/` using the `obsidian` skill.
 
-Daily work does NOT go to obsidian. Only durable knowledge: project descriptions, design decisions, reference material, personal facts.
+Daily work goes to `memory/` subdirectory via hierarchical_memory. Durable knowledge goes to topic notes in the vault root or `Zach/` subdirectories.
 
 ### 5. Aggregate memory
 
@@ -58,9 +58,8 @@ Run the monthly and overall memory aggregation sub-agents from the `hierarchical
 
 ### 6. Commit and push
 
-Use `git -C` to avoid `cd` (matches the `Bash(git *)` permission):
+Everything is in the obsidian vault now — one commit covers both memory and notes:
 
 ```bash
-git -C ~/claude/memory add -A && git -C ~/claude/memory commit -m "memory update" && git -C ~/claude/memory push
-git -C ~/claude/obsidian add -A && git -C ~/claude/obsidian commit -m "notes update" && git -C ~/claude/obsidian push
+git -C ~/claude/obsidian add -A && git -C ~/claude/obsidian commit -m "session update" && git -C ~/claude/obsidian push
 ```

@@ -11,10 +11,32 @@ Manage notes in the Obsidian vault at `~/claude/obsidian/`.
 
 Notes are plain markdown files. Use `[[Note Title]]` wiki-links to connect related notes (matching filename without `.md`).
 
+## Vault Structure
+
+```
+~/claude/obsidian/
+├── memory/              # Hierarchical memory (managed by hierarchical_memory skill)
+│   ├── memory.md        # Overall working memory
+│   ├── 2026-02.md       # Monthly summaries
+│   └── 2026-02-08.md    # Daily notes (append-only)
+├── heartbeat/           # Autonomous task queue
+│   └── tasks.md
+├── todo/                # TODO lists
+│   ├── human.md         # Tasks requiring human action
+│   └── claude.md        # Tasks Claude can do autonomously
+├── Zach/                # Personal knowledge (curated, durable)
+│   ├── Work/
+│   ├── Technical/
+│   ├── Personal/
+│   └── Interests/
+└── ...                  # Other topic notes
+```
+
 ## Conventions
 
 - Use descriptive filenames as note titles
 - Add `[[wiki-links]]` to reference related notes
-- Organize with subdirectories (e.g. `projects/`, `daily/`)
+- Memory files in `memory/` are managed by the `hierarchical_memory` skill — don't edit directly
+- Curated knowledge goes in topic directories; daily work goes in `memory/`
 - After changes, commit with `git -C ~/claude/obsidian add -A && git -C ~/claude/obsidian commit -m "note: description" && git -C ~/claude/obsidian push`
 - If no remote is configured, use the `private_repo` skill to set one up

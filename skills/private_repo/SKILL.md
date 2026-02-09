@@ -63,7 +63,7 @@ cd TARGET_DIR && git push
 This skill is called by other skills that need private remote storage:
 
 - **hierarchical_memory**: backs up `~/claude/memory/` - suggest repo name `claude-memory-private`
-- **obsidian**: backs up `~/claude/obsidian/` - suggest repo name `obsidian-vault-private`
+- **obsidian**: backs up `~/claude/obsidian/` - repo name `obsidian-vault-private`
 
 ## Important
 

@@ -52,13 +52,32 @@ Where `SKILL_DIR` is the directory containing this skill.
 └── ...
 ```
 
-## Aggregation Strategy
+## Memory Hierarchy
 
-Use sub-agents for aggregation to keep context windows clean:
+Each level serves a distinct purpose:
 
-1. **Daily → Monthly**: Run `aggregate` command to roll up daily notes into monthly summaries
-2. **Monthly → Overall memory**: The `aggregate` command builds `memory.md` from monthly summaries
-3. **Working memory review**: Periodically launch a sub-agent to read all notes and produce a concise working memory summary
+| Level | Purpose | Freedom |
+|-------|---------|---------|
+| **Lines** | Raw capture. Append-only, no judgment. | None |
+| **Daily** (`YYYY-MM-DD.md`) | Container for a day's notes. | None |
+| **Monthly** (`YYYY-MM.md`) | Compress: what mattered this month? | High |
+| **Overall** (`memory.md`) | Synthesize: current state of the world. | Highest |
+
+## Aggregation
+
+The `aggregate` command does a mechanical rollup. For intelligent summarization, use a sub-agent.
+
+### Monthly summary sub-agent
+
+Launch a sub-agent to read all daily files for a month and write the monthly summary:
+
+> Read all daily notes in `~/claude/memory/` for YYYY-MM. Write a monthly summary to `~/claude/memory/YYYY-MM.md`. Include: key decisions, important events, learnings, and any facts that changed (new job, new tools, new preferences). Drop noise (test notes, trivial observations, routine operations). Organize by theme, not by date. Keep it concise.
+
+### Overall memory sub-agent
+
+Launch a sub-agent to read all monthly summaries and write the overall memory:
+
+> Read all monthly summaries in `~/claude/memory/` chronologically. Write `~/claude/memory/memory.md` as a current-state working memory. Rules: (1) Facts use last-write-wins — if the user changed jobs, reflect only the current employer. (2) Key learnings and preferences persist across time. (3) Events compress — keep milestones, drop details. (4) The result should read like a living profile: "here is what I know about this user and their world right now." Not a changelog.
 
 ## Git Integration
 

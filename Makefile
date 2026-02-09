@@ -8,13 +8,20 @@ help: ## Show this help
 .DEFAULT_GOAL := help
 
 
-install: ## Install dependencies, settings, external skills, and local skills
+install: ## Install all dependencies, settings, external skills, and local skills
 	uv python install
 	uv sync --locked --all-groups
 	uv run pre-commit install
 	$(MAKE) pull-external
 	$(MAKE) install-local
 .PHONY: install
+
+
+install-ci: ## Install without heavy deps (marker-pdf/torch) for CI
+	uv python install
+	uv sync --locked --group dev
+	uv run pre-commit install
+.PHONY: install-ci
 
 
 upgrade: ## Upgrade all dependencies

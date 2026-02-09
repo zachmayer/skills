@@ -2,77 +2,79 @@
 name: ralph_loop
 description: >
   Execute an autonomous development loop: decompose a feature into right-sized
-  tasks, implement one per iteration with fresh context, validate with tests,
-  persist via git commits, and repeat until complete. Based on the Ralph pattern
-  (snarktank/ralph). Use when building a complete feature, working through a
-  PRD or spec, or tackling a multi-step implementation. Do NOT use for
-  single-task fixes or quick edits.
+  stories, implement one per iteration with fresh context, validate with tests,
+  and repeat until complete. Based on the Ralph pattern (snarktank/ralph).
+  Use when building a complete feature, working through a PRD or spec, or
+  tackling a multi-step implementation. Do NOT use for single-task fixes or
+  quick edits.
 ---
 
 Execute a Ralph-style autonomous development loop for: $ARGUMENTS
 
+## Setup
+
+```bash
+uv run python scripts/ralph.py init "feature description" --branch ralph/feature-name
+```
+
+### prd.json format
+
+```json
+{
+  "project": "project-name",
+  "branchName": "ralph/feature-name",
+  "description": "Feature description",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add database migration",
+      "description": "Create migration for new status column",
+      "acceptanceCriteria": ["Migration adds status column", "Tests pass"],
+      "priority": 1,
+      "passes": false
+    }
+  ]
+}
+```
+
+Each story must complete in one context window. Order by dependency (database first, backend, then UI).
+
 ## The Loop
 
-### 1. Decompose
-If no task breakdown exists yet, decompose the feature into **right-sized tasks**:
-- Each task must fit in a single context window
-- Each task should be independently testable
-- Good size: "add a database migration", "create a UI component", "write an API endpoint"
-- Bad size: "build the entire dashboard", "add authentication"
+### 1. Read state
 
-Create a task manifest (tasks.md or prd.json) tracking:
-- Task name and description
-- Status: pending / in-progress / complete
-- Acceptance criteria
+```bash
+uv run python scripts/ralph.py status
+```
 
 ### 2. Select
-Pick the highest-priority incomplete task. Consider dependencies - a task that unblocks others comes first.
+
+Pick the highest-priority story with `passes: false`.
 
 ### 3. Implement
-Focus on this single task:
-- Read relevant existing code first
-- Implement the minimum to satisfy acceptance criteria
-- Follow existing patterns in the codebase
-- Do not touch code outside the task's scope
+
+Focus on this single story. Read relevant code first. Follow existing patterns. Don't touch code outside the story's scope.
 
 ### 4. Validate
-Run the project's test and type-check suite:
-- All existing tests must still pass
-- New code should have tests if the project has a test suite
-- Type checks must pass if the project uses them
 
-If validation fails, fix the issues before proceeding.
+Run the project's quality checks (typecheck, lint, test). Fix failures before proceeding.
 
-### 5. Persist
-- **Git commit** the working changes with a clear message
-- **Update task status** to complete in the manifest
-- **Record learnings** - Append to a progress.txt or AGENTS.md:
-  - What patterns did you discover?
-  - What gotchas should future iterations know about?
-  - What conventions does this codebase follow?
+### 5. Complete
+
+```bash
+uv run python scripts/ralph.py complete US-001
+```
+
+Save learnings to `hierarchical_memory`. Commit.
 
 ### 6. Repeat
-Return to step 2. Continue until:
-- All tasks are marked complete, OR
-- You've hit an iteration limit (default: 10), OR
-- You're blocked and need human input
+
+Return to step 2 until all stories pass.
 
 ## Key Principles
 
-**Fresh context per iteration**: Each task gets a clean mental slate. Don't carry assumptions from previous tasks. Re-read relevant code each time.
+**Fresh context per iteration**: Each story gets a clean mental slate. Re-read relevant code. Use the Task tool for sub-agents when stories are independent.
 
-**Right-sized tasks**: If a task feels too big, split it. If you can't complete it in one pass, it's too big.
+**Right-sized stories**: If it can't complete in one pass, split it with `ralph.py split US-003 "subtask a" "subtask b"`.
 
-**AGENTS.md as institutional memory**: Update project documentation files with patterns and conventions you discover. Future iterations (and future developers) benefit from this accumulated knowledge.
-
-**Validation is mandatory**: Never mark a task complete if tests fail. Broken code compounds across iterations.
-
-**Git is your checkpoint**: Commit after each successful task. If something goes wrong, you can always roll back.
-
-## Output
-
-After each iteration, report:
-- Which task was completed
-- What was learned
-- What task is next
-- Overall progress (X of Y tasks complete)
+**Validation is mandatory**: Never mark a story complete if tests fail.

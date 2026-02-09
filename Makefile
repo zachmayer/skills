@@ -13,7 +13,18 @@ check-requirements:
 .PHONY: check-requirements
 
 
-install: check-requirements ## Install dependencies and pre-commit hooks
+install-settings: ## Copy settings template to ~/.claude/settings.json
+	@mkdir -p $(HOME)/.claude
+	@if [ -f "$(HOME)/.claude/settings.json" ]; then \
+		echo "~/.claude/settings.json already exists. Backing up to ~/.claude/settings.json.bak"; \
+		cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.bak"; \
+	fi
+	cp settings.template.json $(HOME)/.claude/settings.json
+	@echo "Installed settings to ~/.claude/settings.json"
+.PHONY: install-settings
+
+
+install: check-requirements install-settings ## Install dependencies, settings, and pre-commit hooks
 	uv python install
 	uv sync --locked --all-groups
 	uv run pre-commit install

@@ -107,6 +107,30 @@ Skills that bundle Python code use [Click](https://click.palletsprojects.com/) f
 Required environment variables for specific skills:
 - `discussion_partners`: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GOOGLE_API_KEY`
 
+## Roadmap
+
+Major improvements, curated by human and Claude together.
+
+### Architecture
+
+- [ ] **Consolidate memory repos into obsidian** — Daily notes, monthly summaries, overall memory, and heartbeat tasks all live in one obsidian vault. Single git repo. Time-series in `daily/`, curated knowledge in topic notes, TODO lists as standalone files. Eliminates managing 3 separate repos (memory, obsidian, heartbeat).
+- [ ] **Smarter heartbeat** — Heartbeat should read the day's memory and obsidian notes, decide the highest-value activity (or sleep), and write questions to the user as obsidian notes instead of requiring interactive input.
+
+### Skill Quality
+
+- [ ] **Skill pruner/compactor** — A skill that reviews all installed skills, finds overlaps, and proposes merges or deletions. Not aggressive — just surfaces candidates. Compares each skill against the [best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices): is this teaching the model what it already knows?
+- [ ] **Compile external skills into existing ones** — Instead of copying FUTURE_TOKENS skills wholesale, review each against our existing skills (e.g., external thinking tools vs mental_models), merge what's novel, discard what's redundant. Precise wording may matter for eliciting specific LLM behavior — evaluate case by case.
+
+### Infrastructure
+
+- [ ] **OpenAI API quota** — discussion_partners fails with `insufficient_quota` on OpenAI. Add credits or switch recommended default.
+
+### Human TODOs
+
+- [ ] Delete old `~/claude/heartbeat/` repo after heartbeat consolidation
+- [ ] Delete old `~/claude/memory/` repo after memory consolidation
+- [ ] Re-run crontab setup after heartbeat path changes
+
 ## License
 
 MIT

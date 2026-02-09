@@ -8,6 +8,8 @@ description: >
 
 # Ask Questions If Underspecified
 
+Also apply `hierarchical_memory`: read working memory before formulating questions — past context often resolves ambiguity. After getting answers, save key decisions as memory notes.
+
 ## Goal
 
 Ask the minimum set of clarifying questions needed to avoid wrong work; do not start implementing until the must-have questions are answered (or the user explicitly approves proceeding with stated assumptions).

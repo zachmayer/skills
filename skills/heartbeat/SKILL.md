@@ -10,6 +10,8 @@ allowed-tools: Bash(*)
 
 Set up or manage a heartbeat for autonomous Claude Code task processing.
 
+Also apply `hierarchical_memory` and `obsidian` for reading context and persisting results.
+
 ## Setup
 
 ### 1. Create the task file

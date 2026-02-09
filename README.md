@@ -28,6 +28,36 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
 | [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
 
+## Skill Graph
+
+Skills reference each other to compose larger workflows:
+
+```mermaid
+graph LR
+    ralph_loop --> ultra_think
+    ralph_loop --> beast_mode
+    ralph_loop --> staff_engineer
+    ralph_loop --> ask_questions
+    ralph_loop --> hierarchical_memory
+    ralph_loop --> obsidian
+    ultra_think --> mental_models
+    ultra_think --> ask_questions
+    ask_questions --> hierarchical_memory
+    prompt_evolution --> discussion_partners
+    prompt_evolution --> llm_judge
+    llm_judge --> discussion_partners
+    discussion_partners --> mental_models
+    remember_session --> hierarchical_memory
+    remember_session --> obsidian
+    heartbeat --> hierarchical_memory
+    heartbeat --> obsidian
+    obsidian --> hierarchical_memory
+    obsidian --> private_repo
+    hierarchical_memory --> private_repo
+```
+
+Standalone skills (no imports): `beast_mode`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `lean_prover`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_stealer`, `staff_engineer`
+
 ## Install
 
 ### Via npx (recommended, works with all agents)
@@ -113,8 +143,8 @@ Major improvements, curated by human and Claude together.
 
 ### Architecture
 
-- [ ] **Consolidate memory repos into obsidian** — Daily notes, monthly summaries, overall memory, and heartbeat tasks all live in one obsidian vault. Single git repo. Time-series in `daily/`, curated knowledge in topic notes, TODO lists as standalone files. Eliminates managing 3 separate repos (memory, obsidian, heartbeat).
-- [ ] **Smarter heartbeat** — Heartbeat should read the day's memory and obsidian notes, decide the highest-value activity (or sleep), and write questions to the user as obsidian notes instead of requiring interactive input.
+- [x] **Consolidate memory repos into obsidian** — All persistent data in `~/claude/obsidian/`: memory, heartbeat tasks, TODOs, personal knowledge. Single git repo.
+- [x] **Smarter heartbeat** — Reads daily memory, decides highest-value activity, writes questions to obsidian.
 
 ### Skill Quality
 

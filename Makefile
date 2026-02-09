@@ -73,6 +73,13 @@ uninstall-local: ## Remove skills from ~/.claude/skills/
 .PHONY: uninstall-local
 
 
+clean: ## Remove venv, lock file, and external skills
+	rm -rf .venv
+	rm -f uv.lock
+	rm -rf $(EXTERNAL_DIR)
+.PHONY: clean
+
+
 pull-external: ## Pull external skills from FUTURE_TOKENS
 	@mkdir -p $(EXTERNAL_DIR)
 	@echo "Pulling FUTURE_TOKENS skills..."

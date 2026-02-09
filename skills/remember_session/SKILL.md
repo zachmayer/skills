@@ -19,7 +19,17 @@ Scan the full conversation. Identify:
 - **What changed**: facts about the user, project, or environment that updated
 - **What's pending**: TODOs, deferred work, open questions
 
-### 2. Save daily notes
+### 2. Read today's existing notes
+
+Before writing anything, read today's daily file to see what's already been saved:
+
+```bash
+uv run --directory MEMORY_SKILL_DIR python scripts/memory.py today
+```
+
+Only write notes for topics NOT already captured. Skip duplicates.
+
+### 3. Save new daily notes
 
 Use the `hierarchical_memory` skill to save timestamped notes to today's daily file:
 
@@ -27,7 +37,7 @@ Use the `hierarchical_memory` skill to save timestamped notes to today's daily f
 uv run --directory MEMORY_SKILL_DIR python scripts/memory.py note "NOTE_TEXT"
 ```
 
-Save one note per distinct topic. Include:
+Save one note per distinct topic that isn't already in today's file. Include:
 - Completed work (prefix with `DONE:`)
 - Decisions and their rationale
 - New preferences or corrections the user made
@@ -36,17 +46,17 @@ Save one note per distinct topic. Include:
 
 Be specific. "Updated auth" is useless. "Replaced JWT middleware with session cookies because latency was too high on mobile" is useful.
 
-### 3. Save big-picture items to obsidian
+### 4. Save big-picture items to obsidian
 
 If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in obsidian using the `obsidian` skill.
 
 Daily work does NOT go to obsidian. Only durable knowledge: project descriptions, design decisions, reference material, personal facts.
 
-### 4. Aggregate memory
+### 5. Aggregate memory
 
 Run the monthly and overall memory aggregation sub-agents from the `hierarchical_memory` skill. This compresses daily notes into monthly summaries and updates the overall working memory.
 
-### 5. Commit and push
+### 6. Commit and push
 
 ```bash
 cd ~/claude/memory && git add -A && git commit -m "memory update" && git push 2>/dev/null; true

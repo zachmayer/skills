@@ -63,7 +63,16 @@
       "Bash(uv tool install*)",
       "Bash(uv tool run*)",
       "Bash(uv cache clean*)",
-      "Bash(uvx *)"
+      "Bash(uvx *)",
+      "Read(skills/**)",
+      "Edit(skills/**)",
+      "Write(skills/**)",
+      "Read(~/claude/memory/**)",
+      "Edit(~/claude/memory/**)",
+      "Write(~/claude/memory/**)",
+      "Read(~/claude/obsidian/**)",
+      "Edit(~/claude/obsidian/**)",
+      "Write(~/claude/obsidian/**)"
     ],
     "deny": [
       "Bash(gh auth login*)",

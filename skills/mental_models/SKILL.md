@@ -45,6 +45,27 @@ When analyzing the problem, select and apply the most relevant mental models fro
 
 **Small Multiples** (Edward Tufte) - Show the same data structure repeated with one variable changed. Enables comparison without cognitive load. Works for charts, UI states, code examples, test cases. "At the heart of quantitative reasoning is a single question: Compared to what?"
 
+## Mindset
+
+**Scout Mindset** (Julia Galef) - Your goal is to see what's actually there, not to build a case for what you want to see. Ask "what would change my mind?" before analyzing. Treat being wrong as an update, not a failure. Actively seek disconfirming evidence. The measure of good reasoning is calibration, not confidence.
+
+## External Thinking Skills
+
+Specialized thinking tools available as `/skill-name` commands (from [FUTURE_TOKENS](https://github.com/jordanrubin/FUTURE_TOKENS)):
+
+| Skill | Purpose |
+|-------|---------|
+| `antithesize` | Generate standalone opposition to any proposition (complete alternative worldview, not refutation) |
+| `dimensionalize` | Transform decisions into 3-7 measurable dimensions scored on fidelity, leverage, and complexity |
+| `synthesize` | Compress conflicting positions into a decision-sufficient generative frame with distortion tracking |
+| `excavate` | Assumption archaeology: reveal the layered "what must be true" structure beneath claims |
+| `metaphorize` | Build explicit high-coverage mapping from source to target domain, carrying math and units |
+| `rhetoricize` | Extract rhetorical skeleton and map the spin-space around an argument |
+| `inductify` | Extract non-obvious structural commonalities across examples (latent mechanisms, not surface vibes) |
+| `negspace` | Detect conspicuously absent arguments via perplexity contrast (what should be there but isn't) |
+| `rhyme` | Fast structural similarity detection and pattern matching across domains |
+| `handlize` | Extract executable residue / operational handles from arguments, discarding rhetorical mass |
+
 ## Application
 
 When applying a model:

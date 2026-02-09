@@ -38,12 +38,16 @@ description: >
 
 5. **Create the skill directory** - Write the SKILL.md to `skills/<skill-name>/SKILL.md` in this repository. If the skill needs scripts, create them in `skills/<skill-name>/scripts/`.
 
-## Quality Checks
+## Quality Checks (from [Agent Skills Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices))
 
+- **Concise is key** - The context window is a public good. Only add context Claude doesn't already have. Challenge each line: "Does Claude really need this?" Default assumption: Claude is already very smart.
+- **Set degrees of freedom** - Match specificity to task fragility. High freedom (text guidance) for heuristic tasks, low freedom (exact scripts) for fragile/critical operations.
+- **Progressive disclosure** - SKILL.md is the overview; split reference material into separate files Claude reads on-demand. Keep SKILL.md under 500 lines. References one level deep only.
+- **Description drives discovery** - Write in third person. Be specific with trigger terms. Claude uses the description to choose from 100+ skills.
 - Description uses WHEN/WHEN NOT pattern
 - Instructions are actionable, not philosophical
 - No unnecessary complexity
-- Under 200 lines for the SKILL.md
+- Under 200 lines for the SKILL.md (split into reference files if needed)
 - Name is kebab-case, memorable, and descriptive
 
 ## Output

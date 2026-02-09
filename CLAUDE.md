@@ -4,10 +4,10 @@ A shared, open-source collection of agent skills following the Agent Skills open
 
 ## Build & Test
 
-- Install: `make install`
+- Install: `make install` (full: deps + settings + external + local skills)
+- Install local only: `make install-local` (settings + symlink skills to ~/.claude/)
 - Lint: `make lint`
 - Test: `make test`
-- Install skills locally: `make install-local`
 - Pull external skills: `make pull-external`
 
 ## Architecture

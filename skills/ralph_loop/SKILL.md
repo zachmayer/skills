@@ -11,13 +11,25 @@ description: >
 
 Execute a Ralph-style autonomous development loop for: $ARGUMENTS
 
-## Setup
+## The Loop
 
-```bash
-uv run python scripts/ralph.py init "feature description" --branch ralph/feature-name
-```
+1. **Decompose** the feature into right-sized stories. Each must complete in one context window. Track them in a `prd.json` or similar manifest with pass/fail status.
+2. **Select** the highest-priority incomplete story. Respect dependencies.
+3. **Implement** that single story. Read relevant code first. Follow existing patterns. Stay in scope.
+4. **Validate** with the project's quality checks (typecheck, lint, test). Fix failures before proceeding.
+5. **Mark complete** and save learnings to `hierarchical_memory`. Commit.
+6. **Repeat** from step 2 until all stories pass.
 
-### prd.json format
+## Story Sizing
+
+Each story must fit in one context window. Order by dependency (database first, backend, then UI).
+
+- Good: "Add database column with migration", "Create API endpoint for X", "Add filter dropdown to list"
+- Bad: "Build entire dashboard", "Add authentication"
+
+If a story can't complete in one pass, split it.
+
+## Suggested prd.json format
 
 ```json
 {
@@ -28,7 +40,6 @@ uv run python scripts/ralph.py init "feature description" --branch ralph/feature
     {
       "id": "US-001",
       "title": "Add database migration",
-      "description": "Create migration for new status column",
       "acceptanceCriteria": ["Migration adds status column", "Tests pass"],
       "priority": 1,
       "passes": false
@@ -37,44 +48,8 @@ uv run python scripts/ralph.py init "feature description" --branch ralph/feature
 }
 ```
 
-Each story must complete in one context window. Order by dependency (database first, backend, then UI).
-
-## The Loop
-
-### 1. Read state
-
-```bash
-uv run python scripts/ralph.py status
-```
-
-### 2. Select
-
-Pick the highest-priority story with `passes: false`.
-
-### 3. Implement
-
-Focus on this single story. Read relevant code first. Follow existing patterns. Don't touch code outside the story's scope.
-
-### 4. Validate
-
-Run the project's quality checks (typecheck, lint, test). Fix failures before proceeding.
-
-### 5. Complete
-
-```bash
-uv run python scripts/ralph.py complete US-001
-```
-
-Save learnings to `hierarchical_memory`. Commit.
-
-### 6. Repeat
-
-Return to step 2 until all stories pass.
-
 ## Key Principles
 
 **Fresh context per iteration**: Each story gets a clean mental slate. Re-read relevant code. Use the Task tool for sub-agents when stories are independent.
 
-**Right-sized stories**: If it can't complete in one pass, split it with `ralph.py split US-003 "subtask a" "subtask b"`.
-
-**Validation is mandatory**: Never mark a story complete if tests fail.
+**Validation is mandatory**: Never mark a story complete if tests fail. Broken code compounds across iterations.

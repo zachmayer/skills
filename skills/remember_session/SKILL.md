@@ -58,7 +58,9 @@ Run the monthly and overall memory aggregation sub-agents from the `hierarchical
 
 ### 6. Commit and push
 
+Use `git -C` to avoid `cd` (matches the `Bash(git *)` permission):
+
 ```bash
-cd ~/claude/memory && git add -A && git commit -m "memory update" && git push 2>/dev/null; true
-cd ~/claude/obsidian && git add -A && git commit -m "notes update" && git push 2>/dev/null; true
+git -C ~/claude/memory add -A && git -C ~/claude/memory commit -m "memory update" && git -C ~/claude/memory push
+git -C ~/claude/obsidian add -A && git -C ~/claude/obsidian commit -m "notes update" && git -C ~/claude/obsidian push
 ```

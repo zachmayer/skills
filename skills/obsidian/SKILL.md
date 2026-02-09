@@ -16,5 +16,5 @@ Notes are plain markdown files. Use `[[Note Title]]` wiki-links to connect relat
 - Use descriptive filenames as note titles
 - Add `[[wiki-links]]` to reference related notes
 - Organize with subdirectories (e.g. `projects/`, `daily/`)
-- After creating or modifying notes, commit and push to `~/claude/obsidian/`
+- After changes, commit with `git -C ~/claude/obsidian add -A && git -C ~/claude/obsidian commit -m "note: description" && git -C ~/claude/obsidian push`
 - If no remote is configured, use the `private_repo` skill to set one up

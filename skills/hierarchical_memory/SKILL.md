@@ -79,23 +79,10 @@ Launch a sub-agent with this prompt:
 
 ## Git Integration
 
-After saving notes or aggregating, commit and push:
+After saving notes or aggregating, commit and push. Use `git -C` to avoid `cd` (matches the `Bash(git *)` permission):
 
 ```bash
-cd ~/claude/memory && git add -A && git commit -m "memory update" && git push 2>/dev/null; true
+git -C ~/claude/memory add -A && git -C ~/claude/memory commit -m "memory update" && git -C ~/claude/memory push
 ```
 
-### First-time setup
-```bash
-mkdir -p ~/claude/memory && cd ~/claude/memory && git init
-```
-
-### Remote sync
-
-If no remote is configured, use the `private_repo` skill to create or connect a private GitHub repo for `~/claude/memory/`.
-
-## When the User Asks
-
-- "Remember this..." or "Save this..." -> Use the `note` command, then git commit
-- "What did we discuss..." or "What do you know about..." -> Use `search` or `show`
-- "Summarize recent work..." -> Run monthly then overall aggregation sub-agents, then read memory.md
+If no remote is configured, use the `private_repo` skill to set one up.

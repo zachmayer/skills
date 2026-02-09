@@ -7,7 +7,7 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 | Skill | Type | Description |
 |-------|------|-------------|
 | [ask_questions](skills/ask_questions/) | Prompt | Structured questioning framework: clarify before acting |
-| [beast_mode](skills/beast_mode/) | Prompt | Autonomous problem-solving with deep research and iteration |
+| [beast_mode](skills/beast_mode/) | Prompt | Maximum persistence mode: keep going until fully solved |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
 | [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
 | [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models via pydantic-ai |
@@ -15,12 +15,16 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous task processing for Claude Code |
 | [hierarchical_memory](skills/hierarchical_memory/) | Python | Notes aggregated into daily/weekly/monthly/overall summaries |
+| [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
+| [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs with rubrics |
 | [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems |
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
 | [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown using marker |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for sensitive data |
+| [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover over generations |
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
-| [skill_stealer](skills/skill_stealer/) | Prompt | Extract skills from URLs (repos, tweets, blog posts) into SKILL.md format |
+| [remember_session](skills/remember_session/) | Prompt | Save session learnings to hierarchical memory and obsidian |
+| [skill_stealer](skills/skill_stealer/) | Prompt | Extract skills from URLs into SKILL.md with degrees-of-freedom analysis |
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
 | [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
 

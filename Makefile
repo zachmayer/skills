@@ -68,6 +68,19 @@ install-local: ## Install settings and symlink skills to ~/.claude/
 .PHONY: install-local
 
 
+install-heartbeat: ## Set up heartbeat cron job (every 4 hours)
+	@mkdir -p ~/claude/obsidian/heartbeat
+	@if [ ! -f ~/claude/obsidian/heartbeat/tasks.md ]; then \
+		printf '# Heartbeat Tasks\n\n## Pending\n\n## Completed\n\n' > ~/claude/obsidian/heartbeat/tasks.md; \
+		echo "Created task file at ~/claude/obsidian/heartbeat/tasks.md"; \
+	fi
+	@SCRIPT="$$(cd $(SKILLS_DIR)/heartbeat/scripts && pwd)/heartbeat.sh"; \
+	chmod +x "$$SCRIPT"; \
+	(crontab -l 2>/dev/null | grep -v heartbeat; echo "0 */4 * * * $$SCRIPT >> ~/claude/obsidian/heartbeat/heartbeat.log 2>&1") | crontab -; \
+	echo "Heartbeat cron installed (every 4 hours). Verify with: crontab -l"
+.PHONY: install-heartbeat
+
+
 uninstall-local: ## Remove skills from ~/.claude/skills/
 	@echo "Removing skills from $(INSTALL_DIR)..."
 	@for skill_dir in $(SKILLS_DIR)/*/; do \

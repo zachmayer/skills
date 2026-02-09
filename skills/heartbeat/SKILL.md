@@ -41,34 +41,12 @@ Verify with `crontab -l`.
 
 ## Task Queue
 
-Edit `~/claude/heartbeat/tasks.md`:
-
-```markdown
-## Pending
-
-- [ ] Check for new issues in zachmayer/myrepo and triage them
-- [ ] Review open PRs that have been waiting more than 24 hours
-
-## Completed
-
-- [x] 2026-02-08T10:15: Updated dependencies in project-alpha
-```
+Edit `~/claude/heartbeat/tasks.md` — add tasks as `- [ ] description` under Pending, completed tasks get marked `- [x] timestamp: description` and moved to Completed.
 
 ## Managing
 
 - **Check log**: `tail -20 ~/claude/heartbeat/heartbeat.log`
-- **Check tasks**: `cat ~/claude/heartbeat/tasks.md`
 - **Pause**: `crontab -l | sed 's|^|#|' | crontab -`
 - **Stop**: `crontab -l | grep -v heartbeat | crontab -`
 
-## Git Integration
-
-After the heartbeat processes tasks, commit and push:
-
-```bash
-cd ~/claude/heartbeat && git add -A && git commit -m "heartbeat update" && git push 2>/dev/null; true
-```
-
-### Remote sync
-
-If no remote is configured, use the `private_repo` skill to create or connect a private GitHub repo for `~/claude/heartbeat/`.
+If no remote is configured for `~/claude/heartbeat/`, use the `private_repo` skill to set one up.

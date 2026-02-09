@@ -56,10 +56,3 @@ write.csv(data.frame(
 ```bash
 Rscript -e 'install.packages("forecast", repos="https://cloud.r-project.org")'
 ```
-
-## When the User Asks
-
-- "Forecast this data..." → Read the data, determine frequency, run auto.arima
-- "Predict next N months/quarters..." → Set horizon=N, frequency accordingly
-- "What model did it pick?" → Print `summary(fit)` — shows ARIMA(p,d,q) order, AICc, coefficients
-- "Show the forecast" → Generate and display the forecast plot

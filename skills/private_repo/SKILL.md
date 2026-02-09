@@ -16,7 +16,7 @@ Help the user set up a private GitHub repository for local data that should be b
 ### 1. Check current state
 
 ```bash
-cd TARGET_DIR && git remote get-url origin 2>/dev/null
+git -C TARGET_DIR remote get-url origin 2>/dev/null
 ```
 
 If a remote already exists, confirm with the user and skip to step 4.
@@ -34,12 +34,12 @@ Present these options:
 gh repo create REPO_NAME --private --description "Private backup for DESCRIPTION"
 ```
 
-Then set up the remote:
+Then set up the remote (use `git -C` to match the `Bash(git *)` permission):
 
 ```bash
-cd TARGET_DIR && git init && git add -A && git commit -m "initial commit"
-git remote add origin git@github.com:USERNAME/REPO_NAME.git
-git push -u origin main
+git -C TARGET_DIR init && git -C TARGET_DIR add -A && git -C TARGET_DIR commit -m "initial commit"
+git -C TARGET_DIR remote add origin git@github.com:USERNAME/REPO_NAME.git
+git -C TARGET_DIR push -u origin main
 ```
 
 Use `gh api user --jq '.login'` to get the username.
@@ -47,15 +47,15 @@ Use `gh api user --jq '.login'` to get the username.
 ### 3b. Connect an existing repo
 
 ```bash
-cd TARGET_DIR && git init && git remote add origin REPO_URL
-git pull origin main --allow-unrelated-histories
-git add -A && git commit -m "merge local state" && git push
+git -C TARGET_DIR init && git -C TARGET_DIR remote add origin REPO_URL
+git -C TARGET_DIR pull origin main --allow-unrelated-histories
+git -C TARGET_DIR add -A && git -C TARGET_DIR commit -m "merge local state" && git -C TARGET_DIR push
 ```
 
 ### 4. Confirm sync works
 
 ```bash
-cd TARGET_DIR && git push
+git -C TARGET_DIR push
 ```
 
 ## Common Uses

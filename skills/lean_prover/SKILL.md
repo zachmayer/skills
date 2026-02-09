@@ -61,46 +61,19 @@ The core execution engine. Each proof agent session focuses on ONE lemma.
 
 ### Five method categories (must try each)
 
-1. **Library Search** (leandex -> loogle -> local_search)
-   - ALWAYS search before proving. Mathlib likely has it.
-   - Try multiple natural language phrasings with leandex
-   - Fall back to type patterns with loogle
+1. **Library Search**: leandex -> loogle -> local_search. ALWAYS search before proving.
+2. **Direct Tactics**: `hint` first, then `grind`, then specific tactics (`omega`, `simp`, `aesop`, `ring`, `linarith`, `norm_num`).
+3. **Structural**: induction, cases, contradiction, contrapositive.
+4. **Term Mode**: direct proof construction with `exact`, `fun`, existence witnesses.
+5. **Decomposition**: `have`/`suffices` for intermediate goals, extract helper lemmas with `sorry`.
 
-2. **Direct Tactics** (hint -> grind -> manual)
-   - Always try `hint` first (shows what works)
-   - Then `grind` (general automation)
-   - Then `omega`, `simp`, `aesop`, `ring`, `linarith`, `norm_num`
+### Core philosophy
 
-3. **Structural** (induction, cases, contradiction)
-   - Try induction on different variables
-   - `by_cases`, `rcases`, `obtain`
-   - `by_contra`, `contrapose`, `push_neg`
-
-4. **Term Mode** (direct proof construction)
-   - `exact`, `fun x =>`, existence witnesses `⟨w, proof⟩`
-
-5. **Decomposition** (break into pieces)
-   - `have h : intermediate := by ...`
-   - `suffices` for proving stronger statements
-   - Extract helper lemmas with `sorry`
-
-### Core philosophy: reduce to automation
-
-Your job is NOT to prove things manually. Your job is to REDUCE goals until automatic tactics finish them:
-
-```lean
--- 1. Try automation directly
-hint / simp / grind / omega / aesop
--- 2. If fails, transform the goal
-intro / unfold / rw / simp only [...] / have / suffices
--- 3. Try automation again on reduced goal
-hint / simp / grind / omega / aesop
--- Repeat
-```
+Reduce goals until automation (`hint`/`simp`/`grind`/`omega`/`aesop`) finishes them. Transform with `intro`/`unfold`/`rw`/`have`/`suffices`, then try automation again. Repeat.
 
 ### External consultation checkpoints (mandatory)
 
-Consult an external model (Gemini, discussion partner, etc.) at these attempt counts:
+Consult an external model via the `discussion_partners` skill at these attempt counts:
 - **0**: Before ANY code - get strategy, insights, mathlib suggestions
 - **2**: Early guidance after first attempts
 - **4**: Alternative approaches
@@ -138,14 +111,10 @@ lemma foo : P := by sorry
 ```
 
 ### Lean tips
-- `simp` first, then `simp?` for minimal lemma sets
-- `norm_cast` for type conversions
-- `apply?` to find applicable lemmas
-- NEVER use `lake build` - use `lean_diagnostic_messages` for verification
+- NEVER use `lake build` — use `lean_diagnostic_messages` for verification
 - ALWAYS specify types on fractions: `((2 : ℝ) / 3)` not `(2 / 3)`
 - AVOID natural number division/subtraction unless required by theorem statement
 - If `decide` times out, write symbolic proof instead of increasing `maxHeartbeats`
-- Keep comments minimal - max 1-2 lines per block, no long comment runs
 - If a proof exceeds 500 lines, extract helper lemmas
 
 ## Splitting Protocol (Blueprint Agent)

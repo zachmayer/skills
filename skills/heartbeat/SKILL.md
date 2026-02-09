@@ -59,5 +59,5 @@ Edit `~/claude/obsidian/heartbeat/tasks.md` — add tasks as `- [ ] description`
 ## Managing
 
 - **Check log**: `tail -20 ~/claude/obsidian/heartbeat/heartbeat.log`
-- **Pause**: `crontab -l | sed 's|^|#|' | crontab -`
+- **Pause**: `crontab -l | sed '/heartbeat/s|^|#|' | crontab -`
 - **Stop**: `crontab -l | grep -v heartbeat | crontab -`

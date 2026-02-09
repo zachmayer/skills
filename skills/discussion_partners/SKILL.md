@@ -8,13 +8,7 @@ description: >
 allowed-tools: Bash(uv run *)
 ---
 
-Query another AI model for an outside perspective on a difficult problem.
-
-## Why This Exists
-
-Different models have different strengths. When you hit a wall — circling the same approaches, missing subtle interactions, or unable to see past your own framing — an outside perspective from a model with a different architecture and training can break the deadlock.
-
-This is not delegation. This is consultation: you send one message, you get one message back. Make it count.
+Query another AI model for an outside perspective on a difficult problem. One message out, one message back — make it count.
 
 ## Recommended Model
 
@@ -33,11 +27,9 @@ You get **one message out and one message back**. There is no follow-up. Your pa
 
 **Your partner needs all context to answer your question.** They cannot read your files, see your conversation, or infer your situation. If you don't include it, they don't know it. But context is limited, so be surgical:
 
-1. **Include all relevant context**: code snippets, error messages, constraints, what you have tried. Use the `mental_models` skill to structure your thinking before asking.
-2. **State what you are stuck on**: not just "help me with X" but "I have tried A, B, C and none work because D"
-3. **Ask a specific question**: "What am I missing?" or "Is there an interaction between X and Y I am not seeing?"
-4. **Set the frame**: tell it what kind of answer you need (a diagnosis, an alternative approach, a code review, etc.)
-5. **Cut the fluff**: No pleasantries, no restating the obvious. Every token should earn its place.
+1. **Include all relevant context**: code, errors, constraints, what you tried. Use `mental_models` to structure your thinking before asking.
+2. **State what you're stuck on**: "I tried A, B, C and none work because D" — not just "help me with X"
+3. **Ask a specific question and set the frame**: what kind of answer you need (diagnosis, alternative approach, code review).
 
 Bad: "How do I fix this auth bug?"
 Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 instead of 401. I have verified the token validation logic is correct and the error handler is registered. The 500 comes from [stack trace]. What could cause the error handler to be bypassed?"

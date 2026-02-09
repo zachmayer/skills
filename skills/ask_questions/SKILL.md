@@ -33,13 +33,9 @@ If multiple plausible interpretations exist, assume it is underspecified.
 Ask 1-5 questions in the first pass. Prefer questions that eliminate whole branches of work.
 
 Make questions easy to answer:
-- Optimize for scannability (short, numbered questions; avoid paragraphs)
-- Offer multiple-choice options when possible
-- Suggest reasonable defaults when appropriate (mark them clearly as the default/recommended choice; bold the recommended choice in the list, or if you present options in a code block, put a bold "Recommended" line above the block and also tag defaults inside the block)
-- Include a fast-path response (e.g., reply `defaults` to accept all recommended/default choices)
-- Include a low-friction "not sure" option when helpful (e.g., "Not sure - use default")
-- Separate "Need to know" from "Nice to know" if that reduces friction
-- Structure options so the user can respond with compact decisions (e.g., `1b 2a 3c`); restate the chosen options in plain language to confirm
+- Offer multiple-choice with a marked default/recommended option
+- Include a fast-path response (e.g., reply `defaults` to accept all defaults)
+- Structure for compact replies (e.g., `1b 2a 3c`); restate chosen options to confirm
 
 ### 3) Pause before acting
 
@@ -54,27 +50,6 @@ If the user explicitly asks you to proceed without answers:
 ### 4) Confirm interpretation, then proceed
 
 Once you have answers, restate the requirements in 1-3 sentences (including key constraints and what success looks like), then start work.
-
-## Question templates
-
-- "Before I start, I need: (1) ..., (2) ..., (3) .... If you don't care about (2), I will assume ...."
-- "Which of these should it be? A) ... B) ... C) ... (pick one)"
-- "What would you consider 'done'? For example: ..."
-- "Any constraints I must follow (versions, performance, style, deps)? If none, I will target the existing project defaults."
-- Use numbered questions with lettered options and a clear reply format
-
-```text
-1) Scope?
-a) Minimal change (default)
-b) Refactor while touching the area
-c) Not sure - use default
-2) Compatibility target?
-a) Current project defaults (default)
-b) Also support older versions: <specify>
-c) Not sure - use default
-
-Reply with: defaults (or 1a 2a)
-```
 
 ## Anti-patterns
 

@@ -3,6 +3,8 @@
     "allow": [
       "Bash(echo *)",
       "Bash(git *)",
+      "Bash(git -C *)",
+      "Bash(git commit *)",
       "Bash(gh --help*)",
       "Bash(gh help *)",
       "Bash(gh * --help*)",

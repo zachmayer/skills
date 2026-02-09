@@ -29,12 +29,15 @@ The other providers (Anthropic, Google) are available for comparison or when you
 
 ## Framing Your Question
 
-You get **one message out and one message back**. There is no follow-up. This means your question must be self-contained:
+You get **one message out and one message back**. There is no follow-up. Your partner has ZERO context about what you're working on — they see only what you send. The context window is finite and expensive, so treat it like a skill prompt: include everything needed, nothing that isn't.
 
-1. **Include all relevant context**: code snippets, error messages, constraints, what you have tried
+**Your partner needs all context to answer your question.** They cannot read your files, see your conversation, or infer your situation. If you don't include it, they don't know it. But context is limited, so be surgical:
+
+1. **Include all relevant context**: code snippets, error messages, constraints, what you have tried. Use the `mental_models` skill to structure your thinking before asking.
 2. **State what you are stuck on**: not just "help me with X" but "I have tried A, B, C and none work because D"
 3. **Ask a specific question**: "What am I missing?" or "Is there an interaction between X and Y I am not seeing?"
 4. **Set the frame**: tell it what kind of answer you need (a diagnosis, an alternative approach, a code review, etc.)
+5. **Cut the fluff**: No pleasantries, no restating the obvious. Every token should earn its place.
 
 Bad: "How do I fix this auth bug?"
 Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 instead of 401. I have verified the token validation logic is correct and the error handler is registered. The 500 comes from [stack trace]. What could cause the error handler to be bypassed?"

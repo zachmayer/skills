@@ -39,6 +39,8 @@ When analyzing the problem, select and apply the most relevant mental models fro
 
 **Pre-Mortem** - Imagine the project failed. What went wrong? Fix those things now.
 
+**Five Whys** - When something breaks, ask "why?" five times. Each answer becomes the subject of the next question. Stops you from fixing symptoms instead of root causes. "The server crashed." Why? "Out of memory." Why? "A query returned 10M rows." Why? "No pagination." Why? "The spec didn't mention large datasets." Root cause: incomplete spec, not a memory issue.
+
 ## Design & Communication
 
 **Pattern Language** (Christopher Alexander) - Solutions to recurring problems exist as interconnected patterns. Name them. A pattern has: context, problem, forces in tension, solution, consequences. Good architecture is a network of patterns that reinforce each other.

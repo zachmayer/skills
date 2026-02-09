@@ -50,7 +50,7 @@ Be specific. "Updated auth" is useless. "Replaced JWT middleware with session co
 
 If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in `~/claude/obsidian/` using the `obsidian` skill.
 
-Daily work goes to `memory/` subdirectory via hierarchical_memory. Durable knowledge goes to topic notes in the vault root or `Zach/` subdirectories.
+Daily work goes to `memory/` subdirectory via hierarchical_memory. Durable knowledge goes to topic notes in the vault root or `personal/` subdirectories.
 
 ### 5. Aggregate memory
 

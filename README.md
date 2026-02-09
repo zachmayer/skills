@@ -121,10 +121,6 @@ Major improvements, curated by human and Claude together.
 - [ ] **Skill pruner/compactor** — A skill that reviews all installed skills, finds overlaps, and proposes merges or deletions. Not aggressive — just surfaces candidates. Compares each skill against the [best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices): is this teaching the model what it already knows?
 - [ ] **Compile external skills into existing ones** — Instead of copying FUTURE_TOKENS skills wholesale, review each against our existing skills (e.g., external thinking tools vs mental_models), merge what's novel, discard what's redundant. Precise wording may matter for eliciting specific LLM behavior — evaluate case by case.
 
-### Infrastructure
-
-- [ ] **OpenAI API quota** — discussion_partners fails with `insufficient_quota` on OpenAI. Add credits or switch recommended default.
-
 ### Human TODOs
 
 - [ ] Delete old `~/claude/heartbeat/` repo after heartbeat consolidation

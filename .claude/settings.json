@@ -5,6 +5,8 @@
       "Edit(**)",
       "Write(**)",
       "Bash(git *)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
       "Bash(make*)",
       "Bash(ls *)",
       "Bash(wc *)",

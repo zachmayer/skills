@@ -1,6 +1,12 @@
 ---
+description: detect the argument, conclusion, or premise that *should* be present
+  given the statistical structure of the text, but is conspicuously absent. negspace
+  reads the "shadow" of the text by comparing what was written to what was overwhelmingly
+  likely to be written next, revealing hidden content via information asymmetry —
+  including vulnerability (ego/status protection), upside/esoteric (ambition withheld
+  due to trust level), bedrock (shared axioms left unstated), blind spot (content
+  the author cannot see), and optionality (strategic non‑commitment).
 name: negspace
-description: detect the argument, conclusion, or premise that *should* be present given the statistical structure of the text, but is conspicuously absent. negspace reads the "shadow" of the text by comparing what was written to what was overwhelmingly likely to be written next, revealing hidden content via information asymmetry — including vulnerability (ego/status protection), upside/esoteric (ambition withheld due to trust level), bedrock (shared axioms left unstated), blind spot (content the author cannot see), and optionality (strategic non‑commitment).
 ---
 
 ## tl;dr

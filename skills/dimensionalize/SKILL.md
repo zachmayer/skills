@@ -1,6 +1,9 @@
 ---
+description: Transform complex decisions or systems into 3-7 measurable dimensions
+  that score high on fidelity (validity+stability), leverage (actionability+impact),
+  and low on complexity (cognitive load+overfitting). Use when facing multi-factor
+  choices, analyzing systems, or comparing non-obvious options.
 name: dimensionalize
-description: Transform complex decisions or systems into 3-7 measurable dimensions that score high on fidelity (validity+stability), leverage (actionability+impact), and low on complexity (cognitive load+overfitting). Use when facing multi-factor choices, analyzing systems, or comparing non-obvious options.
 ---
 
 # Dimensionalize

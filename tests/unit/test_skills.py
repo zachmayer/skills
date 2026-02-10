@@ -2,19 +2,11 @@
 
 from pathlib import Path
 
+import frontmatter
 import pytest
-import yaml
 
 SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
 SKILL_DIRS = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir() and d.name != "__pycache__")
-
-
-def parse_frontmatter(text: str) -> dict:
-    """Parse YAML frontmatter from a SKILL.md file."""
-    if not text.startswith("---"):
-        return {}
-    end = text.index("---", 3)
-    return yaml.safe_load(text[3:end]) or {}
 
 
 @pytest.fixture(params=[d.name for d in SKILL_DIRS], ids=lambda n: n)
@@ -28,21 +20,21 @@ class TestSkillStructure:
 
     def test_valid_frontmatter(self, skill_dir: Path) -> None:
         text = (skill_dir / "SKILL.md").read_text()
-        fm = parse_frontmatter(text)
-        assert "name" in fm, "frontmatter missing 'name'"
-        assert "description" in fm, "frontmatter missing 'description'"
+        post = frontmatter.loads(text)
+        assert "name" in post.metadata, "frontmatter missing 'name'"
+        assert "description" in post.metadata, "frontmatter missing 'description'"
 
     def test_name_matches_directory(self, skill_dir: Path) -> None:
         text = (skill_dir / "SKILL.md").read_text()
-        fm = parse_frontmatter(text)
-        assert fm.get("name") == skill_dir.name, (
-            f"name '{fm.get('name')}' doesn't match directory '{skill_dir.name}'"
+        post = frontmatter.loads(text)
+        assert post.metadata.get("name") == skill_dir.name, (
+            f"name '{post.metadata.get('name')}' doesn't match directory '{skill_dir.name}'"
         )
 
     def test_description_not_empty(self, skill_dir: Path) -> None:
         text = (skill_dir / "SKILL.md").read_text()
-        fm = parse_frontmatter(text)
-        desc = fm.get("description", "").strip()
+        post = frontmatter.loads(text)
+        desc = post.metadata.get("description", "").strip()
         assert len(desc) > 20, "description too short — should explain when to use"
 
     def test_snake_case_name(self, skill_dir: Path) -> None:

@@ -1,6 +1,7 @@
 ---
+description: Extract the executable residue from an argument or map by isolating handles—concepts
+  with operational grip—while discarding rhetorical mass.
 name: handlize
-description: Extract the executable residue from an argument or map by isolating handles—concepts with operational grip—while discarding rhetorical mass.
 ---
 
 # handlize

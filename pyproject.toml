@@ -17,6 +17,7 @@ dependencies = [
     "marker-pdf>=1.0.0",
     "polars>=1.0.0",
     "pydantic-ai>=0.0.31",
+    "python-frontmatter>=1.1.0",
 ]
 
 [dependency-groups]

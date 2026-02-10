@@ -17,7 +17,8 @@ if [ -f "$ENV_FILE" ]; then
     source "$ENV_FILE"
 fi
 
-TASKS_FILE="${CLAUDE_HEARTBEAT_TASKS:-$HOME/claude/obsidian/heartbeat/tasks.md}"
+OBSIDIAN_DIR="${CLAUDE_OBSIDIAN_DIR:-$HOME/claude/obsidian}"
+TASKS_FILE="$OBSIDIAN_DIR/heartbeat/tasks.md"
 LOCK_FILE="$HOME/.claude/heartbeat.lock"
 LOG_PREFIX="[$(date -u +%Y-%m-%dT%H:%M:%SZ)]"
 

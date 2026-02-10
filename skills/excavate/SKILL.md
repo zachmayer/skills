@@ -1,6 +1,10 @@
 ---
+description: excavate performs assumption archaeology. it reveals the layered structure
+  of "what must be true" beneath a claim, plan, belief, or principle. the goal is
+  to surface implicit premises, map dependencies, identify cruxes, and expose where
+  disagreement or uncertainty actually lives. unlike antithesize (generating opposition),
+  excavate is diagnostic. it lights up the skeleton beneath the stance.
 name: excavate
-description: excavate performs assumption archaeology. it reveals the layered structure of "what must be true" beneath a claim, plan, belief, or principle. the goal is to surface implicit premises, map dependencies, identify cruxes, and expose where disagreement or uncertainty actually lives. unlike antithesize (generating opposition), excavate is diagnostic. it lights up the skeleton beneath the stance.
 ---
 
 ## tl;dr

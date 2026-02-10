@@ -1,6 +1,8 @@
 ---
+description: generate standalone opposition to any proposition. antithesis must be
+  comprehensible without reading thesis—it's an alternative complete worldview, not
+  refutation.
 name: antithesize
-description: generate standalone opposition to any proposition. antithesis must be comprehensible without reading thesis—it's an alternative complete worldview, not refutation.
 ---
 
 ## tl;dr

@@ -1,6 +1,8 @@
 ---
+description: Extract non-obvious structural commonalities across multiple substantial
+  examples. Identify latent mechanisms, shared constraint-structures, and pattern
+  families with predictive slack rather than surface vibes.
 name: inductify
-description: Extract non-obvious structural commonalities across multiple substantial examples. Identify latent mechanisms, shared constraint-structures, and pattern families with predictive slack rather than surface vibes.
 ---
 
 # inductify

@@ -1,6 +1,9 @@
 ---
+description: Build explicit, high-coverage mapping from familiar source domain onto
+  target domain to systematically port rules, heuristics, formulas, and metrics. Heavier
+  than rhyme, lighter than formal proof. When source has math, carry the math with
+  units and dimensional analysis.
 name: metaphorize
-description: Build explicit, high-coverage mapping from familiar source domain onto target domain to systematically port rules, heuristics, formulas, and metrics. Heavier than rhyme, lighter than formal proof. When source has math, carry the math with units and dimensional analysis.
 ---
 
 # Metaphorization

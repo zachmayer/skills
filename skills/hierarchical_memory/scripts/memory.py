@@ -11,7 +11,9 @@ from pathlib import Path
 import click
 import polars as pl
 
-OBSIDIAN_DIR = Path(os.environ.get("CLAUDE_OBSIDIAN_DIR", str(Path.home() / "claude" / "obsidian")))
+OBSIDIAN_DIR = Path(
+    os.environ.get("CLAUDE_OBSIDIAN_DIR", str(Path.home() / "claude" / "obsidian"))
+).expanduser()
 MEMORY_DIR = OBSIDIAN_DIR / "memory"
 KNOWLEDGE_DIR = OBSIDIAN_DIR / "knowledge_graph"
 
@@ -219,14 +221,26 @@ def status() -> None:
     if daily.is_empty():
         click.echo("No daily files found.")
     else:
+        monthly_lookup = monthly.select(
+            pl.col("month"), pl.col("modified").alias("monthly_modified")
+        )
+
+        # Join each daily file with its month's summary timestamp
+        daily_with_monthly = daily.join(monthly_lookup, on="month", how="left")
+
+        # Stale files: daily files newer than their monthly summary
+        stale = daily_with_monthly.filter(
+            pl.col("monthly_modified").is_not_null()
+            & (pl.col("modified") > pl.col("monthly_modified"))
+        )
+        stale_by_month = stale.group_by("month").agg(
+            pl.col("filename").alias("stale_files"),
+        )
+
+        # Aggregate daily counts per month
         daily_by_month = daily.group_by("month").agg(
             pl.col("modified").max().alias("latest_daily"),
             pl.col("filename").count().alias("daily_count"),
-            pl.col("filename").alias("daily_files"),
-        )
-
-        monthly_lookup = monthly.select(
-            pl.col("month"), pl.col("modified").alias("monthly_modified")
         )
         joined = daily_by_month.join(monthly_lookup, on="month", how="left")
 
@@ -234,7 +248,7 @@ def status() -> None:
         needs_update = joined.filter(
             pl.col("monthly_modified").is_not_null()
             & (pl.col("latest_daily") > pl.col("monthly_modified"))
-        )
+        ).join(stale_by_month, on="month", how="left")
         ok = joined.filter(
             pl.col("monthly_modified").is_not_null()
             & (pl.col("latest_daily") <= pl.col("monthly_modified"))
@@ -248,15 +262,8 @@ def status() -> None:
         if not needs_update.is_empty():
             click.echo("**UPDATE** — daily files newer than monthly summary:")
             for row in needs_update.sort("month").iter_rows(named=True):
-                stale_files = [
-                    f
-                    for f, m in zip(
-                        daily.filter(pl.col("month") == row["month"])["filename"].to_list(),
-                        daily.filter(pl.col("month") == row["month"])["modified"].to_list(),
-                    )
-                    if m > row["monthly_modified"]
-                ]
-                click.echo(f"  - {row['month']} (stale: {', '.join(stale_files)})")
+                names = ", ".join(row["stale_files"])
+                click.echo(f"  - {row['month']} (stale: {names})")
         if not ok.is_empty():
             click.echo("**OK** — monthly summary is up to date:")
             for row in ok.sort("month").iter_rows(named=True):
@@ -264,22 +271,18 @@ def status() -> None:
 
     # Overall status
     click.echo("\n## Overall Status\n")
-    if overall.is_empty():
-        if not monthly.is_empty():
-            click.echo(
-                f"**CREATE** — no {OVERALL_FILENAME} exists but monthly summaries are available."
-            )
-        else:
-            click.echo("No overall memory file found.")
-    elif not monthly.is_empty():
-        overall_modified = overall["modified"].max()
-        latest_monthly = monthly["modified"].max()
-        if latest_monthly > overall_modified:
-            click.echo(f"**UPDATE** — monthly summaries are newer than {OVERALL_FILENAME}.")
-        else:
-            click.echo(f"**OK** — {OVERALL_FILENAME} is up to date.")
-    else:
+    if overall.is_empty() and monthly.is_empty():
+        click.echo("No overall memory file found.")
+    elif overall.is_empty():
+        click.echo(
+            f"**CREATE** — no {OVERALL_FILENAME} exists but monthly summaries are available."
+        )
+    elif monthly.is_empty():
         click.echo(f"{OVERALL_FILENAME} exists but no monthly summaries to compare against.")
+    elif monthly["modified"].max() > overall["modified"].max():
+        click.echo(f"**UPDATE** — monthly summaries are newer than {OVERALL_FILENAME}.")
+    else:
+        click.echo(f"**OK** — {OVERALL_FILENAME} is up to date.")
 
     # Knowledge graph listing
     if KNOWLEDGE_DIR.is_dir():

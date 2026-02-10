@@ -270,7 +270,7 @@ Major improvements, curated by human and Claude together.
 
 ### Human TODOs
 
-- [ ] Rename `~/claude/obsidian/Zach/` → `~/claude/obsidian/knowledge_graph/` (code now references `knowledge_graph/`)
+- [ ] **Rename obsidian folder**: `mv ~/claude/obsidian/Zach/ ~/claude/obsidian/knowledge_graph/` — code now references `knowledge_graph/` as the subdirectory name
 - [ ] Delete old `~/claude/heartbeat/` repo after heartbeat consolidation
 - [ ] Delete old `~/claude/memory/` repo after memory consolidation
 - [ ] Re-run crontab setup after heartbeat path changes

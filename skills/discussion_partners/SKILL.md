@@ -86,6 +86,20 @@ variable to set. If the key exists but the call fails, common errors:
 - `--model` / `-m`: Override model name (defaults to best thinking model per provider)
 - `--system` / `-s`: Optional system prompt override
 
+## Custom Models
+
+The `--model` flag accepts any [pydantic-ai `KnownModelName`](https://ai.pydantic.dev/api/models/), so you can target a specific model version or provider variant. Examples:
+
+```bash
+# Specific OpenAI model
+uv run --directory SKILL_DIR python scripts/ask_model.py -p openai -m o3 "question"
+
+# Specific Anthropic model
+uv run --directory SKILL_DIR python scripts/ask_model.py -p anthropic -m claude-sonnet-4-5-20250929 "question"
+```
+
+The provider flag still controls API key selection and default behavior. The model flag just overrides which model is called.
+
 ## Multiple Calls
 
 Each call gets zero context from previous calls. For follow-ups, include the prior exchange: "I asked X, you answered Y, help me understand Z."

@@ -1,7 +1,11 @@
 ---
+description: extract rhetorical skeleton + fact ledger, then map the "spin-space"
+  around an argument by applying controlled connotation and syntax transforms across
+  multiple passes. ranks variants by rhetorical surprise and surfaces the hidden fulcrum
+  words and grammatical moves that do the persuasive work. diagnostic, not generative.
 name: rhetoricize
-description: extract rhetorical skeleton + fact ledger, then map the "spin-space" around an argument by applying controlled connotation and syntax transforms across multiple passes. ranks variants by rhetorical surprise and surfaces the hidden fulcrum words and grammatical moves that do the persuasive work. diagnostic, not generative.
 ---
+
 ## tl;dr
 
 rhetoricize answers: "how much of this argument lands because of framing and word-choice, not facts?"

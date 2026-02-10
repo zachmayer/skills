@@ -1,6 +1,10 @@
 ---
+description: Compress conflicting positions into decision-sufficient generative frame
+  with explicit distortion tracking. Produces tiered outputs (quick/medium/deep),
+  tracks what was dropped, and validates via round-trip testing. Use when thesis +
+  antithesis exist and you need portable framework that explains both while generating
+  novel predictions.
 name: synthesize
-description: Compress conflicting positions into decision-sufficient generative frame with explicit distortion tracking. Produces tiered outputs (quick/medium/deep), tracks what was dropped, and validates via round-trip testing. Use when thesis + antithesis exist and you need portable framework that explains both while generating novel predictions.
 ---
 
 # Synthesis

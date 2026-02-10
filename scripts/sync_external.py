@@ -1,11 +1,10 @@
 """Sync external skills from URLs listed in external_skills.txt."""
 
-import re
 from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
-import yaml
+import frontmatter
 
 urls = [
     line.strip()
@@ -26,11 +25,8 @@ for url in urls:
     dest.parent.mkdir(parents=True, exist_ok=True)
     print(f"  {name}")
     content = urlopen(url, timeout=10).read().decode()  # noqa: S310
-    # Validate frontmatter is parseable YAML
-    if content.startswith("---"):
-        end = content.index("---", 3)
-        yaml.safe_load(content[3:end])
-    content = re.sub(r"^(name:\s*)\S+", rf"\1{name}", content, count=1, flags=re.MULTILINE)
-    dest.write_text(content)
+    post = frontmatter.loads(content)
+    post.metadata["name"] = name
+    dest.write_text(frontmatter.dumps(post) + "\n")
 
 print(f"Synced {len(urls)} external skills.")

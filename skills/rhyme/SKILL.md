@@ -1,6 +1,9 @@
 ---
+description: Fast structural similarity detection that maps novel inputs onto known
+  patterns through echo recognition. Use for understanding unfamiliar domains, creative
+  seeding, intuition framing, or finding parallel structures across different contexts.
+  Upstream move before metaphor or detailed mapping.
 name: rhyme
-description: Fast structural similarity detection that maps novel inputs onto known patterns through echo recognition. Use for understanding unfamiliar domains, creative seeding, intuition framing, or finding parallel structures across different contexts. Upstream move before metaphor or detailed mapping.
 ---
 
 # Rhyme

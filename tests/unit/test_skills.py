@@ -7,7 +7,7 @@ import yaml
 
 SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
 SKILL_DIRS = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir() and d.name != "__pycache__")
-MAX_LINES = 1000
+MAX_LINES = 200
 
 
 def parse_frontmatter(text: str) -> dict:

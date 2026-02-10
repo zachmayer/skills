@@ -26,4 +26,4 @@ Use README.md as the development memory for this repo. It contains the skill inv
 - SKILL.md uses YAML frontmatter with `name` and `description`
 - Descriptions use WHEN/WHEN NOT pattern for clear invocation boundaries
 - Python scripts use Click, type hints, and minimal dependencies
-- Keep SKILL.md under 1000 lines; prefer under 500 for local skills
+- Keep SKILL.md under 200 lines; move detailed examples/reference to REFERENCE.md

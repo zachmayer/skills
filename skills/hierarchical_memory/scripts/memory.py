@@ -2,6 +2,7 @@
 """Hierarchical memory management stored as markdown files."""
 
 import os
+import platform
 import re
 from datetime import datetime
 from pathlib import Path
@@ -67,8 +68,9 @@ def note(text: str) -> None:
     if not path.exists():
         path.write_text(f"# Notes for {now.strftime('%Y-%m-%d')}\n\n")
 
+    hostname = platform.node().split(".")[0]
     with path.open("a") as f:
-        f.write(f"- **{timestamp}**: {text}\n")
+        f.write(f"- **{timestamp}** [{hostname}]: {text}\n")
 
     click.echo(f"Saved to {path}")
 

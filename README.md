@@ -212,10 +212,13 @@ Major improvements, curated by human and Claude together.
 - [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Currently blocked by auth; investigate Google API or export workarounds.
 - [ ] **Voice notes / audio transcription** — Transcribe audio (voice memos, meeting recordings) into memory or obsidian. Would lower the capture bar to "just talk." Whisper API or local whisper.cpp.
 - [ ] **Daily briefing** — Morning summary combining working memory, pending tasks, and recent vault activity. Uses the organized info to start the day with context instead of cold-starting.
+- [ ] **Messaging / mobile bridge** — A way to send messages from phone that wake up Claude (iMessage, Slack, or a chat app). Needs a listener/webhook — may require system-level integration beyond a skill. Key use case: quick capture and task dispatch while away from desk.
 
 ### Enhancements
 
 - [x] **Memory aggregation helper** — Polars-based `status` command shows which monthly/overall files are stale. Deterministic staleness detection so aggregation only processes what's needed.
+- [x] **Hostname in daily logs** — Memory notes include `[hostname]` to disambiguate entries from multiple machines writing to the same vault.
+- [x] **Progressive disclosure** — 8 oversized FUTURE_TOKENS skills split into concise SKILL.md + REFERENCE.md. All skills now under 200 lines.
 - [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user rather than assuming months-old info is current.
 
 ### Skill Quality

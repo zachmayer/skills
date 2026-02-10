@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - settings.template.json with gh CLI permissions (read-only allow, mutating deny)
 - Heartbeat cron auth fix (sources ~/.claude/heartbeat.env)
 - Time-aware ralph_loop with deadline pacing
+- Hostname in daily memory notes for multi-machine disambiguation
 
 ### Changed
 

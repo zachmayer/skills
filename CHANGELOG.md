@@ -13,8 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Process skills**: ultra_think, mental_models, ask_questions, discussion_partners, data_science, forecast, lean_prover
 - **Analyze skills**: antithesize, excavate, synthesize, negspace, rhetoricize, dimensionalize, inductify, rhyme, metaphorize, handlize
 - **Build skills**: ralph_loop, beast_mode, staff_engineer, debug, concise_writing, gh_cli, prompt_evolution, llm_judge, skill_pruner
-- Polars-based `status` command for memory aggregation staleness detection
-- Progressive disclosure: 8 oversized skills split into SKILL.md + REFERENCE.md
+- `status` command for memory aggregation staleness detection
 - External skills sync from FUTURE_TOKENS via `make sync-external`
 - Dependabot auto-merge workflow and grouped updates
 - CLAUDE.md and AGENTS.md for repo context
@@ -26,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hostname in daily memory notes for multi-machine disambiguation
 - Pre-flight API key check and error disambiguation in ask_model.py
 - Security deny list in settings.json for destructive operations
-- Path traversal fix in memory.py show() command
+- Path traversal validation on user-supplied filenames in memory.py
 - python-frontmatter library for robust YAML parsing
 - yaml.safe_load + timeout in sync_external.py
 - `--list-models` flag for discussion_partners
@@ -45,13 +44,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All 10 FUTURE_TOKENS skills promoted to first-class
 - Heartbeat derives paths from CLAUDE_OBSIDIAN_DIR, uses # CLAUDE_HEARTBEAT cron marker
 - .expanduser() on CLAUDE_OBSIDIAN_DIR so ~/... env vars resolve
-- Staleness detection refactored to pure dataframe join (no nested Python loops)
+- Staleness detection refactored to pure Python dicts (replaced Polars)
 
 ### Removed
 
 - Boilerplate demo function and demo-script entry point
 - `.env.example` (one source of truth: shell profile)
-- 8 REFERENCE.md files (reversed progressive disclosure; full content in SKILL.md)
+- 8 REFERENCE.md files (consolidated into SKILL.md)
 - 200-line test file
 
 ## [0.1.0] - 2025-10-28

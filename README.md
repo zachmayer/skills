@@ -278,7 +278,7 @@ Major improvements, curated by human and Claude together.
 
 ### Human TODOs
 
-- [ ] **Merge PR #20** — agent-skills branch, 207 tests passing
+- [ ] **Merge PR #20** — agent-skills branch, 214 tests passing
 - [ ] **Fix heartbeat cron** — create env file: `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
 - [ ] **Settings precedence**: project-level allow does NOT override global-level deny. Remove `gh pr create*` from project deny list if you want it enabled for this repo.
 

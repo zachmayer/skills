@@ -49,7 +49,7 @@ The heartbeat script sources this file automatically on startup.
 
 ```bash
 # Add heartbeat cron (runs every 4 hours)
-(crontab -l 2>/dev/null; echo "0 */4 * * * SKILL_DIR/scripts/heartbeat.sh >> ~/claude/obsidian/heartbeat/heartbeat.log 2>&1") | crontab -
+(crontab -l 2>/dev/null; echo "0 */4 * * * SKILL_DIR/scripts/heartbeat.sh >> ~/claude/obsidian/heartbeat/heartbeat.log 2>&1 # CLAUDE_HEARTBEAT") | crontab -
 ```
 
 Verify with `crontab -l`.
@@ -73,4 +73,4 @@ Edit `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md` — add tasks as `- [ ] descripti
 
 - **Check log**: `tail -20 $CLAUDE_OBSIDIAN_DIR/heartbeat/heartbeat.log`
 - **Pause**: `crontab -l | sed '/heartbeat/s|^|#|' | crontab -`
-- **Stop**: `crontab -l | grep -v heartbeat | crontab -`
+- **Stop**: `crontab -l | grep -v '# CLAUDE_HEARTBEAT' | crontab -`

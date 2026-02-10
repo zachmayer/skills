@@ -50,9 +50,9 @@ Use `[[wiki-links]]` to connect related notes. Link to existing obsidian notes b
 
 ### 4. Save big-picture items to obsidian notes
 
-If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in `~/claude/obsidian/` using the `obsidian` skill.
+If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in the obsidian vault using the `obsidian` skill.
 
-Daily work goes to `memory/` subdirectory via hierarchical_memory. Durable knowledge goes to topic notes in the vault root or `personal/` subdirectories.
+Daily work goes to `memory/` subdirectory via hierarchical_memory. Durable knowledge goes to `knowledge_graph/` topic notes in the vault.
 
 ### 5. Aggregate memory
 
@@ -63,5 +63,5 @@ If any `note` outputs showed stale aggregations (e.g. `Aggregation stale: 2026-0
 Everything is in the obsidian vault now — one commit covers both memory and notes:
 
 ```bash
-git -C ~/claude/obsidian add -A && git -C ~/claude/obsidian commit -m "session update" && git -C ~/claude/obsidian push
+git -C $CLAUDE_OBSIDIAN_DIR add -A && git -C $CLAUDE_OBSIDIAN_DIR commit -m "session update" && git -C $CLAUDE_OBSIDIAN_DIR push
 ```

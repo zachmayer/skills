@@ -150,8 +150,8 @@ Cluster patterns into pattern families where they share a latent factor (e.g., "
 
 ## suggested next moves
 - test strongest pattern(s) on a new case
-- @stressify the highest-leverage induction
-- @operationalize any pattern that you want to turn into a heuristic
+- stress-test the highest-leverage induction (adversarial counterexamples)
+- operationalize any pattern you want to turn into a heuristic
 - gather targeted evidence to confirm/disconfirm edge cases
 ```
 
@@ -177,8 +177,8 @@ Cluster patterns into pattern families where they share a latent factor (e.g., "
 
 ## Integration with other ops
 
-- **Upstream:** @framestorm → generate candidate lenses before pattern-search; @excavate → prep each example's assumption stack
-- **Downstream:** @operationalize → convert robust pattern → actionable heuristic or rule-of-thumb; @stressify → adversarially test the most important inductions
+- **Upstream:** @excavate → prep each example's assumption stack
+- **Downstream:** @antithesize → adversarially test the most important inductions
 - **Parallel:** @rhyme → lightweight analogical patterning (lower effort, lower rigor); @metaphorize → single-source mapping (one example to a new domain), versus multi-source induction
 
 ## Meta-note

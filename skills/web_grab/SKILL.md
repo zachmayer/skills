@@ -26,7 +26,7 @@ Try these tiers in order. Stop at the first one that returns useful content:
 Before saving, search the obsidian vault for related notes:
 
 1. Identify 3-5 key topics/keywords from the fetched content
-2. Use Grep/Glob on `~/claude/obsidian/` to find existing notes that match those topics
+2. Use Grep/Glob on the obsidian vault (`$CLAUDE_OBSIDIAN_DIR/`) to find existing notes that match those topics
 3. Collect filenames (without `.md`) for `[[wiki-links]]` and note any `#topic` tags already in use
 4. Check if a MOC hub exists for this topic (e.g., `Factorio.md` for a Factorio blueprint)
 

@@ -180,8 +180,6 @@ cython_debug/
 #  you could uncomment the following to ignore the enitre vscode folder
 # .vscode/
 
-# Rsynced external skills are tracked in version control
-
 # Ruff stuff:
 .ruff_cache/
 

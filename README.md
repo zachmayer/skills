@@ -6,27 +6,37 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 
 | Skill | Type | Description |
 |-------|------|-------------|
+| [antithesize](skills/antithesize/) | Prompt | Generate standalone opposition: rival thesis, refutation, stress tests |
 | [ask_questions](skills/ask_questions/) | Prompt | Structured questioning framework: clarify before acting |
 | [beast_mode](skills/beast_mode/) | Prompt | Maximum persistence mode: keep going until fully solved |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
 | [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [dimensionalize](skills/dimensionalize/) | Prompt | Transform decisions into 3-7 measurable scoring dimensions |
 | [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models via pydantic-ai |
+| [excavate](skills/excavate/) | Prompt | Assumption archaeology: surface hidden premises in arguments |
 | [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
+| [handlize](skills/handlize/) | Prompt | Extract compact handles (names) for unnamed concepts |
 | [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous task processing for Claude Code |
 | [hierarchical_memory](skills/hierarchical_memory/) | Python | Notes aggregated into daily/weekly/monthly/overall summaries |
+| [inductify](skills/inductify/) | Prompt | Inductive reasoning: generalize from examples to principles |
 | [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs with rubrics |
 | [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems, critical analysis |
+| [metaphorize](skills/metaphorize/) | Prompt | Build explicit source→target domain mappings with formulas and metrics |
+| [negspace](skills/negspace/) | Prompt | Negative space analysis: find what's missing or unsaid |
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
 | [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown using marker |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for sensitive data |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover over generations |
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
 | [remember_session](skills/remember_session/) | Prompt | Save session learnings to hierarchical memory and obsidian |
+| [rhetoricize](skills/rhetoricize/) | Prompt | Rhetorical stress testing: probe arguments for persuasion flaws |
+| [rhyme](skills/rhyme/) | Prompt | Find structural parallels between domains (conceptual rhyming) |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality; propose compactions |
 | [skill_stealer](skills/skill_stealer/) | Prompt | Extract skills from URLs into SKILL.md with degrees-of-freedom analysis |
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
+| [synthesize](skills/synthesize/) | Prompt | Compress conflicting positions into decision-sufficient framework |
 | [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
 
 ## Skill Graph
@@ -57,7 +67,7 @@ graph LR
     hierarchical_memory --> private_repo
 ```
 
-Standalone skills (no imports): `beast_mode`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `lean_prover`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_pruner`, `skill_stealer`, `staff_engineer`
+Standalone skills (no imports): `antithesize`, `beast_mode`, `concise_writing`, `data_science`, `dimensionalize`, `excavate`, `forecast`, `gh_cli`, `handlize`, `inductify`, `lean_prover`, `mental_models`, `metaphorize`, `negspace`, `pdf_to_markdown`, `private_repo`, `rhetoricize`, `rhyme`, `skill_pruner`, `skill_stealer`, `staff_engineer`, `synthesize`
 
 ## Install
 
@@ -81,13 +91,6 @@ git clone https://github.com/zachmayer/skills.git
 cd skills
 make install        # Install Python deps
 make install-local  # Symlink skills to ~/.claude/skills/
-```
-
-### Pull external skills (FUTURE_TOKENS)
-
-```bash
-make pull-external  # Clone and copy FUTURE_TOKENS skills
-make install-local  # Link everything including external skills
 ```
 
 ## Development
@@ -150,7 +153,7 @@ Major improvements, curated by human and Claude together.
 ### Skill Quality
 
 - [x] **Skill pruner/compactor** — Created `skill_pruner` skill. Audited and compacted all 21 skills: ultra_think 169→50 lines, staff_engineer 140→124, lean_prover 168→136, ask_questions 83→57, discussion_partners 80→71. Net -185 lines (12% reduction).
-- [x] **Compile external skills into existing ones** — Reviewed all 10 FUTURE_TOKENS skills against existing. Compiled 7 novel techniques into `mental_models`: Dimensionalization, Regime Partitioning, Rival Thesis, Assumption Archaeology, Negative Space Analysis, Handle Extraction, Rhetorical Stress Test. External skills table kept as reference.
+- [x] **Compile external skills into existing ones** — Compiled 7 novel techniques into `mental_models`. Promoted all 10 FUTURE_TOKENS skills to first-class (flat hierarchy, SKILL.md, tested). Compacted 3 oversized skills to ≤500 lines.
 
 ### Human TODOs
 

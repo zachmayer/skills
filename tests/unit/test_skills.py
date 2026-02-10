@@ -6,11 +6,7 @@ import pytest
 import yaml
 
 SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
-SKILL_DIRS = sorted(
-    d
-    for d in SKILLS_DIR.iterdir()
-    if d.is_dir() and d.name != ".external" and d.name != "__pycache__"
-)
+SKILL_DIRS = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir() and d.name != "__pycache__")
 MAX_LINES = 500
 
 

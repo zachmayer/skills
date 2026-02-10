@@ -56,20 +56,13 @@ write.csv(data.frame(
 Use simulation for decisions under uncertainty — when you need the full distribution, not just point forecasts:
 
 ```r
-Rscript -e '
-library(forecast)
-data <- read.csv("INPUT_FILE")
-ts_data <- ts(data$VALUE_COLUMN, frequency=FREQUENCY)
-fit <- auto.arima(ts_data, ic="aic", stepwise=FALSE, lambda="auto")
-
-# Simulate 10k future paths
+# Simulate 10k future paths from the fit above
 sims <- simulate(fit, nsim=10000, future=TRUE)
 
 # Decision-relevant summaries
 cat("P(value > threshold):", mean(sims > THRESHOLD), "\n")
 cat("Expected value:", mean(sims), "\n")
 cat("5th/95th percentile:", quantile(sims, c(0.05, 0.95)), "\n")
-'
 ```
 
 ## Install R Dependencies

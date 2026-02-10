@@ -69,7 +69,7 @@ When analyzing the problem, select and apply the most relevant mental models fro
 
 ## External Thinking Skills
 
-Core techniques from these skills are integrated above. The full-length versions offer deeper protocols and worked examples, available as `/skill-name` commands (from [FUTURE_TOKENS](https://github.com/jordanrubin/FUTURE_TOKENS)):
+Core techniques from these skills are integrated above. The full-length versions offer deeper protocols and worked examples, available as `/skill-name` commands (originally from [FUTURE_TOKENS](https://github.com/jordanrubin/FUTURE_TOKENS)):
 
 | Skill | Purpose |
 |-------|---------|

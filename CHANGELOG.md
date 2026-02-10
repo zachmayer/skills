@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Renamed project from python-boilerplate to agent-skills
-- Added click, httpx, polars, pydantic-ai, python-frontmatter as dependencies
+- Added click, pydantic-ai, python-frontmatter as dependencies
 - README reorganized around capture/organize/process narrative
 - Skills grouped by pipeline stage in README
 - Consolidated all env vars to single `CLAUDE_OBSIDIAN_DIR` (replaces CLAUDE_MEMORY_DIR, OBSIDIAN_ROOT, VAULT_DIR, CLAUDE_HEARTBEAT_TASKS)

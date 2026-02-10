@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Edit(**)",
+      "Write(**)",
+      "Bash(make*)",
+      "Bash(ls *)",
+      "Bash(wc *)",
+      "Bash(mkdir *)",
+      "Bash(python3 *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(test *)",
+      "Bash(gh pr create*)",
+      "Bash(gh release create*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.astral.sh)",
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:ai.pydantic.dev)",
+      "WebFetch(domain:claude.com)",
+      "WebFetch(domain:hamel.dev)",
+      "WebFetch(domain:x.com)",
+      "WebFetch(domain:xcancel.com)"
+    ]
+  }
+}

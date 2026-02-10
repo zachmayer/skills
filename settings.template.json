@@ -3,8 +3,6 @@
     "allow": [
       "Bash(echo *)",
       "Bash(git *)",
-      "Bash(git -C *)",
-      "Bash(git commit *)",
       "Bash(gh --help*)",
       "Bash(gh help *)",
       "Bash(gh * --help*)",
@@ -67,9 +65,6 @@
       "Bash(uv tool run*)",
       "Bash(uv cache clean*)",
       "Bash(uvx *)",
-      "Read(skills/**)",
-      "Edit(skills/**)",
-      "Write(skills/**)",
       "Read(~/claude/memory/**)",
       "Edit(~/claude/memory/**)",
       "Write(~/claude/memory/**)",

@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.env.example` (one source of truth: shell profile)
 - 8 REFERENCE.md files (consolidated into SKILL.md)
 - 200-line test file
+- Unused polars and httpx dependencies
 
 ## [0.1.0] - 2025-10-28
 

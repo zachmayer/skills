@@ -17,13 +17,14 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 | [hierarchical_memory](skills/hierarchical_memory/) | Python | Notes aggregated into daily/weekly/monthly/overall summaries |
 | [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs with rubrics |
-| [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems |
+| [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems, critical analysis |
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
 | [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown using marker |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for sensitive data |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover over generations |
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
 | [remember_session](skills/remember_session/) | Prompt | Save session learnings to hierarchical memory and obsidian |
+| [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality; propose compactions |
 | [skill_stealer](skills/skill_stealer/) | Prompt | Extract skills from URLs into SKILL.md with degrees-of-freedom analysis |
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
 | [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
@@ -56,7 +57,7 @@ graph LR
     hierarchical_memory --> private_repo
 ```
 
-Standalone skills (no imports): `beast_mode`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `lean_prover`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_stealer`, `staff_engineer`
+Standalone skills (no imports): `beast_mode`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `lean_prover`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_pruner`, `skill_stealer`, `staff_engineer`
 
 ## Install
 
@@ -148,8 +149,8 @@ Major improvements, curated by human and Claude together.
 
 ### Skill Quality
 
-- [ ] **Skill pruner/compactor** — A skill that reviews all installed skills, finds overlaps, and proposes merges or deletions. Not aggressive — just surfaces candidates. Compares each skill against the [best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices): is this teaching the model what it already knows?
-- [ ] **Compile external skills into existing ones** — Instead of copying FUTURE_TOKENS skills wholesale, review each against our existing skills (e.g., external thinking tools vs mental_models), merge what's novel, discard what's redundant. Precise wording may matter for eliciting specific LLM behavior — evaluate case by case.
+- [x] **Skill pruner/compactor** — Created `skill_pruner` skill. Audited and compacted all 21 skills: ultra_think 169→50 lines, staff_engineer 140→124, lean_prover 168→136, ask_questions 83→57, discussion_partners 80→71. Net -185 lines (12% reduction).
+- [x] **Compile external skills into existing ones** — Reviewed all 10 FUTURE_TOKENS skills against existing. Compiled 7 novel techniques into `mental_models`: Dimensionalization, Regime Partitioning, Rival Thesis, Assumption Archaeology, Negative Space Analysis, Handle Extraction, Rhetorical Stress Test. External skills table kept as reference.
 
 ### Human TODOs
 

@@ -30,7 +30,15 @@ If the page requires auth, JavaScript rendering, or blocks bots:
 2. Read the saved HTML file
 3. Extract the meaningful content (strip nav, ads, boilerplate)
 
-## Step 3: Process and save
+## Step 3: Discover related topics
+
+Before saving, search the obsidian vault for related notes:
+
+1. Identify 3-5 key topics/keywords from the fetched content
+2. Use Grep/Glob on `~/claude/obsidian/` to find existing notes that match those topics
+3. Collect filenames (without `.md`) for `[[wiki-links]]` and note any `#topic` tags already in use
+
+## Step 4: Process and save
 
 1. Extract the useful content into clean markdown
 2. Use the `/obsidian` skill to save a note with:
@@ -38,9 +46,9 @@ If the page requires auth, JavaScript rendering, or blocks bots:
    - **Source URL** — always include the full original URL
    - **Date grabbed** — ISO date (YYYY-MM-DD) of when the content was fetched
    - Key content in markdown
-   - Tags based on topic
-3. Add `[[wiki-links]]` to connect to related obsidian notes (by filename without `.md`)
-4. Report what was saved and where
+   - `#topic` tags — reuse existing vault tags where applicable, add new ones as needed
+3. Add `[[wiki-links]]` to connect to related obsidian notes found in Step 3
+4. Report what was saved, where, and what it links to
 
 **Required metadata** — every web grab note MUST start with:
 

@@ -20,10 +20,6 @@ $CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
 ├── heartbeat/                   # Autonomous task queue
 │   └── tasks.md
 └── knowledge_graph/             # Durable topic notes, personal knowledge
-    ├── Interests/               # Hobbies, games, media
-    ├── Personal/                # Family, life
-    ├── Technical/               # Tech notes, equipment, troubleshooting
-    └── Work/                    # Career, projects, business
 ```
 
 ## Note Patterns

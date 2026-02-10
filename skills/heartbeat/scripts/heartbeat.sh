@@ -2,6 +2,9 @@
 # Heartbeat: Periodically invoke Claude Code to process pending tasks.
 set -euo pipefail
 
+# Cron runs with minimal PATH. Add common locations for claude binary.
+export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:/usr/local/bin:$PATH"
+
 TASKS_FILE="${CLAUDE_HEARTBEAT_TASKS:-$HOME/claude/obsidian/heartbeat/tasks.md}"
 LOCK_FILE="/tmp/claude-heartbeat.lock"
 LOG_PREFIX="[$(date -u +%Y-%m-%dT%H:%M:%SZ)]"

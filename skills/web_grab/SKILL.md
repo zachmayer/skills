@@ -38,4 +38,5 @@ If the page requires auth, JavaScript rendering, or blocks bots:
    - Source URL as metadata
    - Key content in markdown
    - Tags based on topic
-3. Report what was saved and where
+3. Add `[[wiki-links]]` to connect to related obsidian notes (by filename without `.md`)
+4. Report what was saved and where

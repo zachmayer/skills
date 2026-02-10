@@ -11,6 +11,7 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 | [beast_mode](skills/beast_mode/) | Prompt | Maximum persistence mode: keep going until fully solved |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
 | [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [debug](skills/debug/) | Prompt | Line-by-line code audit loop: trace values, verify behavior, fix |
 | [dimensionalize](skills/dimensionalize/) | Prompt | Transform decisions into 3-7 measurable scoring dimensions |
 | [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models via pydantic-ai |
 | [excavate](skills/excavate/) | Prompt | Assumption archaeology: surface hidden premises in arguments |
@@ -38,6 +39,7 @@ A shared, open-source collection of agent skills following the [Agent Skills](ht
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
 | [synthesize](skills/synthesize/) | Prompt | Compress conflicting positions into decision-sufficient framework |
 | [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
+| [web_grab](skills/web_grab/) | Prompt | Fetch URL content and save to obsidian; auto or manual fallback |
 
 ## Skill Graph
 
@@ -65,9 +67,10 @@ graph LR
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo
+    web_grab --> obsidian
 ```
 
-Standalone skills (no imports): `antithesize`, `beast_mode`, `concise_writing`, `data_science`, `dimensionalize`, `excavate`, `forecast`, `gh_cli`, `handlize`, `inductify`, `lean_prover`, `mental_models`, `metaphorize`, `negspace`, `pdf_to_markdown`, `private_repo`, `rhetoricize`, `rhyme`, `skill_pruner`, `skill_stealer`, `staff_engineer`, `synthesize`
+Standalone skills (no imports): `antithesize`, `beast_mode`, `concise_writing`, `data_science`, `debug`, `dimensionalize`, `excavate`, `forecast`, `gh_cli`, `handlize`, `inductify`, `lean_prover`, `mental_models`, `metaphorize`, `negspace`, `pdf_to_markdown`, `private_repo`, `rhetoricize`, `rhyme`, `skill_pruner`, `skill_stealer`, `staff_engineer`, `synthesize`
 
 ## Install
 
@@ -89,8 +92,8 @@ npx skills add zachmayer/skills -g
 ```bash
 git clone https://github.com/zachmayer/skills.git
 cd skills
-make install        # Install Python deps
-make install-local  # Symlink skills to ~/.claude/skills/
+make install        # Install deps, settings, and symlink skills
+make install-local  # Settings + symlink skills only (no deps)
 ```
 
 ### Sync external skills
@@ -162,7 +165,7 @@ Major improvements, curated by human and Claude together.
 ### Skill Quality
 
 - [x] **Skill pruner/compactor** — Created `skill_pruner` skill. Audited and compacted all 21 skills: ultra_think 169→50 lines, staff_engineer 140→124, lean_prover 168→136, ask_questions 83→57, discussion_partners 80→71. Net -185 lines (12% reduction).
-- [x] **Compile external skills into existing ones** — Compiled 7 novel techniques into `mental_models`. Promoted all 10 FUTURE_TOKENS skills to first-class (flat hierarchy, SKILL.md, tested). Compacted 3 oversized skills to ≤500 lines.
+- [x] **Compile external skills into existing ones** — Compiled 7 novel techniques into `mental_models`. Promoted all 10 FUTURE_TOKENS skills to first-class (flat hierarchy, SKILL.md, tested). Raw upstream content preserved; sync via `make sync-external`.
 
 ### Human TODOs
 

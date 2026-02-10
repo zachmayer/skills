@@ -46,6 +46,8 @@ Save one note per distinct topic that isn't already in today's file. Include:
 
 Be specific. "Updated auth" is useless. "Replaced JWT middleware with session cookies because latency was too high on mobile" is useful.
 
+Use `[[wiki-links]]` to connect related notes. Link to existing obsidian notes by filename (without `.md`). For example: `See [[authentication-architecture]]` or `Related to [[2026-02-08]]`.
+
 ### 4. Save big-picture items to obsidian notes
 
 If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in `~/claude/obsidian/` using the `obsidian` skill.

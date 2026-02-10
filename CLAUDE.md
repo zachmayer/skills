@@ -4,11 +4,11 @@ A shared, open-source collection of agent skills following the Agent Skills open
 
 ## Build & Test
 
-- Install: `make install` (full: deps + settings + external + local skills)
+- Install: `make install` (deps + settings + symlink skills)
 - Install local only: `make install-local` (settings + symlink skills to ~/.claude/)
 - Lint: `make lint`
 - Test: `make test`
-- Pull external skills: `make pull-external`
+- Sync external skills: `make sync-external`
 
 ## Architecture
 
@@ -22,4 +22,4 @@ All Python scripts use Click for CLIs and are run via `uv run python <script>`.
 - SKILL.md uses YAML frontmatter with `name` and `description`
 - Descriptions use WHEN/WHEN NOT pattern for clear invocation boundaries
 - Python scripts use Click, type hints, and minimal dependencies
-- Keep SKILL.md under 500 lines; move reference material to separate files
+- Keep SKILL.md under 1000 lines; prefer under 500 for local skills

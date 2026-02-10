@@ -163,6 +163,11 @@ Major improvements, curated by human and Claude together.
 - [x] **Smarter heartbeat** — Reads daily memory, decides highest-value activity, writes questions to obsidian.
 - [ ] **Flat-file skill format** — Skills that are just a prompt (no scripts/) could be a single `.md` file instead of a directory. Needs a shared build step for both `make install` and `npx skills` to normalize flat files into `name/SKILL.md` directories.
 
+### New Skills
+
+- [ ] **Modal skill** — Run compute-intensive tasks on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
+- [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status for all skills that need external APIs.
+
 ### Skill Quality
 
 - [x] **Skill pruner/compactor** — Created `skill_pruner` skill. Audited and compacted all 21 skills: ultra_think 169→50 lines, staff_engineer 140→124, lean_prover 168→136, ask_questions 83→57, discussion_partners 80→71. Net -185 lines (12% reduction).

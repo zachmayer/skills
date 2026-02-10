@@ -4,6 +4,8 @@
 from pathlib import Path
 
 import click
+from marker.converters.pdf import PdfConverter
+from marker.models import create_model_dict
 
 
 @click.command()
@@ -17,9 +19,6 @@ import click
 )
 def convert(pdf_path: Path, output: Path | None) -> None:
     """Convert a PDF file to markdown using marker."""
-    from marker.converters.pdf import PdfConverter
-    from marker.models import create_model_dict
-
     if output is None:
         output = pdf_path.with_suffix(".md")
 

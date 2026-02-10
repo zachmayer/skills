@@ -190,10 +190,28 @@ Use the `/skill_stealer` skill to extract skills from URLs automatically.
 
 Skills that bundle Python code use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Dependencies are managed in the root `pyproject.toml`.
 
-Required environment variables for specific skills:
-- `discussion_partners`: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GOOGLE_API_KEY`
+## Environment Variables
 
-Add API keys to your shell profile (`~/.zshrc` or `~/.bashrc`). See `.env.example` for the list. Claude Code sources your shell profile at startup — no extra configuration needed.
+### Storage
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CLAUDE_OBSIDIAN_DIR` | `~/claude/obsidian` | Vault root. All paths derive from it. |
+
+Rigid subdirectories (Claude creates these automatically):
+- `memory/` — hierarchical memory (daily logs, monthly summaries, `overall_memory.md`)
+- `heartbeat/` — task queue, questions, logs
+- `knowledge_graph/` — durable topic notes, personal knowledge
+
+### API Keys
+
+| Variable | Used by |
+|----------|---------|
+| `OPENAI_API_KEY` | `discussion_partners` (GPT-5.2) |
+| `ANTHROPIC_API_KEY` | `discussion_partners` (Claude Opus 4.6) |
+| `GOOGLE_API_KEY` | `discussion_partners` (Gemini 3 Pro) |
+
+Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources your shell profile at startup — no extra configuration needed.
 
 ## Roadmap
 
@@ -201,51 +219,63 @@ Major improvements, curated by human and Claude together.
 
 ### Architecture
 
-- [x] **Consolidate memory repos into obsidian** — All persistent data in `~/claude/obsidian/`: memory, heartbeat tasks, TODOs, personal knowledge. Single git repo.
+- [x] **Consolidate memory repos into obsidian** — All persistent data in `$CLAUDE_OBSIDIAN_DIR`: memory, heartbeat tasks, personal knowledge. Single git repo.
 - [x] **Smarter heartbeat** — Reads daily memory, decides highest-value activity, writes questions to obsidian.
+- [x] **Single env var** — Consolidated `CLAUDE_MEMORY_DIR`, `OBSIDIAN_ROOT`, `VAULT_DIR`, `CLAUDE_HEARTBEAT_TASKS` into one `CLAUDE_OBSIDIAN_DIR` with rigid subdirectories.
 - [ ] **Flat-file skill format** — Skills that are just a prompt (no scripts/) could be a single `.md` file instead of a directory. Needs a shared build step for both `make install` and `npx skills` to normalize flat files into `name/SKILL.md` directories.
-- [ ] **Vector search for memory** — Semantic search over memory files and obsidian vault. Would complement the current keyword-based `search` command.
 
 ### New Skills
 
-- [ ] **Modal skill** — Run compute-intensive tasks on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
-- [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status for all skills that need external APIs.
-- [ ] **Prompt report** — Generate a structured report analyzing a prompt's effectiveness: token budget, instruction clarity, coverage gaps, ambiguity hotspots. Would pair with `prompt_evolution` and `llm_judge` for closed-loop prompt improvement.
-- [ ] **Playwright browser automation** — Headless browser for JS-heavy pages. Would unblock web_grab for SPAs and auth-gated content.
-- [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Currently blocked by auth; investigate Google API or export workarounds.
-- [ ] **Voice notes / audio transcription** — Transcribe audio (voice memos, meeting recordings) into memory or obsidian. Would lower the capture bar to "just talk." Whisper API or local whisper.cpp.
-- [ ] **Daily briefing** — Morning summary combining working memory, pending tasks, and recent vault activity. Uses the organized info to start the day with context instead of cold-starting.
-- [ ] **Messaging / mobile bridge** — A way to send messages from phone that wake up Claude (iMessage, Slack, or a chat app). Needs a listener/webhook — may require system-level integration beyond a skill. Key use case: quick capture and task dispatch while away from desk.
-- [ ] **PR review** — Python script uses `gh` CLI to collect PR diff, file list, metadata; assembles structured XML context doc (like we did manually for PR #20). Sends to `discussion_partners` CLI with configurable review focus prompt. Default: flag real issues, skip style nits. Script is the low-freedom core (mechanical XML assembly); review prompt and triage are high-freedom. Depends on: `gh_cli`, `discussion_partners`.
-- [ ] **Claude Code skills reference** — Comprehensive skill built from [Agent Skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Large skill (no line limit). SKILL.md includes the full reference content; can re-fetch the URL to check for doc updates. Goal: shortcut to best practices without leaving the editor.
-- [ ] **Claude Code config reference** — Same pattern, built from [Claude Code settings docs](https://code.claude.com/docs/en/settings#available-settings). Full reference for permissions, env vars, hooks, MCP, CLAUDE.md format. Large skill. Re-fetchable source URL for updates.
+- [ ] **PR review** — Python script uses `gh` CLI to collect PR diff, file list, metadata; assembles structured XML context doc. Sends to `discussion_partners` CLI with configurable review focus prompt. Default: flag real issues, skip style nits. Depends on: `gh_cli`, `discussion_partners`.
+- [ ] **Claude Code skills reference** — Comprehensive skill built from [Agent Skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Large skill. Re-fetchable source URL for updates.
+- [ ] **Claude Code config reference** — Same pattern, built from [Claude Code settings docs](https://code.claude.com/docs/en/settings#available-settings). Full reference for permissions, env vars, hooks, MCP, CLAUDE.md format.
+- [ ] **Agent coordinator** — Orchestration: coordinator spawns specialized sub-agents, dependency-aware routing.
+- [ ] **Blueprint tracker** — Structured markdown tracking project state, dependencies, attempts.
+- [ ] **Complexity router** — Assess complexity (simple/medium/complex), route to appropriate effort level.
+- [ ] **Checkpoint system** — Mandatory review at fixed intervals, attempt budgets.
+- [ ] **Context compiler** — Assemble structured context docs from git diffs, files, memory, obsidian. Automates the PR review pattern.
+- [ ] **Session planner** — On session start, read memory + tasks + todos, propose work plan. Lighter than `ralph_loop`.
+- [ ] **Capture inbox** — Smart routing for any input. Routes by scope + audience to the right destination: memory daily log (ephemeral), heartbeat tasks (recurring/future), obsidian knowledge_graph (durable knowledge), CLAUDE.md (repo-specific agent guidance), or README.md (repo dev memory).
+- [ ] **Claude constitution** — A skill encoding the user's values, principles, and preferences as a constitutional document. Applied when making judgment calls.
+- [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.
+- [ ] **Modal skill** — Run compute on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
+- [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status.
+- [ ] **Playwright browser automation** — Headless browser for JS-heavy pages. Unblocks web_grab for SPAs and auth-gated content.
+- [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Blocked by auth.
+- [ ] **Voice notes / audio transcription** — Whisper API or whisper.cpp. Lower the capture bar to "just talk."
+- [ ] **Daily briefing** — Morning summary from memory + tasks + vault.
+- [ ] **Messaging / mobile bridge** — Phone → Claude capture (iMessage, Slack, or chat app).
 
 ### Enhancements
 
-- [x] **Memory aggregation helper** — Polars-based `status` command shows which monthly/overall files are stale. Deterministic staleness detection so aggregation only processes what's needed.
-- [x] **Hostname in daily logs** — Memory notes include `[hostname]` to disambiguate entries from multiple machines writing to the same vault.
-- [x] **Progressive disclosure** — 8 oversized FUTURE_TOKENS skills split into concise SKILL.md + REFERENCE.md. All skills now under 200 lines.
-- [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user rather than assuming months-old info is current.
-- [ ] **Heartbeat safety** — Dedicated tighter permissions for heartbeat cron. Note: `tasks.md` is an executable instruction surface — treat it like code, not just a todo list.
-- [ ] **Fix install-ci after marker-pdf move** — `install-ci` uses `uv sync --locked --group dev` which now pulls marker-pdf/torch from main deps. Needs `--only-group dev` or moving marker-pdf back to optional. Separate PR.
+- [x] **Memory aggregation helper** — Polars-based `status` command shows which monthly/overall files are stale.
+- [x] **Hostname in daily logs** — Memory notes include `[hostname:reponame]` to disambiguate entries.
+- [x] ~~**Progressive disclosure**~~ — Reversed. External skills use full upstream content as-is. REFERENCE.md files deleted; `make sync-external` writes everything to SKILL.md.
+- [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user.
+- [ ] **Heartbeat architecture research** — Open questions: How does cron authenticate? Is the skill for managing setup or describing wakeup behavior? `tasks.md` is an executable instruction surface — security consideration.
+- [ ] **Heartbeat safety** — Dedicated tighter permissions for heartbeat cron.
+- [ ] **Vector search for memory** — Semantic search over memory files and obsidian vault via embeddings.
+- [ ] **Keyword search for memory** — Fast keyword/regex search across all memory files. Currently handled by Grep/Glob directly.
+- [ ] **Multi-day/month reader helper** — Read multiple days or months in a single command for broader context.
+- [ ] **Fix install-ci after marker-pdf move** — `install-ci` needs `--only-group dev` or moving marker-pdf back to optional.
 
 ### Lessons Learned
 
-- **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour. See `~/claude/obsidian/Zach/root-cause-before-you-build.md`.
+- **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
 
 ### Skill Quality
 
-- [x] **Skill pruner/compactor** — Created `skill_pruner` skill. Audited and compacted all 21 skills: ultra_think 169→50 lines, staff_engineer 140→124, lean_prover 168→136, ask_questions 83→57, discussion_partners 80→71. Net -185 lines (12% reduction).
-- [x] **Compile external skills into existing ones** — Compiled 7 novel techniques into `mental_models`. Promoted all 10 FUTURE_TOKENS skills to first-class (flat hierarchy, SKILL.md, tested). Raw upstream content preserved; sync via `make sync-external`.
+- [x] **Skill pruner/compactor** — Created `skill_pruner` skill. Audited and compacted all 21 skills. Net -185 lines (12% reduction).
+- [x] **Compile external skills into existing ones** — Compiled 7 novel techniques into `mental_models`. Promoted all 10 FUTURE_TOKENS skills to first-class. Raw upstream content preserved; sync via `make sync-external`.
 
 ### Human TODOs
 
+- [ ] Rename `~/claude/obsidian/Zach/` → `~/claude/obsidian/knowledge_graph/` (code now references `knowledge_graph/`)
 - [ ] Delete old `~/claude/heartbeat/` repo after heartbeat consolidation
 - [ ] Delete old `~/claude/memory/` repo after memory consolidation
 - [ ] Re-run crontab setup after heartbeat path changes
-- [ ] Review and merge PR on `agent-skills` branch
 - [ ] Review obsidian notes — move global guidance to skills, keep personal stuff in obsidian
-- [ ] Fix heartbeat cron — PATH fixed in script; auth fix added (sources `~/.claude/heartbeat.env`). **Human action needed**: create the env file with `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
+- [ ] Fix heartbeat cron — create env file: `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
 - [ ] Manually web grab troubled URLs:
   - `factoriocodex.com/blueprints/70` (JS SPA, needs Playwright)
   - `nilaus.atlassian.net/.../Factorio+Master+Class+Blueprints` (Confluence auth required)

@@ -7,23 +7,23 @@ description: >
 allowed-tools: Bash(git *), Read, Write, Glob, Grep
 ---
 
-Manage notes in the Obsidian vault at `~/claude/obsidian/`. Follows the **MOC (Map of Content)** pattern: atomic notes linked through hub pages.
+Manage notes in the Obsidian vault. The vault root is set by `CLAUDE_OBSIDIAN_DIR` (default: `~/claude/obsidian`). Follows the **MOC (Map of Content)** pattern: atomic notes linked through hub pages.
 
 ## Vault Structure
 
 ```
-~/claude/obsidian/
-├── memory/              # Hierarchical memory (managed by hierarchical_memory skill)
-│   ├── memory.md        # Overall working memory
-│   ├── 2026-02.md       # Monthly summaries
-│   └── 2026-02-08.md    # Daily notes (append-only)
-├── heartbeat/           # Autonomous task queue
+$CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
+├── memory/                      # Hierarchical memory (managed by hierarchical_memory skill)
+│   ├── overall_memory.md        # Overall working memory
+│   ├── 2026-02.md               # Monthly summaries
+│   └── 2026-02-08.md            # Daily notes (append-only)
+├── heartbeat/                   # Autonomous task queue
 │   └── tasks.md
-└── Zach/                # Personal knowledge (curated, durable)
-    ├── Interests/       # Hobbies, games, media
-    ├── Personal/        # Family, life
-    ├── Technical/       # Tech notes, equipment, troubleshooting
-    └── Work/            # Career, projects, business
+└── knowledge_graph/             # Durable topic notes, personal knowledge
+    ├── Interests/               # Hobbies, games, media
+    ├── Personal/                # Family, life
+    ├── Technical/               # Tech notes, equipment, troubleshooting
+    └── Work/                    # Career, projects, business
 ```
 
 ## Note Patterns
@@ -64,11 +64,23 @@ Grabbed: 2026-02-09
 - **Second note on same topic** — split the original into a MOC hub + atomic notes.
 - **Web grabs** — always create atomic notes. Link to an existing MOC or create one if a related topic exists.
 
+## Finding Notes
+
+Use Grep and Glob on the vault directory to find notes:
+
+```bash
+# Find notes by filename
+Glob("$CLAUDE_OBSIDIAN_DIR/**/*.md")
+
+# Search note contents
+Grep(pattern="search term", path="$CLAUDE_OBSIDIAN_DIR/")
+```
+
 ## Conventions
 
 - Use descriptive filenames as note titles (spaces are fine: `Factorio Base Designs.md`)
 - Add `#topic` tags for graph discoverability
 - Add `[[wiki-links]]` to reference related notes (filename without `.md`)
 - Memory files in `memory/` are managed by `hierarchical_memory` — don't edit directly
-- After changes: `git -C ~/claude/obsidian add -A && git -C ~/claude/obsidian commit -m "note: description" && git -C ~/claude/obsidian push`
+- After changes: `git -C $CLAUDE_OBSIDIAN_DIR add -A && git -C $CLAUDE_OBSIDIAN_DIR commit -m "note: description" && git -C $CLAUDE_OBSIDIAN_DIR push`
 - If no remote is configured, use the `private_repo` skill to set one up

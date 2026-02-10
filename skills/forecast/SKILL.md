@@ -20,8 +20,8 @@ library(forecast)
 data <- read.csv("INPUT_FILE")
 ts_data <- ts(data$VALUE_COLUMN, frequency=FREQUENCY)
 
-# Fit auto.arima and forecast
-fit <- auto.arima(ts_data)
+# Fit auto.arima with explicit settings and forecast
+fit <- auto.arima(ts_data, ic="aic", stepwise=FALSE, lambda="auto")
 fc <- forecast(fit, h=HORIZON)
 
 # Print summary and forecasts
@@ -50,6 +50,27 @@ write.csv(data.frame(
 - **HORIZON**: Number of periods to forecast ahead
 - **INPUT_FILE**: Path to CSV with time series data
 - **VALUE_COLUMN**: Name of the numeric column to forecast
+
+## Simulation
+
+Use simulation for decisions under uncertainty — when you need the full distribution, not just point forecasts:
+
+```r
+Rscript -e '
+library(forecast)
+data <- read.csv("INPUT_FILE")
+ts_data <- ts(data$VALUE_COLUMN, frequency=FREQUENCY)
+fit <- auto.arima(ts_data, ic="aic", stepwise=FALSE, lambda="auto")
+
+# Simulate 10k future paths
+sims <- simulate(fit, nsim=10000, future=TRUE)
+
+# Decision-relevant summaries
+cat("P(value > threshold):", mean(sims > THRESHOLD), "\n")
+cat("Expected value:", mean(sims), "\n")
+cat("5th/95th percentile:", quantile(sims, c(0.05, 0.95)), "\n")
+'
+```
 
 ## Install R Dependencies
 

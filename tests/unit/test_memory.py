@@ -65,55 +65,109 @@ class TestNoteCommand:
         assert "first" in content
         assert "second" in content
 
+    def test_includes_repo_name(self, mem_dir: Path) -> None:
+        runner = CliRunner()
+        runner.invoke(memory.cli, ["note", "repo test"])
+        content = list(mem_dir.glob("????-??-??.md"))[0].read_text()
+        # Should have hostname:reponame format
+        assert ":" in content.split("[")[1].split("]")[0]
 
-class TestTodayCommand:
-    def test_shows_notes(self, mem_dir: Path) -> None:
+
+class TestListCommand:
+    def test_empty(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["list"])
+        assert "No memory files found" in result.output
+
+    def test_lists_files_with_types(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Daily\n")
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        (mem_dir / "overall_memory.md").write_text("# Overall\n")
+        result = CliRunner().invoke(memory.cli, ["list"])
+        assert result.exit_code == 0
+        assert "daily" in result.output
+        assert "monthly" in result.output
+        assert "overall" in result.output
+
+    def test_warns_unknown_files(self, mem_dir: Path) -> None:
+        (mem_dir / "random.md").write_text("# Unknown\n")
+        result = CliRunner().invoke(memory.cli, ["list"])
+        assert "unknown" in result.output
+        assert "Warning" in result.output
+
+
+class TestReadDayCommand:
+    def test_shows_today(self, mem_dir: Path) -> None:
         runner = CliRunner()
         runner.invoke(memory.cli, ["note", "today test"])
-        result = runner.invoke(memory.cli, ["today"])
+        result = runner.invoke(memory.cli, ["read-day"])
         assert result.exit_code == 0
         assert "today test" in result.output
 
-    def test_no_notes(self, mem_dir: Path) -> None:
-        assert "No notes for today" in CliRunner().invoke(memory.cli, ["today"]).output
-
-
-class TestShowCommand:
-    def test_shows_date(self, mem_dir: Path) -> None:
+    def test_shows_specific_date(self, mem_dir: Path) -> None:
         (mem_dir / "2026-01-15.md").write_text("# Test\n\n- a note\n")
-        result = CliRunner().invoke(memory.cli, ["show", "2026-01-15"])
+        result = CliRunner().invoke(memory.cli, ["read-day", "2026-01-15"])
         assert "a note" in result.output
 
-    def test_missing_date(self, mem_dir: Path) -> None:
-        assert "No notes found" in CliRunner().invoke(memory.cli, ["show", "2099-12-31"]).output
+    def test_no_notes(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-day"])
+        assert "No notes for" in result.output
 
-    def test_rejects_path_traversal(self, mem_dir: Path) -> None:
-        result = CliRunner().invoke(memory.cli, ["show", "../../etc/passwd"])
+    def test_rejects_bad_format(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-day", "../../etc/passwd"])
         assert result.exit_code != 0
 
     def test_rejects_arbitrary_string(self, mem_dir: Path) -> None:
-        result = CliRunner().invoke(memory.cli, ["show", "foo"])
+        result = CliRunner().invoke(memory.cli, ["read-day", "foo"])
         assert result.exit_code != 0
 
-    def test_accepts_memory(self, mem_dir: Path) -> None:
-        (mem_dir / "memory.md").write_text("# Overall\n")
-        result = CliRunner().invoke(memory.cli, ["show", "memory"])
+
+class TestReadMonthCommand:
+    def test_shows_specific_month(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01.md").write_text("# January summary\n")
+        result = CliRunner().invoke(memory.cli, ["read-month", "2026-01"])
+        assert "January summary" in result.output
+
+    def test_no_summary(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-month"])
+        assert "No monthly summary" in result.output
+
+    def test_rejects_bad_format(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-month", "bad"])
+        assert result.exit_code != 0
+
+
+class TestReadOverallCommand:
+    def test_shows_overall(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text("# Overall\nKey facts here.\n")
+        result = CliRunner().invoke(memory.cli, ["read-overall"])
+        assert "Key facts here" in result.output
+
+    def test_no_overall(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-overall"])
+        assert "No overall memory file found" in result.output
+
+
+class TestReadCurrentCommand:
+    def test_shows_all_sections(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text("# Overall content\n")
+        today = datetime.now().strftime("%Y-%m-%d")
+        month = datetime.now().strftime("%Y-%m")
+        (mem_dir / f"{month}.md").write_text("# Monthly content\n")
+        (mem_dir / f"{today}.md").write_text("# Daily content\n")
+        result = CliRunner().invoke(memory.cli, ["read-current"])
         assert result.exit_code == 0
-        assert "Overall" in result.output
+        assert "Overall Memory" in result.output
+        assert "Overall content" in result.output
+        assert "Current Month" in result.output
+        assert "Monthly content" in result.output
+        assert "Today" in result.output
+        assert "Daily content" in result.output
 
-
-class TestSearchCommand:
-    def test_finds_match(self, mem_dir: Path) -> None:
-        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- bought groceries\n")
-        result = CliRunner().invoke(memory.cli, ["search", "groceries"])
-        assert "1 matches" in result.output
-
-    def test_case_insensitive(self, mem_dir: Path) -> None:
-        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- Python stuff\n")
-        assert "1 matches" in CliRunner().invoke(memory.cli, ["search", "python"]).output
-
-    def test_no_matches(self, mem_dir: Path) -> None:
-        assert "No matches" in CliRunner().invoke(memory.cli, ["search", "nothing"]).output
+    def test_handles_missing_files(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-current"])
+        assert result.exit_code == 0
+        assert "not yet created" in result.output
+        assert "no notes yet" in result.output
 
 
 class TestClassifyFile:
@@ -124,7 +178,13 @@ class TestClassifyFile:
         assert memory.classify_file("2026-01.md") == "monthly"
 
     def test_overall(self) -> None:
-        assert memory.classify_file("memory.md") == "overall"
+        assert memory.classify_file("overall_memory.md") == "overall"
+
+    def test_old_memory_md_is_unknown(self) -> None:
+        assert memory.classify_file("memory.md") == "unknown"
+
+    def test_random_file_is_unknown(self) -> None:
+        assert memory.classify_file("random.md") == "unknown"
 
 
 class TestMonthFromFilename:
@@ -135,7 +195,7 @@ class TestMonthFromFilename:
         assert memory.month_from_filename("2026-01.md") == "2026-01"
 
     def test_overall(self) -> None:
-        assert memory.month_from_filename("memory.md") is None
+        assert memory.month_from_filename("overall_memory.md") is None
 
 
 class TestStatusCommand:
@@ -173,10 +233,10 @@ class TestStatusCommand:
         result = CliRunner().invoke(memory.cli, ["status"])
         assert result.exit_code == 0
         assert "CREATE" in result.output
-        assert "no memory.md exists" in result.output
+        assert "no overall_memory.md exists" in result.output
 
     def test_overall_update(self, mem_dir: Path) -> None:
-        (mem_dir / "memory.md").write_text("# Overall\n")
+        (mem_dir / "overall_memory.md").write_text("# Overall\n")
         time.sleep(0.05)
         (mem_dir / "2026-01.md").write_text("# Monthly\n")
         result = CliRunner().invoke(memory.cli, ["status"])
@@ -187,23 +247,23 @@ class TestStatusCommand:
     def test_overall_ok(self, mem_dir: Path) -> None:
         (mem_dir / "2026-01.md").write_text("# Monthly\n")
         time.sleep(0.05)
-        (mem_dir / "memory.md").write_text("# Overall\n")
+        (mem_dir / "overall_memory.md").write_text("# Overall\n")
         result = CliRunner().invoke(memory.cli, ["status"])
         assert result.exit_code == 0
-        assert "memory.md is up to date" in result.output
+        assert "overall_memory.md is up to date" in result.output
 
-    def test_obsidian_vault_listing(self, mem_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-        vault = mem_dir / "vault"
-        vault.mkdir()
-        (vault / "Note1.md").write_text("# Note\n")
-        sub = vault / "Projects"
+    def test_knowledge_graph_listing(self, mem_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        kg = mem_dir / "kg"
+        kg.mkdir()
+        (kg / "Note1.md").write_text("# Note\n")
+        sub = kg / "Projects"
         sub.mkdir()
         (sub / "Proj1.md").write_text("# Project\n")
-        monkeypatch.setattr(memory, "VAULT_DIR", vault)
+        monkeypatch.setattr(memory, "KNOWLEDGE_DIR", kg)
         # Need at least one memory file so status doesn't exit early
-        (mem_dir / "memory.md").write_text("# Overall\n")
+        (mem_dir / "overall_memory.md").write_text("# Overall\n")
         result = CliRunner().invoke(memory.cli, ["status"])
         assert result.exit_code == 0
-        assert "Obsidian Vault" in result.output
+        assert "Knowledge Graph" in result.output
         assert "Note1.md" in result.output
         assert "Projects" in result.output

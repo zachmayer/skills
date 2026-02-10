@@ -10,7 +10,7 @@ description: >
 ## Defaults
 
 - **Python preferred** (R only if explicitly requested)
-- **Libraries**: Pandas, Polars, NumPy, SciPy, Scikit-Learn, XGBoost, Seaborn, Matplotlib
+- **Libraries**: Polars (preferred; fast, typed, pandas-compatible API), NumPy, SciPy, Scikit-Learn, XGBoost, Seaborn, Matplotlib
 - **Environment**: uv for deps, ruff/pyright/pytest
 
 ## Modeling

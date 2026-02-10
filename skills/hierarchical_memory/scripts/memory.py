@@ -4,28 +4,31 @@
 import os
 import platform
 import re
+import subprocess
 from datetime import datetime
 from pathlib import Path
 
 import click
+import polars as pl
 
-MEMORY_DIR = Path(
-    os.environ.get("CLAUDE_MEMORY_DIR", str(Path.home() / "claude" / "obsidian" / "memory"))
-)
-OBSIDIAN_ROOT = Path.home() / "claude" / "obsidian"
-VAULT_DIR = OBSIDIAN_ROOT / "Zach"
+OBSIDIAN_DIR = Path(os.environ.get("CLAUDE_OBSIDIAN_DIR", str(Path.home() / "claude" / "obsidian")))
+MEMORY_DIR = OBSIDIAN_DIR / "memory"
+KNOWLEDGE_DIR = OBSIDIAN_DIR / "knowledge_graph"
 
 DAILY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}\.md$")
 MONTHLY_RE = re.compile(r"^\d{4}-\d{2}\.md$")
+OVERALL_FILENAME = "overall_memory.md"
 
 
 def classify_file(filename: str) -> str:
-    """Classify a memory file as 'daily', 'monthly', or 'overall'."""
+    """Classify a memory file as 'daily', 'monthly', 'overall', or 'unknown'."""
     if DAILY_RE.match(filename):
         return "daily"
     if MONTHLY_RE.match(filename):
         return "monthly"
-    return "overall"
+    if filename == OVERALL_FILENAME:
+        return "overall"
+    return "unknown"
 
 
 def month_from_filename(filename: str) -> str | None:
@@ -51,6 +54,22 @@ def monthly_path(date: datetime | None = None) -> Path:
     return MEMORY_DIR / f"{date.strftime('%Y-%m')}.md"
 
 
+def _repo_name() -> str:
+    """Get the current git repo basename, or 'shell' if not in a repo."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            return Path(result.stdout.strip()).name
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    return "shell"
+
+
 @click.group()
 def cli() -> None:
     """Hierarchical memory: daily notes, monthly summaries, overall memory."""
@@ -69,63 +88,111 @@ def note(text: str) -> None:
         path.write_text(f"# Notes for {now.strftime('%Y-%m-%d')}\n\n")
 
     hostname = platform.node().split(".")[0]
+    repo = _repo_name()
     with path.open("a") as f:
-        f.write(f"- **{timestamp}** [{hostname}]: {text}\n")
+        f.write(f"- **{timestamp}** [{hostname}:{repo}]: {text}\n")
 
     click.echo(f"Saved to {path}")
 
 
-@cli.command()
-def today() -> None:
-    """Show today's notes."""
-    path = daily_path()
+@cli.command(name="list")
+def list_cmd() -> None:
+    """List all memory files with type and modification date."""
+    md_files = sorted(MEMORY_DIR.glob("*.md"))
+    if not md_files:
+        click.echo("No memory files found.")
+        return
+
+    for f in md_files:
+        ftype = classify_file(f.name)
+        modified = datetime.fromtimestamp(f.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+        marker = " [!]" if ftype == "unknown" else ""
+        click.echo(f"  {f.name}  ({ftype})  modified: {modified}{marker}")
+
+    unknowns = [f for f in md_files if classify_file(f.name) == "unknown"]
+    if unknowns:
+        click.echo(f"\nWarning: {len(unknowns)} unknown file(s) — not daily/monthly/overall.")
+
+
+@cli.command(name="read-day")
+@click.argument("date_str", default="")
+def read_day(date_str: str) -> None:
+    """Output a day's content. Default: today. Format: YYYY-MM-DD."""
+    if date_str:
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_str):
+            raise click.BadParameter("Expected YYYY-MM-DD", param_hint="'date_str'")
+        path = MEMORY_DIR / f"{date_str}.md"
+    else:
+        path = daily_path()
+
     if path.exists():
         click.echo(path.read_text())
     else:
-        click.echo("No notes for today.")
+        date_label = date_str or datetime.now().strftime("%Y-%m-%d")
+        click.echo(f"No notes for {date_label}.")
 
 
-@cli.command()
-@click.argument("date_str")
-def show(date_str: str) -> None:
-    """Show notes for a specific date (YYYY-MM-DD), month (YYYY-MM), or overall (memory)."""
-    if not re.match(r"^\d{4}-\d{2}-\d{2}$|^\d{4}-\d{2}$|^memory$", date_str):
-        raise click.BadParameter(
-            "Expected YYYY-MM-DD, YYYY-MM, or 'memory'", param_hint="'date_str'"
-        )
-    path = MEMORY_DIR / f"{date_str}.md"
+@cli.command(name="read-month")
+@click.argument("month_str", default="")
+def read_month(month_str: str) -> None:
+    """Output a month's summary. Default: current month. Format: YYYY-MM."""
+    if month_str:
+        if not re.match(r"^\d{4}-\d{2}$", month_str):
+            raise click.BadParameter("Expected YYYY-MM", param_hint="'month_str'")
+        path = MEMORY_DIR / f"{month_str}.md"
+    else:
+        path = monthly_path()
+
     if path.exists():
         click.echo(path.read_text())
     else:
-        click.echo(f"No notes found for {date_str}")
+        month_label = month_str or datetime.now().strftime("%Y-%m")
+        click.echo(f"No monthly summary for {month_label}.")
 
 
-@cli.command()
-@click.argument("query")
-def search(query: str) -> None:
-    """Search all notes for a query string."""
-    query_lower = query.lower()
-    results: list[str] = []
-
-    for md_file in sorted(MEMORY_DIR.glob("*.md")):
-        content = md_file.read_text()
-        for i, line in enumerate(content.splitlines(), 1):
-            if query_lower in line.lower():
-                results.append(f"{md_file.name}:{i}: {line.strip()}")
-
-    if results:
-        click.echo(f"Found {len(results)} matches:\n")
-        for r in results:
-            click.echo(r)
+@cli.command(name="read-overall")
+def read_overall() -> None:
+    """Output overall_memory.md."""
+    path = MEMORY_DIR / OVERALL_FILENAME
+    if path.exists():
+        click.echo(path.read_text())
     else:
-        click.echo(f"No matches for '{query}'")
+        click.echo("No overall memory file found.")
+
+
+@cli.command(name="read-current")
+def read_current() -> None:
+    """Output overall + current month + current day in one call."""
+    overall_path = MEMORY_DIR / OVERALL_FILENAME
+    month_path = monthly_path()
+    day_path = daily_path()
+
+    if overall_path.exists():
+        click.echo("## Overall Memory\n")
+        click.echo(overall_path.read_text())
+    else:
+        click.echo("## Overall Memory\n\n(not yet created)\n")
+
+    click.echo("---\n")
+
+    if month_path.exists():
+        click.echo(f"## Current Month ({datetime.now().strftime('%Y-%m')})\n")
+        click.echo(month_path.read_text())
+    else:
+        click.echo(f"## Current Month ({datetime.now().strftime('%Y-%m')})\n\n(not yet created)\n")
+
+    click.echo("---\n")
+
+    if day_path.exists():
+        click.echo(f"## Today ({datetime.now().strftime('%Y-%m-%d')})\n")
+        click.echo(day_path.read_text())
+    else:
+        click.echo(f"## Today ({datetime.now().strftime('%Y-%m-%d')})\n\n(no notes yet)\n")
 
 
 @cli.command()
 def status() -> None:
     """Show aggregation status: which monthly summaries need creating or updating."""
-    import polars as pl
-
     md_files = sorted(MEMORY_DIR.glob("*.md"))
     if not md_files:
         click.echo("No memory files found.")
@@ -199,25 +266,27 @@ def status() -> None:
     click.echo("\n## Overall Status\n")
     if overall.is_empty():
         if not monthly.is_empty():
-            click.echo("**CREATE** — no memory.md exists but monthly summaries are available.")
+            click.echo(
+                f"**CREATE** — no {OVERALL_FILENAME} exists but monthly summaries are available."
+            )
         else:
             click.echo("No overall memory file found.")
     elif not monthly.is_empty():
         overall_modified = overall["modified"].max()
         latest_monthly = monthly["modified"].max()
         if latest_monthly > overall_modified:
-            click.echo("**UPDATE** — monthly summaries are newer than memory.md.")
+            click.echo(f"**UPDATE** — monthly summaries are newer than {OVERALL_FILENAME}.")
         else:
-            click.echo("**OK** — memory.md is up to date.")
+            click.echo(f"**OK** — {OVERALL_FILENAME} is up to date.")
     else:
-        click.echo("memory.md exists but no monthly summaries to compare against.")
+        click.echo(f"{OVERALL_FILENAME} exists but no monthly summaries to compare against.")
 
-    # Obsidian vault listing
-    if VAULT_DIR.is_dir():
-        click.echo("\n## Obsidian Vault\n")
+    # Knowledge graph listing
+    if KNOWLEDGE_DIR.is_dir():
+        click.echo("\n## Knowledge Graph\n")
         subdirs: dict[str, list[str]] = {}
-        for md in sorted(VAULT_DIR.rglob("*.md")):
-            rel = md.relative_to(VAULT_DIR)
+        for md in sorted(KNOWLEDGE_DIR.rglob("*.md")):
+            rel = md.relative_to(KNOWLEDGE_DIR)
             parent = str(rel.parent) if rel.parent != Path(".") else "(root)"
             subdirs.setdefault(parent, []).append(rel.name)
         for subdir in sorted(subdirs):

@@ -16,11 +16,11 @@ Also apply `hierarchical_memory` and `obsidian` for reading context and persisti
 
 ### 1. Create the task file
 
-Tasks live in the obsidian vault at `~/claude/obsidian/heartbeat/tasks.md`:
+Tasks live in the obsidian vault at `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md`:
 
 ```bash
-mkdir -p ~/claude/obsidian/heartbeat
-cat > ~/claude/obsidian/heartbeat/tasks.md << 'EOF'
+mkdir -p $CLAUDE_OBSIDIAN_DIR/heartbeat
+cat > $CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md << 'EOF'
 # Heartbeat Tasks
 
 Tasks for Claude to process on each heartbeat cycle. Before processing, read today's memory notes and decide the highest-value activity.
@@ -57,18 +57,20 @@ Verify with `crontab -l`.
 ## Heartbeat Behavior
 
 On each cycle, the heartbeat agent should:
-1. Read today's memory notes (`~/claude/obsidian/memory/`) for context
+1. Read hierarchical memory (`read-current`) and obsidian vault for full context
 2. Read the task queue for pending items
 3. Decide: is there a high-value task, or should it save its powder and wait?
-4. If it has a question for the user, write it to `~/claude/obsidian/heartbeat/questions.md`
-5. Process at most ONE task per cycle, then commit to the obsidian repo
+4. If it has a question for the user, write it to `$CLAUDE_OBSIDIAN_DIR/heartbeat/questions.md`
+5. Process at most ONE task per cycle
+6. Update hierarchical memory with what was done
+7. Commit to the obsidian repo
 
 ## Task Queue
 
-Edit `~/claude/obsidian/heartbeat/tasks.md` — add tasks as `- [ ] description` under Pending, completed tasks get marked `- [x] timestamp: description` and moved to Completed.
+Edit `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md` — add tasks as `- [ ] description` under Pending, completed tasks get marked `- [x] timestamp: description` and moved to Completed.
 
 ## Managing
 
-- **Check log**: `tail -20 ~/claude/obsidian/heartbeat/heartbeat.log`
+- **Check log**: `tail -20 $CLAUDE_OBSIDIAN_DIR/heartbeat/heartbeat.log`
 - **Pause**: `crontab -l | sed '/heartbeat/s|^|#|' | crontab -`
 - **Stop**: `crontab -l | grep -v heartbeat | crontab -`

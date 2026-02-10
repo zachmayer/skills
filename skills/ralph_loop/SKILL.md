@@ -105,3 +105,7 @@ The user will read this report and decide what to do next.
 **Validation is mandatory**: Never mark a story complete if tests fail. Broken code compounds across iterations.
 
 **Front-load risk**: Do the hardest, most uncertain stories first while you have the most time to recover.
+
+**Prefer reversible decisions**: When self-guiding without user input, choose two-way doors over one-way doors. Reversible actions (creating a branch, writing a test, adding a feature flag) are safe to do autonomously. Irreversible actions (deleting data, merging to main, publishing) should wait for the user.
+
+**Fill the time**: If you finish all stories before the deadline, don't stop. Check hierarchical memory, obsidian vault, README roadmap, and TODO lists for new high-value work. Propose new stories and keep the loop going.

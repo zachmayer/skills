@@ -15,7 +15,7 @@ Also apply the `ask_questions` skill to identify and resolve ambiguity before st
 
 ## Thinking Protocol
 
-Break down the solution into clear steps. Use a step budget (start with 25, request more for complex problems).
+Break down the solution into clear steps. Use a step budget (start with 100, request more for complex problems).
 
 Assign a quality score (0.0-1.0) after each reflection to guide your approach:
 

@@ -61,7 +61,7 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -p anthropic "question"
 
 ### Google (requires GOOGLE_API_KEY)
 ```bash
-# Gemini 2.5 Pro with thinking enabled
+# Gemini 3 Pro with thinking enabled
 uv run --directory SKILL_DIR python scripts/ask_model.py -p google "question"
 ```
 
@@ -85,3 +85,7 @@ variable to set. If the key exists but the call fails, common errors:
 - `--provider` / `-p`: openai, anthropic, or google
 - `--model` / `-m`: Override model name (defaults to best thinking model per provider)
 - `--system` / `-s`: Optional system prompt override
+
+## Multiple Calls
+
+Each call gets zero context from previous calls. For follow-ups, include the prior exchange: "I asked X, you answered Y, help me understand Z."

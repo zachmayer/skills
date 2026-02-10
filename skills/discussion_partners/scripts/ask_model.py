@@ -21,7 +21,7 @@ KEY_NAMES: dict[str, str] = {
 DEFAULTS: dict[str, str] = {
     "openai": "gpt-5.2",
     "anthropic": "claude-opus-4-6",
-    "google": "gemini-2.5-pro",
+    "google": "gemini-3-pro-preview",
 }
 
 # Max thinking settings per provider
@@ -59,7 +59,8 @@ def main(provider: str, model: str | None, system: str | None, question: str) ->
 
     agent = Agent(
         cast(KnownModelName, model_id),
-        system_prompt=system or "You are a helpful assistant. Think carefully and thoroughly.",
+        system_prompt=system
+        or "You are a discussion partner. Think carefully and help discover the truth.",
     )
     try:
         result = agent.run_sync(

@@ -95,7 +95,7 @@ make install-local  # Symlink skills to ~/.claude/skills/
 
 ### Sync external skills
 
-External skills (from [FUTURE_TOKENS](https://github.com/jordanrubin/FUTURE_TOKENS)) are tracked in `external_skills.yaml` with direct links to upstream raw files. To pull the latest versions:
+External skills (from [FUTURE_TOKENS](https://github.com/jordanrubin/FUTURE_TOKENS)) are tracked in `external_skills.txt` — one raw URL per line. To pull the latest versions:
 
 ```bash
 make sync-external  # Fetch latest from upstream URLs

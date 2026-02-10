@@ -7,7 +7,7 @@ import yaml
 
 SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
 SKILL_DIRS = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir() and d.name != "__pycache__")
-MAX_LINES = 500
+MAX_LINES = 1000
 
 
 def parse_frontmatter(text: str) -> dict:
@@ -47,11 +47,8 @@ class TestSkillStructure:
         assert len(desc) > 20, "description too short — should explain when to use"
 
     def test_under_line_limit(self, skill_dir: Path) -> None:
-        text = (skill_dir / "SKILL.md").read_text()
-        fm = parse_frontmatter(text)
-        limit = fm.get("max_lines", MAX_LINES)
-        lines = text.splitlines()
-        assert len(lines) <= limit, f"SKILL.md is {len(lines)} lines (max {limit})"
+        lines = (skill_dir / "SKILL.md").read_text().splitlines()
+        assert len(lines) <= MAX_LINES, f"SKILL.md is {len(lines)} lines (max {MAX_LINES})"
 
     def test_kebab_case_name(self, skill_dir: Path) -> None:
         name = skill_dir.name

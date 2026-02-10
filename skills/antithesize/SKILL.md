@@ -1,6 +1,5 @@
 ---
 name: antithesize
-max_lines: 650
 description: generate standalone opposition to any proposition. antithesis must be comprehensible without reading thesis—it's an alternative complete worldview, not refutation.
 ---
 

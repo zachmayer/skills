@@ -18,6 +18,25 @@ The two core storage layers complement each other:
 - **Hierarchical memory** — A stream of consciousness that compresses over time. Daily notes are raw and noisy. Monthly summaries keep what mattered. The overall memory is a living profile of your current world: preferences, context, key facts, active projects. What you'd want a new assistant to know about you on day one.
 - **Obsidian vault** — Durable topic notes organized as a knowledge graph. Web grabs, curated knowledge, reference material. Things that don't expire the way daily notes do. Connected by wiki-links and topic tags so related ideas find each other.
 
+## Information Hierarchy
+
+Four tiers of persistent information, each with a different purpose and lifetime:
+
+| Tier | Location | Purpose | Lifetime |
+|------|----------|---------|----------|
+| **CLAUDE.md** | Per-repo | Agent config — how Claude behaves here | Permanent per repo |
+| **README.md** | Per-repo | Dev memory — roadmap, decisions, lessons | Permanent per repo |
+| **Hierarchical memory** | `memory/` | Personal working memory — daily notes, monthly summaries, overall | Compresses over time |
+| **Knowledge graph** | `knowledge_graph/` | Durable topic notes, reference, web grabs | Permanent |
+
+**CLAUDE.md** is read by every agent session. It defines conventions, anti-patterns, and build commands for a specific repo. Think of it as the repo's operating manual for AI agents.
+
+**README.md** (this file, in the skills repo) serves as dev memory — the roadmap, architectural decisions, and lessons learned that persist across sessions. Updated as the project evolves.
+
+**Hierarchical memory** is a stream of consciousness that compresses over time. Daily notes are raw and noisy. Monthly summaries keep what mattered. The overall memory is a living profile: preferences, context, key facts, active projects. The `note` command reports aggregation staleness automatically — finish your notes, then aggregate stale months.
+
+**Knowledge graph** holds durable topic notes in an Obsidian vault. Web grabs, curated knowledge, reference material — things that don't expire the way daily notes do. Connected by wiki-links and topic tags.
+
 ## Skills
 
 Skills are grouped by their role in the capture → organize → process pipeline.
@@ -207,9 +226,9 @@ Rigid subdirectories (Claude creates these automatically):
 
 | Variable | Used by |
 |----------|---------|
-| `OPENAI_API_KEY` | `discussion_partners` (GPT-5.2) |
-| `ANTHROPIC_API_KEY` | `discussion_partners` (Claude Opus 4.6) |
-| `GOOGLE_API_KEY` | `discussion_partners` (Gemini 3 Pro) |
+| `OPENAI_API_KEY` | `discussion_partners` (`openai:` and `openai-responses:` models) |
+| `ANTHROPIC_API_KEY` | `discussion_partners` (`anthropic:` models) |
+| `GOOGLE_API_KEY` | `discussion_partners` (`google-gla:` models) |
 
 Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources your shell profile at startup — no extra configuration needed.
 
@@ -248,7 +267,7 @@ Major improvements, curated by human and Claude together.
 
 ### Enhancements
 
-- [x] **Memory aggregation helper** — Polars-based `status` command shows which monthly/overall files are stale.
+- [x] **Memory aggregation helper** — `status` command shows which monthly/overall files are stale. `note` reports staleness automatically.
 - [x] **Hostname in daily logs** — Memory notes include `[hostname:reponame]` to disambiguate entries.
 - [x] ~~**Progressive disclosure**~~ — Reversed. External skills use full upstream content as-is. REFERENCE.md files deleted; `make sync-external` writes everything to SKILL.md.
 - [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user.

@@ -12,7 +12,7 @@ Query another AI model for an outside perspective on a difficult problem. One me
 
 ## Recommended Model
 
-**GPT-5.2 with xhigh thinking** (`--provider openai`) is the default and recommended discussion partner. It has exceptional attention to detail and a strong ability to detect subtle interactions and dependencies that can be difficult to spot from inside a problem. Use it when:
+**GPT-5.2 with xhigh thinking** (`openai:gpt-5.2`, the default) is the recommended discussion partner. It has exceptional attention to detail and a strong ability to detect subtle interactions and dependencies that can be difficult to spot from inside a problem. Use it when:
 
 - You suspect a bug has a non-obvious root cause
 - You are going in circles on an architectural decision
@@ -38,40 +38,40 @@ Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 in
 ## Usage
 
 ```bash
-uv run --directory SKILL_DIR python scripts/ask_model.py --provider <provider> "Your detailed question with full context"
+uv run --directory SKILL_DIR python scripts/ask_model.py -m <model> "Your detailed question with full context"
 ```
 
-Where `SKILL_DIR` is the directory containing this skill.
+Where `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/) — the provider prefix determines which API key and thinking settings to use.
 
-## Providers and Models
+## Models
 
-All providers default to their best thinking model with maximum thinking effort.
+The default is `openai:gpt-5.2`. Thinking effort is automatically set to maximum for each provider.
 
-### OpenAI (requires OPENAI_API_KEY) — Recommended
 ```bash
-# GPT-5.2 with xhigh reasoning (default)
-uv run --directory SKILL_DIR python scripts/ask_model.py -p openai "question"
-```
+# GPT-5.2 with xhigh reasoning (default — just omit -m)
+uv run --directory SKILL_DIR python scripts/ask_model.py "question"
 
-### Anthropic (requires ANTHROPIC_API_KEY)
-```bash
+# OpenAI o3
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:o3 "question"
+
 # Claude Opus 4.6 with adaptive thinking at max effort
-uv run --directory SKILL_DIR python scripts/ask_model.py -p anthropic "question"
-```
+uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opus-4-6 "question"
 
-### Google (requires GOOGLE_API_KEY)
-```bash
 # Gemini 3 Pro with thinking enabled
-uv run --directory SKILL_DIR python scripts/ask_model.py -p google "question"
+uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3-pro-preview "question"
+
+# Codex models (via OpenAI Responses API)
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5-codex "question"
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:codex-mini-latest "question"
 ```
 
 ## API Key Setup
 
 Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`):
 ```bash
-export OPENAI_API_KEY="your-key"      # Required for --provider openai
-export ANTHROPIC_API_KEY="your-key"   # Required for --provider anthropic
-export GOOGLE_API_KEY="your-key"      # Required for --provider google
+export OPENAI_API_KEY="your-key"      # Required for openai: and openai-responses: models
+export ANTHROPIC_API_KEY="your-key"   # Required for anthropic: models
+export GOOGLE_API_KEY="your-key"      # Required for google-gla: models
 ```
 
 The script checks for the key before calling the API. If missing, it tells you which
@@ -82,23 +82,8 @@ variable to set. If the key exists but the call fails, common errors:
 
 ## Options
 
-- `--provider` / `-p`: openai, anthropic, or google
-- `--model` / `-m`: Override model name (defaults to best thinking model per provider)
+- `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.2`)
 - `--system` / `-s`: Optional system prompt override
-
-## Custom Models
-
-The `--model` flag accepts any [pydantic-ai `KnownModelName`](https://ai.pydantic.dev/api/models/), so you can target a specific model version or provider variant. Examples:
-
-```bash
-# Specific OpenAI model
-uv run --directory SKILL_DIR python scripts/ask_model.py -p openai -m o3 "question"
-
-# Specific Anthropic model
-uv run --directory SKILL_DIR python scripts/ask_model.py -p anthropic -m claude-sonnet-4-5-20250929 "question"
-```
-
-The provider flag still controls API key selection and default behavior. The model flag just overrides which model is called.
 
 ## Multiple Calls
 

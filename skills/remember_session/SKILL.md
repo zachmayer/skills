@@ -56,7 +56,7 @@ Daily work goes to `memory/` subdirectory via hierarchical_memory. Durable knowl
 
 ### 5. Aggregate memory
 
-Run the monthly and overall memory aggregation sub-agents from the `hierarchical_memory` skill. This compresses daily notes into monthly summaries and updates the overall working memory.
+If any `note` outputs showed stale aggregations (e.g. `Aggregation stale: 2026-02 CREATE, overall UPDATE`), run the monthly and overall memory aggregation sub-agents from the `hierarchical_memory` skill for those items. If all notes said `Aggregation: up to date`, skip this step.
 
 ### 6. Commit and push
 

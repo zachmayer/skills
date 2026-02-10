@@ -16,7 +16,7 @@ Set `CLAUDE_OBSIDIAN_DIR` to change the vault root. All paths derive from it.
 
 | Command | What it does |
 |---------|-------------|
-| `note "text"` | Append timestamped line to today |
+| `note "text"` | Append timestamped line to today, report aggregation staleness |
 | `list` | List all memory files with type and date |
 | `read-day [YYYY-MM-DD]` | Output a day's content (default: today) |
 | `read-month [YYYY-MM]` | Output a month's summary (default: current) |
@@ -37,7 +37,7 @@ Where `SKILL_DIR` is the directory containing this skill.
 ```bash
 uv run --directory SKILL_DIR python scripts/memory.py note "Your note text here"
 ```
-Appends: `- **TIMESTAMP** [hostname:reponame]: TEXT` to today's daily file.
+Appends: `- **TIMESTAMP** [hostname:reponame]: TEXT` to today's daily file. Prints a staleness one-liner after saving — e.g. `Aggregation stale: 2026-02 CREATE, overall UPDATE` or `Aggregation: up to date`.
 
 ### Readers
 
@@ -117,9 +117,7 @@ Launch a sub-agent only if `status` shows overall needs CREATE or UPDATE:
 
 ### When to aggregate
 
-- After a significant session (many notes added)
-- When the user asks to summarize recent work
-- Periodically via the `heartbeat` skill (heartbeat should update hierarchical memory on each cycle)
+The `note` command reports staleness after each save. Finish all your notes first, then aggregate any stale months/overall in one pass. The `status` command still exists for manual inspection with full detail.
 
 ## Fact Freshness
 

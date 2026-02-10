@@ -36,7 +36,7 @@ Use the `discussion_partners` skill to send the judge prompt to an external mode
 
 ```bash
 # SKILL_DIR below refers to the discussion_partners skill directory
-uv run --directory SKILL_DIR python scripts/ask_model.py -p openai "$(cat <<'EOF'
+uv run --directory SKILL_DIR python scripts/ask_model.py "$(cat <<'EOF'
 You are evaluating an AI response for [CRITERION].
 
 Context: [what the AI was asked to do]

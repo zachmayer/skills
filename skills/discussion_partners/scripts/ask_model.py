@@ -11,42 +11,60 @@ from pydantic_ai import Agent
 from pydantic_ai.models import KnownModelName
 from pydantic_ai.settings import ModelSettings
 
-KEY_NAMES: dict[str, str] = {
-    "openai": "OPENAI_API_KEY",
-    "anthropic": "ANTHROPIC_API_KEY",
-    "google": "GOOGLE_API_KEY",
+DEFAULT_MODEL = "openai:gpt-5.2"
+
+# Prefix → (env var name, thinking settings)
+PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {
+    "openai": (
+        "OPENAI_API_KEY",
+        {"openai_reasoning_effort": "xhigh"},
+    ),
+    "openai-responses": (
+        "OPENAI_API_KEY",
+        {"openai_reasoning_effort": "xhigh"},
+    ),
+    "anthropic": (
+        "ANTHROPIC_API_KEY",
+        {"anthropic_thinking": {"type": "adaptive"}, "anthropic_effort": "max"},
+    ),
+    "google-gla": (
+        "GOOGLE_API_KEY",
+        {"google_thinking_config": {"include_thoughts": True}},
+    ),
 }
 
-# Recommended defaults per provider (thinking models)
-DEFAULTS: dict[str, str] = {
-    "openai": "gpt-5.2",
-    "anthropic": "claude-opus-4-6",
-    "google": "gemini-3-pro-preview",
-}
 
-# Max thinking settings per provider
-THINKING_SETTINGS: dict[str, dict[str, Any]] = {
-    "openai": {"openai_reasoning_effort": "xhigh"},
-    "anthropic": {"anthropic_thinking": {"type": "adaptive"}, "anthropic_effort": "max"},
-    "google": {"google_thinking_config": {"include_thoughts": True}},
-}
+def _parse_provider(model: str) -> tuple[str, str, dict[str, Any]]:
+    """Parse 'prefix:model_name' → (env_var, key_name, thinking_settings).
+
+    Raises click.BadParameter if the prefix is unknown.
+    """
+    prefix = model.rsplit(":", 1)[0] if ":" in model else model
+    config = PROVIDER_CONFIG.get(prefix)
+    if config is None:
+        known = ", ".join(sorted(PROVIDER_CONFIG))
+        raise click.BadParameter(
+            f"Unknown model prefix '{prefix}'. Known prefixes: {known}",
+            param_hint="'--model'",
+        )
+    key_name, thinking = config
+    return key_name, prefix, thinking
 
 
 @click.command()
 @click.option(
-    "--provider",
-    "-p",
-    type=click.Choice(["openai", "anthropic", "google"]),
-    required=True,
-    help="AI provider to query",
+    "--model",
+    "-m",
+    default=DEFAULT_MODEL,
+    show_default=True,
+    help="Full pydantic-ai model string (e.g. openai:gpt-5.2, anthropic:claude-opus-4-6)",
 )
-@click.option("--model", "-m", default=None, help="Model name (defaults to best thinking model)")
 @click.option("--system", "-s", default=None, help="System prompt")
 @click.argument("question")
-def main(provider: str, model: str | None, system: str | None, question: str) -> None:
+def main(model: str, system: str | None, question: str) -> None:
     """Ask a question to another AI model with extended thinking."""
-    # Pre-flight: check API key is set
-    key_name = KEY_NAMES[provider]
+    key_name, prefix, thinking = _parse_provider(model)
+
     if not os.environ.get(key_name):
         shell = "~/.zshrc" if sys.platform == "darwin" else "~/.bashrc"
         click.echo(f"Error: {key_name} not set.", err=True)
@@ -54,32 +72,28 @@ def main(provider: str, model: str | None, system: str | None, question: str) ->
         click.echo(f"Then run: source {shell}", err=True)
         raise SystemExit(1)
 
-    model_name = model or DEFAULTS[provider]
-    model_id = f"{provider}:{model_name}" if provider != "google" else f"google-gla:{model_name}"
-
     agent = Agent(
-        cast(KnownModelName, model_id),
+        cast(KnownModelName, model),
         system_prompt=system
         or "You are a discussion partner. Think carefully and help discover the truth.",
     )
     try:
-        result = agent.run_sync(
-            question, model_settings=cast(ModelSettings, THINKING_SETTINGS[provider])
-        )
+        result = agent.run_sync(question, model_settings=cast(ModelSettings, thinking))
     except Exception as e:
         msg = str(e)
         if "insufficient_quota" in msg:
-            click.echo(f"Error: {provider} account has insufficient quota.", err=True)
+            click.echo(f"Error: {prefix} account has insufficient quota.", err=True)
             click.echo(
-                "This is a billing issue — add credits at the provider's dashboard.", err=True
+                "This is a billing issue — add credits at the provider's dashboard.",
+                err=True,
             )
         elif "invalid_api_key" in msg or "Incorrect API key" in msg:
             click.echo(f"Error: {key_name} is invalid.", err=True)
             click.echo("Check the key value and run: source ~/.zshrc", err=True)
         elif "rate_limit" in msg or "429" in msg:
-            click.echo(f"Error: Rate limited by {provider}. Wait and retry.", err=True)
+            click.echo(f"Error: Rate limited by {prefix}. Wait and retry.", err=True)
         else:
-            click.echo(f"Error from {provider}: {msg}", err=True)
+            click.echo(f"Error from {prefix}: {msg}", err=True)
         raise SystemExit(1)
     click.echo(result.output)
 

@@ -5,11 +5,13 @@ import os
 import platform
 import re
 import subprocess
+from collections import defaultdict
+from dataclasses import dataclass
+from dataclasses import field
 from datetime import datetime
 from pathlib import Path
 
 import click
-import polars as pl
 
 OBSIDIAN_DIR = Path(
     os.environ.get("CLAUDE_OBSIDIAN_DIR", str(Path.home() / "claude" / "obsidian"))
@@ -72,6 +74,74 @@ def _repo_name() -> str:
     return "shell"
 
 
+@dataclass
+class StalenessReport:
+    """Aggregation staleness across monthly and overall files."""
+
+    needs_create: list[dict[str, object]] = field(default_factory=list)  # month, daily_count
+    needs_update: list[dict[str, object]] = field(default_factory=list)  # month, stale_files
+    ok: list[str] = field(default_factory=list)  # months
+    overall: str = ""  # "CREATE" | "UPDATE" | "OK" | "NO_MONTHLY" | ""
+
+
+def _compute_staleness() -> StalenessReport | None:
+    """Compute aggregation staleness from memory files. Returns None if no files."""
+    md_files = list(MEMORY_DIR.glob("*.md"))
+    if not md_files:
+        return None
+
+    # Pass 1: build lookup tables
+    daily_by_month: dict[str, list[tuple[float, str]]] = defaultdict(list)
+    monthly_mtime: dict[str, float] = {}
+    overall_mtime: float | None = None
+
+    for f in md_files:
+        name = f.name
+        mtime = f.stat().st_mtime
+        kind = classify_file(name)
+        if kind == "daily":
+            daily_by_month[name[:7]].append((mtime, name))
+        elif kind == "monthly":
+            monthly_mtime[name[:7]] = mtime
+        elif kind == "overall":
+            overall_mtime = mtime
+
+    # Pass 2: classify each month
+    needs_create: list[dict[str, object]] = []
+    needs_update: list[dict[str, object]] = []
+    ok: list[str] = []
+
+    for month in sorted(daily_by_month):
+        dailies = daily_by_month[month]
+        mm = monthly_mtime.get(month)
+        if mm is None:
+            needs_create.append({"month": month, "daily_count": len(dailies)})
+        elif max(m for m, _ in dailies) > mm:
+            stale_files = sorted(name for m, name in dailies if m > mm)
+            needs_update.append({"month": month, "stale_files": stale_files})
+        else:
+            ok.append(month)
+
+    # Overall status
+    if overall_mtime is None and not monthly_mtime:
+        overall_status = ""
+    elif overall_mtime is None:
+        overall_status = "CREATE"
+    elif not monthly_mtime:
+        overall_status = "NO_MONTHLY"
+    elif max(monthly_mtime.values()) > overall_mtime:
+        overall_status = "UPDATE"
+    else:
+        overall_status = "OK"
+
+    return StalenessReport(
+        needs_create=needs_create,
+        needs_update=needs_update,
+        ok=ok,
+        overall=overall_status,
+    )
+
+
 @click.group()
 def cli() -> None:
     """Hierarchical memory: daily notes, monthly summaries, overall memory."""
@@ -95,6 +165,19 @@ def note(text: str) -> None:
         f.write(f"- **{timestamp}** [{hostname}:{repo}]: {text}\n")
 
     click.echo(f"Saved to {path}")
+
+    report = _compute_staleness()
+    if report is None:
+        click.echo("Aggregation: up to date")
+        return
+    issues = []
+    for entry in report.needs_create:
+        issues.append(f"{entry['month']} CREATE")
+    for entry in report.needs_update:
+        issues.append(f"{entry['month']} UPDATE")
+    if report.overall in ("CREATE", "UPDATE"):
+        issues.append(f"overall {report.overall}")
+    click.echo(f"Aggregation stale: {', '.join(issues)}" if issues else "Aggregation: up to date")
 
 
 @cli.command(name="list")
@@ -195,91 +278,42 @@ def read_current() -> None:
 @cli.command()
 def status() -> None:
     """Show aggregation status: which monthly summaries need creating or updating."""
-    md_files = sorted(MEMORY_DIR.glob("*.md"))
-    if not md_files:
+    report = _compute_staleness()
+    if report is None:
         click.echo("No memory files found.")
         return
 
-    rows = []
-    for f in md_files:
-        rows.append(
-            {
-                "filename": f.name,
-                "file_type": classify_file(f.name),
-                "month": month_from_filename(f.name),
-                "modified": datetime.fromtimestamp(f.stat().st_mtime),
-            }
-        )
+    has_daily = report.needs_create or report.needs_update or report.ok
 
-    df = pl.DataFrame(rows)
-
-    # Daily files grouped by month
-    daily = df.filter(pl.col("file_type") == "daily")
-    monthly = df.filter(pl.col("file_type") == "monthly")
-    overall = df.filter(pl.col("file_type") == "overall")
-
-    if daily.is_empty():
+    if not has_daily:
         click.echo("No daily files found.")
     else:
-        monthly_lookup = monthly.select(
-            pl.col("month"), pl.col("modified").alias("monthly_modified")
-        )
-
-        # Join each daily file with its month's summary timestamp
-        daily_with_monthly = daily.join(monthly_lookup, on="month", how="left")
-
-        # Stale files: daily files newer than their monthly summary
-        stale = daily_with_monthly.filter(
-            pl.col("monthly_modified").is_not_null()
-            & (pl.col("modified") > pl.col("monthly_modified"))
-        )
-        stale_by_month = stale.group_by("month").agg(
-            pl.col("filename").alias("stale_files"),
-        )
-
-        # Aggregate daily counts per month
-        daily_by_month = daily.group_by("month").agg(
-            pl.col("modified").max().alias("latest_daily"),
-            pl.col("filename").count().alias("daily_count"),
-        )
-        joined = daily_by_month.join(monthly_lookup, on="month", how="left")
-
-        needs_create = joined.filter(pl.col("monthly_modified").is_null())
-        needs_update = joined.filter(
-            pl.col("monthly_modified").is_not_null()
-            & (pl.col("latest_daily") > pl.col("monthly_modified"))
-        ).join(stale_by_month, on="month", how="left")
-        ok = joined.filter(
-            pl.col("monthly_modified").is_not_null()
-            & (pl.col("latest_daily") <= pl.col("monthly_modified"))
-        )
-
         click.echo("## Monthly Aggregation Status\n")
-        if not needs_create.is_empty():
+        if report.needs_create:
             click.echo("**CREATE** — no monthly summary exists:")
-            for row in needs_create.sort("month").iter_rows(named=True):
-                click.echo(f"  - {row['month']} ({row['daily_count']} daily files)")
-        if not needs_update.is_empty():
+            for entry in report.needs_create:
+                click.echo(f"  - {entry['month']} ({entry['daily_count']} daily files)")
+        if report.needs_update:
             click.echo("**UPDATE** — daily files newer than monthly summary:")
-            for row in needs_update.sort("month").iter_rows(named=True):
-                names = ", ".join(row["stale_files"])
-                click.echo(f"  - {row['month']} (stale: {names})")
-        if not ok.is_empty():
+            for entry in report.needs_update:
+                names = ", ".join(entry["stale_files"])
+                click.echo(f"  - {entry['month']} (stale: {names})")
+        if report.ok:
             click.echo("**OK** — monthly summary is up to date:")
-            for row in ok.sort("month").iter_rows(named=True):
-                click.echo(f"  - {row['month']}")
+            for month in report.ok:
+                click.echo(f"  - {month}")
 
     # Overall status
     click.echo("\n## Overall Status\n")
-    if overall.is_empty() and monthly.is_empty():
+    if report.overall == "":
         click.echo("No overall memory file found.")
-    elif overall.is_empty():
+    elif report.overall == "NO_MONTHLY":
+        click.echo(f"{OVERALL_FILENAME} exists but no monthly summaries to compare against.")
+    elif report.overall == "CREATE":
         click.echo(
             f"**CREATE** — no {OVERALL_FILENAME} exists but monthly summaries are available."
         )
-    elif monthly.is_empty():
-        click.echo(f"{OVERALL_FILENAME} exists but no monthly summaries to compare against.")
-    elif monthly["modified"].max() > overall["modified"].max():
+    elif report.overall == "UPDATE":
         click.echo(f"**UPDATE** — monthly summaries are newer than {OVERALL_FILENAME}.")
     else:
         click.echo(f"**OK** — {OVERALL_FILENAME} is up to date.")

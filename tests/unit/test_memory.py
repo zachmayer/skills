@@ -57,6 +57,13 @@ class TestNoteCommand:
         assert "test note" in content
         assert "# Notes for" in content
 
+    def test_reports_aggregation_staleness(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["note", "staleness check"])
+        assert result.exit_code == 0
+        # Daily file exists with no monthly → CREATE
+        assert "Aggregation stale:" in result.output
+        assert "CREATE" in result.output
+
     def test_appends(self, mem_dir: Path) -> None:
         runner = CliRunner()
         runner.invoke(memory.cli, ["note", "first"])
@@ -267,3 +274,54 @@ class TestStatusCommand:
         assert "Knowledge Graph" in result.output
         assert "Note1.md" in result.output
         assert "Projects" in result.output
+
+
+class TestComputeStaleness:
+    def test_no_files_returns_none(self, mem_dir: Path) -> None:
+        assert memory._compute_staleness() is None
+
+    def test_daily_only_needs_create(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n")
+        report = memory._compute_staleness()
+        assert report is not None
+        assert len(report.needs_create) == 1
+        assert report.needs_create[0]["month"] == "2026-01"
+        assert report.needs_update == []
+        assert report.ok == []
+
+    def test_stale_monthly_needs_update(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        time.sleep(0.05)
+        (mem_dir / "2026-01-20.md").write_text("# New daily\n")
+        report = memory._compute_staleness()
+        assert report is not None
+        assert report.needs_create == []
+        assert len(report.needs_update) == 1
+        assert report.needs_update[0]["month"] == "2026-01"
+
+    def test_fresh_monthly_and_overall_returns_ok(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Daily\n")
+        time.sleep(0.05)
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        time.sleep(0.05)
+        (mem_dir / "overall_memory.md").write_text("# Overall\n")
+        report = memory._compute_staleness()
+        assert report is not None
+        assert report.needs_create == []
+        assert report.needs_update == []
+        assert report.ok == ["2026-01"]
+        assert report.overall == "OK"
+
+    def test_overall_needs_create(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        report = memory._compute_staleness()
+        assert report is not None
+        assert report.overall == "CREATE"
+
+    def test_overall_needs_update(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text("# Overall\n")
+        time.sleep(0.05)
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        report = memory._compute_staleness()
+        assert report is not None
+        assert report.overall == "UPDATE"

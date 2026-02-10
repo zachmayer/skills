@@ -172,6 +172,8 @@ Major improvements, curated by human and Claude together.
 - [ ] Delete old `~/claude/heartbeat/` repo after heartbeat consolidation
 - [ ] Delete old `~/claude/memory/` repo after memory consolidation
 - [ ] Re-run crontab setup after heartbeat path changes
+- [ ] Review and merge PR on `agent-skills` branch
+- [ ] Review obsidian notes — move global guidance to skills, keep personal stuff in obsidian
 
 ## License
 

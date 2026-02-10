@@ -21,9 +21,6 @@ Notes are plain markdown files. Use `[[Note Title]]` wiki-links to connect relat
 │   └── 2026-02-08.md    # Daily notes (append-only)
 ├── heartbeat/           # Autonomous task queue
 │   └── tasks.md
-├── todo/                # TODO lists
-│   ├── human.md         # Tasks requiring human action
-│   └── claude.md        # Tasks Claude can do autonomously
 ├── personal/            # Personal knowledge (curated, durable)
 │   ├── work/
 │   ├── technical/

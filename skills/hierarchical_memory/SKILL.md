@@ -63,13 +63,13 @@ Aggregation is done by launching sub-agents, not by a mechanical script. This gi
 
 Launch a sub-agent with this prompt:
 
-> Read all daily notes in `~/claude/obsidian/memory/` for YYYY-MM. Write a monthly summary to `~/claude/obsidian/memory/YYYY-MM.md`. Include: key decisions, important events, learnings, and any facts that changed (new job, new tools, new preferences). Drop noise (test notes, trivial observations, routine operations). Organize by theme, not by date. More recent notes take priority over older ones. Keep it concise.
+> Read all daily notes in `~/claude/obsidian/memory/` for YYYY-MM. Write a monthly summary to `~/claude/obsidian/memory/YYYY-MM.md`. Include: key decisions, important events, learnings, and any facts that changed (new job, new tools, new preferences). Drop noise (test notes, trivial observations, routine operations). Organize by theme, not by date. More recent notes take priority over older ones. Tag each theme with `#topic` tags (e.g. `#skills`, `#architecture`, `#debugging`). Keep it concise.
 
 ### Overall working memory
 
 Launch a sub-agent with this prompt:
 
-> Read all monthly summaries in `~/claude/obsidian/memory/` chronologically. Write `~/claude/obsidian/memory/memory.md` as a current-state working memory. Rules: (1) Facts use last-write-wins — if the user changed jobs, reflect only the current employer. (2) Key learnings and preferences persist across time. (3) Events compress — keep milestones, drop details. (4) The result should read like a living profile: "here is what I know about this user and their world right now." Not a changelog.
+> Read all monthly summaries in `~/claude/obsidian/memory/` chronologically. Write `~/claude/obsidian/memory/memory.md` as a current-state working memory. Rules: (1) Facts use last-write-wins — if the user changed jobs, reflect only the current employer. (2) Key learnings and preferences persist across time. (3) Events compress — keep milestones, drop details. (4) The result should read like a living profile: "here is what I know about this user and their world right now." Not a changelog. (5) Tag each section with `#topic` tags for obsidian graph discoverability.
 
 ### When to aggregate
 

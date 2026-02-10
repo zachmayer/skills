@@ -34,7 +34,18 @@ Tasks for Claude to process on each heartbeat cycle. Before processing, read tod
 EOF
 ```
 
-### 2. Add a cron entry
+### 2. Set up auth for cron
+
+Cron doesn't source `~/.zshrc`, so API keys aren't available. Create a dedicated env file:
+
+```bash
+echo 'export ANTHROPIC_API_KEY=sk-ant-...' > ~/.claude/heartbeat.env
+chmod 600 ~/.claude/heartbeat.env
+```
+
+The heartbeat script sources this file automatically on startup.
+
+### 3. Add a cron entry
 
 ```bash
 # Add heartbeat cron (runs every 4 hours)

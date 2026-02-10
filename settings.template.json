@@ -65,9 +65,6 @@
       "Bash(uv tool run*)",
       "Bash(uv cache clean*)",
       "Bash(uvx *)",
-      "Read(~/claude/memory/**)",
-      "Edit(~/claude/memory/**)",
-      "Write(~/claude/memory/**)",
       "Read(~/claude/obsidian/**)",
       "Edit(~/claude/obsidian/**)",
       "Write(~/claude/obsidian/**)"

@@ -230,7 +230,7 @@ Major improvements, curated by human and Claude together.
 - [ ] Re-run crontab setup after heartbeat path changes
 - [ ] Review and merge PR on `agent-skills` branch
 - [ ] Review obsidian notes — move global guidance to skills, keep personal stuff in obsidian
-- [ ] Fix heartbeat cron — `claude` binary not in cron PATH, auth not persistent across cron invocations
+- [ ] Fix heartbeat cron — PATH fixed in script; auth fix added (sources `~/.claude/heartbeat.env`). **Human action needed**: create the env file with `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
 - [ ] Manually web grab troubled URLs:
   - `factoriocodex.com/blueprints/70` (JS SPA, needs Playwright)
   - `nilaus.atlassian.net/.../Factorio+Master+Class+Blueprints` (Confluence auth required)

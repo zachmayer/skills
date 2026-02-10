@@ -5,6 +5,12 @@ set -euo pipefail
 # Cron runs with minimal PATH. Add common locations for claude binary.
 export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:/usr/local/bin:$PATH"
 
+# Load auth credentials for non-interactive (cron) execution.
+# Create ~/.claude/heartbeat.env with: export ANTHROPIC_API_KEY=sk-ant-...
+if [ -f "$HOME/.claude/heartbeat.env" ]; then
+    source "$HOME/.claude/heartbeat.env"
+fi
+
 TASKS_FILE="${CLAUDE_HEARTBEAT_TASKS:-$HOME/claude/obsidian/heartbeat/tasks.md}"
 LOCK_FILE="/tmp/claude-heartbeat.lock"
 LOG_PREFIX="[$(date -u +%Y-%m-%dT%H:%M:%SZ)]"

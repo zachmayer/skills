@@ -3,6 +3,7 @@
 
 import os
 import sys
+import typing
 from typing import Any
 from typing import cast
 
@@ -51,6 +52,11 @@ def _parse_provider(model: str) -> tuple[str, str, dict[str, Any]]:
     return key_name, prefix, thinking
 
 
+def _get_known_models() -> list[str]:
+    """Extract all known model names from pydantic-ai's KnownModelName type."""
+    return sorted(typing.get_args(KnownModelName.__value__))
+
+
 @click.command()
 @click.option(
     "--model",
@@ -60,9 +66,22 @@ def _parse_provider(model: str) -> tuple[str, str, dict[str, Any]]:
     help="Full pydantic-ai model string (e.g. openai:gpt-5.2, anthropic:claude-opus-4-6)",
 )
 @click.option("--system", "-s", default=None, help="System prompt")
-@click.argument("question")
-def main(model: str, system: str | None, question: str) -> None:
+@click.option(
+    "--list-models", "-l", default=None, help="List known models (optionally filter by prefix)"
+)
+@click.argument("question", required=False)
+def main(model: str, system: str | None, list_models: str | None, question: str | None) -> None:
     """Ask a question to another AI model with extended thinking."""
+    if list_models is not None:
+        prefix_filter = list_models if list_models else None
+        for name in _get_known_models():
+            if prefix_filter is None or name.startswith(prefix_filter):
+                click.echo(name)
+        return
+
+    if not question:
+        raise click.UsageError("Missing argument 'QUESTION'.")
+
     key_name, prefix, thinking = _parse_provider(model)
 
     if not os.environ.get(key_name):

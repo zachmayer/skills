@@ -56,3 +56,9 @@ Before saving, search the obsidian vault for related notes:
 Source: <full original URL>
 Grabbed: <YYYY-MM-DD>
 ```
+
+## Content-type hints
+
+Special handling for specific content types. Add new entries as needed.
+
+- **Factorio blueprints** (factoriobin.com) — Always include the full blueprint string. Check the page HTML for a CDN link (`cdn.factoriobin.com`) and curl it to get the raw string. Save it in a code block in the note.

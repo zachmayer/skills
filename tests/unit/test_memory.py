@@ -87,6 +87,20 @@ class TestShowCommand:
     def test_missing_date(self, mem_dir: Path) -> None:
         assert "No notes found" in CliRunner().invoke(memory.cli, ["show", "2099-12-31"]).output
 
+    def test_rejects_path_traversal(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["show", "../../etc/passwd"])
+        assert result.exit_code != 0
+
+    def test_rejects_arbitrary_string(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["show", "foo"])
+        assert result.exit_code != 0
+
+    def test_accepts_memory(self, mem_dir: Path) -> None:
+        (mem_dir / "memory.md").write_text("# Overall\n")
+        result = CliRunner().invoke(memory.cli, ["show", "memory"])
+        assert result.exit_code == 0
+        assert "Overall" in result.output
+
 
 class TestSearchCommand:
     def test_finds_match(self, mem_dir: Path) -> None:

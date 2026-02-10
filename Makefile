@@ -61,6 +61,12 @@ install-local: ## Install settings and symlink skills to ~/.claude/
 		ln -sfn "$$(pwd)/$$skill_dir" "$(INSTALL_DIR)/$$skill_name"; \
 	done
 	@echo "Done. Skills available as /skill-name in Claude Code."
+	@echo ""
+	@echo "Some skills need API keys (see .env.example for the list)."
+	@echo "Add them to your shell profile (~/.zshrc or ~/.bashrc):"
+	@echo '  export OPENAI_API_KEY="your-key"'
+	@echo '  export ANTHROPIC_API_KEY="your-key"'
+	@echo '  export GOOGLE_API_KEY="your-key"'
 .PHONY: install-local
 
 
@@ -95,5 +101,5 @@ clean: ## Remove venv and lock file, then re-sync
 
 
 sync-external: ## Sync external skills from upstream URLs
-	@python3 scripts/sync_external.py
+	@uv run python scripts/sync_external.py
 .PHONY: sync-external

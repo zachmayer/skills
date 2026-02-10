@@ -81,7 +81,7 @@ Apply the [Agent Skills Best Practices](https://platform.claude.com/docs/en/agen
 - Description uses WHEN/WHEN NOT pattern
 - Instructions are actionable, not philosophical
 - Under 500 lines for SKILL.md (split into reference files if needed)
-- Name is kebab-case, memorable, and descriptive
+- Name is snake_case, memorable, and descriptive
 - No time-sensitive information
 
 ## Output

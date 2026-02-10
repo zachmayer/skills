@@ -30,6 +30,7 @@ You get **one message out and one message back**. There is no follow-up. Your pa
 1. **Include all relevant context**: code, errors, constraints, what you tried. Use `mental_models` to structure your thinking before asking.
 2. **State what you're stuck on**: "I tried A, B, C and none work because D" — not just "help me with X"
 3. **Ask a specific question and set the frame**: what kind of answer you need (diagnosis, alternative approach, code review).
+4. **Never include secrets**: API keys, credentials, tokens, or private repo URLs. Your question goes to an external API.
 
 Bad: "How do I fix this auth bug?"
 Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 instead of 401. I have verified the token validation logic is correct and the error handler is registered. The 500 comes from [stack trace]. What could cause the error handler to be bypassed?"
@@ -63,6 +64,21 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -p anthropic "question"
 # Gemini 2.5 Pro with thinking enabled
 uv run --directory SKILL_DIR python scripts/ask_model.py -p google "question"
 ```
+
+## API Key Setup
+
+Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`):
+```bash
+export OPENAI_API_KEY="your-key"      # Required for --provider openai
+export ANTHROPIC_API_KEY="your-key"   # Required for --provider anthropic
+export GOOGLE_API_KEY="your-key"      # Required for --provider google
+```
+
+The script checks for the key before calling the API. If missing, it tells you which
+variable to set. If the key exists but the call fails, common errors:
+- **insufficient_quota (429)**: Billing issue — add credits at the provider's dashboard.
+- **invalid_api_key (401)**: Wrong key — check you exported the correct one and ran `source ~/.zshrc`.
+- **rate_limit (429)**: Too many requests — wait and retry.
 
 ## Options
 

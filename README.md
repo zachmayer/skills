@@ -193,6 +193,8 @@ Skills that bundle Python code use [Click](https://click.palletsprojects.com/) f
 Required environment variables for specific skills:
 - `discussion_partners`: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GOOGLE_API_KEY`
 
+Add API keys to your shell profile (`~/.zshrc` or `~/.bashrc`). See `.env.example` for the list. Claude Code sources your shell profile at startup — no extra configuration needed.
+
 ## Roadmap
 
 Major improvements, curated by human and Claude together.
@@ -208,6 +210,7 @@ Major improvements, curated by human and Claude together.
 
 - [ ] **Modal skill** — Run compute-intensive tasks on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
 - [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status for all skills that need external APIs.
+- [ ] **Prompt report** — Generate a structured report analyzing a prompt's effectiveness: token budget, instruction clarity, coverage gaps, ambiguity hotspots. Would pair with `prompt_evolution` and `llm_judge` for closed-loop prompt improvement.
 - [ ] **Playwright browser automation** — Headless browser for JS-heavy pages. Would unblock web_grab for SPAs and auth-gated content.
 - [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Currently blocked by auth; investigate Google API or export workarounds.
 - [ ] **Voice notes / audio transcription** — Transcribe audio (voice memos, meeting recordings) into memory or obsidian. Would lower the capture bar to "just talk." Whisper API or local whisper.cpp.
@@ -220,6 +223,11 @@ Major improvements, curated by human and Claude together.
 - [x] **Hostname in daily logs** — Memory notes include `[hostname]` to disambiguate entries from multiple machines writing to the same vault.
 - [x] **Progressive disclosure** — 8 oversized FUTURE_TOKENS skills split into concise SKILL.md + REFERENCE.md. All skills now under 200 lines.
 - [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user rather than assuming months-old info is current.
+- [ ] **Heartbeat safety** — Dedicated tighter permissions for heartbeat cron. Note: `tasks.md` is an executable instruction surface — treat it like code, not just a todo list.
+
+### Lessons Learned
+
+- **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour. See `~/claude/obsidian/Zach/root-cause-before-you-build.md`.
 
 ### Skill Quality
 

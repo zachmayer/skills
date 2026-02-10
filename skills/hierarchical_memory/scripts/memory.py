@@ -88,7 +88,11 @@ def today() -> None:
 @cli.command()
 @click.argument("date_str")
 def show(date_str: str) -> None:
-    """Show notes for a specific date (YYYY-MM-DD) or month (YYYY-MM)."""
+    """Show notes for a specific date (YYYY-MM-DD), month (YYYY-MM), or overall (memory)."""
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$|^\d{4}-\d{2}$|^memory$", date_str):
+        raise click.BadParameter(
+            "Expected YYYY-MM-DD, YYYY-MM, or 'memory'", param_hint="'date_str'"
+        )
     path = MEMORY_DIR / f"{date_str}.md"
     if path.exists():
         click.echo(path.read_text())

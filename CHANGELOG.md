@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Heartbeat cron auth fix (sources ~/.claude/heartbeat.env)
 - Time-aware ralph_loop with deadline pacing
 - Hostname in daily memory notes for multi-machine disambiguation
+- `.env.example` documenting required API keys for discussion_partners
+- Pre-flight API key check and error disambiguation in ask_model.py
 
 ### Changed
 

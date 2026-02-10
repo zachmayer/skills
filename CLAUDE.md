@@ -20,6 +20,11 @@ All Python scripts use Click for CLIs and are run via `uv run python <script>`.
 
 Use README.md as the development memory for this repo. It contains the skill inventory, architecture notes, roadmap, and TODOs. Update it as you work.
 
+## Anti-patterns
+
+- **Root-cause before you build.** When something fails, diagnose the actual error before building infrastructure to work around it. Misreading `insufficient_quota` (billing) as "keys not found" (config) led to an hour of unnecessary .env plumbing. The fix was swapping one API key. Staff engineers solve the right problem; senior engineers write code for the wrong one.
+- **One source of truth for config.** Shell profile (`~/.zshrc`) is the standard for personal dev tools. Don't layer .env files, UV_ENV_FILE, and settings.json on top — each layer adds precedence conflicts and debugging surface.
+
 ## Conventions
 
 - Each skill is a directory with `SKILL.md` as the entry point

@@ -7,7 +7,7 @@ description: >
 allowed-tools: Bash(git *), Read, Write, Glob, Grep
 ---
 
-Manage notes in the Obsidian vault at `~/claude/obsidian/`.
+Manage notes in the Obsidian vault at `~/claude/obsidian/`. Follows the **MOC (Map of Content)** pattern: atomic notes linked through hub pages.
 
 ## Vault Structure
 

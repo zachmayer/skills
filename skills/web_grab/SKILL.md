@@ -8,7 +8,7 @@ description: >
 
 # Web Grab
 
-Fetch a URL's content and save what's useful to obsidian as an atomic note.
+Fetch a URL's content and save what's useful to obsidian as an atomic note, following the **MOC (Map of Content)** pattern.
 
 ## Step 1: Try automated fetch
 

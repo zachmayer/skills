@@ -97,7 +97,15 @@ $CLAUDE_OBSIDIAN_DIR/memory/
 | Specific details | `YYYY-MM-DD.md` | Raw, unfiltered daily entries |
 | Curated knowledge | `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/` | Durable topic notes, personal knowledge base |
 
-For keyword search, use Grep/Glob directly on the memory directory.
+For keyword search, use Grep/Glob directly on the memory directory:
+
+```bash
+# Find memory files by name pattern
+Glob("$CLAUDE_OBSIDIAN_DIR/memory/*.md")
+
+# Search memory contents for a keyword
+Grep(pattern="search term", path="$CLAUDE_OBSIDIAN_DIR/memory/")
+```
 
 ## Aggregation
 

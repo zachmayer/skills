@@ -10,27 +10,17 @@ description: >
 
 Fetch a URL's content and save what's useful to obsidian as an atomic note, following the **MOC (Map of Content)** pattern.
 
-## Step 1: Try automated fetch
+## Step 1: Fetch content
 
-Try these in order. Stop at the first one that returns useful content:
+Try these tiers in order. Stop at the first one that returns useful content:
 
 1. **WebFetch tool** — built-in, works for most public pages
 2. **`curl -sL <url>`** — raw HTML, useful for simple pages
 3. **`gh api`** — if it's a GitHub URL (issues, PRs, files)
+4. **Playwright headless browser** — TODO: not yet implemented. For JS SPAs that need rendering.
+5. **Manual save** — if all automated methods fail (auth, JS rendering, bot blocking): ask the user to open the URL in Chrome, `Cmd+S` → "Webpage, Complete" or "HTML Only", and tell you the file path. Then read the saved HTML and extract meaningful content.
 
-## Step 2: If automated fails
-
-If the page requires auth, JavaScript rendering, or blocks bots:
-
-1. Tell the user: "I can't fetch this automatically. Please:"
-   - Open the URL in Chrome
-   - Press `Cmd+S` (Save As)
-   - Save as **"Webpage, Complete"** or **"Webpage, HTML Only"**
-   - Tell me the file path (or drag it into the terminal)
-2. Read the saved HTML file
-3. Extract the meaningful content (strip nav, ads, boilerplate)
-
-## Step 3: Discover related topics
+## Step 2: Discover related topics
 
 Before saving, search the obsidian vault for related notes:
 
@@ -39,14 +29,14 @@ Before saving, search the obsidian vault for related notes:
 3. Collect filenames (without `.md`) for `[[wiki-links]]` and note any `#topic` tags already in use
 4. Check if a MOC hub exists for this topic (e.g., `Factorio.md` for a Factorio blueprint)
 
-## Step 4: Save as atomic note
+## Step 3: Save as atomic note
 
 1. Extract the useful content into clean markdown
 2. Save as an **atomic note** (one URL = one note) via the `/obsidian` skill:
    - Descriptive filename (e.g., `Factorio Gleba Farm.md`, not `factoriobin-mrx1ek.md`)
    - **Source URL** and **Date grabbed** as required metadata (see below)
    - `#topic` tags — reuse existing vault tags, add new ones as needed
-   - `[[wiki-links]]` to related notes found in Step 3
+   - `[[wiki-links]]` to related notes found in Step 2
    - `## Related` section at the bottom with back-links
 3. **Update the MOC hub** — if a hub note exists for this topic, add a link to the new note. If no hub exists but 2+ related notes now exist, create one.
 4. Report what was saved, where, and what it links to

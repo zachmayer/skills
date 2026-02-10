@@ -16,6 +16,10 @@ Skills live in `skills/<skill-name>/SKILL.md` following the Agent Skills standar
 
 All Python scripts use Click for CLIs and are run via `uv run python <script>`.
 
+## Dev Memory
+
+Use README.md as the development memory for this repo. It contains the skill inventory, architecture notes, roadmap, and TODOs. Update it as you work.
+
 ## Conventions
 
 - Each skill is a directory with `SKILL.md` as the entry point

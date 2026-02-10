@@ -2,6 +2,7 @@
 
 import importlib.util
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -99,3 +100,96 @@ class TestSearchCommand:
 
     def test_no_matches(self, mem_dir: Path) -> None:
         assert "No matches" in CliRunner().invoke(memory.cli, ["search", "nothing"]).output
+
+
+class TestClassifyFile:
+    def test_daily(self) -> None:
+        assert memory.classify_file("2026-01-15.md") == "daily"
+
+    def test_monthly(self) -> None:
+        assert memory.classify_file("2026-01.md") == "monthly"
+
+    def test_overall(self) -> None:
+        assert memory.classify_file("memory.md") == "overall"
+
+
+class TestMonthFromFilename:
+    def test_daily(self) -> None:
+        assert memory.month_from_filename("2026-01-15.md") == "2026-01"
+
+    def test_monthly(self) -> None:
+        assert memory.month_from_filename("2026-01.md") == "2026-01"
+
+    def test_overall(self) -> None:
+        assert memory.month_from_filename("memory.md") is None
+
+
+class TestStatusCommand:
+    def test_empty_dir(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["status"])
+        assert result.exit_code == 0
+        assert "No memory files found" in result.output
+
+    def test_daily_only_needs_create(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n")
+        result = CliRunner().invoke(memory.cli, ["status"])
+        assert result.exit_code == 0
+        assert "CREATE" in result.output
+        assert "2026-01" in result.output
+
+    def test_daily_newer_than_monthly_needs_update(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        time.sleep(0.05)
+        (mem_dir / "2026-01-20.md").write_text("# New daily\n")
+        result = CliRunner().invoke(memory.cli, ["status"])
+        assert result.exit_code == 0
+        assert "UPDATE" in result.output
+        assert "2026-01-20.md" in result.output
+
+    def test_monthly_newer_than_daily_is_ok(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Daily\n")
+        time.sleep(0.05)
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        result = CliRunner().invoke(memory.cli, ["status"])
+        assert result.exit_code == 0
+        assert "**OK**" in result.output
+
+    def test_overall_create(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        result = CliRunner().invoke(memory.cli, ["status"])
+        assert result.exit_code == 0
+        assert "CREATE" in result.output
+        assert "no memory.md exists" in result.output
+
+    def test_overall_update(self, mem_dir: Path) -> None:
+        (mem_dir / "memory.md").write_text("# Overall\n")
+        time.sleep(0.05)
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        result = CliRunner().invoke(memory.cli, ["status"])
+        assert result.exit_code == 0
+        assert "UPDATE" in result.output
+        assert "monthly summaries are newer" in result.output
+
+    def test_overall_ok(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01.md").write_text("# Monthly\n")
+        time.sleep(0.05)
+        (mem_dir / "memory.md").write_text("# Overall\n")
+        result = CliRunner().invoke(memory.cli, ["status"])
+        assert result.exit_code == 0
+        assert "memory.md is up to date" in result.output
+
+    def test_obsidian_vault_listing(self, mem_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        vault = mem_dir / "vault"
+        vault.mkdir()
+        (vault / "Note1.md").write_text("# Note\n")
+        sub = vault / "Projects"
+        sub.mkdir()
+        (sub / "Proj1.md").write_text("# Project\n")
+        monkeypatch.setattr(memory, "VAULT_DIR", vault)
+        # Need at least one memory file so status doesn't exit early
+        (mem_dir / "memory.md").write_text("# Overall\n")
+        result = CliRunner().invoke(memory.cli, ["status"])
+        assert result.exit_code == 0
+        assert "Obsidian Vault" in result.output
+        assert "Note1.md" in result.output
+        assert "Projects" in result.output

@@ -1,45 +1,85 @@
 # Agent Skills
 
-A shared, open-source collection of agent skills following the [Agent Skills](https://agentskills.io) open standard. Works with Claude Code, Cursor, Codex, Gemini CLI, and 30+ other AI coding agents.
+An open-source collection of AI agent skills for organizing your personal information automatically. Built on the [Agent Skills](https://agentskills.io) open standard. Works with Claude Code, Cursor, Codex, Gemini CLI, and 30+ other AI coding agents.
+
+## Why This Exists
+
+You have too many open tabs. You have ideas you don't want to forget. You have notes scattered across apps. You read things you'll never find again. The information is there — it's just not organized, and you don't have time to organize it yourself.
+
+This is a system that lets AI agents do that organizing for you. The core loop is **capture, organize, process**:
+
+1. **Capture** — Get information into the system with minimal effort. Dump your open tabs with `web_grab`. Dictate a random idea into `hierarchical_memory`. Save a PDF. The bar for capture is intentionally low.
+
+2. **Organize** — The system structures information automatically over time. Daily notes aggregate into monthly summaries, then into an overall working memory. Web grabs land as atomic notes in an Obsidian vault with topic tags and wiki-links. A periodic heartbeat maintains the whole thing in the background.
+
+3. **Process** — Once information is organized, thinking tools help you work with it. Mental models, deep thinking modes, and structured analysis skills operate on your accumulated knowledge rather than starting from scratch every session.
+
+The two core storage layers complement each other:
+- **Hierarchical memory** — A stream of consciousness that compresses over time. Daily notes are raw and noisy. Monthly summaries keep what mattered. The overall memory is a living profile of your current world: preferences, context, key facts, active projects. What you'd want a new assistant to know about you on day one.
+- **Obsidian vault** — Durable topic notes organized as a knowledge graph. Web grabs, curated knowledge, reference material. Things that don't expire the way daily notes do. Connected by wiki-links and topic tags so related ideas find each other.
 
 ## Skills
 
+Skills are grouped by their role in the capture → organize → process pipeline.
+
+### Capture
+
 | Skill | Type | Description |
 |-------|------|-------------|
-| [antithesize](skills/antithesize/) | Prompt | Generate standalone opposition: rival thesis, refutation, stress tests |
-| [ask_questions](skills/ask_questions/) | Prompt | Structured questioning framework: clarify before acting |
-| [beast_mode](skills/beast_mode/) | Prompt | Maximum persistence mode: keep going until fully solved |
-| [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
-| [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
-| [debug](skills/debug/) | Prompt | Line-by-line code audit loop: trace values, verify behavior, fix |
-| [dimensionalize](skills/dimensionalize/) | Prompt | Transform decisions into 3-7 measurable scoring dimensions |
-| [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models via pydantic-ai |
-| [excavate](skills/excavate/) | Prompt | Assumption archaeology: surface hidden premises in arguments |
-| [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
-| [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
-| [handlize](skills/handlize/) | Prompt | Extract compact handles (names) for unnamed concepts |
-| [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous task processing for Claude Code |
-| [hierarchical_memory](skills/hierarchical_memory/) | Python | Notes aggregated into daily/weekly/monthly/overall summaries |
-| [inductify](skills/inductify/) | Prompt | Inductive reasoning: generalize from examples to principles |
-| [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
-| [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs with rubrics |
-| [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems, critical analysis |
-| [metaphorize](skills/metaphorize/) | Prompt | Build explicit source→target domain mappings with formulas and metrics |
-| [negspace](skills/negspace/) | Prompt | Negative space analysis: find what's missing or unsaid |
+| [hierarchical_memory](skills/hierarchical_memory/) | Python | Quick notes aggregated into daily/monthly/overall summaries |
+| [web_grab](skills/web_grab/) | Prompt | Fetch URL content and save to obsidian — clear your tabs |
+| [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
+| [remember_session](skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
+| [skill_stealer](skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
+
+### Organize
+
+| Skill | Type | Description |
+|-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown using marker |
-| [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for sensitive data |
-| [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover over generations |
-| [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
-| [remember_session](skills/remember_session/) | Prompt | Save session learnings to hierarchical memory and obsidian |
-| [rhetoricize](skills/rhetoricize/) | Prompt | Rhetorical stress testing: probe arguments for persuasion flaws |
-| [rhyme](skills/rhyme/) | Prompt | Find structural parallels between domains (conceptual rhyming) |
-| [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality; propose compactions |
-| [skill_stealer](skills/skill_stealer/) | Prompt | Extract skills from URLs into SKILL.md with degrees-of-freedom analysis |
-| [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
-| [synthesize](skills/synthesize/) | Prompt | Compress conflicting positions into decision-sufficient framework |
+| [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous maintenance: aggregate memory, process tasks |
+| [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
+
+### Process
+
+| Skill | Type | Description |
+|-------|------|-------------|
 | [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
-| [web_grab](skills/web_grab/) | Prompt | Fetch URL content and save to obsidian; auto or manual fallback |
+| [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems, critical analysis |
+| [ask_questions](skills/ask_questions/) | Prompt | Structured questioning: clarify before acting |
+| [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
+| [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
+| [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
+
+### Analyze
+
+| Skill | Type | Description |
+|-------|------|-------------|
+| [antithesize](skills/antithesize/) | Prompt | Generate standalone opposition: rival thesis, stress tests |
+| [excavate](skills/excavate/) | Prompt | Assumption archaeology: surface hidden premises |
+| [synthesize](skills/synthesize/) | Prompt | Compress conflicting positions into decision-sufficient framework |
+| [negspace](skills/negspace/) | Prompt | Negative space analysis: find what's missing or unsaid |
+| [rhetoricize](skills/rhetoricize/) | Prompt | Rhetorical stress testing: probe arguments for persuasion flaws |
+| [dimensionalize](skills/dimensionalize/) | Prompt | Transform decisions into 3-7 measurable scoring dimensions |
+| [inductify](skills/inductify/) | Prompt | Inductive reasoning: generalize from examples to principles |
+| [rhyme](skills/rhyme/) | Prompt | Find structural parallels between domains |
+| [metaphorize](skills/metaphorize/) | Prompt | Build explicit source→target domain mappings |
+| [handlize](skills/handlize/) | Prompt | Extract compact handles (names) for unnamed concepts |
+
+### Build
+
+| Skill | Type | Description |
+|-------|------|-------------|
+| [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
+| [beast_mode](skills/beast_mode/) | Prompt | Maximum persistence mode: keep going until fully solved |
+| [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
+| [debug](skills/debug/) | Prompt | Line-by-line code audit loop: trace values, verify behavior, fix |
+| [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
+| [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
+| [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
+| [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
+| [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
 
 ## Skill Graph
 
@@ -162,11 +202,21 @@ Major improvements, curated by human and Claude together.
 - [x] **Consolidate memory repos into obsidian** — All persistent data in `~/claude/obsidian/`: memory, heartbeat tasks, TODOs, personal knowledge. Single git repo.
 - [x] **Smarter heartbeat** — Reads daily memory, decides highest-value activity, writes questions to obsidian.
 - [ ] **Flat-file skill format** — Skills that are just a prompt (no scripts/) could be a single `.md` file instead of a directory. Needs a shared build step for both `make install` and `npx skills` to normalize flat files into `name/SKILL.md` directories.
+- [ ] **Vector search for memory** — Semantic search over memory files and obsidian vault. Would complement the current keyword-based `search` command.
 
 ### New Skills
 
 - [ ] **Modal skill** — Run compute-intensive tasks on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
 - [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status for all skills that need external APIs.
+- [ ] **Playwright browser automation** — Headless browser for JS-heavy pages. Would unblock web_grab for SPAs and auth-gated content.
+- [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Currently blocked by auth; investigate Google API or export workarounds.
+- [ ] **Voice notes / audio transcription** — Transcribe audio (voice memos, meeting recordings) into memory or obsidian. Would lower the capture bar to "just talk." Whisper API or local whisper.cpp.
+- [ ] **Daily briefing** — Morning summary combining working memory, pending tasks, and recent vault activity. Uses the organized info to start the day with context instead of cold-starting.
+
+### Enhancements
+
+- [x] **Memory aggregation helper** — Polars-based `status` command shows which monthly/overall files are stale. Deterministic staleness detection so aggregation only processes what's needed.
+- [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user rather than assuming months-old info is current.
 
 ### Skill Quality
 
@@ -180,6 +230,11 @@ Major improvements, curated by human and Claude together.
 - [ ] Re-run crontab setup after heartbeat path changes
 - [ ] Review and merge PR on `agent-skills` branch
 - [ ] Review obsidian notes — move global guidance to skills, keep personal stuff in obsidian
+- [ ] Fix heartbeat cron — `claude` binary not in cron PATH, auth not persistent across cron invocations
+- [ ] Manually web grab troubled URLs:
+  - `factoriocodex.com/blueprints/70` (JS SPA, needs Playwright)
+  - `nilaus.atlassian.net/.../Factorio+Master+Class+Blueprints` (Confluence auth required)
+  - Google Sheets `gid=1` (not publicly accessible)
 
 ## License
 

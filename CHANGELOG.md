@@ -7,19 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 13 agent skills following the Agent Skills open standard
-- Skills: ask_questions, concise_writing, discussion_partners, heartbeat,
-  hierarchical_memory, mental_models, obsidian, pdf_to_markdown, private_repo,
-  ralph_loop, staff_engineer, skill_stealer, ultra_think
+- 34 agent skills following the Agent Skills open standard
+- **Capture skills**: hierarchical_memory, web_grab, pdf_to_markdown, remember_session, skill_stealer
+- **Organize skills**: obsidian, heartbeat, private_repo
+- **Process skills**: ultra_think, mental_models, ask_questions, discussion_partners, data_science, forecast, lean_prover
+- **Analyze skills**: antithesize, excavate, synthesize, negspace, rhetoricize, dimensionalize, inductify, rhyme, metaphorize, handlize
+- **Build skills**: ralph_loop, beast_mode, staff_engineer, debug, concise_writing, gh_cli, prompt_evolution, llm_judge, skill_pruner
+- Polars-based `status` command for memory aggregation staleness detection
+- Progressive disclosure: 8 oversized skills split into SKILL.md + REFERENCE.md
+- External skills sync from FUTURE_TOKENS via `make sync-external`
 - Dependabot auto-merge workflow and grouped updates
-- CLAUDE.md for repo context
+- CLAUDE.md and AGENTS.md for repo context
 - .claude-plugin/marketplace.json for Claude Code plugin registry
-- Makefile targets: install-local, uninstall-local, pull-external
+- Makefile targets: install-local, install-ci, install-heartbeat, uninstall-local, sync-external
+- settings.template.json with gh CLI permissions (read-only allow, mutating deny)
+- Heartbeat cron auth fix (sources ~/.claude/heartbeat.env)
+- Time-aware ralph_loop with deadline pacing
 
 ### Changed
 
 - Renamed project from python-boilerplate to agent-skills
-- Added click, httpx, marker-pdf as dependencies
+- Added click, httpx, polars, pydantic-ai as dependencies
+- README reorganized around capture/organize/process narrative
+- Skills grouped by pipeline stage in README
 
 ### Removed
 

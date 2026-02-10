@@ -224,6 +224,7 @@ Major improvements, curated by human and Claude together.
 - [x] **Progressive disclosure** — 8 oversized FUTURE_TOKENS skills split into concise SKILL.md + REFERENCE.md. All skills now under 200 lines.
 - [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user rather than assuming months-old info is current.
 - [ ] **Heartbeat safety** — Dedicated tighter permissions for heartbeat cron. Note: `tasks.md` is an executable instruction surface — treat it like code, not just a todo list.
+- [ ] **Fix install-ci after marker-pdf move** — `install-ci` uses `uv sync --locked --group dev` which now pulls marker-pdf/torch from main deps. Needs `--only-group dev` or moving marker-pdf back to optional. Separate PR.
 
 ### Lessons Learned
 

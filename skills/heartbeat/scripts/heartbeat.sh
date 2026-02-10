@@ -7,13 +7,22 @@ export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:/usr/local/bin:$PATH"
 
 # Load auth credentials for non-interactive (cron) execution.
 # Create ~/.claude/heartbeat.env with: export ANTHROPIC_API_KEY=sk-ant-...
-if [ -f "$HOME/.claude/heartbeat.env" ]; then
-    source "$HOME/.claude/heartbeat.env"
+ENV_FILE="$HOME/.claude/heartbeat.env"
+if [ -f "$ENV_FILE" ]; then
+    perms=$(stat -f '%Lp' "$ENV_FILE" 2>/dev/null || stat -c '%a' "$ENV_FILE" 2>/dev/null)
+    if [ "$perms" != "600" ]; then
+        echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ERROR: $ENV_FILE has mode $perms, expected 600. Skipping."
+        exit 1
+    fi
+    source "$ENV_FILE"
 fi
 
 TASKS_FILE="${CLAUDE_HEARTBEAT_TASKS:-$HOME/claude/obsidian/heartbeat/tasks.md}"
-LOCK_FILE="/tmp/claude-heartbeat.lock"
+LOCK_FILE="$HOME/.claude/heartbeat.lock"
 LOG_PREFIX="[$(date -u +%Y-%m-%dT%H:%M:%SZ)]"
+
+# Ensure lock directory exists
+mkdir -p "$(dirname "$LOCK_FILE")"
 
 # Prevent overlapping runs
 if [ -f "$LOCK_FILE" ]; then

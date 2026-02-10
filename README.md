@@ -216,6 +216,9 @@ Major improvements, curated by human and Claude together.
 - [ ] **Voice notes / audio transcription** — Transcribe audio (voice memos, meeting recordings) into memory or obsidian. Would lower the capture bar to "just talk." Whisper API or local whisper.cpp.
 - [ ] **Daily briefing** — Morning summary combining working memory, pending tasks, and recent vault activity. Uses the organized info to start the day with context instead of cold-starting.
 - [ ] **Messaging / mobile bridge** — A way to send messages from phone that wake up Claude (iMessage, Slack, or a chat app). Needs a listener/webhook — may require system-level integration beyond a skill. Key use case: quick capture and task dispatch while away from desk.
+- [ ] **PR review** — Python script uses `gh` CLI to collect PR diff, file list, metadata; assembles structured XML context doc (like we did manually for PR #20). Sends to `discussion_partners` CLI with configurable review focus prompt. Default: flag real issues, skip style nits. Script is the low-freedom core (mechanical XML assembly); review prompt and triage are high-freedom. Depends on: `gh_cli`, `discussion_partners`.
+- [ ] **Claude Code skills reference** — Comprehensive skill built from [Agent Skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Large skill (no line limit). SKILL.md includes the full reference content; can re-fetch the URL to check for doc updates. Goal: shortcut to best practices without leaving the editor.
+- [ ] **Claude Code config reference** — Same pattern, built from [Claude Code settings docs](https://code.claude.com/docs/en/settings#available-settings). Full reference for permissions, env vars, hooks, MCP, CLAUDE.md format. Large skill. Re-fetchable source URL for updates.
 
 ### Enhancements
 

@@ -35,8 +35,16 @@ If the page requires auth, JavaScript rendering, or blocks bots:
 1. Extract the useful content into clean markdown
 2. Use the `/obsidian` skill to save a note with:
    - Title from the page
-   - Source URL as metadata
+   - **Source URL** — always include the full original URL
+   - **Date grabbed** — ISO date (YYYY-MM-DD) of when the content was fetched
    - Key content in markdown
    - Tags based on topic
 3. Add `[[wiki-links]]` to connect to related obsidian notes (by filename without `.md`)
 4. Report what was saved and where
+
+**Required metadata** — every web grab note MUST start with:
+
+```markdown
+Source: <full original URL>
+Grabbed: <YYYY-MM-DD>
+```

@@ -161,6 +161,7 @@ Major improvements, curated by human and Claude together.
 
 - [x] **Consolidate memory repos into obsidian** — All persistent data in `~/claude/obsidian/`: memory, heartbeat tasks, TODOs, personal knowledge. Single git repo.
 - [x] **Smarter heartbeat** — Reads daily memory, decides highest-value activity, writes questions to obsidian.
+- [ ] **Flat-file skill format** — Skills that are just a prompt (no scripts/) could be a single `.md` file instead of a directory. Needs a shared build step for both `make install` and `npx skills` to normalize flat files into `name/SKILL.md` directories.
 
 ### Skill Quality
 

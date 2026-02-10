@@ -93,17 +93,26 @@ make install        # Install Python deps
 make install-local  # Symlink skills to ~/.claude/skills/
 ```
 
+### Sync external skills
+
+External skills (from [FUTURE_TOKENS](https://github.com/jordanrubin/FUTURE_TOKENS)) are tracked in `external_skills.yaml` with direct links to upstream raw files. To pull the latest versions:
+
+```bash
+make sync-external  # Fetch latest from upstream URLs
+```
+
 ## Development
 
 Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
-make help      # Show all available targets
-make install   # Install Python + deps + pre-commit hooks
-make lint      # Run ruff linting and formatting
-make typecheck # Run ty type checker
-make test      # Run pytest
-make upgrade   # Upgrade all dependencies
+make help           # Show all available targets
+make install        # Install Python + deps + pre-commit hooks
+make lint           # Run ruff linting and formatting
+make typecheck      # Run ty type checker
+make test           # Run pytest
+make upgrade        # Upgrade all dependencies
+make sync-external  # Sync external skills from upstream
 ```
 
 ## Creating a New Skill

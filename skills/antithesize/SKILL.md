@@ -1,5 +1,6 @@
 ---
 name: antithesize
+max_lines: 650
 description: generate standalone opposition to any proposition. antithesis must be comprehensible without reading thesis—it's an alternative complete worldview, not refutation.
 ---
 
@@ -264,11 +265,13 @@ antithesis MUST be comprehensible to someone who never read the thesis.
 
 - only makes sense if you know what jordan said
 - defined by opposition, not by its own claims
+- negative framing ("wrong about…")
 
 **good** (standalone): "preference is regime-dependent: scarcity generates survival-optimized wants, abundance generates meaning-optimized wants. garden leave doesn't reveal hidden essence—it creates new preference-structure under new constraints."
 
 - makes sense without reading jordan's essay
 - positive claims about how preference works
+- thesis becomes a special case of this framework
 
 ### **steel-man first** (intellectual honesty)
 
@@ -280,6 +283,16 @@ before opposing, state the STRONGEST version of thesis:
 
 oppose the steel-man, not the weak version.
 
+**bad**: "jordan says skills are valuable but they're actually just premature optimization after n=2 examples"
+
+- attacks early-draft messiness
+- ignores that iteration is the point
+
+**good**: "even after skills stabilize (n=50+), formalization might not improve output quality. if legibility ≠ efficacy, skills become cargo cult rigor."
+
+- opposes the strong form (mature skills)
+- takes best case seriously
+
 ### **context-appropriate constraints**
 
 understand the ACTUAL constraint structure, not hypothetical:
@@ -288,13 +301,26 @@ understand the ACTUAL constraint structure, not hypothetical:
 - what are real failure modes vs imagined?
 - what resources/capabilities actually exist?
 
+**bad**: "skills are expensive to maintain" (assumes human solo work)
+**good**: "skills might not improve output quality" (recognizes LLM-human collab costs are near-zero, so quality is only real metric)
+
 -----
 
 ## process (step by step)
 
 ### step -1: identify purpose (REQUIRED FIRST)
 
-what are you trying to accomplish with antithesis? use the picking table above to select antithesis type. most of the time you want **replace** (rival thesis), which is the deep-dive above. but know your options.
+what are you trying to accomplish with antithesis?
+
+|purpose                                      |recommended antithesis types                      |
+|---------------------------------------------|--------------------------------------------------|
+|**falsify** (is this even true?)             |refutation, counterexample, selection critique    |
+|**replace** (what's the right story?)        |rival thesis, causal inversion, reparameterization|
+|**robustify** (will this break?)             |adversarial example, boundary case, objective flip|
+|**clarify values** (what should we optimize?)|axiological inversion, performative mirror        |
+|**reframe** (wrong question?)                |axis shift, phenomenological counter, foil        |
+
+most of the time you want **replace** (rival thesis), which is the deep-dive below. but know your options.
 
 ### step 0: identify genre (if doing rival thesis)
 
@@ -306,11 +332,15 @@ what are you trying to accomplish with antithesis? use the picking table above t
 
 use genre patterns above to guide structure.
 
+**if genre is ambiguous**: you may need to explore multiple frames first.
+
 **if you chose other antithesis types** (refutation, adversarial, etc): genre may be less critical. skip to step 1.
 
 ### step 1: choose axis (what to oppose)
 
-axis = the dimension along which you'll generate opposition. most relevant for RIVAL THESIS.
+**note**: axis selection is most relevant for RIVAL THESIS. other antithesis types may not need explicit axis.
+
+axis = the dimension along which you'll generate opposition.
 
 **quick triage by symptom**:
 
@@ -411,9 +441,59 @@ using genre structure + chosen axes/operators + intensity/contract:
 
 -----
 
-## mini-example (same thesis, different antithesis types)
+## axes reference (deep cuts)
 
-**thesis**: "garden leave reveals authentic preference"
+**epistemic** — truth claims · thin priors, assertive tone · overfitting to anecdotes
+
+**methodological** — how you reasoned · after-the-fact coherence · cargo-cult rigor
+
+**axiological** — value weights · moral heat without statistics · incommensurability as fact
+
+**phenomenological** — lived texture · "not what it feels like" · projection
+
+**performative** — rhetoric as act · applause-line energy · clout over truth
+
+**pragmatic** — does it work · pretty theory, ugly ops · metric drift
+
+**causal** — arrows not nodes · wiggle input, nothing moves · confounding
+
+**incentive** — payoff surfaces · nice words, perverse rewards · cobra effect
+
+**statistical** — priors, baselines · small-n swagger · aggregation fallacy
+
+**computational** — tractability/time · exponential hand-waving · impossibility hiding in vibes
+
+**distributional** — OOD fragility · changes domain, keeps claim · training set myopia
+
+**scaling/limit** — asymptotics · linear intuition, nonlinear world · sign flips at scale
+
+**resource/ergodicity** — conservation/ruin · average win, catastrophic path · time vs ensemble
+
+**simulacra** — truth as signal · tracks status over reality · level-mixing
+
+**institutional/coordination** — mechanism design · individually rational, collectively dumb · commons tragedy
+
+**ontological/type** — kind errors · reifying process as object · category bleed
+
+-----
+
+## mini-examples (same thesis, different antithesis types)
+
+**thesis 1**: "remote work cuts productivity"
+
+- **refutation**: multi-firm panel with instrumented shocks shows no drop
+- **rival thesis**: productivity ↑ for deep-work roles, ↓ for coord-heavy—heterogeneous effects dominate mean
+- **objective flip**: if objective = retention or female participation, remote strictly dominates
+- **adversarial example**: during outages/childcare spikes, hybrid collapses harder than remote-native (resilience > average)
+
+**thesis 2**: "bigger models beat alignment techniques over 3-5y"
+
+- **axis shift**: for capability, maybe; for reliability/compliance, alignment infra compounds faster
+- **selection critique**: capability evals cherry-pick leaderboards optimized by scale
+- **duality**: in tooling market, stable abstractions (skills/primitives) are scarce capital; model scale is commodity
+- **rival thesis**: scaling has diminishing returns; rotation to algorithms imminent as we hit data wall
+
+**thesis 3**: "garden leave reveals authentic preference"
 
 - **rival thesis**: preference is regime-generated, not discovered; constraints create wants, not hide them
 - **causal inversion**: you think freedom reveals self; actually, new constraints generate new self
@@ -424,22 +504,125 @@ using genre structure + chosen axes/operators + intensity/contract:
 
 ## quality checklist
 
-**all antithesis types**: purpose-aligned (right pressure type) · steel-man (opposes strongest version) · context-aware (actual constraints, not hypothetical)
+**for all antithesis types:**
 
-**additionally for rival thesis**: standalone (comprehensible without thesis) · positive claims (what IS true) · genre-appropriate structure · accepts facts, flips conclusion
+- [ ] **purpose-aligned**: does this exert the right kind of pressure (falsify/replace/robustify/reframe)?
+- [ ] **steel-man**: opposes strongest version, not weak form
+- [ ] **context-aware**: understands actual constraints, not hypothetical
 
-**additionally for refutation**: specific counterexample · shows contradiction or reductio
+**additionally for RIVAL THESIS:**
 
-**additionally for adversarial example**: satisfies stated constraints · violates intended outcome
+- [ ] **standalone**: makes sense without reading thesis
+- [ ] **positive claims**: says what IS true, not just what's false
+- [ ] **genre-appropriate**: uses correct opposition structure for genre
+- [ ] **accepts facts**: doesn't deny observations, reinterprets them
+- [ ] **flips conclusion**: reaches opposite recommendation/implication
 
-**outputs to extract (all types)**: failure_modes · cruxes · evidence_hooks
+**additionally for REFUTATION:**
+
+- [ ] **specific counterexample**: concrete case where thesis fails
+- [ ] **shows contradiction**: or reductio, or logical impossibility
+
+**additionally for ADVERSARIAL EXAMPLE:**
+
+- [ ] **satisfies constraints**: meets thesis's stated requirements
+- [ ] **violates intent**: but produces opposite outcome thesis wants
+
+**outputs to extract (all types)**:
+
+- [ ] **failure_modes**: specific ways thesis breaks
+- [ ] **cruxes**: minimal belief changes that flip conclusion
+- [ ] **evidence_hooks**: what to measure to resolve
 
 -----
 
 ## common failures (anti-patterns)
 
-- **parasitic refutation**: antithesis only makes sense if you've read thesis. fix: write antithesis FIRST, check if thesis is needed to understand it.
-- **weak-man attacking**: opposing early-draft messiness, not mature form. fix: steel-man first, then oppose.
-- **genre confusion**: treating review as philosophical essay, memoir as argument. fix: run step 0 first.
-- **hypothetical constraints**: arguing against costs that don't exist in context. fix: understand actual constraint structure.
-- **both-sides-ism**: "thesis has good points, antithesis has good points." this is synthesis failure, not antithesis. antithesis must COMMIT to opposite view.
+### **parasitic refutation**
+
+symptom: antithesis only makes sense if you've read thesis
+cause: negating claims instead of making positive counter-claims
+fix: write antithesis FIRST, then check if thesis is needed to understand it
+
+### **weak-man attacking**
+
+symptom: opposing early-draft messiness, not mature form
+cause: taking easy target instead of strongest version
+fix: steel-man first, explicitly state best case, THEN oppose
+
+### **genre confusion**
+
+symptom: treating review as philosophical essay, memoir as argument
+cause: not identifying what KIND of thing you're antithesizing
+fix: run step 0 (identify genre) before anything else
+
+### **hypothetical constraints**
+
+symptom: arguing against costs/problems that don't exist in context
+cause: importing constraints from different setting
+fix: understand actual constraint structure first
+
+### **both-sides-ism**
+
+symptom: "thesis has good points, antithesis has good points"
+cause: false balance, not true opposition
+fix: this is synthesis failure, not antithesis. antithesis must COMMIT to opposite view.
+
+-----
+
+## examples (worked)
+
+### example 1: review genre
+
+**thesis**: "hades 2 is brilliant, buy it now"
+
+**antithesis**: "hades 2 is competent but hollow, wait for sale"
+
+- accepts: game has polish, mechanical depth
+- flips: polish → soulless iteration, depth → overwhelming bloat
+- reverses: buy now → wait for sale
+
+### example 2: philosophical essay
+
+**thesis**: "LLM scaling will continue indefinitely, AGI via scale"
+
+**antithesis**: "returns to scale are real but diminishing, rotation to algorithms imminent"
+
+- accepts: scaling has worked so far
+- swaps mechanism: not "scale = all you need" but "scale had high ROI in regime 1, entering regime 2 where algorithms matter more"
+- concludes: portfolio approach, not all-in on scale
+
+### example 3: business case
+
+**thesis**: "we should adopt microservices because scalability"
+
+**antithesis**: "microservices will kill our velocity for hypothetical scale we don't need"
+
+- accepts: we might need scale someday
+- reinterprets: operational complexity cost >> scaling benefit for our actual traffic
+- recommends: monolith now, extract services when ACTUALLY constrained
+
+-----
+
+## integration with other skills
+
+**related skills**:
+
+- **rhyme**: finds patterns to guide mechanism-swap
+- **dimensionalize**: turns axes into scoreable dimensions
+- **metaphorize**: can inform counter_model generation
+
+-----
+
+## meta-note
+
+antithesis is PROSOCIAL DISAGREEMENT. you're helping thesis-holder by:
+
+- stress-testing their claims
+- surfacing hidden assumptions
+- identifying cruxes
+- making opposition legible
+
+done well, thesis-holder should say "that's a strong counter, i need to think about it" not "you're attacking me."
+
+the goal isn't to WIN—it's to find TRUTH via collision of complete worldviews.

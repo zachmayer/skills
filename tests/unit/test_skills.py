@@ -47,8 +47,11 @@ class TestSkillStructure:
         assert len(desc) > 20, "description too short — should explain when to use"
 
     def test_under_line_limit(self, skill_dir: Path) -> None:
-        lines = (skill_dir / "SKILL.md").read_text().splitlines()
-        assert len(lines) <= MAX_LINES, f"SKILL.md is {len(lines)} lines (max {MAX_LINES})"
+        text = (skill_dir / "SKILL.md").read_text()
+        fm = parse_frontmatter(text)
+        limit = fm.get("max_lines", MAX_LINES)
+        lines = text.splitlines()
+        assert len(lines) <= limit, f"SKILL.md is {len(lines)} lines (max {limit})"
 
     def test_kebab_case_name(self, skill_dir: Path) -> None:
         name = skill_dir.name

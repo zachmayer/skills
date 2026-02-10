@@ -1,0 +1,38 @@
+# External skills synced from upstream repositories.
+# Run `make sync-external` to pull latest versions.
+#
+# Each entry maps a local skill name to its upstream raw URL.
+# The sync script ensures the frontmatter `name` matches the local directory.
+
+- name: antithesize
+  max_lines: 650
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/antithesize/ANTITHESIZE.md
+
+- name: dimensionalize
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/dimensionalize/DIMENSIONALIZE.md
+
+- name: excavate
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/excavate/EXCAVATE.md
+
+- name: handlize
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/handlize/HANDLIZE.md
+
+- name: inductify
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/inductify/INDUCTIFY.md
+
+- name: metaphorize
+  max_lines: 600
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/metaphorize/METAPHORIZE.md
+
+- name: negspace
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/negspace/NEGSPACE.md
+
+- name: rhetoricize
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/rhetoricize/RHETORICIZE.md
+
+- name: rhyme
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/rhyme/RHYME.md
+
+- name: synthesize
+  max_lines: 850
+  url: https://raw.githubusercontent.com/jordanrubin/FUTURE_TOKENS/main/synthesize/SYNTHESIZE.md

@@ -4,6 +4,7 @@
       "Read(**)",
       "Edit(**)",
       "Write(**)",
+      "Bash(git *)",
       "Bash(make*)",
       "Bash(ls *)",
       "Bash(wc *)",

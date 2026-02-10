@@ -93,10 +93,10 @@ uninstall-local: ## Remove skills from ~/.claude/skills/
 .PHONY: uninstall-local
 
 
-clean: ## Remove venv, lock file, and external skills
+clean: ## Remove venv and external skills, then re-sync
 	rm -rf .venv
-	rm -f uv.lock
 	rm -rf $(EXTERNAL_DIR)
+	uv sync --all-groups
 .PHONY: clean
 
 

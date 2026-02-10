@@ -24,7 +24,7 @@ Scan the full conversation. Identify:
 Before writing anything, read today's daily file to see what's already been saved:
 
 ```bash
-uv run --directory MEMORY_SKILL_DIR python scripts/memory.py today
+uv run --directory MEMORY_SKILL_DIR python scripts/memory.py read-day
 ```
 
 Only write notes for topics NOT already captured. Skip duplicates.

@@ -238,9 +238,6 @@ Major improvements, curated by human and Claude together.
 
 ### Architecture
 
-- [x] **Consolidate memory repos into obsidian** — All persistent data in `$CLAUDE_OBSIDIAN_DIR`: memory, heartbeat tasks, personal knowledge. Single git repo.
-- [x] **Smarter heartbeat** — Reads daily memory, decides highest-value activity, writes questions to obsidian.
-- [x] **Single env var** — Consolidated `CLAUDE_MEMORY_DIR`, `OBSIDIAN_ROOT`, `VAULT_DIR`, `CLAUDE_HEARTBEAT_TASKS` into one `CLAUDE_OBSIDIAN_DIR` with rigid subdirectories.
 - [ ] **Flat-file skill format** — Skills that are just a prompt (no scripts/) could be a single `.md` file instead of a directory. Needs a shared build step for both `make install` and `npx skills` to normalize flat files into `name/SKILL.md` directories.
 
 ### New Skills
@@ -267,9 +264,6 @@ Major improvements, curated by human and Claude together.
 
 ### Enhancements
 
-- [x] **Memory aggregation helper** — `status` command shows which monthly/overall files are stale. `note` reports staleness automatically.
-- [x] **Hostname in daily logs** — Memory notes include `[hostname:reponame]` to disambiguate entries.
-- [x] ~~**Progressive disclosure**~~ — Reversed. External skills use full upstream content as-is. REFERENCE.md files deleted; `make sync-external` writes everything to SKILL.md.
 - [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user.
 - [ ] **Heartbeat architecture research** — Open questions: How does cron authenticate? Is the skill for managing setup or describing wakeup behavior? `tasks.md` is an executable instruction surface — security consideration.
 - [ ] **Heartbeat safety** — Dedicated tighter permissions for heartbeat cron.
@@ -282,23 +276,11 @@ Major improvements, curated by human and Claude together.
 
 - **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
 
-### Skill Quality
-
-- [x] **Skill pruner/compactor** — Created `skill_pruner` skill. Audited and compacted all 21 skills. Net -185 lines (12% reduction).
-- [x] **Compile external skills into existing ones** — Compiled 7 novel techniques into `mental_models`. Promoted all 10 FUTURE_TOKENS skills to first-class. Raw upstream content preserved; sync via `make sync-external`.
-
 ### Human TODOs
 
-- [ ] **Rename obsidian folder**: `mv ~/claude/obsidian/Zach/ ~/claude/obsidian/knowledge_graph/` — code now references `knowledge_graph/` as the subdirectory name
-- [ ] Delete old `~/claude/heartbeat/` repo after heartbeat consolidation
-- [ ] Delete old `~/claude/memory/` repo after memory consolidation
-- [ ] Re-run crontab setup after heartbeat path changes
-- [ ] Review obsidian notes — move global guidance to skills, keep personal stuff in obsidian
-- [ ] Fix heartbeat cron — create env file: `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
-- [ ] Manually web grab troubled URLs:
-  - `factoriocodex.com/blueprints/70` (JS SPA, needs Playwright)
-  - `nilaus.atlassian.net/.../Factorio+Master+Class+Blueprints` (Confluence auth required)
-  - Google Sheets `gid=1` (not publicly accessible)
+- [ ] **Merge PR #20** — agent-skills branch, 207 tests passing
+- [ ] **Fix heartbeat cron** — create env file: `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
+- [ ] **Settings precedence**: project-level allow does NOT override global-level deny. Remove `gh pr create*` from project deny list if you want it enabled for this repo.
 
 ## License
 

@@ -7,7 +7,7 @@ description: >
 allowed-tools: Bash(git *), Read, Write, Glob, Grep
 ---
 
-Manage notes in the Obsidian vault. The vault root is set by `CLAUDE_OBSIDIAN_DIR` (default: `~/claude/obsidian`). Follows the **MOC (Map of Content)** pattern: atomic notes linked through hub pages.
+Manage notes in the Obsidian vault. The vault root is set by `CLAUDE_OBSIDIAN_DIR` (default: `~/claude/obsidian`). Follows a **nested MOC (Map of Content)** pattern: atomic notes linked through hub pages in a hub-and-spoke hierarchy.
 
 ## Vault Structure
 
@@ -24,25 +24,44 @@ $CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
 
 ## Note Patterns
 
-### Atomic notes + MOC (preferred)
+### Nested MOC (hub-and-spoke)
 
-Each topic gets a **Map of Content** (MOC) hub note that links to smaller atomic notes. This is the default pattern for any topic with 2+ sub-topics.
+The knowledge graph uses **nested MOCs** — hubs that link to sub-hubs, which link to atomic notes. This is standard Obsidian hub-and-spoke at multiple levels.
+
+```
+Factorio (top MOC)
+├── Factorio Gleba (sub-MOC)
+│   ├── Factorio Gleba Farm (atomic)
+│   ├── Factorio Gleba Starter Factory (atomic)
+│   └── Factorio Artificial Jellynut Soil (atomic)
+├── Factorio Quality (sub-MOC)
+│   ├── Factorio Comprehensive Quality Guide (atomic)
+│   └── ...
+├── Factorio Base Designs (atomic — not enough notes for a sub-hub yet)
+└── ...
+```
+
+**Rules:**
+- **Atomic notes link up to their nearest hub**, not the top-level MOC
+- **Sub-MOCs link both up and down** — `Related: [[Factorio]]` + a Topics list of children
+- **Promote to sub-MOC when a topic accumulates 3+ atomic notes** — before that, link directly from the parent
+
+### MOC hub example
 
 ```markdown
-# Factorio                          ← MOC hub
+# Factorio                          ← top-level MOC
 #gaming #factorio
 
 ## Topics
+- [[Factorio Gleba]] — biological planet: farms, factories, soil
 - [[Factorio Base Designs]] — layout philosophies
-- [[Factorio Server Setup]] — headless server, RCON
-- [[Factorio Gleba Farm]] — optimized blueprint
 ```
 
-Each atomic note links back to its hub and to related siblings:
+### Atomic note example
 
 ```markdown
-# Factorio Gleba Farm               ← atomic note
-#factorio #space-age #blueprint
+# Factorio Gleba Farm               ← links to nearest hub, not top MOC
+#factorio #space-age #gleba
 
 Source: https://factoriobin.com/post/mrx1ek/2
 Grabbed: 2026-02-09
@@ -50,15 +69,15 @@ Grabbed: 2026-02-09
 ...content...
 
 ## Related
-- [[Factorio]]
+- [[Factorio Gleba]]
 - [[Factorio Space Exploration]]
 ```
 
-### When to create a MOC vs a standalone note
+### When to create or promote a MOC
 
-- **New topic, first note** — create a standalone note. It becomes the MOC later if the topic grows.
-- **Second note on same topic** — split the original into a MOC hub + atomic notes.
-- **Web grabs** — always create atomic notes. Link to an existing MOC or create one if a related topic exists.
+- **New topic, first note** — create a standalone atomic note. Link to parent MOC.
+- **3+ notes on a sub-topic** — promote: create a sub-MOC hub, move atomic links under it, update parent MOC to point to the sub-hub.
+- **Web grabs** — always create atomic notes. Link to the nearest existing hub or create one.
 
 ## Finding Notes
 

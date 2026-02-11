@@ -11,6 +11,7 @@ install: ## Install all dependencies, settings, and local skills
 	uv python install
 	uv sync --locked --all-groups
 	uv run pre-commit install
+	uv run playwright install chromium
 	$(MAKE) install-local
 .PHONY: install
 

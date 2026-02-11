@@ -257,7 +257,7 @@ Major improvements, curated by human and Claude together.
 - [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.
 - [ ] **Modal skill** — Run compute on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
 - [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status.
-- [ ] **Playwright browser automation** — Headless browser for JS-heavy pages. Unblocks web_grab for SPAs and auth-gated content.
+- [x] **Playwright browser automation** — Headless browser for JS-heavy pages. Unblocks web_grab for SPAs. Python Click CLI at `web_grab/scripts/fetch_page.py`.
 - [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Blocked by auth.
 - [ ] **Voice notes / audio transcription** — Whisper API or whisper.cpp. Lower the capture bar to "just talk."
 - [ ] **Daily briefing** — Morning summary from memory + tasks + vault.

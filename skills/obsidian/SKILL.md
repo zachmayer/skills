@@ -18,7 +18,7 @@ Source: <URL or reference — where did this information come from?>
 Date: <YYYY-MM-DD — when was this note created?>
 ```
 
-- Web grabs: `Source:` is the original URL, `Date:` (labeled `Grabbed:`) is when it was fetched
+- Web grabs: `Source:` is the original URL, `Date:` is when it was fetched
 - Session notes: `Source:` is "Claude Code session", `Date:` is today
 - Manual notes: `Source:` is whatever the user provides, `Date:` is today
 - If there is genuinely no source (pure original thought), use `Source: original` with `Date:` still required
@@ -80,7 +80,7 @@ Factorio (top MOC)
 #factorio #space-age #gleba
 
 Source: https://factoriobin.com/post/mrx1ek/2
-Grabbed: 2026-02-09
+Date: 2026-02-09
 
 ...content...
 

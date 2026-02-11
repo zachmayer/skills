@@ -22,7 +22,7 @@ Try these tiers in order. Stop at the first one that returns useful content:
    ```bash
    uv run --directory SKILL_DIR python scripts/fetch_page.py <url>
    ```
-   Options: `--timeout 60000` (slow pages), `--wait-for "css-selector"` (lazy content), `--full-page` (skip main-content detection). If content looks short or empty, retry with `--full-page`.
+   Options: `--timeout 60000` (slow pages), `--wait-for "css-selector"` (lazy content), `--selector "css-selector"` (extract specific element), `--full-page` (skip main-content detection). If content looks short or empty, retry with `--full-page` or `--selector`.
 6. **Manual save** — if all automated methods fail (auth, JS rendering, bot blocking): ask the user to open the URL in Chrome, `Cmd+S` → "Webpage, Complete" or "HTML Only", and tell you the file path. Then read the saved HTML and extract meaningful content.
 
 ## Step 2: Discover related topics
@@ -50,10 +50,10 @@ Before saving, search the obsidian vault for related notes:
 
 ```markdown
 Source: <full original URL — the exact URL the user shared, not a derived or cleaned URL>
-Grabbed: <YYYY-MM-DD — today's date>
+Date: <YYYY-MM-DD — today's date>
 ```
 
-These lines are non-negotiable. A web grab note without Source and Grabbed metadata is incomplete and must be fixed before committing.
+These lines are non-negotiable. A web grab note without Source and Date metadata is incomplete and must be fixed before committing.
 
 ## Content-type hints
 

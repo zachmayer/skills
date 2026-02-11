@@ -42,7 +42,7 @@ jobs:
         commit-message: Update dependencies
         title: Update dependencies
         branch: update-dependencies
-        assignees: eric-s-s
+        assignees: zachmayer
         body: |
           - Dependency updates
 

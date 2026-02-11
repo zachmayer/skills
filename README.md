@@ -1,149 +1,288 @@
-# Python Boilerplate Template
+# Agent Skills
 
-## What Is This?
+An open-source collection of AI agent skills for organizing your personal information automatically. Built on the [Agent Skills](https://agentskills.io) open standard. Works with Claude Code, Cursor, Codex, Gemini CLI, and 30+ other AI coding agents.
 
-These are my own preferences for setting up a python package and/or repo.
-It collects tools and dev dependencies for all the things I like when
-I start a new python project.
+## Why This Exists
 
-- pytest
-- pre-commit: If you don't use it, you should start.
-- ruff: For all your linting and formatting needs.
-- uv: A fast package/environment manager
-- ipython: Run with `uv run ipython`. Nicer than regular interpreter
-- github actions: There are basic github action for CI
-- Makefile: a convenient way to run scripts
+You have too many open tabs. You have ideas you don't want to forget. You have notes scattered across apps. You read things you'll never find again. The information is there — it's just not organized, and you don't have time to organize it yourself.
 
-You can use this repo as a template.
-see: https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template
+This is a system that lets AI agents do that organizing for you. The core loop is **capture, organize, process**:
 
-## Dev Install
+1. **Capture** — Get information into the system with minimal effort. Dump your open tabs with `web_grab`. Dictate a random idea into `hierarchical_memory`. Save a PDF. The bar for capture is intentionally low.
 
-This requires [uv package manager](https://docs.astral.sh/uv/getting-started/installation/)
-They have installation instructions.
+2. **Organize** — The system structures information automatically over time. Daily notes aggregate into monthly summaries, then into an overall working memory. Web grabs land as atomic notes in an Obsidian vault with topic tags and wiki-links. A periodic heartbeat maintains the whole thing in the background.
 
-### Linux/Mac
+3. **Process** — Once information is organized, thinking tools help you work with it. Mental models, deep thinking modes, and structured analysis skills operate on your accumulated knowledge rather than starting from scratch every session.
 
-`make install`
+The two core storage layers complement each other:
+- **Hierarchical memory** — A stream of consciousness that compresses over time. Daily notes are raw and noisy. Monthly summaries keep what mattered. The overall memory is a living profile of your current world: preferences, context, key facts, active projects. What you'd want a new assistant to know about you on day one.
+- **Obsidian vault** — Durable topic notes organized as a knowledge graph. Web grabs, curated knowledge, reference material. Things that don't expire the way daily notes do. Connected by wiki-links and topic tags so related ideas find each other.
 
-### Windows
+## Information Hierarchy
 
-You will first need to install `make`.
+Four tiers of persistent information, each with a different purpose and lifetime:
 
-`make` is standard on linux devices but needs to be installed on Windows.
-see: https://stackoverflow.com/a/32127632 for a long discussion or ...
+| Tier | Location | Purpose | Lifetime |
+|------|----------|---------|----------|
+| **CLAUDE.md** | Per-repo | Agent config — how Claude behaves here | Permanent per repo |
+| **README.md** | Per-repo | Dev memory — roadmap, decisions, lessons | Permanent per repo |
+| **Hierarchical memory** | `memory/` | Personal working memory — daily notes, monthly summaries, overall | Compresses over time |
+| **Knowledge graph** | `knowledge_graph/` | Durable topic notes, reference, web grabs | Permanent |
 
-1. install [chocolatey](https://chocolatey.org/install)
-2. run `choco install make`
+**CLAUDE.md** is read by every agent session. It defines conventions, anti-patterns, and build commands for a specific repo. Think of it as the repo's operating manual for AI agents.
 
-then `make install`
+**README.md** (this file, in the skills repo) serves as dev memory — the roadmap, architectural decisions, and lessons learned that persist across sessions. Updated as the project evolves.
 
-## Running Stuff
+**Hierarchical memory** is a stream of consciousness that compresses over time. Daily notes are raw and noisy. Monthly summaries keep what mattered. The overall memory is a living profile: preferences, context, key facts, active projects. The `note` command reports aggregation staleness automatically — finish your notes, then aggregate stale months.
 
-### With `make`
+**Knowledge graph** holds durable topic notes in an Obsidian vault. Web grabs, curated knowledge, reference material — things that don't expire the way daily notes do. Connected by wiki-links and topic tags.
 
-You can run most commands you want from the `Makefile`
+## Skills
 
-- `make install`
-- `make lint`
-- `make test`
-- `make build` to build the package
-- `make upgrade` to upgrade all of the libraries and pre-commit
+Skills are grouped by their role in the capture → organize → process pipeline.
 
-### With `uv run`
+### Capture
 
-Any commands that would run in your envronment, you can do with a `uv run`
-prefix.  So `pytest`, `ipython`, `pre-commit` just add `uv run <command> <args>`
-like `uv run pytest -s -v --durations=10`
+| Skill | Type | Description |
+|-------|------|-------------|
+| [hierarchical_memory](skills/hierarchical_memory/) | Python | Quick notes aggregated into daily/monthly/overall summaries |
+| [web_grab](skills/web_grab/) | Prompt | Fetch URL content and save to obsidian — clear your tabs |
+| [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
+| [remember_session](skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
+| [skill_stealer](skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
 
-If you have built the package, you should be able to `uv run demo-script`
+### Organize
 
-### Pre-Commit
+| Skill | Type | Description |
+|-------|------|-------------|
+| [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
+| [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous maintenance: aggregate memory, process tasks |
+| [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 
-Sometimes you'll have a commit that won't pass but you'll fix it later.
-Bypass checks on your commit with the `-n` flag. So instead of
-`git commit -am 'my message'`, do `git commit -am 'my message' -n`.
+### Process
 
+| Skill | Type | Description |
+|-------|------|-------------|
+| [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
+| [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems, critical analysis |
+| [ask_questions](skills/ask_questions/) | Prompt | Structured questioning: clarify before acting |
+| [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
+| [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
+| [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
 
-## Repo Setup
+### Analyze
 
-### Github Actions
+| Skill | Type | Description |
+|-------|------|-------------|
+| [antithesize](skills/antithesize/) | Prompt | Generate standalone opposition: rival thesis, stress tests |
+| [excavate](skills/excavate/) | Prompt | Assumption archaeology: surface hidden premises |
+| [synthesize](skills/synthesize/) | Prompt | Compress conflicting positions into decision-sufficient framework |
+| [negspace](skills/negspace/) | Prompt | Negative space analysis: find what's missing or unsaid |
+| [rhetoricize](skills/rhetoricize/) | Prompt | Rhetorical stress testing: probe arguments for persuasion flaws |
+| [dimensionalize](skills/dimensionalize/) | Prompt | Transform decisions into 3-7 measurable scoring dimensions |
+| [inductify](skills/inductify/) | Prompt | Inductive reasoning: generalize from examples to principles |
+| [rhyme](skills/rhyme/) | Prompt | Find structural parallels between domains |
+| [metaphorize](skills/metaphorize/) | Prompt | Build explicit source→target domain mappings |
+| [handlize](skills/handlize/) | Prompt | Extract compact handles (names) for unnamed concepts |
 
-github actions must always be located in `.github/workflows`
+### Build
 
-This repo contains two actions
+| Skill | Type | Description |
+|-------|------|-------------|
+| [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
+| [beast_mode](skills/beast_mode/) | Prompt | Maximum persistence mode: keep going until fully solved |
+| [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
+| [debug](skills/debug/) | Prompt | Line-by-line code audit loop: trace values, verify behavior, fix |
+| [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
+| [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
+| [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
+| [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
+| [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
 
-- Lint And Test: Run linter and pytest on PRs and merge to main.
-  Located in: `.github/workflows/ci.yaml`
-- Update Dependencies: Run a weekly update job and open PR on changes.
-  Located in: `.github/workflows/updater.yaml`
+## Skill Graph
 
-#### Using the Update Dependencies Action
+Skills reference each other to compose larger workflows:
 
-**If you use this action remove `eric-s-s` as an assignee in `updater.yaml`!**
-
-This runs updates to all libraries on a weekly basis. If there are file
-changes, it automatically creates a PR and assigns me (eric-s-s) to the PR.
-If you want something like this you'll need to do some updating. Including
-from the next section with personal access token management.
-
-#### Personal Access Token Management for PR actions
-
-**Use the new fine-grained access tokens!** You have no good reason
-not to, and they are more secure.
-
-The `create-pull-request` github action explains the following for
-tokens and their requirements. I've also included the example I used.
-
-- https://github.com/peter-evans/create-pull-request?tab=readme-ov-file#token
-- https://github.com/peter-evans/create-pull-request/blob/main/docs/examples.md#update-npm-dependencies
-
-And GitHub explains about personal access tokens and repo secrets here:
-
-- https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token
-- https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository
-
-### Repo Settings
-
-#### General Repo Settings - Pull Request Section
-
-`Pull Request` section let's you specify what kind of PR merging to allow
-I tend to only do  `Allow squash merging` with `Default commit message`
-set to `Pull request title and commit details`.
-
-It also contains the `Automatically delete head branches`
-
-#### Branch Rulesets
-
-rulesets are available in the repo-rulesets directory. You can import them in your repo
-in `settings > general > code and automation > rules > rulesets`
-
-the green `New ruleset` button on the right has a drop-down arrow that allows you to
-import. It should just work, but if it doesn't ..
-
-#### Branch Ruleset Required Status Checks
-
-The required status checks part is a bit annoying. You need to pick
-from an auto-generated list and you might need to run the action first
-
-For the github action below I've seen it auto-complete on either
-
-- basic-ci
-- run linting and testing
-
-```
-jobs:
-  basic-ci:
-    name: run linting and testing
+```mermaid
+graph LR
+    ralph_loop --> ultra_think
+    ralph_loop --> beast_mode
+    ralph_loop --> staff_engineer
+    ralph_loop --> ask_questions
+    ralph_loop --> hierarchical_memory
+    ralph_loop --> obsidian
+    ultra_think --> mental_models
+    ultra_think --> ask_questions
+    ask_questions --> hierarchical_memory
+    prompt_evolution --> discussion_partners
+    prompt_evolution --> llm_judge
+    llm_judge --> discussion_partners
+    discussion_partners --> mental_models
+    remember_session --> hierarchical_memory
+    remember_session --> obsidian
+    heartbeat --> hierarchical_memory
+    heartbeat --> obsidian
+    obsidian --> hierarchical_memory
+    obsidian --> private_repo
+    hierarchical_memory --> private_repo
+    web_grab --> obsidian
+    lean_prover --> discussion_partners
 ```
 
-## Random Helpful Notes
+Standalone skills (no imports): `antithesize`, `beast_mode`, `concise_writing`, `data_science`, `debug`, `dimensionalize`, `excavate`, `forecast`, `gh_cli`, `handlize`, `inductify`, `mental_models`, `metaphorize`, `negspace`, `pdf_to_markdown`, `private_repo`, `rhetoricize`, `rhyme`, `skill_pruner`, `skill_stealer`, `staff_engineer`, `synthesize`
 
-### Pycharm Settings
+## Install
 
-For some reason, Pycharm uses an incorrect json schema for `.github/dependabot.yml`. You can set
-this manually by going to:
+### Via npx (recommended, works with all agents)
 
-`Settings -> Languages & Frameworks -> Schemas and DTDs -> JSON Schema Mappings` and adding
-a mapping for https://www.schemastore.org/dependabot-2.0.json with JSON version 7 pointing to
-your dependabot file.
+```bash
+# Install all skills
+npx skills add zachmayer/skills
+
+# Install a specific skill
+npx skills add zachmayer/skills -s pdf_to_markdown
+
+# Install globally (available in all projects)
+npx skills add zachmayer/skills -g
+```
+
+### Via Makefile (Claude Code, symlinks)
+
+```bash
+git clone https://github.com/zachmayer/skills.git
+cd skills
+make install        # Install deps, settings, and symlink skills
+make install-local  # Settings + symlink skills only (no deps)
+```
+
+### Sync external skills
+
+External skills (from [FUTURE_TOKENS](https://github.com/jordanrubin/FUTURE_TOKENS)) are tracked in `external_skills.txt` — one raw URL per line. To pull the latest versions:
+
+```bash
+make sync-external  # Fetch latest from upstream URLs
+```
+
+## Development
+
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
+
+```bash
+make help           # Show all available targets
+make install        # Install Python + deps + pre-commit hooks
+make lint           # Run ruff linting and formatting
+make typecheck      # Run ty type checker
+make test           # Run pytest
+make upgrade        # Upgrade all dependencies
+make sync-external  # Sync external skills from upstream
+```
+
+## Creating a New Skill
+
+Each skill is a directory under `skills/` with a `SKILL.md` file:
+
+```
+skills/my_skill/
+├── SKILL.md           # Required: instructions + YAML frontmatter
+└── scripts/           # Optional: bundled code
+    └── my_script.py
+```
+
+The `SKILL.md` format:
+
+```yaml
+---
+name: my_skill
+description: >
+  WHEN to use: <specific triggers>.
+  WHEN NOT to use: <boundaries>.
+---
+
+Your instructions here. For skills with code, reference scripts:
+
+uv run --directory SKILL_DIR python scripts/my_script.py $ARGUMENTS
+```
+
+Use the `/skill_stealer` skill to extract skills from URLs automatically.
+
+## Python Skills
+
+Skills that bundle Python code use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Dependencies are managed in the root `pyproject.toml`.
+
+## Environment Variables
+
+### Storage
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CLAUDE_OBSIDIAN_DIR` | `~/claude/obsidian` | Vault root. All paths derive from it. |
+
+Rigid subdirectories (Claude creates these automatically):
+- `memory/` — hierarchical memory (daily logs, monthly summaries, `overall_memory.md`)
+- `heartbeat/` — task queue, questions, logs
+- `knowledge_graph/` — durable topic notes, personal knowledge
+
+### API Keys
+
+| Variable | Used by |
+|----------|---------|
+| `OPENAI_API_KEY` | `discussion_partners` (`openai:` and `openai-responses:` models) |
+| `ANTHROPIC_API_KEY` | `discussion_partners` (`anthropic:` models) |
+| `GOOGLE_API_KEY` | `discussion_partners` (`google-gla:` models) |
+
+Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources your shell profile at startup — no extra configuration needed.
+
+## Roadmap
+
+Major improvements, curated by human and Claude together.
+
+### Architecture
+
+- [ ] **Flat-file skill format** — Skills that are just a prompt (no scripts/) could be a single `.md` file instead of a directory. Needs a shared build step for both `make install` and `npx skills` to normalize flat files into `name/SKILL.md` directories.
+
+### New Skills
+
+- [ ] **PR review** — Python script uses `gh` CLI to collect PR diff, file list, metadata; assembles structured XML context doc. Sends to `discussion_partners` CLI with configurable review focus prompt. Default: flag real issues, skip style nits. Depends on: `gh_cli`, `discussion_partners`.
+- [ ] **Claude Code skills reference** — Comprehensive skill built from [Agent Skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Large skill. Re-fetchable source URL for updates.
+- [ ] **Claude Code config reference** — Same pattern, built from [Claude Code settings docs](https://code.claude.com/docs/en/settings#available-settings). Full reference for permissions, env vars, hooks, MCP, CLAUDE.md format.
+- [ ] **Agent coordinator** — Orchestration: coordinator spawns specialized sub-agents, dependency-aware routing.
+- [ ] **Blueprint tracker** — Structured markdown tracking project state, dependencies, attempts.
+- [ ] **Complexity router** — Assess complexity (simple/medium/complex), route to appropriate effort level.
+- [ ] **Checkpoint system** — Mandatory review at fixed intervals, attempt budgets.
+- [ ] **Context compiler** — Assemble structured context docs from git diffs, files, memory, obsidian. Automates the PR review pattern.
+- [ ] **Session planner** — On session start, read memory + tasks + todos, propose work plan. Lighter than `ralph_loop`.
+- [ ] **Capture inbox** — Smart routing for any input. Routes by scope + audience to the right destination: memory daily log (ephemeral), heartbeat tasks (recurring/future), obsidian knowledge_graph (durable knowledge), CLAUDE.md (repo-specific agent guidance), or README.md (repo dev memory).
+- [ ] **Claude constitution** — A skill encoding the user's values, principles, and preferences as a constitutional document. Applied when making judgment calls.
+- [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.
+- [ ] **Modal skill** — Run compute on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
+- [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status.
+- [ ] **Playwright browser automation** — Headless browser for JS-heavy pages. Unblocks web_grab for SPAs and auth-gated content.
+- [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Blocked by auth.
+- [ ] **Voice notes / audio transcription** — Whisper API or whisper.cpp. Lower the capture bar to "just talk."
+- [ ] **Daily briefing** — Morning summary from memory + tasks + vault.
+- [ ] **Messaging / mobile bridge** — Phone → Claude capture (iMessage, Slack, or chat app).
+
+### Enhancements
+
+- [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user.
+- [ ] **Heartbeat architecture research** — Open questions: How does cron authenticate? Is the skill for managing setup or describing wakeup behavior? `tasks.md` is an executable instruction surface — security consideration.
+- [ ] **Heartbeat safety** — Dedicated tighter permissions for heartbeat cron.
+- [ ] **Vector search for memory** — Semantic search over memory files and obsidian vault via embeddings.
+- [ ] **Keyword search for memory** — Fast keyword/regex search across all memory files. Currently handled by Grep/Glob directly.
+- [ ] **Multi-day/month reader helper** — Read multiple days or months in a single command for broader context.
+- [ ] **Fix install-ci after marker-pdf move** — `install-ci` needs `--only-group dev` or moving marker-pdf back to optional.
+
+### Lessons Learned
+
+- **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
+
+### Human TODOs
+
+- [ ] **Merge PR #20** — agent-skills branch
+- [ ] **Fix heartbeat cron** — create env file: `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
+- [ ] **Settings precedence**: project-level allow does NOT override global-level deny. Remove `gh pr create*` from project deny list if you want it enabled for this repo.
+
+## License
+
+MIT

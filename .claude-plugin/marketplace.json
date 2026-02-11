@@ -1,0 +1,8 @@
+{
+  "name": "zachmayer-skills",
+  "version": "0.1.0",
+  "description": "A shared collection of interoperable agent skills: PDF conversion, memory management, multi-model discussion, mental models, and more.",
+  "author": "zachmayer",
+  "license": "MIT",
+  "skills_directory": "skills"
+}

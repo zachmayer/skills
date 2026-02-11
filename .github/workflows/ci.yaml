@@ -24,7 +24,7 @@ jobs:
         cache-dependency-glob: "uv.lock"
 
     - name: Install Dependencies
-      run: make install
+      run: make install-ci
 
     - name: Lint
       run: make lint

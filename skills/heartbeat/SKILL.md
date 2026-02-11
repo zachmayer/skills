@@ -14,70 +14,78 @@ Also apply `hierarchical_memory` and `obsidian` for reading context and persisti
 
 ## Setup
 
-Recommended: `make install-heartbeat` handles steps 1-3 automatically.
+Run `make setup-heartbeat-token` first, then `make install-heartbeat`.
 
-### 1. Create the task file
-
-Tasks live in the obsidian vault at `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md`:
+### 1. Generate an OAuth token (one-time, interactive)
 
 ```bash
-mkdir -p $CLAUDE_OBSIDIAN_DIR/heartbeat
-cat > $CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md << 'EOF'
-# Heartbeat Tasks
-
-Tasks for Claude to process on each heartbeat cycle. Before processing, read today's memory notes and decide the highest-value activity.
-
-## Pending
-
-- [ ] Example: Check for new GitHub issues in myrepo
-
-## Completed
-
-EOF
+claude setup-token
 ```
 
-### 2. Set up auth for cron
+This opens a browser for OAuth. It produces a 1-year token that uses your Claude subscription (not API billing).
 
-Cron doesn't source `~/.zshrc`, so API keys aren't available. Create a dedicated env file:
+### 2. Save the token
 
 ```bash
-echo 'export ANTHROPIC_API_KEY=sk-ant-...' > ~/.claude/heartbeat.env
+echo "export CLAUDE_CODE_OAUTH_TOKEN=<paste-token>" > ~/.claude/heartbeat.env
 chmod 600 ~/.claude/heartbeat.env
 ```
 
-The heartbeat script sources this file automatically on startup.
-
-### 3. Add a cron entry
+### 3. Install the launchd agent
 
 ```bash
-# Install (idempotent — removes old entry first, then adds)
-(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | { cat; echo "0 */4 * * * SKILL_DIR/scripts/heartbeat.sh >> $HOME/claude/obsidian/heartbeat/heartbeat.log 2>&1 # CLAUDE_HEARTBEAT"; } | crontab -
+make install-heartbeat
 ```
 
-The `# CLAUDE_HEARTBEAT` marker is a shell comment (harmless at runtime) that lets pause/stop/resume target only this entry.
+This installs a macOS launchd user agent that runs every 4 hours. It replaces any old cron-based heartbeat automatically.
 
-Verify with `crontab -l`.
+**Why launchd over cron:**
+- Sleep/wake resilience — fires missed jobs on wake (cron silently drops them)
+- Runs in user security session (Keychain access if needed)
+- Apple-supported (cron is legacy, broken on Sonoma)
+- Declarative environment, process priority, and logging
 
 ## Heartbeat Behavior
 
-On each cycle, the heartbeat agent should:
-1. Read hierarchical memory (`read-current`) and obsidian vault for full context
-2. Read the task queue for pending items
-3. Decide: is there a high-value task, or should it save its powder and wait?
-4. If it has a question for the user, write it to `$CLAUDE_OBSIDIAN_DIR/heartbeat/questions.md`
-5. Process at most ONE task per cycle
-6. Update hierarchical memory with what was done
-7. Commit to the obsidian repo
+On each cycle, the heartbeat agent:
+1. Sources `~/.claude/heartbeat.env` for the OAuth token
+2. Explicitly unsets `ANTHROPIC_API_KEY` to force subscription billing
+3. Checks `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md` for pending items
+4. Processes at most ONE task per cycle (with --max-turns 20, --max-budget-usd 1, 10min timeout)
+5. Records outcome to `~/.claude/heartbeat.status` (OK, TIMEOUT, or FAIL)
+6. If it has a question, writes to `$CLAUDE_OBSIDIAN_DIR/heartbeat/questions.md`
 
 ## Task Queue
 
-Edit `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md` — add tasks as `- [ ] description` under Pending, completed tasks get marked `- [x] timestamp: description` and moved to Completed.
+Edit `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md`:
+
+```markdown
+## Pending
+
+- [ ] Review obsidian notes for stale information
+
+## Completed
+
+- [x] 2026-02-10T15:00:00Z: Example completed task
+```
 
 ## Managing
 
-All commands use `sed` (not `grep -v`) to avoid exit code 1 on empty output breaking pipelines.
+- **Check log**: `tail -20 ~/claude/obsidian/heartbeat/heartbeat.log`
+- **Check status**: `cat ~/.claude/heartbeat.status`
+- **Test manually**: `make test-heartbeat`
+- **Uninstall**: `make uninstall-heartbeat`
+- **Verify running**: `launchctl list | grep claude-heartbeat`
+- **Kick (run now)**: `launchctl kickstart gui/$(id -u)/com.anthropic.claude-heartbeat`
 
-- **Check log**: `tail -20 $CLAUDE_OBSIDIAN_DIR/heartbeat/heartbeat.log`
-- **Pause**: `(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/ { /^[[:space:]]*#/! s/^/# / }' | crontab -`
-- **Resume**: `(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/ s/^[[:space:]]*# *//' | crontab -`
-- **Stop**: `(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | crontab -`
+## Token Renewal
+
+The OAuth token from `claude setup-token` lasts 1 year. To renew:
+
+```bash
+claude setup-token
+# paste new token into ~/.claude/heartbeat.env
+make install-heartbeat  # reloads the agent
+```
+
+Check `~/.claude/heartbeat.status` periodically — a FAIL status may indicate token expiry.

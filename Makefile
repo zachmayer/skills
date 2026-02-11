@@ -71,17 +71,81 @@ install-local: ## Install settings and symlink skills to ~/.claude/
 .PHONY: install-local
 
 
-install-heartbeat: ## Set up heartbeat cron job (every 4 hours)
-	@mkdir -p ~/claude/obsidian/heartbeat
-	@if [ ! -f ~/claude/obsidian/heartbeat/tasks.md ]; then \
-		printf '# Heartbeat Tasks\n\n## Pending\n\n## Completed\n\n' > ~/claude/obsidian/heartbeat/tasks.md; \
-		echo "Created task file at ~/claude/obsidian/heartbeat/tasks.md"; \
+HEARTBEAT_LABEL := com.anthropic.claude-heartbeat
+HEARTBEAT_PLIST := $(HOME)/Library/LaunchAgents/$(HEARTBEAT_LABEL).plist
+HEARTBEAT_LOG_DIR := $(HOME)/claude/obsidian/heartbeat
+
+setup-heartbeat-token: ## Generate OAuth token for heartbeat (interactive, one-time)
+	@echo "=== Heartbeat Token Setup ==="
+	@echo ""
+	@echo "This generates a 1-year OAuth token using your Claude subscription."
+	@echo "The token will be stored in ~/.claude/heartbeat.env (mode 600)."
+	@echo ""
+	@echo "Step 1: Run this command and follow the browser prompts:"
+	@echo ""
+	@echo "  claude setup-token"
+	@echo ""
+	@echo "Step 2: Copy the token it outputs, then run:"
+	@echo ""
+	@echo '  echo "export CLAUDE_CODE_OAUTH_TOKEN=<paste-token-here>" > ~/.claude/heartbeat.env'
+	@echo "  chmod 600 ~/.claude/heartbeat.env"
+	@echo ""
+	@echo "Step 3: Install the heartbeat:"
+	@echo ""
+	@echo "  make install-heartbeat"
+	@echo ""
+	@if [ -f "$(HOME)/.claude/heartbeat.env" ]; then \
+		echo "Status: ~/.claude/heartbeat.env exists (token already configured)"; \
+	else \
+		echo "Status: ~/.claude/heartbeat.env NOT FOUND — complete steps above first"; \
+	fi
+.PHONY: setup-heartbeat-token
+
+
+install-heartbeat: ## Install heartbeat launchd agent (every 4 hours)
+	@# Validate token exists before installing
+	@if [ ! -f "$(HOME)/.claude/heartbeat.env" ]; then \
+		echo "ERROR: ~/.claude/heartbeat.env not found."; \
+		echo "Run 'make setup-heartbeat-token' first."; \
+		exit 1; \
+	fi
+	@# Create task directory and seed file
+	@mkdir -p $(HEARTBEAT_LOG_DIR)
+	@if [ ! -f $(HEARTBEAT_LOG_DIR)/tasks.md ]; then \
+		printf '# Heartbeat Tasks\n\nTasks for Claude to process on each heartbeat cycle.\n\n## Pending\n\n## Completed\n\n' > $(HEARTBEAT_LOG_DIR)/tasks.md; \
+		echo "Created task file at $(HEARTBEAT_LOG_DIR)/tasks.md"; \
 	fi
 	@SCRIPT="$$(cd $(SKILLS_DIR)/heartbeat/scripts && pwd)/heartbeat.sh"; \
 	chmod +x "$$SCRIPT"; \
-	(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | { cat; echo "0 */4 * * * $$SCRIPT >> $$HOME/claude/obsidian/heartbeat/heartbeat.log 2>&1 # CLAUDE_HEARTBEAT"; } | crontab -; \
-	echo "Heartbeat cron installed (every 4 hours). Verify with: crontab -l"
+	(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | crontab -; \
+	launchctl bootout gui/$$(id -u)/$(HEARTBEAT_LABEL) 2>/dev/null || true; \
+	sed -e "s|HEARTBEAT_SCRIPT_PATH|$$SCRIPT|g" \
+		-e "s|HEARTBEAT_LOG_DIR|$(HEARTBEAT_LOG_DIR)|g" \
+		$(SKILLS_DIR)/heartbeat/$(HEARTBEAT_LABEL).plist \
+		> $(HEARTBEAT_PLIST); \
+	launchctl bootstrap gui/$$(id -u) $(HEARTBEAT_PLIST); \
+	echo ""; \
+	echo "Heartbeat installed (launchd, every 4 hours)."; \
+	echo "  Verify:  launchctl list | grep claude-heartbeat"; \
+	echo "  Logs:    tail -20 $(HEARTBEAT_LOG_DIR)/heartbeat.log"; \
+	echo "  Test:    make test-heartbeat"; \
+	echo "  Stop:    make uninstall-heartbeat"
 .PHONY: install-heartbeat
+
+
+uninstall-heartbeat: ## Remove heartbeat launchd agent
+	@launchctl bootout gui/$$(id -u)/$(HEARTBEAT_LABEL) 2>/dev/null || true
+	@rm -f $(HEARTBEAT_PLIST)
+	@# Also remove old cron entry if present
+	@(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | crontab -
+	@echo "Heartbeat uninstalled. Task file preserved at $(HEARTBEAT_LOG_DIR)/tasks.md"
+.PHONY: uninstall-heartbeat
+
+
+test-heartbeat: ## Run heartbeat script once manually (dry run)
+	@echo "Running heartbeat manually..."
+	@$(SKILLS_DIR)/heartbeat/scripts/heartbeat.sh
+.PHONY: test-heartbeat
 
 
 uninstall-local: ## Remove skills from ~/.claude/skills/

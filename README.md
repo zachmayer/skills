@@ -56,7 +56,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous maintenance: aggregate memory, process tasks |
+| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous maintenance: aggregate memory, process tasks |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 
 ### Process
@@ -218,7 +218,7 @@ Major improvements, curated by human and Claude together.
 
 - [ ] **Consolidate beast_mode + ultra_think** — Merge into one compressed skill using skill_pruner compression methodology. Both activate deep persistence/thinking; one skill with clear modes is better than two overlapping ones.
 - [ ] **Consolidate staff_engineer + debug** — Merge into one compressed skill. Keep staff_engineer's opening principles verbatim — they're effective as-is. Debug's line-by-line audit loop becomes a section within.
-- [ ] **Fix heartbeat** — Hard problem requiring research phase first. Use discussion_partners, mental_models, ultra_think, and sub-agents to build high confidence before implementing. Open questions: How does cron authenticate with Claude Code? Is the skill for managing setup or describing wakeup behavior? `tasks.md` is an executable instruction surface — security consideration. Dedicated tighter permissions needed. Create env file for API keys.
+- [x] **Fix heartbeat** — Migrated from cron to macOS launchd user agent. Auth via `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (1-year token, subscription billing). Script explicitly unsets `ANTHROPIC_API_KEY` to prevent priority override. Safety bounds: 10min timeout, --max-turns 20, --max-budget-usd 1. Status file at `~/.claude/heartbeat.status` for monitoring. `make setup-heartbeat-token` guides token setup; `make install-heartbeat` installs the launchd agent.
 - [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.
 
 ### Architecture
@@ -259,6 +259,7 @@ Major improvements, curated by human and Claude together.
 
 - **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
 - **Use scripts, not context, for bulk operations** (2026-02): Crawling 23 Confluence wiki pages with subagents blew context on all 5 agents. Next time: write a Python script that fetches and writes notes directly (Playwright → file), then run it in a loop. The agent's context window is for orchestration, not data transport. Also wrote one-off `audit_notes.py` and `fix_tags.py` scripts for vault maintenance — much better than manual inspection.
+- **launchd over cron on macOS** (2026-02): Heartbeat cron job failed with "Not logged in" — cron has minimal env, no user security session, no Keychain access. launchd user agents run in the user session, survive sleep/wake, and are Apple-supported. `claude setup-token` provides 1-year OAuth tokens for headless use. `CLAUDE_CODE_OAUTH_TOKEN` is auth priority 2 (after `ANTHROPIC_API_KEY`), so unset API key explicitly to force subscription billing.
 
 ### Human TODOs
 

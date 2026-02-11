@@ -66,14 +66,14 @@ Track stories in a `prd.json` or similar manifest with pass/fail status.
 
 ## Phase 2: The Loop
 
-For each iteration: **select, implement, validate, commit.**
+For each iteration: **observe, orient, decide, act** (the [OODA Loop](ooda-loop.md) from `mental_models`).
 
-1. **Check the clock** — `date`. Compute time remaining until deadline.
-2. **Select** the highest-priority incomplete story that fits the remaining time.
-3. **Implement** with fresh context. Re-read relevant code. Follow existing patterns. Stay in scope.
-4. **Validate** with the project's quality checks (typecheck, lint, test). Fix failures before proceeding.
+1. **Observe** — Check the clock (`date`), compute time remaining. Review what changed since last iteration.
+2. **Orient** — Select the highest-priority incomplete story that fits the remaining time. Re-read relevant code.
+3. **Decide** — Plan the implementation. Follow existing patterns. Stay in scope.
+4. **Act** — Implement, then validate with the project's quality checks (typecheck, lint, test). Fix failures before proceeding.
 5. **Mark complete**, save learnings to `hierarchical_memory`, and commit.
-6. **Repeat** from step 1.
+6. **Repeat** from step 1 — speed of the loop matters more than perfection of any step.
 
 ### Time-aware pacing
 

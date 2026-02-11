@@ -78,7 +78,7 @@ install-heartbeat: ## Set up heartbeat cron job (every 4 hours)
 	fi
 	@SCRIPT="$$(cd $(SKILLS_DIR)/heartbeat/scripts && pwd)/heartbeat.sh"; \
 	chmod +x "$$SCRIPT"; \
-	(crontab -l 2>/dev/null | grep -v '# CLAUDE_HEARTBEAT'; echo "0 */4 * * * $$SCRIPT >> ~/claude/obsidian/heartbeat/heartbeat.log 2>&1 # CLAUDE_HEARTBEAT") | crontab -; \
+	(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | { cat; echo "0 */4 * * * $$SCRIPT >> $$HOME/claude/obsidian/heartbeat/heartbeat.log 2>&1 # CLAUDE_HEARTBEAT"; } | crontab -; \
 	echo "Heartbeat cron installed (every 4 hours). Verify with: crontab -l"
 .PHONY: install-heartbeat
 

@@ -14,6 +14,8 @@ Also apply `hierarchical_memory` and `obsidian` for reading context and persisti
 
 ## Setup
 
+Recommended: `make install-heartbeat` handles steps 1-3 automatically.
+
 ### 1. Create the task file
 
 Tasks live in the obsidian vault at `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md`:
@@ -48,9 +50,11 @@ The heartbeat script sources this file automatically on startup.
 ### 3. Add a cron entry
 
 ```bash
-# Add heartbeat cron (runs every 4 hours)
-(crontab -l 2>/dev/null; echo "0 */4 * * * SKILL_DIR/scripts/heartbeat.sh >> ~/claude/obsidian/heartbeat/heartbeat.log 2>&1") | crontab -
+# Install (idempotent — removes old entry first, then adds)
+(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | { cat; echo "0 */4 * * * SKILL_DIR/scripts/heartbeat.sh >> $HOME/claude/obsidian/heartbeat/heartbeat.log 2>&1 # CLAUDE_HEARTBEAT"; } | crontab -
 ```
+
+The `# CLAUDE_HEARTBEAT` marker is a shell comment (harmless at runtime) that lets pause/stop/resume target only this entry.
 
 Verify with `crontab -l`.
 
@@ -71,6 +75,9 @@ Edit `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md` — add tasks as `- [ ] descripti
 
 ## Managing
 
+All commands use `sed` (not `grep -v`) to avoid exit code 1 on empty output breaking pipelines.
+
 - **Check log**: `tail -20 $CLAUDE_OBSIDIAN_DIR/heartbeat/heartbeat.log`
-- **Pause**: `crontab -l | sed '/heartbeat/s|^|#|' | crontab -`
-- **Stop**: `crontab -l | grep -v heartbeat | crontab -`
+- **Pause**: `(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/ { /^[[:space:]]*#/! s/^/# / }' | crontab -`
+- **Resume**: `(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/ s/^[[:space:]]*# *//' | crontab -`
+- **Stop**: `(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | crontab -`

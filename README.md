@@ -46,7 +46,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [hierarchical_memory](skills/hierarchical_memory/) | Python | Quick notes aggregated into daily/monthly/overall summaries |
-| [web_grab](skills/web_grab/) | Prompt | Fetch URL content and save to obsidian — clear your tabs |
+| [web_grab](skills/web_grab/) | Python | Fetch URL content and save to obsidian — Playwright for JS SPAs |
 | [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
 | [remember_session](skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
 | [skill_stealer](skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
@@ -276,10 +276,11 @@ Major improvements, curated by human and Claude together.
 ### Lessons Learned
 
 - **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
+- **Use scripts, not context, for bulk operations** (2026-02): Crawling 23 Confluence wiki pages with subagents blew context on all 5 agents. Next time: write a Python script that fetches and writes notes directly (Playwright → file), then run it in a loop. The agent's context window is for orchestration, not data transport. Also wrote `audit_notes.py` and `fix_tags.py` as reusable vault maintenance tools — much better than manual inspection.
 
 ### Human TODOs
 
-- [ ] **Merge PR #20** — agent-skills branch
+- [x] **Merge PR #20** — agent-skills branch (merged as ceb3b08)
 - [ ] **Fix heartbeat cron** — create env file: `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
 - [ ] **Settings precedence**: project-level allow does NOT override global-level deny. Remove `gh pr create*` from project deny list if you want it enabled for this repo.
 

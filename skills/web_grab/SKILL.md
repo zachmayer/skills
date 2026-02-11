@@ -18,7 +18,11 @@ Try these tiers in order. Stop at the first one that returns useful content:
 2. **`curl -sL <url>`** — raw HTML, useful for simple pages
 3. **`wget -r -l 1 -np -A "*.html,*.htm" <url>`** — fetch a page and its immediate children (useful for multi-page content or site hierarchies)
 4. **`gh api`** — if it's a GitHub URL (issues, PRs, files)
-5. **Playwright headless browser** — TODO: not yet implemented. For JS SPAs that need rendering.
+5. **Playwright headless browser** — for JS-heavy SPAs (Confluence, Atlassian, React apps) where tiers 1-2 return only JS bundles:
+   ```bash
+   uv run --directory SKILL_DIR python scripts/fetch_page.py <url>
+   ```
+   Options: `--timeout 60000` (slow pages), `--wait-for "css-selector"` (lazy content), `--selector "css-selector"` (extract specific element), `--full-page` (skip main-content detection). If content looks short or empty, retry with `--full-page` or `--selector`.
 6. **Manual save** — if all automated methods fail (auth, JS rendering, bot blocking): ask the user to open the URL in Chrome, `Cmd+S` → "Webpage, Complete" or "HTML Only", and tell you the file path. Then read the saved HTML and extract meaningful content.
 
 ## Step 2: Discover related topics
@@ -42,12 +46,14 @@ Before saving, search the obsidian vault for related notes:
 3. **Update the MOC hub** — if a hub note exists for this topic, add a link to the new note. If no hub exists but 2+ related notes now exist, create one.
 4. Report what was saved, where, and what it links to
 
-**Required metadata** — every web grab note MUST start with:
+**MANDATORY metadata** — every web grab note MUST start with these two lines immediately after the title and tags. No exceptions. Never omit. If you skip this, the note is broken:
 
 ```markdown
-Source: <full original URL>
-Grabbed: <YYYY-MM-DD>
+Source: <full original URL — the exact URL the user shared, not a derived or cleaned URL>
+Date: <YYYY-MM-DD — today's date>
 ```
+
+These lines are non-negotiable. A web grab note without Source and Date metadata is incomplete and must be fixed before committing.
 
 ## Content-type hints
 

@@ -9,6 +9,22 @@ allowed-tools: Bash(git *), Read, Write, Glob, Grep
 
 Manage notes in the Obsidian vault. The vault root is set by `CLAUDE_OBSIDIAN_DIR` (default: `~/claude/obsidian`). Follows a **nested MOC (Map of Content)** pattern: atomic notes linked through hub pages in a hub-and-spoke hierarchy.
 
+## MANDATORY: Source and Date Metadata
+
+**Every note that has a source MUST include these metadata lines** immediately after the title and tags. This is non-negotiable:
+
+```markdown
+Source: <URL or reference — where did this information come from?>
+Date: <YYYY-MM-DD — when was this note created?>
+```
+
+- Web grabs: `Source:` is the original URL, `Date:` is when it was fetched
+- Session notes: `Source:` is "Claude Code session", `Date:` is today
+- Manual notes: `Source:` is whatever the user provides, `Date:` is today
+- If there is genuinely no source (pure original thought), use `Source: original` with `Date:` still required
+
+**A note without a Date is always broken.** A note without a Source is broken unless there is genuinely no source.
+
 ## Vault Structure
 
 ```
@@ -64,7 +80,7 @@ Factorio (top MOC)
 #factorio #space-age #gleba
 
 Source: https://factoriobin.com/post/mrx1ek/2
-Grabbed: 2026-02-09
+Date: 2026-02-09
 
 ...content...
 

@@ -64,27 +64,12 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
-| [mental_models](skills/mental_models/) | Prompt | Reasoning frameworks: inversion, pattern language, pre-mortems, critical analysis |
+| [mental_models](skills/mental_models/) | Prompt | 33 reasoning frameworks incl. critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
 | [ask_questions](skills/ask_questions/) | Prompt | Structured questioning: clarify before acting |
 | [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
 | [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
 | [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
 | [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
-
-### Analyze
-
-| Skill | Type | Description |
-|-------|------|-------------|
-| [antithesize](skills/antithesize/) | Prompt | Generate standalone opposition: rival thesis, stress tests |
-| [excavate](skills/excavate/) | Prompt | Assumption archaeology: surface hidden premises |
-| [synthesize](skills/synthesize/) | Prompt | Compress conflicting positions into decision-sufficient framework |
-| [negspace](skills/negspace/) | Prompt | Negative space analysis: find what's missing or unsaid |
-| [rhetoricize](skills/rhetoricize/) | Prompt | Rhetorical stress testing: probe arguments for persuasion flaws |
-| [dimensionalize](skills/dimensionalize/) | Prompt | Transform decisions into 3-7 measurable scoring dimensions |
-| [inductify](skills/inductify/) | Prompt | Inductive reasoning: generalize from examples to principles |
-| [rhyme](skills/rhyme/) | Prompt | Find structural parallels between domains |
-| [metaphorize](skills/metaphorize/) | Prompt | Build explicit source→target domain mappings |
-| [handlize](skills/handlize/) | Prompt | Extract compact handles (names) for unnamed concepts |
 
 ### Build
 
@@ -130,7 +115,7 @@ graph LR
     lean_prover --> discussion_partners
 ```
 
-Standalone skills (no imports): `antithesize`, `beast_mode`, `concise_writing`, `data_science`, `debug`, `dimensionalize`, `excavate`, `forecast`, `gh_cli`, `handlize`, `inductify`, `mental_models`, `metaphorize`, `negspace`, `pdf_to_markdown`, `private_repo`, `rhetoricize`, `rhyme`, `skill_pruner`, `skill_stealer`, `staff_engineer`, `synthesize`
+Standalone skills (no imports): `beast_mode`, `concise_writing`, `data_science`, `debug`, `forecast`, `gh_cli`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_pruner`, `skill_stealer`, `staff_engineer`
 
 ## Install
 
@@ -156,14 +141,6 @@ make install        # Install deps, settings, and symlink skills
 make install-local  # Settings + symlink skills only (no deps)
 ```
 
-### Sync external skills
-
-External skills (from [FUTURE_TOKENS](https://github.com/jordanrubin/FUTURE_TOKENS)) are tracked in `external_skills.txt` — one raw URL per line. To pull the latest versions:
-
-```bash
-make sync-external  # Fetch latest from upstream URLs
-```
-
 ## Development
 
 Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
@@ -175,7 +152,7 @@ make lint           # Run ruff linting and formatting
 make typecheck      # Run ty type checker
 make test           # Run pytest
 make upgrade        # Upgrade all dependencies
-make sync-external  # Sync external skills from upstream
+
 ```
 
 ## Creating a New Skill
@@ -237,6 +214,13 @@ Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources 
 
 Major improvements, curated by human and Claude together.
 
+### Priority
+
+- [ ] **Consolidate beast_mode + ultra_think** — Merge into one compressed skill using skill_pruner compression methodology. Both activate deep persistence/thinking; one skill with clear modes is better than two overlapping ones.
+- [ ] **Consolidate staff_engineer + debug** — Merge into one compressed skill. Keep staff_engineer's opening principles verbatim — they're effective as-is. Debug's line-by-line audit loop becomes a section within.
+- [ ] **Fix heartbeat** — Hard problem requiring research phase first. Use discussion_partners, mental_models, ultra_think, and sub-agents to build high confidence before implementing. Open questions: How does cron authenticate with Claude Code? Is the skill for managing setup or describing wakeup behavior? `tasks.md` is an executable instruction surface — security consideration. Dedicated tighter permissions needed. Create env file for API keys.
+- [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.
+
 ### Architecture
 
 - [ ] **Flat-file skill format** — Skills that are just a prompt (no scripts/) could be a single `.md` file instead of a directory. Needs a shared build step for both `make install` and `npx skills` to normalize flat files into `name/SKILL.md` directories.
@@ -266,8 +250,6 @@ Major improvements, curated by human and Claude together.
 ### Enhancements
 
 - [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user.
-- [ ] **Heartbeat architecture research** — Open questions: How does cron authenticate? Is the skill for managing setup or describing wakeup behavior? `tasks.md` is an executable instruction surface — security consideration.
-- [ ] **Heartbeat safety** — Dedicated tighter permissions for heartbeat cron.
 - [ ] **Vector search for memory** — Semantic search over memory files and obsidian vault via embeddings.
 - [ ] **Keyword search for memory** — Fast keyword/regex search across all memory files. Currently handled by Grep/Glob directly.
 - [ ] **Multi-day/month reader helper** — Read multiple days or months in a single command for broader context.
@@ -281,7 +263,6 @@ Major improvements, curated by human and Claude together.
 ### Human TODOs
 
 - [x] **Merge PR #20** — agent-skills branch (merged as ceb3b08)
-- [ ] **Fix heartbeat cron** — create env file: `echo 'export ANTHROPIC_API_KEY=...' > ~/.claude/heartbeat.env && chmod 600 ~/.claude/heartbeat.env`
 - [ ] **Settings precedence**: project-level allow does NOT override global-level deny. Remove `gh pr create*` from project deny list if you want it enabled for this repo.
 
 ## License

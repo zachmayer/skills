@@ -84,6 +84,10 @@ Apply the [Agent Skills Best Practices](https://platform.claude.com/docs/en/agen
 - Name is snake_case, memorable, and descriptive
 - No time-sensitive information
 
+## Post-Creation: Compress if Needed
+
+After creating a skill, evaluate its length. If it exceeds 150 lines, run it through the compression process in the `skill_pruner` skill (Skill Compression section). The key: preserve the procedural skeleton, output schema, key distinctions, and taxonomies. Cut examples, anti-pattern catalogs, genre-specific patterns, meta-commentary, and references. Target ~20% of original length.
+
 ## Output
 
 Report what you extracted, what you simplified, what freedom level you chose and why, and the path to the new skill files.

@@ -8,7 +8,7 @@ A shared, open-source collection of agent skills following the Agent Skills open
 - Install local only: `make install-local` (settings + symlink skills to ~/.claude/)
 - Lint: `make lint`
 - Test: `make test`
-- Sync external skills: `make sync-external`
+
 
 ## Architecture
 

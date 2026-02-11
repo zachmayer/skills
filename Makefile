@@ -99,8 +99,3 @@ clean: ## Remove venv and lock file, then re-sync
 	rm -f uv.lock
 	uv sync --all-groups
 .PHONY: clean
-
-
-sync-external: ## Sync external skills from upstream URLs
-	@uv run python scripts/sync_external.py
-.PHONY: sync-external

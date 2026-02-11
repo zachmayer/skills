@@ -79,13 +79,14 @@ When a skill is too long (>150 lines) or contains verbose upstream content, comp
 
 ### What to preserve (high value per token)
 
-- **Process steps** (numbered sequences that define what to DO)
+- **Process steps** (numbered sequences that define what to DO) — the procedural skeleton is the single highest-value component
 - **Output schema/format** (structural requirements for the output)
-- **Key distinctions** (e.g., b1=strict-facts-only vs b2=flagged-implicatures — these are the analytical innovations a model won't invent on its own)
+- **Key distinctions** (e.g., b1=strict-facts-only vs b2=flagged-implicatures — analytical innovations a model won't invent on its own)
 - **Scoring formulas** (e.g., surprise = affect_shift × meaning_overlap × fluency)
 - **Taxonomies/classification systems** (e.g., omission classes: vulnerability / upside / bedrock / blind spot / optionality)
 - **Quality criteria** (1-2 lines each, not paragraphs)
 - **Opinionated defaults and prohibitions** ("never add new predicates in b1", "allow null output")
+- **Decision tables** mapping inputs to which variant/type to use (e.g., purpose → antithesis type)
 
 ### What to cut (low value per token)
 
@@ -93,7 +94,7 @@ When a skill is too long (>150 lines) or contains verbose upstream content, comp
 - **Anti-pattern catalogs** — a bullet list of "don't do X" is fine; 5-paragraph descriptions of each failure mode are not
 - **Genre-specific pattern lists** — the model already knows genre conventions
 - **Detailed dial/parameter tables** — keep the 2-3 most important dials; cut the rest
-- **Integration notes** ("use with @rhyme before @metaphorize") — these are coordination hints, not behavioral overrides
+- **Integration notes** ("use with @rhyme before @metaphorize") — coordination hints, not behavioral overrides
 - **"When to use / when not to use" sections** — the frontmatter description already covers this
 - **Meta-commentary** ("this is prosocial disagreement", "the goal isn't to WIN") — doesn't change output quality
 - **References and links** — nice for humans, invisible to models
@@ -103,18 +104,28 @@ When a skill is too long (>150 lines) or contains verbose upstream content, comp
 1. **Identify the procedural skeleton**: Extract the numbered steps. These are the load-bearing structure.
 2. **Extract the output schema**: What must the output contain? Keep this verbatim.
 3. **Identify key distinctions**: What concepts does this skill introduce that the model wouldn't produce on its own? (e.g., "fact ledger with drift budget", "b1 strict vs b2 with flagged implicatures")
-4. **Cut everything else**: Examples, anti-patterns, genre guides, integration notes, meta-commentary.
-5. **Target ~20% of original length**: A 300-line skill should compress to ~60 lines. If it doesn't compress well, the procedure itself may be too complex.
+4. **Preserve decision tables**: If the skill has a taxonomy or type selection system (e.g., "pick antithesis type by purpose"), keep the mapping table — it's procedural, not decorative.
+5. **Cut everything else**: Examples, anti-patterns, genre guides, integration notes, meta-commentary.
+6. **Target ~20% of original length**: A 300-line skill should compress to ~60 lines. If it doesn't compress well, the procedure itself may be too complex.
 
-### Why this works
+### Progressive disclosure for skill libraries
 
-Empirically tested (Feb 2026): GPT 5.2 with xhigh thinking was given the same analytical task under three conditions — full skill (~300 lines), compressed skill (~30 lines), and no skill. Evaluated by two independent LLM judges (GPT 5.2 + Opus 4.6):
+When consolidating multiple related skills into one library (e.g., mental_models):
+- **SKILL.md** (under 500 lines) serves as the index with 2-4 line descriptions per model and explicit guidance to read the linked file
+- **Each model** gets its own .md file with the compressed procedural skeleton
+- Claude loads only the relevant file(s) on demand — no context penalty for the full library
+- The SKILL.md descriptions should be **powerful enough to trigger correct selection** but short enough that the full index stays under 500 lines
+
+### Empirical findings
+
+Tested with GPT 5.2 (xhigh thinking) on three conditions — full skill (~300 lines), compressed skill (~30 lines), and no skill. Two independent LLM judges (GPT 5.2 + Opus 4.6):
 
 - **Compressed matched or beat full-length** on 4 of 6 evaluations
 - **Full-length ranked last** on 3 of 6 evaluations (verbose examples may consume context that could be used for deeper analysis)
 - **No-skill FAILED** on procedural tasks (rhetorical analysis without the b1/b2 distinction blended facts with interpretation)
+- **Key finding**: The more procedurally complex the skill, the more the compressed version helped. For simple recognition tasks, no skill was sometimes sufficient. For multi-step analytical protocols with novel distinctions, the compressed procedure was essential.
 
-**Conclusion**: Procedural structure is the value. Prose documentation is filler. Strong models don't need examples — they need the procedure.
+**Conclusion**: Procedural structure is the value. Prose documentation is filler. Strong models don't need examples — they need the procedure and the key distinctions.
 
 ## Principles
 

@@ -18,6 +18,7 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 OBSIDIAN_DIR="${CLAUDE_OBSIDIAN_DIR:-$HOME/claude/obsidian}"
+OBSIDIAN_DIR="${OBSIDIAN_DIR/#\~/$HOME}"  # expand ~ (Python does .expanduser(), bash doesn't)
 TASKS_FILE="$OBSIDIAN_DIR/heartbeat/tasks.md"
 LOCK_FILE="$HOME/.claude/heartbeat.lock"
 LOG_PREFIX="[$(date -u +%Y-%m-%dT%H:%M:%SZ)]"

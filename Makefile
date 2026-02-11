@@ -117,7 +117,7 @@ install-heartbeat: ## Install heartbeat launchd agent (every 4 hours)
 	fi
 	@SCRIPT="$$(cd $(SKILLS_DIR)/heartbeat/scripts && pwd)/heartbeat.sh"; \
 	chmod +x "$$SCRIPT"; \
-	(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | crontab -; \
+	(crontab -l 2>/dev/null || true) | sed '/heartbeat/d' | crontab -; \
 	launchctl bootout gui/$$(id -u)/$(HEARTBEAT_LABEL) 2>/dev/null || true; \
 	sed -e "s|HEARTBEAT_SCRIPT_PATH|$$SCRIPT|g" \
 		-e "s|HEARTBEAT_LOG_DIR|$(HEARTBEAT_LOG_DIR)|g" \
@@ -137,7 +137,7 @@ uninstall-heartbeat: ## Remove heartbeat launchd agent
 	@launchctl bootout gui/$$(id -u)/$(HEARTBEAT_LABEL) 2>/dev/null || true
 	@rm -f $(HEARTBEAT_PLIST)
 	@# Also remove old cron entry if present
-	@(crontab -l 2>/dev/null || true) | sed '/CLAUDE_HEARTBEAT/d' | crontab -
+	@(crontab -l 2>/dev/null || true) | sed '/heartbeat/d' | crontab -
 	@echo "Heartbeat uninstalled. Task file preserved at $(HEARTBEAT_LOG_DIR)/tasks.md"
 .PHONY: uninstall-heartbeat
 

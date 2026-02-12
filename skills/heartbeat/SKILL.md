@@ -55,6 +55,19 @@ On each cycle, the heartbeat agent:
 5. Records outcome to `~/.claude/heartbeat.status` (OK, TIMEOUT, or FAIL)
 6. If it has a question, writes to `$CLAUDE_OBSIDIAN_DIR/heartbeat/questions.md`
 
+## Permissions (dontAsk mode)
+
+The heartbeat runs with **least-privilege permissions** — no `--dangerously-skip-permissions`. Uses `--permission-mode dontAsk` which auto-denies anything not explicitly allowed.
+
+**Allowed tools:**
+- File ops: Read, Write, Edit, Glob, Grep
+- Git (read + commit): git status, git diff, git log, git add, git commit
+- Utilities: ls, mkdir, date, uv run
+
+**Denied (silently):** curl, wget, rm, git push, sudo, chmod, and everything else. If a task needs broader permissions, the agent marks it as blocked.
+
+This means: the safer the agent, the more you can let it rip. Add tasks freely — the worst case is a task gets marked "blocked: needs permissions."
+
 ## Task Queue
 
 Edit `$CLAUDE_OBSIDIAN_DIR/heartbeat/tasks.md`:

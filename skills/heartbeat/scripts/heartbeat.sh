@@ -77,7 +77,12 @@ echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $pending pending task(s). Invoking 
 set +e
 (
     claude --print \
-        --dangerously-skip-permissions \
+        --permission-mode dontAsk \
+        --allowedTools Read Write Edit Glob Grep \
+            "Bash(git status)" "Bash(git diff *)" "Bash(git log *)" \
+            "Bash(git add *)" "Bash(git commit *)" \
+            "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
+            "Bash(uv run *)" \
         --max-turns "$MAX_TURNS" \
         --max-budget-usd "$MAX_BUDGET_USD" \
         --model sonnet \
@@ -85,7 +90,10 @@ set +e
 Read the task file at $TASKS_FILE. Process the first unchecked task (marked with '- [ ]'). \
 After completing a task, mark it done by changing '- [ ]' to '- [x] $(date -u +%Y-%m-%dT%H:%M:%SZ):' \
 and move it to the Completed section. Only process ONE task per heartbeat cycle. \
-If you have a question for the user, write it to $OBSIDIAN_DIR/heartbeat/questions.md."
+If you have a question for the user, write it to $OBSIDIAN_DIR/heartbeat/questions.md. \
+IMPORTANT: You run with limited permissions (dontAsk mode). You can read, edit, and search files, \
+run git read/commit commands, and run uv scripts. Any other bash commands will be silently denied. \
+If a task requires permissions you don't have, mark it as blocked with a note explaining what's needed."
 ) &
 claude_pid=$!
 

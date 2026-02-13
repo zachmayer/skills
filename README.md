@@ -63,7 +63,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 
 | Skill | Type | Description |
 |-------|------|-------------|
-| [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
+| [deep_mode](skills/deep_mode/) | Prompt | Deep thinking with maximum persistence for complex problems |
 | [mental_models](skills/mental_models/) | Prompt | 33 reasoning frameworks incl. critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
 | [ask_questions](skills/ask_questions/) | Prompt | Structured questioning: clarify before acting |
 | [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
@@ -76,7 +76,6 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
-| [beast_mode](skills/beast_mode/) | Prompt | Maximum persistence mode: keep going until fully solved |
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
 | [debug](skills/debug/) | Prompt | Line-by-line code audit loop: trace values, verify behavior, fix |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
@@ -91,14 +90,13 @@ Skills reference each other to compose larger workflows:
 
 ```mermaid
 graph LR
-    ralph_loop --> ultra_think
-    ralph_loop --> beast_mode
+    ralph_loop --> deep_mode
     ralph_loop --> staff_engineer
     ralph_loop --> ask_questions
     ralph_loop --> hierarchical_memory
     ralph_loop --> obsidian
-    ultra_think --> mental_models
-    ultra_think --> ask_questions
+    deep_mode --> mental_models
+    deep_mode --> ask_questions
     ask_questions --> hierarchical_memory
     prompt_evolution --> discussion_partners
     prompt_evolution --> llm_judge
@@ -115,7 +113,7 @@ graph LR
     lean_prover --> discussion_partners
 ```
 
-Standalone skills (no imports): `beast_mode`, `concise_writing`, `data_science`, `debug`, `forecast`, `gh_cli`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_pruner`, `skill_stealer`, `staff_engineer`
+Standalone skills (no imports): `concise_writing`, `data_science`, `debug`, `forecast`, `gh_cli`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_pruner`, `skill_stealer`, `staff_engineer`
 
 ## Install
 
@@ -216,7 +214,7 @@ Major improvements, curated by human and Claude together.
 
 ### Priority
 
-- [ ] **Consolidate beast_mode + ultra_think** — Merge into one compressed skill using skill_pruner compression methodology. Both activate deep persistence/thinking; one skill with clear modes is better than two overlapping ones.
+- [x] **Consolidate beast_mode + ultra_think** — Merged into `deep_mode` skill using compression methodology. Combines deep thinking protocol with maximum persistence in ~50 lines.
 - [ ] **Consolidate staff_engineer + debug** — Merge into one compressed skill. Keep staff_engineer's opening principles verbatim — they're effective as-is. Debug's line-by-line audit loop becomes a section within.
 - [ ] **Fix heartbeat** — Hard problem requiring research phase first. Use discussion_partners, mental_models, ultra_think, and sub-agents to build high confidence before implementing. Open questions: How does cron authenticate with Claude Code? Is the skill for managing setup or describing wakeup behavior? `tasks.md` is an executable instruction surface — security consideration. Dedicated tighter permissions needed. Create env file for API keys.
 - [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.

@@ -58,6 +58,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
 | [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous maintenance: aggregate memory, process tasks |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
+| [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
 
@@ -112,6 +113,8 @@ graph LR
     hierarchical_memory --> private_repo
     web_grab --> obsidian
     lean_prover --> discussion_partners
+    session_planner --> hierarchical_memory
+    session_planner --> obsidian
 ```
 
 Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
@@ -234,7 +237,7 @@ Major improvements, curated by human and Claude together.
 - [ ] **Complexity router** — Assess complexity (simple/medium/complex), route to appropriate effort level.
 - [ ] **Checkpoint system** — Mandatory review at fixed intervals, attempt budgets.
 - [ ] **Context compiler** — Assemble structured context docs from git diffs, files, memory, obsidian. Automates the PR review pattern.
-- [ ] **Session planner** — On session start, read memory + tasks + todos, propose work plan. Lighter than `ralph_loop`.
+- [x] **Session planner** — On session start, read memory + tasks + todos, propose work plan. Lighter than `ralph_loop`.
 - [ ] **Capture inbox** — Smart routing for any input. Routes by scope + audience to the right destination: memory daily log (ephemeral), heartbeat tasks (recurring/future), obsidian knowledge_graph (durable knowledge), CLAUDE.md (repo-specific agent guidance), or README.md (repo dev memory).
 - [ ] **Claude constitution** — A skill encoding the user's values, principles, and preferences as a constitutional document. Applied when making judgment calls.
 - [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.

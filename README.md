@@ -56,7 +56,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Shell | Cron-based autonomous maintenance: aggregate memory, process tasks |
+| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous maintenance: aggregate memory, process tasks |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 
 ### Process
@@ -215,7 +215,7 @@ Major improvements, curated by human and Claude together.
 
 - [x] **Consolidate beast_mode + ultra_think** — beast_mode persistence directives folded into ultra_think as `## Persistence` section. Trigger phrases absorbed into frontmatter.
 - [x] **Consolidate staff_engineer + debug** — debug's 9-step process and 5 rules folded into staff_engineer as `## Debug Mode` section. Opening principles kept verbatim.
-- [ ] **Fix heartbeat** — Hard problem requiring research phase first. Use discussion_partners, mental_models, ultra_think, and sub-agents to build high confidence before implementing. Open questions: How does cron authenticate with Claude Code? Is the skill for managing setup or describing wakeup behavior? `tasks.md` is an executable instruction surface — security consideration. Dedicated tighter permissions needed. Create env file for API keys.
+- [x] **Fix heartbeat** — Migrated from cron to macOS launchd user agent. Hourly wake-up, 30-min target work, 4-hour hard kill. Auth via `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (subscription billing). Uses `--permission-mode dontAsk` with explicit allowedTools. All behavior in SKILL.md (single source of truth). Three task states: Open/In Progress/Completed with sub-bullet tracking for crash recovery.
 - [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.
 
 ### Architecture
@@ -237,6 +237,7 @@ Major improvements, curated by human and Claude together.
 - [ ] **Claude constitution** — A skill encoding the user's values, principles, and preferences as a constitutional document. Applied when making judgment calls.
 - [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.
 - [ ] **Modal skill** — Run compute on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
+- [ ] **Reminders** — Time-aware reminder system. Agent can set reminders for the user (or itself). Heartbeat checks for due reminders on each cycle and surfaces them. Could use obsidian notes with due dates or a dedicated reminders file.
 - [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status.
 - [x] **Playwright browser automation** — Headless browser for JS-heavy pages. Unblocks web_grab for SPAs. Python Click CLI at `web_grab/scripts/fetch_page.py`.
 - [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Blocked by auth.
@@ -251,11 +252,16 @@ Major improvements, curated by human and Claude together.
 - [ ] **Keyword search for memory** — Fast keyword/regex search across all memory files. Currently handled by Grep/Glob directly.
 - [ ] **Multi-day/month reader helper** — Read multiple days or months in a single command for broader context.
 - [ ] **Fix install-ci after marker-pdf move** — `install-ci` needs `--only-group dev` or moving marker-pdf back to optional.
+- [ ] **Heartbeat sandboxing** — `Bash()` patterns are prefix-only string matching with 97.9% shell operator bypass rate (`&&`, `;`, `||` all pass). Current `dontAsk` + `allowedTools` is a guardrail, not a sandbox. Real threat: prompt injection via web content in tasks, not self-injection. Options: wrapper script that validates commands, nsjail/sandbox-exec, or just accept the risk for a user-owned agent.
+- [ ] **Permissions model deep research** — Claude Code's permission system is not fully understood. User has granted Read permissions but agent still asks frequently. Need comprehensive research on: (1) how .claude/settings.json interacts with CLI flags, (2) when agents inherit permissions vs need explicit grants, (3) skill-scoped `allowed-tools` frontmatter effectiveness (issue #14956), (4) subagent permission inheritance, (5) permission precedence rules (global vs project, allow vs deny). Document findings and create a reference guide.
+- [ ] **Token lifecycle investigation** — User reports that `claude setup-token` (for headless heartbeat auth) logged them out of the interactive session. If true, this means setup-token invalidates the current OAuth token. Need to investigate: (1) Does setup-token create a new token or reuse existing? (2) Can multiple sessions share one token? (3) Why can't heartbeat reuse the interactive session's token (separate process/environment)? (4) Document the token lifecycle and auth priority chain. (5) Consider whether heartbeat should use a separate API key instead of OAuth.
+- [ ] **Reminders skill** — Time-aware reminder system. Agent can set reminders for the user (or itself). Heartbeat checks for due reminders on each cycle.
 
 ### Lessons Learned
 
 - **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
 - **Use scripts, not context, for bulk operations** (2026-02): Crawling 23 Confluence wiki pages with subagents blew context on all 5 agents. Next time: write a Python script that fetches and writes notes directly (Playwright → file), then run it in a loop. The agent's context window is for orchestration, not data transport. Also wrote one-off `audit_notes.py` and `fix_tags.py` scripts for vault maintenance — much better than manual inspection.
+- **launchd over cron on macOS** (2026-02): Heartbeat cron job failed with "Not logged in" — cron has minimal env, no user security session, no Keychain access. launchd user agents run in the user session, survive sleep/wake, and are Apple-supported. `claude setup-token` provides 1-year OAuth tokens for headless use. `CLAUDE_CODE_OAUTH_TOKEN` is auth priority 2 (after `ANTHROPIC_API_KEY`), so unset API key explicitly to force subscription billing.
 
 ### Human TODOs
 

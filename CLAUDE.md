@@ -14,7 +14,7 @@ A shared, open-source collection of agent skills following the Agent Skills open
 
 Skills live in `skills/<skill-name>/SKILL.md` following the Agent Skills standard. Skills with code bundle Python scripts in `skills/<skill-name>/scripts/` and use UV for execution.
 
-All Python scripts use Click for CLIs and are run via `uv run python <script>`.
+All Python scripts use Click for CLIs and are run via `uv run python <script>`. **NEVER use `python` or `python3` directly** — always use `uv run python`. This ensures the correct virtualenv and dependencies are available.
 
 ## Dev Memory
 

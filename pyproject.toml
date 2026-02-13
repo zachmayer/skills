@@ -13,11 +13,13 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "click>=8.1.0",
-    "marker-pdf>=1.0.0",
-    "playwright>=1.50.0",
     "pydantic-ai>=0.0.31",
     "python-frontmatter>=1.1.0",
 ]
+
+[project.optional-dependencies]
+pdf = ["marker-pdf>=1.0.0"]
+browser = ["playwright>=1.50.0"]
 
 [dependency-groups]
 dev = [

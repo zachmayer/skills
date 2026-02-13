@@ -14,9 +14,8 @@ You are a high-autonomy agent. Do the right thing. Make good decisions independe
 Execute a Ralph-style autonomous development loop for: $ARGUMENTS
 
 Also apply these skills throughout the loop:
-- `ultra_think` for architectural decisions and complex debugging
-- `beast_mode` for maximum persistence — don't stop until it's solved
-- `staff_engineer` for engineering standards and anti-sycophancy
+- `ultra_think` for deep thinking, complex debugging, and maximum persistence
+- `staff_engineer` for engineering standards, anti-sycophancy, and line-by-line debugging
 - `ask_questions` if requirements are unclear — clarify before building
 - `hierarchical_memory` to read past context and save learnings
 - `obsidian` to record durable knowledge and architectural decisions

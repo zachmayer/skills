@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 24 agent skills following the Agent Skills open standard
+- 25 agent skills following the Agent Skills open standard
 - **Capture skills** (5): hierarchical_memory, web_grab, pdf_to_markdown, remember_session, skill_stealer
-- **Organize skills** (3): obsidian, heartbeat, private_repo
+- **Organize skills** (4): obsidian, heartbeat, private_repo, session_planner
 - **Process skills** (7): ultra_think, mental_models, ask_questions, discussion_partners, data_science, forecast, lean_prover
 - **Build skills** (9): ralph_loop, staff_engineer, concise_writing, gh_cli, prompt_evolution, llm_judge, pr_review, api_key_checker, skill_pruner
 - `status` command for memory aggregation staleness detection

@@ -1,6 +1,12 @@
 #!/bin/bash
 # Heartbeat v2: GitHub Issues → worktree → Claude Code → branch + PR.
 # Designed for macOS launchd user agent execution.
+#
+# PARALLEL BY DESIGN: Multiple heartbeat instances may run concurrently on the
+# same machine. Each gets its own worktree. Coordination uses git branches as
+# atomic claims — `git checkout -b heartbeat/issue-N` either succeeds (claimed)
+# or fails (another agent got it first). No locking, no label-based claiming.
+# The agent receives a randomized list of available issues and picks one.
 set -euo pipefail
 
 # --- Configuration ---
@@ -57,56 +63,74 @@ fi
 # --- Ensure status dir exists ---
 mkdir -p "$(dirname "$STATUS_FILE")"
 
-# --- Find first unclaimed issue across all repos ---
-ISSUE_JSON=""
-ISSUE_REPO=""
-for REPO in $REPOS; do
-    ISSUE_JSON=$(gh issue list \
-        --repo "$REPO" \
-        --author "$ISSUE_AUTHOR" \
-        --label "$ISSUE_LABEL" \
-        --search "-label:in-progress" \
-        --state open \
-        --json number,title,body \
-        --limit 1 2>/dev/null || echo "[]")
+# --- Discover available issues ---
+# Fetch up to 25 open agent-task issues. Filter out issues that already have
+# heartbeat branches on origin (already claimed by an agent). Randomize the
+# remainder so parallel agents naturally diverge to different issues.
+REPO="${REPOS%% *}"  # First repo (space-separated)
+REPO_DIR=$(repo_dir "$REPO")
 
-    # Check if we got a result (not empty array)
-    if [ "$ISSUE_JSON" != "[]" ] && [ -n "$ISSUE_JSON" ]; then
-        ISSUE_REPO="$REPO"
-        break
-    fi
-done
+git -C "$REPO_DIR" fetch origin
 
-if [ -z "$ISSUE_REPO" ]; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No unclaimed agent-task issues found"
+ALL_ISSUES=$(gh issue list \
+    --repo "$REPO" \
+    --author "$ISSUE_AUTHOR" \
+    --label "$ISSUE_LABEL" \
+    --state open \
+    --json number,title,body \
+    --limit 25 2>/dev/null || echo "[]")
+
+if [ "$ALL_ISSUES" = "[]" ] || [ -z "$ALL_ISSUES" ]; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No agent-task issues found"
     echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) IDLE" > "$STATUS_FILE"
     exit 0
 fi
 
-# --- Parse issue ---
-ISSUE_NUMBER=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[0]['number'])")
-ISSUE_TITLE=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[0]['title'])")
-ISSUE_BODY=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[0]['body'])")
+# Get existing heartbeat branches to filter out already-claimed issues
+EXISTING_BRANCHES=$(git -C "$REPO_DIR" ls-remote --heads origin 'refs/heads/heartbeat/issue-*' 2>/dev/null \
+    | awk '{print $2}' | sed 's|refs/heads/heartbeat/issue-||' || echo "")
 
-# --- Pre-claim checks ---
-REPO_DIR=$(repo_dir "$ISSUE_REPO")
-BRANCH="heartbeat/issue-$ISSUE_NUMBER"
+# Filter claimed issues and randomize order
+AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | python3 -c "
+import sys, json, random
+issues = json.loads(sys.stdin.read())
+existing = set(line.strip() for line in '''${EXISTING_BRANCHES}'''.strip().split('\n') if line.strip())
+available = [i for i in issues if str(i['number']) not in existing]
+random.shuffle(available)
+print(json.dumps(available))
+")
 
-git -C "$REPO_DIR" fetch origin
+ISSUE_COUNT=$(echo "$AVAILABLE_ISSUES" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
 
-# Skip if a branch already exists for this issue (prior run or another agent)
-if git -C "$REPO_DIR" ls-remote --heads origin "$BRANCH" 2>/dev/null | grep -q .; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Branch $BRANCH already exists on origin, skipping issue #$ISSUE_NUMBER"
+if [ "$ISSUE_COUNT" = "0" ]; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] All agent-task issues already have branches (claimed)"
+    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) IDLE" > "$STATUS_FILE"
     exit 0
 fi
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Claiming issue #$ISSUE_NUMBER in $ISSUE_REPO: $ISSUE_TITLE"
+# Format issue list for the agent prompt
+ISSUE_LIST=$(echo "$AVAILABLE_ISSUES" | python3 -c "
+import sys, json
+for i in json.loads(sys.stdin.read()):
+    print(f'### Issue #{i[\"number\"]}: {i[\"title\"]}')
+    body = (i.get('body') or '').strip()
+    if body:
+        print(body)
+    print()
+")
 
-# --- Claim the issue (add in-progress label) ---
-# Only the shell script modifies labels — the agent never touches issue state.
-gh issue edit "$ISSUE_NUMBER" --repo "$ISSUE_REPO" --add-label in-progress
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $ISSUE_COUNT available issues. Creating worktree..."
 
-# --- Set up worktree on a new branch ---
+# --- Clean stale local heartbeat branches ---
+# If a prior run was killed after creating a local branch but before pushing,
+# the branch lingers locally. Clean up any that aren't on the remote.
+for branch in $(git -C "$REPO_DIR" branch --list 'heartbeat/issue-*' | tr -d ' *'); do
+    git -C "$REPO_DIR" branch -D "$branch" 2>/dev/null || true
+done
+
+# --- Set up worktree (detached HEAD on origin/main) ---
+# The agent will create its own branch via `git checkout -b heartbeat/issue-N`.
+# Detached HEAD avoids conflicts with branches checked out in other worktrees.
 WORKDIR="/tmp/heartbeat-$$"
 
 cleanup() {
@@ -117,11 +141,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Delete stale local branch if it exists (remote check already passed, so this is leftover)
-git -C "$REPO_DIR" branch -D "$BRANCH" 2>/dev/null || true
-git -C "$REPO_DIR" worktree add -b "$BRANCH" "$WORKDIR" origin/main
+git -C "$REPO_DIR" worktree add --detach "$WORKDIR" origin/main
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree created at $WORKDIR on branch $BRANCH. Invoking Claude Code..."
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree at $WORKDIR. Invoking Claude Code with $ISSUE_COUNT issues..."
 
 # --- Invoke Claude Code with safety bounds ---
 set +e
@@ -143,15 +165,16 @@ set +e
         --max-budget-usd "$MAX_BUDGET_USD" \
         --model opus \
         "You are the heartbeat agent. You MUST read and follow your heartbeat skill before doing anything.
-You are on branch $BRANCH in a worktree. Commit here, push, and create a PR. NEVER commit to main.
 
-Your task: Issue #$ISSUE_NUMBER in $ISSUE_REPO — $ISSUE_TITLE
+Pick ONE issue from the list below. Create branch heartbeat/issue-N and work on it.
+If git checkout -b fails, the issue is claimed by another agent — pick a different one.
+NEVER commit to main.
 
-<issue-body>
-$ISSUE_BODY
-</issue-body>
+<available-issues>
+$ISSUE_LIST
+</available-issues>
 
-Obsidian dir: $OBSIDIAN_DIR. Time limit: $WORK_MINUTES minutes. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
+Repo: $REPO. Obsidian dir: $OBSIDIAN_DIR. Time limit: $WORK_MINUTES minutes. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
 ) &
 claude_pid=$!
 
@@ -175,13 +198,13 @@ set -e
 # --- Record outcome ---
 timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 if [ $exit_code -eq 0 ]; then
-    echo "$timestamp OK issue=#$ISSUE_NUMBER repo=$ISSUE_REPO" > "$STATUS_FILE"
-    echo "[$timestamp] Heartbeat cycle complete (issue #$ISSUE_NUMBER)"
+    echo "$timestamp OK repo=$REPO issues_available=$ISSUE_COUNT" > "$STATUS_FILE"
+    echo "[$timestamp] Heartbeat cycle complete"
 elif [ $exit_code -eq 137 ] || [ $exit_code -eq 143 ]; then
-    echo "$timestamp TIMEOUT issue=#$ISSUE_NUMBER repo=$ISSUE_REPO" > "$STATUS_FILE"
+    echo "$timestamp TIMEOUT repo=$REPO" > "$STATUS_FILE"
     echo "[$timestamp] ERROR: Claude killed after ${TIMEOUT_SECONDS}s timeout"
 else
-    echo "$timestamp FAIL exit=$exit_code issue=#$ISSUE_NUMBER repo=$ISSUE_REPO" > "$STATUS_FILE"
+    echo "$timestamp FAIL exit=$exit_code repo=$REPO" > "$STATUS_FILE"
     echo "[$timestamp] ERROR: Claude exited with code $exit_code"
 fi
 

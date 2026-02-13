@@ -12,6 +12,7 @@ LOCK_FILE="$HOME/.claude/heartbeat.lock"
 STATUS_FILE="$HOME/.claude/heartbeat.status"
 LOG_DIR="$OBSIDIAN_DIR/heartbeat"
 TIMEOUT_SECONDS=14400  # 4 hour hard kill
+WORK_MINUTES=30        # target work time per cycle
 MAX_TURNS=200
 MAX_BUDGET_USD=5
 
@@ -86,13 +87,14 @@ set +e
             "Bash(git status)" "Bash(git diff *)" "Bash(git log *)" \
             "Bash(git add *)" "Bash(git commit *)" \
             "Bash(git checkout *)" "Bash(git branch *)" "Bash(git push *)" \
+            "Bash(git -C *)" \
             "Bash(gh pr create *)" "Bash(gh pr view *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
             "Bash(uv run *)" \
         --max-turns "$MAX_TURNS" \
         --max-budget-usd "$MAX_BUDGET_USD" \
         --model sonnet \
-        "Use your heartbeat skill. Task file: $TASKS_FILE. Obsidian dir: $OBSIDIAN_DIR. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
+        "Use your heartbeat skill. Task file: $TASKS_FILE. Obsidian dir: $OBSIDIAN_DIR. Time limit: $WORK_MINUTES minutes. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
 ) &
 claude_pid=$!
 

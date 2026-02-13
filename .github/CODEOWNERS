@@ -1,0 +1,17 @@
+# Sensitive paths — require explicit human review.
+# Since agents push as @zachmayer, this acts as a reminder rather than
+# a hard gate (GitHub can't enforce self-review). The real gate is
+# branch protection + manual merge.
+
+# CI and deployment
+.github/workflows/  @zachmayer
+.github/CODEOWNERS  @zachmayer
+
+# Agent infrastructure (prevent self-modification)
+skills/heartbeat/scripts/heartbeat.sh  @zachmayer
+skills/heartbeat/scripts/*.plist       @zachmayer
+Makefile                               @zachmayer
+
+# Dependency management
+pyproject.toml  @zachmayer
+uv.lock         @zachmayer

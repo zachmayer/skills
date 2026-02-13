@@ -5,7 +5,7 @@ description: >
   to check for and process pending tasks. Use when the user wants autonomous
   periodic task processing or asks about running Claude on a schedule.
   Do NOT use for one-time tasks or interactive work.
-allowed-tools: Bash(*)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(gh pr create *), Bash(gh pr view *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run *)
 ---
 
 Set up or manage a heartbeat for autonomous Claude Code task processing.

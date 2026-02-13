@@ -217,7 +217,7 @@ Major improvements, curated by human and Claude together.
 
 - [x] **Consolidate beast_mode + ultra_think** — beast_mode persistence directives folded into ultra_think as `## Persistence` section. Trigger phrases absorbed into frontmatter.
 - [x] **Consolidate staff_engineer + debug** — debug's 9-step process and 5 rules folded into staff_engineer as `## Debug Mode` section. Opening principles kept verbatim.
-- [x] **Fix heartbeat** — v1: cron → launchd, markdown task file. v2: GitHub Issues as work queue. Shell script discovers unclaimed `agent-task` issues, claims with `in-progress` label, creates branch + worktree, invokes Claude Code. Agent implements and creates PR. `Fixes #N` auto-closes issues on merge. Worktrees enable parallel agents. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog.
+- [x] **Fix heartbeat** — v1: cron → launchd, markdown task file. v2: GitHub Issues as work queue. Script fetches 25 issues, filters by existing branches on origin, randomizes. Agent picks one, claims by creating `heartbeat/issue-N` branch (`git checkout -b` is atomic — no TOCTOU). Parallel by design: multiple agents get different random orderings, branch creation resolves collisions. `Fixes #N` auto-closes issues on merge. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog.
 - [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.
 
 ### Architecture

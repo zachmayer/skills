@@ -19,7 +19,7 @@ MAX_TURNS=200
 MAX_BUDGET_USD=5
 
 # --- Repo registry ---
-# Add repos here as needed. Agent checks each for unclaimed issues.
+# Currently single-repo. To add more, extend REPOS and the repo_dir() case.
 REPOS="zachmayer/skills"
 
 # --- Issue filters (hardcoded for security — agent never constructs these) ---
@@ -91,10 +91,11 @@ EXISTING_BRANCHES=$(git -C "$REPO_DIR" ls-remote --heads origin 'refs/heads/hear
     | awk '{print $2}' | sed 's|refs/heads/heartbeat/issue-||' || echo "")
 
 # Filter claimed issues and randomize order
-AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | python3 -c "
-import sys, json, random
+# EXISTING_BRANCHES passed via env var (not interpolated into source) to prevent injection
+AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" python3 -c "
+import sys, json, random, os
 issues = json.loads(sys.stdin.read())
-existing = set(line.strip() for line in '''${EXISTING_BRANCHES}'''.strip().split('\n') if line.strip())
+existing = set(line.strip() for line in os.environ.get('EXISTING', '').strip().split('\n') if line.strip())
 available = [i for i in issues if str(i['number']) not in existing]
 random.shuffle(available)
 print(json.dumps(available))
@@ -123,7 +124,9 @@ echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $ISSUE_COUNT available issues. Crea
 
 # --- Clean stale local heartbeat branches ---
 # If a prior run was killed after creating a local branch but before pushing,
-# the branch lingers locally. Clean up any that aren't on the remote.
+# the branch lingers locally. Prune stale worktrees first (so branch -D succeeds),
+# then clean up any heartbeat branches that aren't checked out elsewhere.
+git -C "$REPO_DIR" worktree prune 2>/dev/null || true
 for branch in $(git -C "$REPO_DIR" branch --list 'heartbeat/issue-*' | tr -d ' *'); do
     git -C "$REPO_DIR" branch -D "$branch" 2>/dev/null || true
 done

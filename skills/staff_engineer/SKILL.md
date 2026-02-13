@@ -1,10 +1,9 @@
 ---
 name: staff_engineer
 description: >
-  Apply rigorous engineering standards and anti-sycophancy principles.
-  Use when writing production code, reviewing architecture, optimizing
-  performance, or doing code review. Do NOT use for quick prototypes,
-  throwaway scripts, or exploration.
+  Apply rigorous engineering standards, anti-sycophancy principles, and systematic debugging.
+  Use when writing production code, reviewing architecture, optimizing performance, doing code review,
+  or debugging broken code. Do NOT use for quick prototypes, throwaway scripts, or exploration.
 ---
 
 Eliminate > Optimize — fastest code doesn't exist
@@ -88,13 +87,36 @@ After refactoring or implementing changes:
 
 Don't leave corpses. Don't delete without asking.
 
+## Debug Protocol
+
+When debugging broken code, perform a FULL line-by-line audit:
+
+1. **Read every line** — no skimming, no assuming
+2. **State what each section does** — if you can't, that's a bug candidate
+3. **Trace actual data flow** — inputs, transforms, outputs. Follow values, not names
+4. **Compare intended vs actual** — every branch, edge case, error path
+5. **Check boundaries** — off-by-one, null/empty, type coercion, encoding, concurrency
+6. **Verify assumptions** — does that API/config/variable actually work as expected?
+7. **Run it** — execute tests or code. Read actual output, don't guess
+8. **Fix and verify** — one fix at a time, re-run to confirm
+9. **Loop** — repeat on changed code until clean
+
+Rules:
+- Never say "this looks correct" without tracing actual values
+- Never assume a function works because its name sounds right
+- If unsure, add a print/log and run it
+- If tests exist, run them. If they don't, write one for the bug
+- When you find the bug, explain WHY it happened, not just what to change
+
+Loop until the end product would satisfy a skeptical user who thinks it's impossible to debug with prompting.
+
 ## Leverage Patterns
 
-**Declarative over imperative**: When receiving instructions, prefer success criteria over step-by-step commands. Reframe: "I understand the goal is [success state]. I'll work toward that and show you when I believe it's achieved. Correct?" This lets you loop, retry, and problem-solve.
+**Declarative over imperative**: Prefer success criteria over step-by-step commands. Reframe: "I understand the goal is [success state]. I'll work toward that and show you when I believe it's achieved. Correct?"
 
-**Test-first**: Write the test that defines success, implement until it passes, show both. Tests are your loop condition.
+**Test-first**: Write the test that defines success, implement until it passes, show both.
 
-**Naive then optimize**: Obviously-correct naive version first, verify correctness, then optimize while preserving behavior. Correctness first. Performance second. Never skip step 1.
+**Naive then optimize**: Obviously-correct naive version first, verify correctness, then optimize while preserving behavior. Correctness first. Performance second.
 
 **Inline planning**: For multi-step tasks, emit a lightweight plan before executing:
 ```

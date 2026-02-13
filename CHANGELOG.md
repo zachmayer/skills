@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Consolidated debug skill into staff_engineer — debug protocol becomes a section within staff_engineer's systematic engineering approach
+
 ### Added
 
 - 34 agent skills following the Agent Skills open standard
@@ -12,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Organize skills**: obsidian, heartbeat, private_repo
 - **Process skills**: ultra_think, mental_models, ask_questions, discussion_partners, data_science, forecast, lean_prover
 - **Analyze skills**: antithesize, excavate, synthesize, negspace, rhetoricize, dimensionalize, inductify, rhyme, metaphorize, handlize
-- **Build skills**: ralph_loop, beast_mode, staff_engineer, debug, concise_writing, gh_cli, prompt_evolution, llm_judge, skill_pruner
+- **Build skills**: ralph_loop, beast_mode, staff_engineer, concise_writing, gh_cli, prompt_evolution, llm_judge, skill_pruner
 - `status` command for memory aggregation staleness detection
 - External skills sync from FUTURE_TOKENS via `make sync-external`
 - Dependabot auto-merge workflow and grouped updates

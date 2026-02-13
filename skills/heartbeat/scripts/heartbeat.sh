@@ -87,17 +87,18 @@ echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $open open + $in_progress in-progre
 set +e
 (
     cd "$SKILLS_REPO"
-    claude --print \
+    exec claude --print \
         --permission-mode dontAsk \
         --add-dir "$OBSIDIAN_DIR" \
         --allowedTools Read Write Edit Glob Grep \
             "Bash(git status)" "Bash(git diff *)" "Bash(git log *)" \
             "Bash(git add *)" "Bash(git commit *)" \
             "Bash(git checkout *)" "Bash(git branch *)" "Bash(git push *)" \
+            "Bash(git pull *)" "Bash(git fetch *)" \
             "Bash(git -C *)" \
             "Bash(gh pr create *)" "Bash(gh pr view *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
-            "Bash(uv run *)" \
+            "Bash(uv run python *)" \
         --max-turns "$MAX_TURNS" \
         --max-budget-usd "$MAX_BUDGET_USD" \
         --model sonnet \

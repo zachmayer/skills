@@ -81,6 +81,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
+| [pr_review](skills/pr_review/) | Python | External AI code review: fetch PR context via gh, send to GPT-5.2 |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
 
 ## Skill Graph
@@ -112,7 +113,7 @@ graph LR
     lean_prover --> discussion_partners
 ```
 
-Standalone skills (no imports): `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `skill_pruner`, `skill_stealer`
+Standalone skills (no imports): `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
 
 ## Install
 
@@ -224,7 +225,7 @@ Major improvements, curated by human and Claude together.
 
 ### New Skills
 
-- [ ] **PR review** — Python script uses `gh` CLI to collect PR diff, file list, metadata; assembles structured XML context doc. Sends to `discussion_partners` CLI with configurable review focus prompt. Default: flag real issues, skip style nits. Depends on: `gh_cli`, `discussion_partners`.
+- [x] **PR review** — Python script fetches PR diff/metadata via `gh` CLI, assembles structured XML context, sends to external model (default: GPT-5.2 xhigh) for review. Supports `--focus`, `--context-file`, `--dry-run`. Uses pydantic-ai directly (standalone, no discussion_partners dependency).
 - [ ] **Claude Code skills reference** — Comprehensive skill built from [Agent Skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Large skill. Re-fetchable source URL for updates.
 - [ ] **Claude Code config reference** — Same pattern, built from [Claude Code settings docs](https://code.claude.com/docs/en/settings#available-settings). Full reference for permissions, env vars, hooks, MCP, CLAUDE.md format.
 - [ ] **Agent coordinator** — Orchestration: coordinator spawns specialized sub-agents, dependency-aware routing.
@@ -251,17 +252,17 @@ Major improvements, curated by human and Claude together.
 - [ ] **Vector search for memory** — Semantic search over memory files and obsidian vault via embeddings.
 - [ ] **Keyword search for memory** — Fast keyword/regex search across all memory files. Currently handled by Grep/Glob directly.
 - [ ] **Multi-day/month reader helper** — Read multiple days or months in a single command for broader context.
-- [ ] **Fix install-ci after marker-pdf move** — `install-ci` needs `--only-group dev` or moving marker-pdf back to optional.
+- [x] **Fix install-ci after marker-pdf move** — Moved `marker-pdf` and `playwright` to `[project.optional-dependencies]` as `pdf` and `browser` extras. CI skips them via `--group dev` (no `--all-extras`). Saves ~4GB of CUDA/torch downloads per CI run.
 - [ ] **Heartbeat sandboxing** — `Bash()` patterns are prefix-only string matching with 97.9% shell operator bypass rate (`&&`, `;`, `||` all pass). Current `dontAsk` + `allowedTools` is a guardrail, not a sandbox. Real threat: prompt injection via web content in tasks, not self-injection. Options: wrapper script that validates commands, nsjail/sandbox-exec, or just accept the risk for a user-owned agent.
 - [ ] **Permissions model deep research** — Claude Code's permission system is not fully understood. User has granted Read permissions but agent still asks frequently. Need comprehensive research on: (1) how .claude/settings.json interacts with CLI flags, (2) when agents inherit permissions vs need explicit grants, (3) skill-scoped `allowed-tools` frontmatter effectiveness (issue #14956), (4) subagent permission inheritance, (5) permission precedence rules (global vs project, allow vs deny). Document findings and create a reference guide.
 - [ ] **Token lifecycle investigation** — User reports that `claude setup-token` (for headless heartbeat auth) logged them out of the interactive session. If true, this means setup-token invalidates the current OAuth token. Need to investigate: (1) Does setup-token create a new token or reuse existing? (2) Can multiple sessions share one token? (3) Why can't heartbeat reuse the interactive session's token (separate process/environment)? (4) Document the token lifecycle and auth priority chain. (5) Consider whether heartbeat should use a separate API key instead of OAuth.
-- [ ] **Reminders skill** — Time-aware reminder system. Agent can set reminders for the user (or itself). Heartbeat checks for due reminders on each cycle.
-
 ### Lessons Learned
 
 - **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
 - **Use scripts, not context, for bulk operations** (2026-02): Crawling 23 Confluence wiki pages with subagents blew context on all 5 agents. Next time: write a Python script that fetches and writes notes directly (Playwright → file), then run it in a loop. The agent's context window is for orchestration, not data transport. Also wrote one-off `audit_notes.py` and `fix_tags.py` scripts for vault maintenance — much better than manual inspection.
 - **launchd over cron on macOS** (2026-02): Heartbeat cron job failed with "Not logged in" — cron has minimal env, no user security session, no Keychain access. launchd user agents run in the user session, survive sleep/wake, and are Apple-supported. `claude setup-token` provides 1-year OAuth tokens for headless use. `CLAUDE_CODE_OAUTH_TOKEN` is auth priority 2 (after `ANTHROPIC_API_KEY`), so unset API key explicitly to force subscription billing.
+
+- **Optional extras for heavy deps** (2026-02): `marker-pdf` pulled in torch + CUDA (~3.8GB) on every CI run. Tests never imported it. Standard fix: `[project.optional-dependencies]` (PEP 621). `uv sync --group dev` skips extras; `uv sync --all-extras --all-groups` gets everything. Note: `--group X` always includes project deps — you can't exclude core deps with groups alone.
 
 ### Human TODOs
 

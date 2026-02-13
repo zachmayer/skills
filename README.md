@@ -112,7 +112,7 @@ graph LR
     lean_prover --> discussion_partners
 ```
 
-Standalone skills (no imports): `concise_writing`, `data_science`, `forecast`, `gh_cli`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_pruner`, `skill_stealer`, `staff_engineer`
+Standalone skills (no imports): `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `skill_pruner`, `skill_stealer`
 
 ## Install
 

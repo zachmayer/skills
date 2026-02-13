@@ -7,12 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 32 agent skills following the Agent Skills open standard
-- **Capture skills**: hierarchical_memory, web_grab, pdf_to_markdown, remember_session, skill_stealer
-- **Organize skills**: obsidian, heartbeat, private_repo
-- **Process skills**: ultra_think, mental_models, ask_questions, discussion_partners, data_science, forecast, lean_prover
-- **Analyze skills**: antithesize, excavate, synthesize, negspace, rhetoricize, dimensionalize, inductify, rhyme, metaphorize, handlize
-- **Build skills**: ralph_loop, staff_engineer, concise_writing, gh_cli, prompt_evolution, llm_judge, skill_pruner
+- 22 agent skills following the Agent Skills open standard
+- **Capture skills** (5): hierarchical_memory, web_grab, pdf_to_markdown, remember_session, skill_stealer
+- **Organize skills** (3): obsidian, heartbeat, private_repo
+- **Process skills** (7): ultra_think, mental_models, ask_questions, discussion_partners, data_science, forecast, lean_prover
+- **Build skills** (7): ralph_loop, staff_engineer, concise_writing, gh_cli, prompt_evolution, llm_judge, skill_pruner
 - `status` command for memory aggregation staleness detection
 - External skills sync from FUTURE_TOKENS via `make sync-external`
 - Dependabot auto-merge workflow and grouped updates
@@ -42,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skills audit: net 12% reduction across all skills (gh_cli 246→44, ultra_think 169→50, obsidian 85→21)
 - 7 FUTURE_TOKENS techniques compiled into mental_models
 - All 10 FUTURE_TOKENS skills promoted to first-class
+- beast_mode and ultra_think consolidated into ultra_think (extended thinking prompt)
+- debug and staff_engineer consolidated into staff_engineer (engineering standards + debugging)
 - Heartbeat derives paths from CLAUDE_OBSIDIAN_DIR, uses # CLAUDE_HEARTBEAT cron marker
 - .expanduser() on CLAUDE_OBSIDIAN_DIR so ~/... env vars resolve
 - Staleness detection refactored to pure Python dicts (replaced Polars)

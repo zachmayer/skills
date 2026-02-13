@@ -226,7 +226,7 @@ Major improvements, curated by human and Claude together.
 
 ### New Skills
 
-- [x] **PR review** — Python script fetches PR diff/metadata via `gh` CLI, assembles structured XML context, sends to external model (default: GPT-5.2 xhigh) for review. Supports `--focus`, `--context-file`, `--dry-run`. Uses pydantic-ai directly (standalone, no discussion_partners dependency).
+- [ ] **PR review redesign** — Current implementation (PR #34) has too much code and duplicates `discussion_partners`. Redesign as a high-freedom prompt skill: SKILL.md instructs the agent to fetch PR context via `gh` CLI, construct structured XML, and delegate to `discussion_partners` for the actual model call. Keep a small Python script for context assembly only (no pydantic-ai). Remove provider config, error handling, and model management that belong in discussion_partners.
 - [ ] **Claude Code skills reference** — Comprehensive skill built from [Agent Skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Large skill. Re-fetchable source URL for updates.
 - [ ] **Claude Code config reference** — Same pattern, built from [Claude Code settings docs](https://code.claude.com/docs/en/settings#available-settings). Full reference for permissions, env vars, hooks, MCP, CLAUDE.md format.
 - [ ] **Agent coordinator** — Orchestration: coordinator spawns specialized sub-agents, dependency-aware routing.
@@ -249,6 +249,11 @@ Major improvements, curated by human and Claude together.
 
 ### Enhancements
 
+- [ ] **Evergreen maintenance** — Generalized housekeeping that runs periodically (heartbeat or manual). Three scopes:
+  - **Repo-scoped**: prune local branches, remove dangling worktrees, clean stale PRs, doc consistency audits (already partially done by heartbeat recurring task)
+  - **Knowledge-scoped**: identify obsidian notes with stale sources that should be re-fetched (e.g., API docs that may have changed), dedup notes, prune orphans
+  - **Memory-scoped**: hierarchical memory aggregation (already exists), dedup across daily notes
+  - Parallel agents especially create clutter: dangling branches, duplicate docs, redundant issues. This skill/pattern should be the antidote. Could be one skill or a set of maintenance primitives the heartbeat invokes.
 - [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user.
 - [ ] **Vector search for memory** — Semantic search over memory files and obsidian vault via embeddings.
 - [ ] **Keyword search for memory** — Fast keyword/regex search across all memory files. Currently handled by Grep/Glob directly.
@@ -264,6 +269,8 @@ Major improvements, curated by human and Claude together.
 - **launchd over cron on macOS** (2026-02): Heartbeat cron job failed with "Not logged in" — cron has minimal env, no user security session, no Keychain access. launchd user agents run in the user session, survive sleep/wake, and are Apple-supported. `claude setup-token` provides 1-year OAuth tokens for headless use. `CLAUDE_CODE_OAUTH_TOKEN` is auth priority 2 (after `ANTHROPIC_API_KEY`), so unset API key explicitly to force subscription billing.
 
 - **Optional extras for heavy deps** (2026-02): `marker-pdf` pulled in torch + CUDA (~3.8GB) on every CI run. Tests never imported it. Standard fix: `[project.optional-dependencies]` (PEP 621). `uv sync --group dev` skips extras; `uv sync --all-extras --all-groups` gets everything. Note: `--group X` always includes project deps — you can't exclude core deps with groups alone.
+
+- **Don't trust training data for library APIs** (2026-02): PR #24 changed `result.output` to `result.data` because the agent "knew" pydantic-ai 1.57.0 had renamed the attribute. It hadn't — `.output` was correct in all versions. The false fix was bundled into an unrelated PR (violating atomic PRs), persisted in project memory as fact, and wasn't caught until GPT-5.2 red-teaming triggered the error. Fix: always inspect installed code (`dir()`, `dataclasses.fields()`) before changing API usage. Added `test_pydantic_ai_compat.py` to catch future regressions automatically.
 
 ### Human TODOs
 

@@ -41,7 +41,7 @@ gh pr create --title "..." --body "Fixes #N
 - **NEVER commit to main.** You are on a feature branch — commit here.
 - **Do NOT create or switch branches.** The runner already set up your branch and worktree.
 - **Obsidian vault** is the only repo where direct push to main is OK.
-- Run `make test` before creating PRs when you've changed code.
+- Run `uv run python -m pytest` before creating PRs when you've changed code.
 
 ## 4. Path Restrictions
 

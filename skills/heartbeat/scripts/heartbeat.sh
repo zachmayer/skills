@@ -117,6 +117,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Delete stale local branch if it exists (remote check already passed, so this is leftover)
+git -C "$REPO_DIR" branch -D "$BRANCH" 2>/dev/null || true
 git -C "$REPO_DIR" worktree add -b "$BRANCH" "$WORKDIR" origin/main
 
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree created at $WORKDIR on branch $BRANCH. Invoking Claude Code..."

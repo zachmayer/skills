@@ -56,7 +56,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous maintenance: aggregate memory, process tasks |
+| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous agent: picks up GitHub Issues, creates PRs |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 
 ### Process
@@ -196,7 +196,7 @@ Skills that bundle Python code use [Click](https://click.palletsprojects.com/) f
 
 Rigid subdirectories (Claude creates these automatically):
 - `memory/` — hierarchical memory (daily logs, monthly summaries, `overall_memory.md`)
-- `heartbeat/` — task queue, questions, logs
+- `heartbeat/` — legacy (task queue replaced by GitHub Issues in v2)
 - `knowledge_graph/` — durable topic notes, personal knowledge
 
 ### API Keys
@@ -217,7 +217,7 @@ Major improvements, curated by human and Claude together.
 
 - [x] **Consolidate beast_mode + ultra_think** — beast_mode persistence directives folded into ultra_think as `## Persistence` section. Trigger phrases absorbed into frontmatter.
 - [x] **Consolidate staff_engineer + debug** — debug's 9-step process and 5 rules folded into staff_engineer as `## Debug Mode` section. Opening principles kept verbatim.
-- [x] **Fix heartbeat** — Migrated from cron to macOS launchd user agent. Hourly wake-up, 30-min target work, 4-hour hard kill. Auth via `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (subscription billing). Uses `--permission-mode dontAsk` with explicit allowedTools. All behavior in SKILL.md (single source of truth). Three task states: Open/In Progress/Completed with sub-bullet tracking for crash recovery.
+- [x] **Fix heartbeat** — v1: cron → launchd, markdown task file. v2: GitHub Issues as work queue. Shell script discovers unclaimed `agent-task` issues, claims with `in-progress` label, creates branch + worktree, invokes Claude Code. Agent implements and creates PR. `Fixes #N` auto-closes issues on merge. Worktrees enable parallel agents. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog.
 - [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.
 
 ### Architecture
@@ -235,7 +235,7 @@ Major improvements, curated by human and Claude together.
 - [ ] **Checkpoint system** — Mandatory review at fixed intervals, attempt budgets.
 - [ ] **Context compiler** — Assemble structured context docs from git diffs, files, memory, obsidian. Automates the PR review pattern.
 - [ ] **Session planner** — On session start, read memory + tasks + todos, propose work plan. Lighter than `ralph_loop`.
-- [ ] **Capture inbox** — Smart routing for any input. Routes by scope + audience to the right destination: memory daily log (ephemeral), heartbeat tasks (recurring/future), obsidian knowledge_graph (durable knowledge), CLAUDE.md (repo-specific agent guidance), or README.md (repo dev memory).
+- [ ] **Capture inbox** — Smart routing for any input. Routes by scope + audience to the right destination: memory daily log (ephemeral), GitHub Issues with `agent-task` label (agent work), obsidian knowledge_graph (durable knowledge), CLAUDE.md (repo-specific agent guidance), or README.md (repo dev memory).
 - [ ] **Claude constitution** — A skill encoding the user's values, principles, and preferences as a constitutional document. Applied when making judgment calls.
 - [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.
 - [ ] **Modal skill** — Run compute on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
@@ -250,7 +250,7 @@ Major improvements, curated by human and Claude together.
 ### Enhancements
 
 - [ ] **Evergreen maintenance** — Generalized housekeeping that runs periodically (heartbeat or manual). Three scopes:
-  - **Repo-scoped**: prune local branches, remove dangling worktrees, clean stale PRs, doc consistency audits (already partially done by heartbeat recurring task)
+  - **Repo-scoped**: prune local branches, remove dangling worktrees, clean stale PRs, doc consistency audits
   - **Knowledge-scoped**: identify obsidian notes with stale sources that should be re-fetched (e.g., API docs that may have changed), dedup notes, prune orphans
   - **Memory-scoped**: hierarchical memory aggregation (already exists), dedup across daily notes
   - Parallel agents especially create clutter: dangling branches, duplicate docs, redundant issues. This skill/pattern should be the antidote. Could be one skill or a set of maintenance primitives the heartbeat invokes.
@@ -275,7 +275,8 @@ Major improvements, curated by human and Claude together.
 ### Human TODOs
 
 - [x] **Merge PR #20** — agent-skills branch (merged as ceb3b08)
-- [ ] **Settings precedence**: project-level allow does NOT override global-level deny. Remove `gh pr create*` from project deny list if you want it enabled for this repo.
+- [x] **Settings precedence**: Removed `gh pr create*` from project deny list (PR #43). Heartbeat uses `--allowedTools` CLI flag which overrides settings when running with `--permission-mode dontAsk`.
+- [ ] **Dedicated GH machine account for heartbeat** — Enables required human review on PRs (currently agents push as repo owner, can't self-review). Requires creating a GitHub bot account with limited permissions (push branches, create PRs, no admin).
 
 ## License
 

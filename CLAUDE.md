@@ -25,6 +25,7 @@ Use README.md as the development memory for this repo. It contains the skill inv
 - **Root-cause before you build.** When something fails, diagnose the actual error before building infrastructure to work around it. Misreading `insufficient_quota` (billing) as "keys not found" (config) led to an hour of unnecessary .env plumbing. The fix was swapping one API key. Staff engineers solve the right problem; senior engineers write code for the wrong one.
 - **One source of truth for config.** Shell profile (`~/.zshrc`) is the standard for personal dev tools. Don't layer .env files, UV_ENV_FILE, and settings.json on top — each layer adds precedence conflicts and debugging surface.
 - **Verify before "fixing" dependency bumps.** When dependabot bumps a library, don't assume the API changed. Test the actual behavior (`uv run python -c "..."`) before modifying code. PR #24 introduced a bug by "fixing" a non-existent API rename in pydantic-ai. Always branch from `origin/main` (not a stale local main) and run tests against the current dependency versions.
+- **Don't trust training data for library APIs.** Your knowledge cutoff may reflect a beta, a different version, or simply be wrong. Inspect the actual installed code to determine data structures: `uv run python -c "from lib import Class; print(dir(Class()))"`. Packages like pydantic-ai change fast — what you "know" about the API may be stale. If you believe an API changed but can't reproduce the error, your training data is wrong. Trust the installed version, not your memory.
 
 ## Git Workflow
 

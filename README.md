@@ -218,7 +218,7 @@ Major improvements, curated by human and Claude together.
 
 - [ ] **Consolidate beast_mode + ultra_think** — Merge into one compressed skill using skill_pruner compression methodology. Both activate deep persistence/thinking; one skill with clear modes is better than two overlapping ones.
 - [ ] **Consolidate staff_engineer + debug** — Merge into one compressed skill. Keep staff_engineer's opening principles verbatim — they're effective as-is. Debug's line-by-line audit loop becomes a section within.
-- [x] **Fix heartbeat** — Migrated from cron to macOS launchd user agent. Auth via `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (1-year token, subscription billing). Script explicitly unsets `ANTHROPIC_API_KEY` to prevent priority override. Safety bounds: 10min timeout, --max-turns 20, --max-budget-usd 1. Status file at `~/.claude/heartbeat.status` for monitoring. `make setup-heartbeat-token` guides token setup; `make install-heartbeat` installs the launchd agent.
+- [x] **Fix heartbeat** — Migrated from cron to macOS launchd user agent. Hourly wake-up, 30-min target work, 4-hour hard kill. Auth via `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (subscription billing). Uses `--permission-mode dontAsk` with explicit allowedTools. All behavior in SKILL.md (single source of truth). Three task states: Open/In Progress/Completed with sub-bullet tracking for crash recovery.
 - [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.
 
 ### Architecture

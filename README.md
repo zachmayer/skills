@@ -240,6 +240,7 @@ Major improvements, curated by human and Claude together.
 - [ ] **Claude constitution** — A skill encoding the user's values, principles, and preferences as a constitutional document. Applied when making judgment calls.
 - [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.
 - [ ] **Modal skill** — Run compute on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
+- [ ] **Reminders** — Time-aware reminder system. Agent can set reminders for the user (or itself). Heartbeat checks for due reminders on each cycle and surfaces them. Could use obsidian notes with due dates or a dedicated reminders file.
 - [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status.
 - [x] **Playwright browser automation** — Headless browser for JS-heavy pages. Unblocks web_grab for SPAs. Python Click CLI at `web_grab/scripts/fetch_page.py`.
 - [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Blocked by auth.

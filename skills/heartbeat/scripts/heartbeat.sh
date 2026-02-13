@@ -44,6 +44,13 @@ if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
     exit 1
 fi
 
+# --- Pre-flight auth check ---
+if ! claude auth status >/dev/null 2>&1; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ERROR: Auth check failed. Token may be expired. Run: make setup-heartbeat-token"
+    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) FAIL auth_expired" > "$STATUS_FILE"
+    exit 1
+fi
+
 # --- Ensure directories exist ---
 mkdir -p "$(dirname "$LOCK_FILE")" "$LOG_DIR"
 

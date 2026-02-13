@@ -102,7 +102,7 @@ setup-heartbeat-token: ## Generate OAuth token for heartbeat (interactive, one-t
 .PHONY: setup-heartbeat-token
 
 
-install-heartbeat: ## Install heartbeat launchd agent (every 4 hours)
+install-heartbeat: ## Install heartbeat launchd agent (every hour)
 	@# Validate token exists before installing
 	@if [ ! -f "$(HOME)/.claude/heartbeat.env" ]; then \
 		echo "ERROR: ~/.claude/heartbeat.env not found."; \
@@ -125,7 +125,7 @@ install-heartbeat: ## Install heartbeat launchd agent (every 4 hours)
 		> $(HEARTBEAT_PLIST); \
 	launchctl bootstrap gui/$$(id -u) $(HEARTBEAT_PLIST); \
 	echo ""; \
-	echo "Heartbeat installed (launchd, every 4 hours)."; \
+	echo "Heartbeat installed (launchd, every hour)."; \
 	echo "  Verify:  launchctl list | grep claude-heartbeat"; \
 	echo "  Logs:    tail -20 $(HEARTBEAT_LOG_DIR)/heartbeat.log"; \
 	echo "  Test:    make test-heartbeat"; \

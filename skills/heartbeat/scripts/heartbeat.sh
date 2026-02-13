@@ -6,13 +6,14 @@ set -euo pipefail
 # --- Configuration ---
 OBSIDIAN_DIR="${CLAUDE_OBSIDIAN_DIR:-$HOME/claude/obsidian}"
 OBSIDIAN_DIR="${OBSIDIAN_DIR/#\~/$HOME}"
+SKILLS_REPO="${HEARTBEAT_REPO:-$HOME/source/skills}"
 TASKS_FILE="$OBSIDIAN_DIR/heartbeat/tasks.md"
 LOCK_FILE="$HOME/.claude/heartbeat.lock"
 STATUS_FILE="$HOME/.claude/heartbeat.status"
 LOG_DIR="$OBSIDIAN_DIR/heartbeat"
-TIMEOUT_SECONDS=600  # 10 minute max per cycle
-MAX_TURNS=20
-MAX_BUDGET_USD=1
+TIMEOUT_SECONDS=14400  # 4 hour hard kill
+MAX_TURNS=200
+MAX_BUDGET_USD=5
 
 # --- PATH for launchd (doesn't source shell profile) ---
 export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
@@ -63,37 +64,35 @@ if [ ! -f "$TASKS_FILE" ]; then
     exit 0
 fi
 
-pending=$(grep -c '^\s*- \[ \]' "$TASKS_FILE" 2>/dev/null || echo "0")
-if [ "$pending" = "0" ]; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No pending tasks"
+open=$(grep -c '^\s*- \[ \]' "$TASKS_FILE" 2>/dev/null || echo "0")
+in_progress=$(grep -c '^\s*- \[~\]' "$TASKS_FILE" 2>/dev/null || echo "0")
+if [ "$open" = "0" ] && [ "$in_progress" = "0" ]; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No open or in-progress tasks"
     exit 0
 fi
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $pending pending task(s). Invoking Claude Code..."
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $open open + $in_progress in-progress task(s). Invoking Claude Code..."
 
 # --- Invoke Claude Code with safety bounds ---
 # Run in a subshell with a watchdog timer for portability (macOS lacks `timeout` by default).
 # --max-turns and --max-budget-usd provide Claude-level bounds; the watchdog catches hangs.
 set +e
 (
+    cd "$SKILLS_REPO"
     claude --print \
         --permission-mode dontAsk \
+        --add-dir "$OBSIDIAN_DIR" \
         --allowedTools Read Write Edit Glob Grep \
             "Bash(git status)" "Bash(git diff *)" "Bash(git log *)" \
             "Bash(git add *)" "Bash(git commit *)" \
+            "Bash(git checkout *)" "Bash(git branch *)" "Bash(git push *)" \
+            "Bash(gh pr create *)" "Bash(gh pr view *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
             "Bash(uv run *)" \
         --max-turns "$MAX_TURNS" \
         --max-budget-usd "$MAX_BUDGET_USD" \
         --model sonnet \
-        "You are running as an autonomous heartbeat agent. \
-Read the task file at $TASKS_FILE. Process the first unchecked task (marked with '- [ ]'). \
-After completing a task, mark it done by changing '- [ ]' to '- [x] $(date -u +%Y-%m-%dT%H:%M:%SZ):' \
-and move it to the Completed section. Only process ONE task per heartbeat cycle. \
-If you have a question for the user, write it to $OBSIDIAN_DIR/heartbeat/questions.md. \
-IMPORTANT: You run with limited permissions (dontAsk mode). You can read, edit, and search files, \
-run git read/commit commands, and run uv scripts. Any other bash commands will be silently denied. \
-If a task requires permissions you don't have, mark it as blocked with a note explaining what's needed."
+        "Use your heartbeat skill. Task file: $TASKS_FILE. Obsidian dir: $OBSIDIAN_DIR. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
 ) &
 claude_pid=$!
 

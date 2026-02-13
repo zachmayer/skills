@@ -82,6 +82,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
 | [pr_review](skills/pr_review/) | Python | External AI code review: fetch PR context via gh, send to GPT-5.2 |
+| [api_key_checker](skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
 
 ## Skill Graph
@@ -113,7 +114,7 @@ graph LR
     lean_prover --> discussion_partners
 ```
 
-Standalone skills (no imports): `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
+Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
 
 ## Install
 
@@ -239,7 +240,7 @@ Major improvements, curated by human and Claude together.
 - [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.
 - [ ] **Modal skill** — Run compute on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
 - [ ] **Reminders** — Time-aware reminder system. Agent can set reminders for the user (or itself). Heartbeat checks for due reminders on each cycle and surfaces them. Could use obsidian notes with due dates or a dedicated reminders file.
-- [ ] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status.
+- [x] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status.
 - [x] **Playwright browser automation** — Headless browser for JS-heavy pages. Unblocks web_grab for SPAs. Python Click CLI at `web_grab/scripts/fetch_page.py`.
 - [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Blocked by auth.
 - [ ] **Voice notes / audio transcription** — Whisper API or whisper.cpp. Lower the capture bar to "just talk."

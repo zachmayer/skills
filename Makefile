@@ -73,7 +73,7 @@ install-local: ## Install settings and symlink skills to ~/.claude/
 
 HEARTBEAT_LABEL := com.anthropic.claude-heartbeat
 HEARTBEAT_PLIST := $(HOME)/Library/LaunchAgents/$(HEARTBEAT_LABEL).plist
-HEARTBEAT_LOG_DIR := $(HOME)/claude/obsidian/heartbeat
+HEARTBEAT_LOG_DIR := $(HOME)/.claude/logs
 
 setup-heartbeat-token: ## Generate OAuth token for heartbeat (interactive, one-time)
 	@echo "=== Heartbeat Token Setup ==="
@@ -109,12 +109,7 @@ install-heartbeat: ## Install heartbeat launchd agent (every hour)
 		echo "Run 'make setup-heartbeat-token' first."; \
 		exit 1; \
 	fi
-	@# Create task directory and seed file
 	@mkdir -p $(HEARTBEAT_LOG_DIR)
-	@if [ ! -f $(HEARTBEAT_LOG_DIR)/tasks.md ]; then \
-		printf '# Heartbeat Tasks\n\nTasks for Claude to process on each heartbeat cycle.\n\n## Pending\n\n## Completed\n\n' > $(HEARTBEAT_LOG_DIR)/tasks.md; \
-		echo "Created task file at $(HEARTBEAT_LOG_DIR)/tasks.md"; \
-	fi
 	@SCRIPT="$$(cd $(SKILLS_DIR)/heartbeat/scripts && pwd)/heartbeat.sh"; \
 	chmod +x "$$SCRIPT"; \
 	(crontab -l 2>/dev/null || true) | sed '/heartbeat/d' | crontab -; \
@@ -138,7 +133,7 @@ uninstall-heartbeat: ## Remove heartbeat launchd agent
 	@rm -f $(HEARTBEAT_PLIST)
 	@# Also remove old cron entry if present
 	@(crontab -l 2>/dev/null || true) | sed '/heartbeat/d' | crontab -
-	@echo "Heartbeat uninstalled. Task file preserved at $(HEARTBEAT_LOG_DIR)/tasks.md"
+	@echo "Heartbeat uninstalled."
 .PHONY: uninstall-heartbeat
 
 

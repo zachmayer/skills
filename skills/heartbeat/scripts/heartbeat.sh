@@ -1,30 +1,40 @@
 #!/bin/bash
-# Heartbeat: Periodically invoke Claude Code to process pending tasks.
+# Heartbeat v2: GitHub Issues → worktree → Claude Code → branch + PR.
 # Designed for macOS launchd user agent execution.
 set -euo pipefail
 
 # --- Configuration ---
 OBSIDIAN_DIR="${CLAUDE_OBSIDIAN_DIR:-$HOME/claude/obsidian}"
 OBSIDIAN_DIR="${OBSIDIAN_DIR/#\~/$HOME}"
-SKILLS_REPO="${HEARTBEAT_REPO:-$HOME/source/skills}"
-TASKS_FILE="$OBSIDIAN_DIR/heartbeat/tasks.md"
-LOCK_FILE="$HOME/.claude/heartbeat.lock"
 STATUS_FILE="$HOME/.claude/heartbeat.status"
-LOG_DIR="$OBSIDIAN_DIR/heartbeat"
 TIMEOUT_SECONDS=14400  # 4 hour hard kill
 WORK_MINUTES=30        # target work time per cycle
 MAX_TURNS=200
 MAX_BUDGET_USD=5
 
+# --- Repo registry ---
+# Add repos here as needed. Agent checks each for unclaimed issues.
+REPOS="zachmayer/skills"
+
+# --- Issue filters (hardcoded for security — agent never constructs these) ---
+ISSUE_AUTHOR="zachmayer"
+ISSUE_LABEL="agent-task"
+
+# --- Repo clone locations (owner/repo → local path) ---
+# Add entries when adding repos to REPOS.
+repo_dir() {
+    case "$1" in
+        zachmayer/skills) echo "$HOME/source/skills" ;;
+        *) echo "$HOME/source/$(basename "$1")" ;;
+    esac
+}
+
 # --- PATH for launchd (doesn't source shell profile) ---
 export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
 # --- Auth: Use subscription via OAuth token ---
-# Explicitly unset API key so claude uses CLAUDE_CODE_OAUTH_TOKEN (subscription billing).
-# Without this, ANTHROPIC_API_KEY from the env would take priority.
 unset ANTHROPIC_API_KEY 2>/dev/null || true
 
-# Source the heartbeat env file for CLAUDE_CODE_OAUTH_TOKEN
 ENV_FILE="$HOME/.claude/heartbeat.env"
 if [ ! -f "$ENV_FILE" ]; then
     echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ERROR: Missing $ENV_FILE. Run: make setup-heartbeat-token"
@@ -44,46 +54,65 @@ if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
     exit 1
 fi
 
-# --- Pre-flight auth check ---
-# NOTE: `claude auth status` fails when Claude Code is already running (nested session check).
-# Skip the check - if the token is invalid, the main `claude` invocation will fail with a clear error.
+# --- Ensure status dir exists ---
+mkdir -p "$(dirname "$STATUS_FILE")"
 
-# --- Ensure directories exist ---
-mkdir -p "$(dirname "$LOCK_FILE")" "$LOG_DIR"
+# --- Find first unclaimed issue across all repos ---
+ISSUE_JSON=""
+ISSUE_REPO=""
+for REPO in $REPOS; do
+    ISSUE_JSON=$(gh issue list \
+        --repo "$REPO" \
+        --author "$ISSUE_AUTHOR" \
+        --label "$ISSUE_LABEL" \
+        --search "-label:in-progress" \
+        --state open \
+        --json number,title,body \
+        --limit 1 2>/dev/null || echo "[]")
 
-# --- Prevent overlapping runs ---
-if [ -f "$LOCK_FILE" ]; then
-    pid=$(cat "$LOCK_FILE" 2>/dev/null || echo "")
-    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-        echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Skipping: previous run (PID $pid) still active"
-        exit 0
+    # Check if we got a result (not empty array)
+    if [ "$ISSUE_JSON" != "[]" ] && [ -n "$ISSUE_JSON" ]; then
+        ISSUE_REPO="$REPO"
+        break
     fi
-    rm -f "$LOCK_FILE"
-fi
-echo $$ > "$LOCK_FILE"
-trap 'rm -f "$LOCK_FILE"' EXIT
+done
 
-# --- Check for pending tasks ---
-if [ ! -f "$TASKS_FILE" ]; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No task file at $TASKS_FILE"
+if [ -z "$ISSUE_REPO" ]; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No unclaimed agent-task issues found"
+    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) IDLE" > "$STATUS_FILE"
     exit 0
 fi
 
-open=$(grep -c '^\s*- \[ \]' "$TASKS_FILE" 2>/dev/null || echo "0")
-in_progress=$(grep -c '^\s*- \[~\]' "$TASKS_FILE" 2>/dev/null || echo "0")
-if [ "$open" = "0" ] && [ "$in_progress" = "0" ]; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No open or in-progress tasks"
-    exit 0
-fi
+# --- Parse issue ---
+ISSUE_NUMBER=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[0]['number'])")
+ISSUE_TITLE=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[0]['title'])")
+ISSUE_BODY=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[0]['body'])")
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $open open + $in_progress in-progress task(s). Invoking Claude Code..."
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Claiming issue #$ISSUE_NUMBER in $ISSUE_REPO: $ISSUE_TITLE"
+
+# --- Claim the issue (add in-progress label) ---
+gh issue edit "$ISSUE_NUMBER" --repo "$ISSUE_REPO" --add-label in-progress
+
+# --- Set up worktree ---
+REPO_DIR=$(repo_dir "$ISSUE_REPO")
+WORKDIR="/tmp/heartbeat-$$"
+
+cleanup() {
+    if [ -d "$WORKDIR" ]; then
+        git -C "$REPO_DIR" worktree remove "$WORKDIR" --force 2>/dev/null || true
+    fi
+}
+trap cleanup EXIT
+
+git -C "$REPO_DIR" fetch origin
+git -C "$REPO_DIR" worktree add "$WORKDIR" origin/main
+
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree created at $WORKDIR. Invoking Claude Code..."
 
 # --- Invoke Claude Code with safety bounds ---
-# Run in a subshell with a watchdog timer for portability (macOS lacks `timeout` by default).
-# --max-turns and --max-budget-usd provide Claude-level bounds; the watchdog catches hangs.
 set +e
 (
-    cd "$SKILLS_REPO"
+    cd "$WORKDIR"
     exec claude --print \
         --permission-mode dontAsk \
         --add-dir "$OBSIDIAN_DIR" \
@@ -92,18 +121,28 @@ set +e
             "Bash(git add *)" "Bash(git commit *)" \
             "Bash(git checkout *)" "Bash(git branch *)" "Bash(git push *)" \
             "Bash(git pull *)" "Bash(git fetch *)" \
-            "Bash(git -C *)" \
-            "Bash(gh pr create *)" "Bash(gh pr view *)" \
+            "Bash(git -C *)" "Bash(git worktree *)" \
+            "Bash(gh pr create *)" "Bash(gh pr view *)" "Bash(gh pr list *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
             "Bash(uv run python *)" \
         --max-turns "$MAX_TURNS" \
         --max-budget-usd "$MAX_BUDGET_USD" \
         --model opus \
-        "Use your heartbeat skill. Task file: $TASKS_FILE. Obsidian dir: $OBSIDIAN_DIR. Time limit: $WORK_MINUTES minutes. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
+        "You are the heartbeat agent. You MUST read and follow your heartbeat skill before doing anything.
+You MUST use branches and PRs for all code changes — never commit to main.
+You may overlap with other agents. Use worktrees and check open PRs before starting work to avoid duplicates.
+
+Your task: Issue #$ISSUE_NUMBER in $ISSUE_REPO — $ISSUE_TITLE
+
+<issue-body>
+$ISSUE_BODY
+</issue-body>
+
+Obsidian dir: $OBSIDIAN_DIR. Time limit: $WORK_MINUTES minutes. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
 ) &
 claude_pid=$!
 
-# Watchdog: kill claude after timeout, then force-kill stragglers
+# Watchdog: kill claude after timeout
 (
     sleep "$TIMEOUT_SECONDS"
     kill "$claude_pid" 2>/dev/null
@@ -123,13 +162,13 @@ set -e
 # --- Record outcome ---
 timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 if [ $exit_code -eq 0 ]; then
-    echo "$timestamp OK" > "$STATUS_FILE"
-    echo "[$timestamp] Heartbeat cycle complete"
+    echo "$timestamp OK issue=#$ISSUE_NUMBER repo=$ISSUE_REPO" > "$STATUS_FILE"
+    echo "[$timestamp] Heartbeat cycle complete (issue #$ISSUE_NUMBER)"
 elif [ $exit_code -eq 137 ] || [ $exit_code -eq 143 ]; then
-    echo "$timestamp TIMEOUT" > "$STATUS_FILE"
+    echo "$timestamp TIMEOUT issue=#$ISSUE_NUMBER repo=$ISSUE_REPO" > "$STATUS_FILE"
     echo "[$timestamp] ERROR: Claude killed after ${TIMEOUT_SECONDS}s timeout"
 else
-    echo "$timestamp FAIL exit=$exit_code" > "$STATUS_FILE"
+    echo "$timestamp FAIL exit=$exit_code issue=#$ISSUE_NUMBER repo=$ISSUE_REPO" > "$STATUS_FILE"
     echo "[$timestamp] ERROR: Claude exited with code $exit_code"
 fi
 

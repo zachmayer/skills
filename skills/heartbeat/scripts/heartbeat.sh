@@ -98,7 +98,7 @@ set +e
             "Bash(uv run python *)" \
         --max-turns "$MAX_TURNS" \
         --max-budget-usd "$MAX_BUDGET_USD" \
-        --model sonnet \
+        --model opus \
         "Use your heartbeat skill. Task file: $TASKS_FILE. Obsidian dir: $OBSIDIAN_DIR. Time limit: $WORK_MINUTES minutes. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
 ) &
 claude_pid=$!

@@ -114,7 +114,7 @@ def main(model: str, system: str | None, list_models: str | None, question: str 
         else:
             click.echo(f"Error from {prefix}: {msg}", err=True)
         raise SystemExit(1)
-    click.echo(result.data)
+    click.echo(result.output)
 
 
 if __name__ == "__main__":

@@ -202,7 +202,7 @@ def main(
         click.echo(f"Review failed: {e}", err=True)
         raise SystemExit(1)
 
-    click.echo(result.data)
+    click.echo(result.output)
 
 
 if __name__ == "__main__":

@@ -3,8 +3,10 @@ name: ultra_think
 description: >
   Activate extended deep thinking before responding. Use when facing complex
   architectural decisions, subtle bugs, multi-step reasoning, or any task
-  where getting it right matters more than speed. Do NOT use for simple
-  questions, quick lookups, or trivial edits.
+  where getting it right matters more than speed. Also activates when the user
+  says "beast mode", "go autonomous", or gives a large open-ended task to
+  fully solve without hand-holding. Do NOT use for simple questions, quick
+  lookups, or trivial edits.
 ---
 
 ultrathink
@@ -48,3 +50,11 @@ Functions should be small, focused, and unit tested.
 ## Math
 
 For mathematical problems, show all work using LaTeX. For counting or enumeration tasks, count elements individually and mark them as you proceed.
+
+## Persistence
+
+Keep going until the problem is fully solved. Do not stop early, do not ask the user for help unless truly blocked.
+
+Your training data is stale. Verify all library usage, APIs, and syntax via web search before using them. When the user says "resume" or "continue", find the last incomplete step and pick up from there.
+
+If tests fail, debug. If debugging fails, try a different approach. If all approaches fail, explain what you tried and why each failed.

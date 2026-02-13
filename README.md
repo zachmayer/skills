@@ -76,9 +76,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
-| [beast_mode](skills/beast_mode/) | Prompt | Maximum persistence mode: keep going until fully solved |
-| [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles and coding standards |
-| [debug](skills/debug/) | Prompt | Line-by-line code audit loop: trace values, verify behavior, fix |
+| [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
@@ -92,7 +90,6 @@ Skills reference each other to compose larger workflows:
 ```mermaid
 graph LR
     ralph_loop --> ultra_think
-    ralph_loop --> beast_mode
     ralph_loop --> staff_engineer
     ralph_loop --> ask_questions
     ralph_loop --> hierarchical_memory
@@ -115,7 +112,7 @@ graph LR
     lean_prover --> discussion_partners
 ```
 
-Standalone skills (no imports): `beast_mode`, `concise_writing`, `data_science`, `debug`, `forecast`, `gh_cli`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_pruner`, `skill_stealer`, `staff_engineer`
+Standalone skills (no imports): `concise_writing`, `data_science`, `forecast`, `gh_cli`, `mental_models`, `pdf_to_markdown`, `private_repo`, `skill_pruner`, `skill_stealer`, `staff_engineer`
 
 ## Install
 
@@ -216,8 +213,8 @@ Major improvements, curated by human and Claude together.
 
 ### Priority
 
-- [ ] **Consolidate beast_mode + ultra_think** — Merge into one compressed skill using skill_pruner compression methodology. Both activate deep persistence/thinking; one skill with clear modes is better than two overlapping ones.
-- [ ] **Consolidate staff_engineer + debug** — Merge into one compressed skill. Keep staff_engineer's opening principles verbatim — they're effective as-is. Debug's line-by-line audit loop becomes a section within.
+- [x] **Consolidate beast_mode + ultra_think** — beast_mode persistence directives folded into ultra_think as `## Persistence` section. Trigger phrases absorbed into frontmatter.
+- [x] **Consolidate staff_engineer + debug** — debug's 9-step process and 5 rules folded into staff_engineer as `## Debug Mode` section. Opening principles kept verbatim.
 - [x] **Fix heartbeat** — Migrated from cron to macOS launchd user agent. Hourly wake-up, 30-min target work, 4-hour hard kill. Auth via `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (subscription billing). Uses `--permission-mode dontAsk` with explicit allowedTools. All behavior in SKILL.md (single source of truth). Three task states: Open/In Progress/Completed with sub-bullet tracking for crash recovery.
 - [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.
 

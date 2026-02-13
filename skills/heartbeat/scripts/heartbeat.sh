@@ -88,26 +88,38 @@ ISSUE_NUMBER=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.load
 ISSUE_TITLE=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[0]['title'])")
 ISSUE_BODY=$(echo "$ISSUE_JSON" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[0]['body'])")
 
+# --- Pre-claim checks ---
+REPO_DIR=$(repo_dir "$ISSUE_REPO")
+BRANCH="heartbeat/issue-$ISSUE_NUMBER"
+
+git -C "$REPO_DIR" fetch origin
+
+# Skip if a branch already exists for this issue (prior run or another agent)
+if git -C "$REPO_DIR" ls-remote --heads origin "$BRANCH" 2>/dev/null | grep -q .; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Branch $BRANCH already exists on origin, skipping issue #$ISSUE_NUMBER"
+    exit 0
+fi
+
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Claiming issue #$ISSUE_NUMBER in $ISSUE_REPO: $ISSUE_TITLE"
 
 # --- Claim the issue (add in-progress label) ---
+# Only the shell script modifies labels — the agent never touches issue state.
 gh issue edit "$ISSUE_NUMBER" --repo "$ISSUE_REPO" --add-label in-progress
 
-# --- Set up worktree ---
-REPO_DIR=$(repo_dir "$ISSUE_REPO")
+# --- Set up worktree on a new branch ---
 WORKDIR="/tmp/heartbeat-$$"
 
 cleanup() {
     if [ -d "$WORKDIR" ]; then
         git -C "$REPO_DIR" worktree remove "$WORKDIR" --force 2>/dev/null || true
     fi
+    git -C "$REPO_DIR" worktree prune 2>/dev/null || true
 }
 trap cleanup EXIT
 
-git -C "$REPO_DIR" fetch origin
-git -C "$REPO_DIR" worktree add "$WORKDIR" origin/main
+git -C "$REPO_DIR" worktree add -b "$BRANCH" "$WORKDIR" origin/main
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree created at $WORKDIR. Invoking Claude Code..."
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree created at $WORKDIR on branch $BRANCH. Invoking Claude Code..."
 
 # --- Invoke Claude Code with safety bounds ---
 set +e
@@ -129,8 +141,7 @@ set +e
         --max-budget-usd "$MAX_BUDGET_USD" \
         --model opus \
         "You are the heartbeat agent. You MUST read and follow your heartbeat skill before doing anything.
-You MUST use branches and PRs for all code changes — never commit to main.
-You may overlap with other agents. Use worktrees and check open PRs before starting work to avoid duplicates.
+You are on branch $BRANCH in a worktree. Commit here, push, and create a PR. NEVER commit to main.
 
 Your task: Issue #$ISSUE_NUMBER in $ISSUE_REPO — $ISSUE_TITLE
 

@@ -8,24 +8,25 @@ description: >
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
 ---
 
-You are the heartbeat agent. You receive a single GitHub Issue to work on — the runner (heartbeat.sh) handles discovery and claiming. Your job: implement the task, create a PR.
+You are the heartbeat agent. You receive a single GitHub Issue to work on. The runner (heartbeat.sh) handles discovery, claiming, branch creation, and worktree setup. Your job: implement the task, create a PR.
 
 ## 1. Orient
 
 - Read the issue body in your prompt — it's your task spec (snapshot from claim time).
-- Check for existing work: `gh pr list --search "issue-$ISSUE_NUMBER"` to avoid duplicates.
-- Check `git branch -r | grep heartbeat/issue-$ISSUE_NUMBER` for existing branches.
+- You are already on a branch (`heartbeat/issue-N`) in a disposable worktree.
+- Check for existing PRs: `gh pr list --search "issue-$ISSUE_NUMBER"` to avoid duplicates.
 - Load skills you need: ultra_think, mental_models, staff_engineer, etc.
 - Read hierarchical memory for context from prior cycles.
 
 ## 2. Work
 
-Create a branch and implement the task:
+Implement the task, then commit, push, and open a PR:
 
 ```bash
-git checkout -b heartbeat/issue-N-short-description
-# ... implement, test, commit ...
-git push -u origin heartbeat/issue-N-short-description
+# ... implement and test ...
+git add <files>
+git commit -m "description"
+git push -u origin HEAD
 gh pr create --title "..." --body "Fixes #N
 
 ..."
@@ -37,8 +38,8 @@ gh pr create --title "..." --body "Fixes #N
 
 ## 3. Git Rules
 
-- **NEVER commit to main.** Always create a branch and PR.
-- **Branch naming:** `heartbeat/issue-N-short-description`
+- **NEVER commit to main.** You are on a feature branch — commit here.
+- **Do NOT create or switch branches.** The runner already set up your branch and worktree.
 - **Obsidian vault** is the only repo where direct push to main is OK.
 - Run `make test` before creating PRs when you've changed code.
 
@@ -62,7 +63,7 @@ Do NOT modify these files (they require human-authored issues with explicit inst
 
 ## 6. Parallel Safety
 
-You run in a worktree — other agents may be running concurrently in other worktrees. Always:
-- Check for existing PRs and branches before starting work.
-- Use unique branch names (issue number prevents collisions).
+You run in a worktree — other agents may be running concurrently in other worktrees.
+- The runner checks for existing branches before claiming, so collisions are unlikely.
 - If you find a duplicate PR already open for your issue, skip it and log why.
+- Do NOT modify files outside your worktree or the obsidian vault.

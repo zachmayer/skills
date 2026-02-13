@@ -25,10 +25,16 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
-    { name = "marker-pdf" },
-    { name = "playwright" },
     { name = "pydantic-ai" },
     { name = "python-frontmatter" },
+]
+
+[package.optional-dependencies]
+browser = [
+    { name = "playwright" },
+]
+pdf = [
+    { name = "marker-pdf" },
 ]
 
 [package.dev-dependencies]
@@ -43,11 +49,12 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1.0" },
-    { name = "marker-pdf", specifier = ">=1.0.0" },
-    { name = "playwright", specifier = ">=1.50.0" },
+    { name = "marker-pdf", marker = "extra == 'pdf'", specifier = ">=1.0.0" },
+    { name = "playwright", marker = "extra == 'browser'", specifier = ">=1.50.0" },
     { name = "pydantic-ai", specifier = ">=0.0.31" },
     { name = "python-frontmatter", specifier = ">=1.1.0" },
 ]
+provides-extras = ["pdf", "browser"]
 
 [package.metadata.requires-dev]
 dev = [

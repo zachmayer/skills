@@ -49,13 +49,24 @@ Use the `ralph_loop` skill methodology. Work on multiple tasks within the time l
 4. `RECURRING` tasks stay in Open — they repeat every cycle.
 5. If a task needs permissions you don't have, mark it blocked with a note.
 
-**PR workflow (for README roadmap tasks):**
-1. `git checkout main && git pull`
-2. `git checkout -b heartbeat/<short-name>`
-3. Implement, commit with descriptive message
-4. `git push -u origin heartbeat/<short-name>`
-5. `gh pr create --title "..." --body "..."`
-6. Update task sub-bullets with the PR link
+### Git rules: PRs vs direct push
+
+**MUST use a PR — any change to a codebase repo (skills, dotfiles, projects, etc.):**
+- NEVER commit directly to main in any codebase repo.
+- Always create a feature branch, push it, and open a PR. The human merges.
+- This applies to ALL code changes: bug fixes, docs updates (README, CHANGELOG), config, refactors — everything.
+
+```bash
+git checkout main && git pull
+git checkout -b heartbeat/<short-name>
+# ... implement, commit ...
+git push -u origin heartbeat/<short-name>
+gh pr create --title "..." --body "..."
+```
+
+**Direct push to main OK — obsidian vault and personal knowledge stores only:**
+- Task file updates, heartbeat log, questions, hierarchical memory, knowledge graph notes.
+- These live in the obsidian vault which is your working scratchpad.
 
 ### 3. Save state
 
@@ -67,7 +78,7 @@ git -C $OBSIDIAN_DIR commit -m "heartbeat: <summary of what changed>"
 git -C $OBSIDIAN_DIR push
 ```
 
-This covers updates to: task file, heartbeat log, questions, hierarchical memory, knowledge graph notes.
+This covers updates to: task file, heartbeat log, questions, hierarchical memory, knowledge graph notes. These are the ONLY repos where direct push to main is allowed.
 
 ## Permissions
 

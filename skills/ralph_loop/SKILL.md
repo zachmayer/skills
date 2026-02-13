@@ -99,6 +99,21 @@ You can keep working past the deadline — the user may or may not interrupt. Bu
 
 The user will read this report and decide what to do next.
 
+## Git Workflow
+
+**Use worktrees** when the current branch is occupied. Another Claude instance or your own WIP may be on a different branch. Never clobber it.
+
+```bash
+git worktree add /tmp/project-feature main
+cd /tmp/project-feature && git checkout -b ralph/feature-name
+```
+
+**Always use PRs.** Never commit directly to main. Create a feature branch, push it, and open a PR via `gh pr create`. The human merges — not you.
+
+**Atomic, independently-mergeable PRs.** Each PR should stand alone. If stories don't depend on each other, make separate PRs. The human may merge them in any order, skip some, or reject others. Design for that.
+
+**One PR per story** is the ideal. If a story is too small for its own PR, batch 2-3 related stories into one PR, but never mix unrelated changes.
+
 ## Key Principles
 
 **Fresh context per iteration**: Each story gets a clean mental slate. Re-read relevant code. Use the Task tool for sub-agents when stories are independent.

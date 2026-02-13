@@ -256,6 +256,8 @@ Major improvements, curated by human and Claude together.
 - [ ] **Multi-day/month reader helper** — Read multiple days or months in a single command for broader context.
 - [ ] **Fix install-ci after marker-pdf move** — `install-ci` needs `--only-group dev` or moving marker-pdf back to optional.
 - [ ] **Heartbeat sandboxing** — `Bash()` patterns are prefix-only string matching with 97.9% shell operator bypass rate (`&&`, `;`, `||` all pass). Current `dontAsk` + `allowedTools` is a guardrail, not a sandbox. Real threat: prompt injection via web content in tasks, not self-injection. Options: wrapper script that validates commands, nsjail/sandbox-exec, or just accept the risk for a user-owned agent.
+- [ ] **Permissions model deep research** — Claude Code's permission system is not fully understood. User has granted Read permissions but agent still asks frequently. Need comprehensive research on: (1) how .claude/settings.json interacts with CLI flags, (2) when agents inherit permissions vs need explicit grants, (3) skill-scoped `allowed-tools` frontmatter effectiveness (issue #14956), (4) subagent permission inheritance, (5) permission precedence rules (global vs project, allow vs deny). Document findings and create a reference guide.
+- [ ] **Reminders skill** — Time-aware reminder system. Agent can set reminders for the user (or itself). Heartbeat checks for due reminders on each cycle.
 
 ### Lessons Learned
 

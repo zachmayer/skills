@@ -2,10 +2,10 @@
 name: lean_prover
 description: >
   Multi-agent Lean 4 theorem proving system using blueprint-driven coordination.
-  WHEN: User wants to prove Lean 4 theorems, formalize math, work through Mathlib
-  proofs, or tackle competition problems (Putnam, IMO, MiniF2F). Also use when
+  Use when proving Lean 4 theorems, formalizing math, working through Mathlib
+  proofs, or tackling competition problems (Putnam, IMO, MiniF2F). Also use when
   orchestrating complex proof campaigns across multiple lemmas.
-  WHEN NOT: General programming, non-Lean math, or single-tactic proofs that
+  Do NOT use for general programming, non-Lean math, or single-tactic proofs that
   need no orchestration.
 ---
 

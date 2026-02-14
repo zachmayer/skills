@@ -1,0 +1,64 @@
+; Heartbeat sandbox profile for macOS sandbox-exec.
+;
+; Defense-in-depth: restricts the heartbeat process at the OS level.
+; Even if the agent is tricked into running arbitrary commands, the kernel
+; enforces these restrictions.
+;
+; Usage (in heartbeat.sh, wrapping the claude invocation):
+;   sandbox-exec -f heartbeat.sb claude --print ...
+;
+; NOTE: sandbox-exec is deprecated but functional on macOS Sonoma/Sequoia.
+; Apple has not provided a CLI replacement. The underlying kernel mechanism
+; (Seatbelt) is still actively used by macOS itself.
+;
+; To debug: change (deny default) to (deny default (with report))
+; and check /var/log/system.log for sandbox violations.
+
+(version 1)
+
+; --- Default: allow most operations ---
+; We start permissive and deny specific dangerous operations.
+; Starting with (deny default) is too restrictive for a full Claude Code
+; session that needs Python, git, gh, node, etc.
+(allow default)
+
+; --- Filesystem write restrictions ---
+; Deny writes to system directories. The agent should only write to:
+; - Its worktree (/tmp/heartbeat-*)
+; - The obsidian vault (~HOME~/claude/obsidian)
+; - Temp directories (/tmp, /private/tmp, /var/folders)
+; - ~/.claude/ (status files, logs)
+;
+; NOTE: These are examples — uncomment and customize paths after testing.
+; Starting with allow-default means these are additive restrictions.
+;
+; (deny file-write* (subpath "/System"))
+; (deny file-write* (subpath "/Library"))
+; (deny file-write* (subpath "/usr"))
+; (deny file-write* (subpath "/bin"))
+; (deny file-write* (subpath "/sbin"))
+; (deny file-write* (subpath "/Applications"))
+
+; --- Network restrictions ---
+; The heartbeat only needs to reach:
+; 1. api.anthropic.com (Claude API)
+; 2. github.com / api.github.com (git + gh CLI)
+; 3. pypi.org / files.pythonhosted.org (uv package installs)
+;
+; Full network lockdown requires (deny default) base policy.
+; With (allow default), we cannot selectively deny network — only deny all.
+; Uncomment this section if you switch to (deny default) base policy:
+;
+; (deny network*)
+; (allow network* (remote tcp "api.anthropic.com:443"))
+; (allow network* (remote tcp "github.com:443"))
+; (allow network* (remote tcp "api.github.com:443"))
+; (allow network* (remote tcp "pypi.org:443"))
+; (allow network* (remote tcp "files.pythonhosted.org:443"))
+; (allow network* (local tcp "localhost:*"))
+
+; --- Process restrictions ---
+; Prevent launching especially dangerous processes.
+; (deny process-exec (literal "/bin/rm"))  ; prevent rm directly
+; (deny process-exec (literal "/usr/bin/curl"))  ; prevent curl
+; (deny process-exec (literal "/usr/bin/wget"))  ; prevent wget (if installed)

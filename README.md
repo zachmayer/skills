@@ -61,6 +61,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
+| [vector_search](skills/vector_search/) | Python | Semantic search over memory and obsidian vault via embeddings |
 
 ### Process
 
@@ -121,6 +122,8 @@ graph LR
     session_planner --> obsidian
     daily_briefing --> hierarchical_memory
     daily_briefing --> obsidian
+    vector_search --> hierarchical_memory
+    vector_search --> obsidian
 ```
 
 Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
@@ -217,7 +220,7 @@ Rigid subdirectories (Claude creates these automatically):
 
 | Variable | Used by |
 |----------|---------|
-| `OPENAI_API_KEY` | `discussion_partners` (`openai:` and `openai-responses:` models) |
+| `OPENAI_API_KEY` | `discussion_partners` (`openai:` and `openai-responses:` models), `vector_search` (embeddings) |
 | `ANTHROPIC_API_KEY` | `discussion_partners` (`anthropic:` models) |
 | `GOOGLE_API_KEY` | `discussion_partners` (`google-gla:` models) |
 

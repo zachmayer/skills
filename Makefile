@@ -120,7 +120,7 @@ install-heartbeat: ## Install heartbeat launchd agent (every 15 min)
 		> $(HEARTBEAT_PLIST); \
 	launchctl bootstrap gui/$$(id -u) $(HEARTBEAT_PLIST); \
 	echo ""; \
-	echo "Heartbeat installed (launchd, every hour)."; \
+	echo "Heartbeat installed (launchd, every 15 min)."; \
 	echo "  Verify:  launchctl list | grep claude-heartbeat"; \
 	echo "  Logs:    tail -20 $(HEARTBEAT_LOG_DIR)/heartbeat.log"; \
 	echo "  Test:    make test-heartbeat"; \

@@ -1,0 +1,4 @@
+# Heartbeat repo list — one owner/repo per line.
+# Copy to ~/.claude/heartbeat-repos.conf to activate.
+# Lines starting with # are ignored. Blank lines are ignored.
+zachmayer/skills

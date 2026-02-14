@@ -197,6 +197,12 @@ Skills that bundle Python code use [Click](https://click.palletsprojects.com/) f
 |----------|---------|-------------|
 | `CLAUDE_OBSIDIAN_DIR` | `~/claude/obsidian` | Vault root. All paths derive from it. |
 
+### Config Files
+
+| File | Default | Description |
+|------|---------|-------------|
+| `~/.claude/heartbeat-repos.conf` | `zachmayer/skills` | Repos for heartbeat to monitor. One `owner/repo` per line. See `skills/heartbeat/heartbeat-repos.conf.example`. |
+
 Rigid subdirectories (Claude creates these automatically):
 - `memory/` — hierarchical memory (daily logs, monthly summaries, `overall_memory.md`)
 - `knowledge_graph/` — durable topic notes, personal knowledge

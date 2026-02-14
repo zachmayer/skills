@@ -19,8 +19,13 @@ MAX_TURNS=200
 MAX_BUDGET_USD=5
 
 # --- Repo registry ---
-# Space-separated list of owner/repo. Each cycle picks a random repo with issues.
-REPOS="zachmayer/skills"
+# Read from config file if present, otherwise use default.
+# Config file: one owner/repo per line, # comments allowed.
+REPOS_FILE="${HOME}/.claude/heartbeat-repos.conf"
+if [ -f "$REPOS_FILE" ]; then
+    REPOS=$(grep -v '^\s*#' "$REPOS_FILE" | grep -v '^\s*$' | tr '\n' ' ')
+fi
+REPOS="${REPOS:-zachmayer/skills}"
 
 # --- Issue filters (hardcoded for security — agent never constructs these) ---
 ISSUE_AUTHOR="zachmayer"

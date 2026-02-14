@@ -102,7 +102,7 @@ setup-heartbeat-token: ## Generate OAuth token for heartbeat (interactive, one-t
 .PHONY: setup-heartbeat-token
 
 
-install-heartbeat: ## Install heartbeat launchd agent (every hour)
+install-heartbeat: ## Install heartbeat launchd agent (every 15 min)
 	@# Validate token exists before installing
 	@if [ ! -f "$(HOME)/.claude/heartbeat.env" ]; then \
 		echo "ERROR: ~/.claude/heartbeat.env not found."; \

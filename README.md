@@ -71,6 +71,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
 | [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
 | [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
+| [complexity_router](skills/complexity_router/) | Prompt | Assess task complexity (simple/medium/complex), route to appropriate effort level |
 
 ### Build
 
@@ -115,6 +116,11 @@ graph LR
     lean_prover --> discussion_partners
     session_planner --> hierarchical_memory
     session_planner --> obsidian
+    complexity_router --> ultra_think
+    complexity_router --> ask_questions
+    complexity_router --> staff_engineer
+    complexity_router --> ralph_loop
+    complexity_router --> mental_models
 ```
 
 Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`

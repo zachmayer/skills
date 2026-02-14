@@ -19,21 +19,15 @@ MAX_TURNS=200
 MAX_BUDGET_USD=5
 
 # --- Repo registry ---
-# Currently single-repo. To add more, extend REPOS and the repo_dir() case.
+# Space-separated list of owner/repo. Each cycle picks a random repo with issues.
 REPOS="zachmayer/skills"
 
 # --- Issue filters (hardcoded for security — agent never constructs these) ---
 ISSUE_AUTHOR="zachmayer"
 ISSUE_LABEL="agent-task"
 
-# --- Repo clone locations (owner/repo → local path) ---
-# Add entries when adding repos to REPOS.
-repo_dir() {
-    case "$1" in
-        zachmayer/skills) echo "$HOME/source/skills" ;;
-        *) echo "$HOME/source/$(basename "$1")" ;;
-    esac
-}
+# --- Repo clone location (owner/repo → ~/source/repo-name) ---
+repo_dir() { echo "$HOME/source/$(basename "$1")"; }
 
 # --- PATH for launchd (doesn't source shell profile) ---
 export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
@@ -63,36 +57,51 @@ fi
 # --- Ensure status dir exists ---
 mkdir -p "$(dirname "$STATUS_FILE")"
 
-# --- Discover available issues ---
-# Fetch up to 25 open agent-task issues. Filter out issues that already have
-# heartbeat branches on origin (already claimed by an agent). Randomize the
-# remainder so parallel agents naturally diverge to different issues.
-REPO="${REPOS%% *}"  # First repo (space-separated)
-REPO_DIR=$(repo_dir "$REPO")
+# --- Discover available issues (random repo selection) ---
+# Shuffle repos so parallel agents naturally diverge. For each repo, fetch up to
+# 25 open agent-task issues and filter out ones with existing heartbeat branches
+# on origin (already claimed). Stop at the first repo that has available issues.
+REPO=""
+REPO_DIR=""
+AVAILABLE_ISSUES="[]"
+ISSUE_COUNT=0
 
-git -C "$REPO_DIR" fetch origin
+# Randomize repo order
+SHUFFLED_REPOS=$(echo "$REPOS" | tr ' ' '\n' | python3 -c "
+import sys, random
+repos = [l.strip() for l in sys.stdin if l.strip()]
+random.shuffle(repos)
+print(' '.join(repos))
+")
 
-ALL_ISSUES=$(gh issue list \
-    --repo "$REPO" \
-    --author "$ISSUE_AUTHOR" \
-    --label "$ISSUE_LABEL" \
-    --state open \
-    --json number,title,body \
-    --limit 25 2>/dev/null || echo "[]")
+for candidate in $SHUFFLED_REPOS; do
+    candidate_dir=$(repo_dir "$candidate")
+    if [ ! -d "$candidate_dir/.git" ]; then
+        echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Skipping $candidate — $candidate_dir not a git repo"
+        continue
+    fi
 
-if [ "$ALL_ISSUES" = "[]" ] || [ -z "$ALL_ISSUES" ]; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No agent-task issues found"
-    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) IDLE" > "$STATUS_FILE"
-    exit 0
-fi
+    git -C "$candidate_dir" fetch origin 2>/dev/null || continue
 
-# Get existing heartbeat branches to filter out already-claimed issues
-EXISTING_BRANCHES=$(git -C "$REPO_DIR" ls-remote --heads origin 'refs/heads/heartbeat/issue-*' 2>/dev/null \
-    | awk '{print $2}' | sed 's|refs/heads/heartbeat/issue-||' || echo "")
+    ALL_ISSUES=$(gh issue list \
+        --repo "$candidate" \
+        --author "$ISSUE_AUTHOR" \
+        --label "$ISSUE_LABEL" \
+        --state open \
+        --json number,title,body \
+        --limit 25 2>/dev/null || echo "[]")
 
-# Filter claimed issues and randomize order
-# EXISTING_BRANCHES passed via env var (not interpolated into source) to prevent injection
-AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" python3 -c "
+    if [ "$ALL_ISSUES" = "[]" ] || [ -z "$ALL_ISSUES" ]; then
+        continue
+    fi
+
+    # Get existing heartbeat branches to filter out already-claimed issues
+    EXISTING_BRANCHES=$(git -C "$candidate_dir" ls-remote --heads origin 'refs/heads/heartbeat/issue-*' 2>/dev/null \
+        | awk '{print $2}' | sed 's|refs/heads/heartbeat/issue-||' || echo "")
+
+    # Filter claimed issues and randomize order
+    # EXISTING_BRANCHES passed via env var (not interpolated into source) to prevent injection
+    AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" python3 -c "
 import sys, json, random, os
 issues = json.loads(sys.stdin.read())
 existing = set(line.strip() for line in os.environ.get('EXISTING', '').strip().split('\n') if line.strip())
@@ -101,10 +110,17 @@ random.shuffle(available)
 print(json.dumps(available))
 ")
 
-ISSUE_COUNT=$(echo "$AVAILABLE_ISSUES" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
+    ISSUE_COUNT=$(echo "$AVAILABLE_ISSUES" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
 
-if [ "$ISSUE_COUNT" = "0" ]; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] All agent-task issues already have branches (claimed)"
+    if [ "$ISSUE_COUNT" != "0" ]; then
+        REPO="$candidate"
+        REPO_DIR="$candidate_dir"
+        break
+    fi
+done
+
+if [ -z "$REPO" ]; then
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No available agent-task issues in any repo"
     echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) IDLE" > "$STATUS_FILE"
     exit 0
 fi
@@ -120,7 +136,7 @@ for i in json.loads(sys.stdin.read()):
     print()
 ")
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $ISSUE_COUNT available issues. Creating worktree..."
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $ISSUE_COUNT available issues in $REPO. Creating worktree..."
 
 # --- Clean stale local heartbeat branches ---
 # If a prior run was killed after creating a local branch but before pushing,

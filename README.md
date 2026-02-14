@@ -49,6 +49,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [web_grab](skills/web_grab/) | Python | Fetch URL content and save to obsidian — Playwright for JS SPAs |
 | [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
 | [remember_session](skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
+| [mobile_bridge](skills/mobile_bridge/) | Python | Capture phone messages into memory/obsidian via ntfy |
 | [skill_stealer](skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
 
 ### Organize
@@ -116,6 +117,8 @@ graph LR
     obsidian --> private_repo
     hierarchical_memory --> private_repo
     web_grab --> obsidian
+    mobile_bridge --> hierarchical_memory
+    mobile_bridge --> obsidian
     lean_prover --> discussion_partners
     session_planner --> hierarchical_memory
     session_planner --> obsidian
@@ -202,6 +205,7 @@ Skills that bundle Python code use [Click](https://click.palletsprojects.com/) f
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `CLAUDE_OBSIDIAN_DIR` | `~/claude/obsidian` | Vault root. All paths derive from it. |
+| `CLAUDE_NTFY_TOPIC` | *(none)* | ntfy topic for mobile bridge capture. |
 
 ### Config Files
 

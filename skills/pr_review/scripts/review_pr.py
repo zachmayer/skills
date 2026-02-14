@@ -31,6 +31,14 @@ PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {
     ),
 }
 
+
+def _cap_reasoning_effort(model: str, thinking: dict[str, Any]) -> dict[str, Any]:
+    """Cap reasoning effort to 'high' for mini models (they don't support 'xhigh')."""
+    if "mini" in model and thinking.get("openai_reasoning_effort") == "xhigh":
+        return {**thinking, "openai_reasoning_effort": "high"}
+    return thinking
+
+
 REVIEW_SYSTEM = (
     "You are an expert code reviewer. Review the PR diff and report findings.\n"
     "Rules:\n"
@@ -187,6 +195,7 @@ def main(
         raise click.BadParameter(f"Unknown prefix '{prefix}'. Known: {known}")
 
     key_name, thinking = config
+    thinking = _cap_reasoning_effort(model, thinking)
     if not os.environ.get(key_name):
         shell = "~/.zshrc" if sys.platform == "darwin" else "~/.bashrc"
         click.echo(f"{key_name} not set. Add to {shell}.", err=True)

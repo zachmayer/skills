@@ -35,6 +35,13 @@ PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {
 }
 
 
+def _cap_reasoning_effort(model: str, thinking: dict[str, Any]) -> dict[str, Any]:
+    """Cap reasoning effort to 'high' for mini models (they don't support 'xhigh')."""
+    if "mini" in model and thinking.get("openai_reasoning_effort") == "xhigh":
+        return {**thinking, "openai_reasoning_effort": "high"}
+    return thinking
+
+
 def _parse_provider(model: str) -> tuple[str, str, dict[str, Any]]:
     """Parse 'prefix:model_name' → (env_var, key_name, thinking_settings).
 
@@ -49,6 +56,7 @@ def _parse_provider(model: str) -> tuple[str, str, dict[str, Any]]:
             param_hint="'--model'",
         )
     key_name, thinking = config
+    thinking = _cap_reasoning_effort(model, thinking)
     return key_name, prefix, thinking
 
 

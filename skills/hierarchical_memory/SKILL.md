@@ -22,6 +22,7 @@ Set `CLAUDE_OBSIDIAN_DIR` to change the vault root. All paths derive from it.
 | `read-month [YYYY-MM]` | Output a month's summary (default: current) |
 | `read-overall` | Output overall_memory.md |
 | `read-current` | Output overall + current month + today in one call |
+| `freshness [--days N]` | Flag dated facts in overall_memory.md older than N days (default: 30) |
 | `status` | Show aggregation staleness |
 
 ## Commands
@@ -129,7 +130,26 @@ The `note` command reports staleness after each save. Finish all your notes firs
 
 ## Fact Freshness
 
-Key facts in `overall_memory.md` can go stale — jobs change, preferences evolve, projects wind down. When relying on a fact from memory that seems like it could have changed (employment, location, active projects, tool preferences), consider asking the user to confirm it's still current rather than assuming. This is especially true for facts that are months old. Don't be annoying about it — just be aware that memory is a snapshot, not a live feed.
+Key facts in `overall_memory.md` can go stale — jobs change, preferences evolve, projects wind down.
+
+### Check freshness
+```bash
+uv run --directory SKILL_DIR python scripts/memory.py freshness
+uv run --directory SKILL_DIR python scripts/memory.py freshness --days 60
+```
+
+Scans `overall_memory.md` for lines with date references (YYYY-MM-DD, "Feb 2026", YYYY-MM) and flags those older than `--days` (default: 30). Also reports overall file age.
+
+The `read-overall` and `read-current` commands automatically print a warning when `overall_memory.md` is older than 30 days.
+
+### When to verify
+When relying on a fact from memory that seems like it could have changed (employment, location, active projects, tool preferences, deadlines), consider asking the user to confirm. Especially:
+- Facts with dates >30 days old
+- "Current" projects or active engagements
+- Version numbers, tool choices, pricing
+- Deadlines that may have passed
+
+Don't be annoying about it — just be aware that memory is a snapshot, not a live feed.
 
 ## Git Integration
 

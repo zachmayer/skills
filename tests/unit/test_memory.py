@@ -325,3 +325,204 @@ class TestComputeStaleness:
         report = memory._compute_staleness()
         assert report is not None
         assert report.overall == "UPDATE"
+
+
+class TestParseMonthName:
+    def test_standard_months(self) -> None:
+        assert memory._parse_month_name("Jan") == 1
+        assert memory._parse_month_name("February") == 2
+        assert memory._parse_month_name("Dec") == 12
+
+    def test_case_insensitive(self) -> None:
+        assert memory._parse_month_name("jan") == 1
+        assert memory._parse_month_name("MARCH") == 3
+
+    def test_unknown(self) -> None:
+        assert memory._parse_month_name("xyz") == 0
+
+
+class TestExtractDatedFacts:
+    def test_iso_date(self) -> None:
+        content = "- **2026-01-15**: something happened\n"
+        now = datetime(2026, 2, 14)
+        facts = memory._extract_dated_facts(content, now)
+        assert len(facts) == 1
+        assert facts[0].date == datetime(2026, 1, 15)
+        assert facts[0].age_days == 30
+
+    def test_month_year(self) -> None:
+        content = "- Completed in Feb 2026\n"
+        now = datetime(2026, 3, 15)
+        facts = memory._extract_dated_facts(content, now)
+        assert len(facts) == 1
+        assert facts[0].date == datetime(2026, 2, 1)
+        assert facts[0].age_days == 42
+
+    def test_yyyy_mm(self) -> None:
+        content = "- Summary for 2026-01\n"
+        now = datetime(2026, 2, 14)
+        facts = memory._extract_dated_facts(content, now)
+        assert len(facts) == 1
+        assert facts[0].date == datetime(2026, 1, 1)
+
+    def test_skips_headers(self) -> None:
+        content = "# Header 2026-01-01\n- body 2026-01-02\n"
+        now = datetime(2026, 2, 14)
+        facts = memory._extract_dated_facts(content, now)
+        assert len(facts) == 1
+        assert facts[0].text == "- body 2026-01-02"
+
+    def test_skips_empty_lines(self) -> None:
+        content = "\n\n- fact 2026-01-01\n\n"
+        now = datetime(2026, 2, 14)
+        facts = memory._extract_dated_facts(content, now)
+        assert len(facts) == 1
+
+    def test_multiple_dates_uses_latest(self) -> None:
+        content = "- Started 2025-01-01 completed 2026-01-15\n"
+        now = datetime(2026, 2, 14)
+        facts = memory._extract_dated_facts(content, now)
+        assert len(facts) == 1
+        assert facts[0].date == datetime(2026, 1, 15)
+
+    def test_no_dates(self) -> None:
+        content = "- A fact without any date\n- Another one\n"
+        facts = memory._extract_dated_facts(content)
+        assert len(facts) == 0
+
+    def test_iso_preferred_over_month_year(self) -> None:
+        content = "- Event on 2026-02-14 in Feb 2025\n"
+        now = datetime(2026, 3, 1)
+        facts = memory._extract_dated_facts(content, now)
+        assert len(facts) == 1
+        # ISO date 2026-02-14 is more specific and should be picked
+        assert facts[0].date == datetime(2026, 2, 14)
+
+    def test_line_numbers_correct(self) -> None:
+        content = "# Header\n\n- First 2026-01-01\n- Second 2026-01-02\n"
+        facts = memory._extract_dated_facts(content, datetime(2026, 2, 1))
+        assert len(facts) == 2
+        assert facts[0].line_num == 3
+        assert facts[1].line_num == 4
+
+
+class TestOverallAgeDays:
+    def test_no_file(self, mem_dir: Path) -> None:
+        assert memory._overall_age_days() is None
+
+    def test_with_file(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text("# Overall\n")
+        age = memory._overall_age_days()
+        assert age is not None
+        assert age >= 0
+        # File just created — should be 0 days old
+        assert age == 0
+
+
+class TestFreshnessWarning:
+    def test_no_file(self, mem_dir: Path) -> None:
+        assert memory._freshness_warning() is None
+
+    def test_fresh_file(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text("# Overall\n")
+        # Just created, so should be fresh
+        assert memory._freshness_warning() is None
+
+    def test_stale_file(self, mem_dir: Path) -> None:
+        path = mem_dir / "overall_memory.md"
+        path.write_text("# Overall\n")
+        # Set mtime to 60 days ago
+        import os
+
+        old_time = time.time() - 60 * 86400
+        os.utime(path, (old_time, old_time))
+        warning = memory._freshness_warning()
+        assert warning is not None
+        assert "60 days old" in warning
+        assert "freshness" in warning.lower()
+
+
+class TestFreshnessCommand:
+    def test_no_overall(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["freshness"])
+        assert result.exit_code == 0
+        assert "No overall memory file found" in result.output
+
+    def test_no_dated_facts(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text("# Overall\n\n- A fact without dates\n")
+        result = CliRunner().invoke(memory.cli, ["freshness"])
+        assert result.exit_code == 0
+        assert "No dated facts found" in result.output
+
+    def test_fresh_facts(self, mem_dir: Path) -> None:
+        today = datetime.now().strftime("%Y-%m-%d")
+        (mem_dir / "overall_memory.md").write_text(f"# Overall\n\n- Recent fact {today}\n")
+        result = CliRunner().invoke(memory.cli, ["freshness"])
+        assert result.exit_code == 0
+        assert "0 stale" in result.output
+
+    def test_stale_facts(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text(
+            "# Overall\n\n- Old fact 2020-01-01\n- Fresh fact 2099-12-31\n"
+        )
+        result = CliRunner().invoke(memory.cli, ["freshness"])
+        assert result.exit_code == 0
+        assert "STALE" in result.output
+        assert "1 stale" in result.output
+        assert "1 fresh" in result.output
+        assert "verifying stale facts" in result.output.lower()
+
+    def test_custom_days(self, mem_dir: Path) -> None:
+        today = datetime.now().strftime("%Y-%m-%d")
+        (mem_dir / "overall_memory.md").write_text(f"# Overall\n\n- Fact from {today}\n")
+        # With --days 0, even today's fact should be "stale" (age_days >= 0)
+        result = CliRunner().invoke(memory.cli, ["freshness", "--days", "0"])
+        assert result.exit_code == 0
+        assert "STALE" in result.output
+
+    def test_truncates_long_lines(self, mem_dir: Path) -> None:
+        long_fact = "- " + "x" * 200 + " 2020-01-01"
+        (mem_dir / "overall_memory.md").write_text(f"# Overall\n\n{long_fact}\n")
+        result = CliRunner().invoke(memory.cli, ["freshness"])
+        assert result.exit_code == 0
+        assert "..." in result.output
+
+
+class TestReadOverallFreshness:
+    def test_fresh_no_warning(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text("# Overall\nContent here.\n")
+        result = CliRunner().invoke(memory.cli, ["read-overall"])
+        assert result.exit_code == 0
+        assert "[Freshness]" not in result.output
+        assert "Content here" in result.output
+
+    def test_stale_shows_warning(self, mem_dir: Path) -> None:
+        path = mem_dir / "overall_memory.md"
+        path.write_text("# Overall\nContent here.\n")
+        import os
+
+        old_time = time.time() - 60 * 86400
+        os.utime(path, (old_time, old_time))
+        result = CliRunner().invoke(memory.cli, ["read-overall"])
+        assert result.exit_code == 0
+        assert "[Freshness]" in result.output
+        assert "Content here" in result.output
+
+
+class TestReadCurrentFreshness:
+    def test_stale_shows_warning(self, mem_dir: Path) -> None:
+        path = mem_dir / "overall_memory.md"
+        path.write_text("# Overall\nContent.\n")
+        import os
+
+        old_time = time.time() - 45 * 86400
+        os.utime(path, (old_time, old_time))
+        result = CliRunner().invoke(memory.cli, ["read-current"])
+        assert result.exit_code == 0
+        assert "[Freshness]" in result.output
+
+    def test_fresh_no_warning(self, mem_dir: Path) -> None:
+        (mem_dir / "overall_memory.md").write_text("# Overall\nContent.\n")
+        result = CliRunner().invoke(memory.cli, ["read-current"])
+        assert result.exit_code == 0
+        assert "[Freshness]" not in result.output

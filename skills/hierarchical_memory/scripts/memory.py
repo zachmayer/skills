@@ -23,6 +23,14 @@ DAILY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}\.md$")
 MONTHLY_RE = re.compile(r"^\d{4}-\d{2}\.md$")
 OVERALL_FILENAME = "overall_memory.md"
 
+# Freshness: date patterns to extract from memory content
+_ISO_DATE_RE = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
+_MONTH_YEAR_RE = re.compile(
+    r"\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+(\d{4})\b", re.IGNORECASE
+)
+_YYYY_MM_RE = re.compile(r"\b(\d{4}-\d{2})\b")
+DEFAULT_FRESHNESS_DAYS = 30
+
 
 def classify_file(filename: str) -> str:
     """Classify a memory file as 'daily', 'monthly', 'overall', or 'unknown'."""
@@ -72,6 +80,107 @@ def _repo_name() -> str:
     except (subprocess.TimeoutExpired, FileNotFoundError):
         pass
     return "shell"
+
+
+def _parse_month_name(name: str) -> int:
+    """Convert month name abbreviation to month number."""
+    months = {
+        "jan": 1,
+        "feb": 2,
+        "mar": 3,
+        "apr": 4,
+        "may": 5,
+        "jun": 6,
+        "jul": 7,
+        "aug": 8,
+        "sep": 9,
+        "oct": 10,
+        "nov": 11,
+        "dec": 12,
+    }
+    return months.get(name[:3].lower(), 0)
+
+
+@dataclass
+class DatedFact:
+    """A line from overall_memory.md with an extracted date."""
+
+    line_num: int
+    text: str
+    date: datetime
+    age_days: int
+
+
+def _extract_dated_facts(content: str, now: datetime | None = None) -> list[DatedFact]:
+    """Extract lines with date references from overall_memory.md content."""
+    if now is None:
+        now = datetime.now()
+    facts: list[DatedFact] = []
+    seen_lines: set[int] = set()
+
+    for i, line in enumerate(content.splitlines(), 1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+
+        best_date: datetime | None = None
+
+        # Try ISO dates first (most specific)
+        for m in _ISO_DATE_RE.finditer(line):
+            try:
+                d = datetime.strptime(m.group(1), "%Y-%m-%d")
+                if best_date is None or d > best_date:
+                    best_date = d
+            except ValueError:
+                continue
+
+        # Try "Month YYYY" patterns
+        if best_date is None:
+            for m in _MONTH_YEAR_RE.finditer(line):
+                month_num = _parse_month_name(m.group(1))
+                year = int(m.group(2))
+                if month_num and 2000 <= year <= 2100:
+                    d = datetime(year, month_num, 1)
+                    if best_date is None or d > best_date:
+                        best_date = d
+
+        # Try YYYY-MM patterns (but not if already matched as YYYY-MM-DD)
+        if best_date is None:
+            for m in _YYYY_MM_RE.finditer(line):
+                try:
+                    d = datetime.strptime(m.group(1), "%Y-%m")
+                    if best_date is None or d > best_date:
+                        best_date = d
+                except ValueError:
+                    continue
+
+        if best_date is not None and i not in seen_lines:
+            seen_lines.add(i)
+            age = (now - best_date).days
+            facts.append(DatedFact(line_num=i, text=stripped, date=best_date, age_days=age))
+
+    return facts
+
+
+def _overall_age_days(now: datetime | None = None) -> int | None:
+    """Return days since overall_memory.md was last modified, or None if missing."""
+    path = MEMORY_DIR / OVERALL_FILENAME
+    if not path.exists():
+        return None
+    if now is None:
+        now = datetime.now()
+    mtime = datetime.fromtimestamp(path.stat().st_mtime)
+    return (now - mtime).days
+
+
+def _freshness_warning(now: datetime | None = None) -> str | None:
+    """Return a one-line freshness warning if overall_memory.md is stale, else None."""
+    age = _overall_age_days(now)
+    if age is None:
+        return None
+    if age >= DEFAULT_FRESHNESS_DAYS:
+        return f"[Freshness] overall_memory.md is {age} days old — facts may be stale. Run `freshness` to check."
+    return None
 
 
 @dataclass
@@ -237,9 +346,12 @@ def read_month(month_str: str) -> None:
 
 @cli.command(name="read-overall")
 def read_overall() -> None:
-    """Output overall_memory.md."""
+    """Output overall_memory.md with freshness warning if stale."""
     path = MEMORY_DIR / OVERALL_FILENAME
     if path.exists():
+        warning = _freshness_warning()
+        if warning:
+            click.echo(warning + "\n")
         click.echo(path.read_text())
     else:
         click.echo("No overall memory file found.")
@@ -253,6 +365,9 @@ def read_current() -> None:
     day_path = daily_path()
 
     if overall_path.exists():
+        warning = _freshness_warning()
+        if warning:
+            click.echo(warning + "\n")
         click.echo("## Overall Memory\n")
         click.echo(overall_path.read_text())
     else:
@@ -273,6 +388,43 @@ def read_current() -> None:
         click.echo(day_path.read_text())
     else:
         click.echo(f"## Today ({datetime.now().strftime('%Y-%m-%d')})\n\n(no notes yet)\n")
+
+
+@cli.command()
+@click.option(
+    "--days", default=DEFAULT_FRESHNESS_DAYS, help="Flag facts older than this many days."
+)
+def freshness(days: int) -> None:
+    """Check fact freshness in overall_memory.md. Flags dated facts older than --days."""
+    path = MEMORY_DIR / OVERALL_FILENAME
+    if not path.exists():
+        click.echo("No overall memory file found.")
+        return
+
+    age = _overall_age_days()
+    click.echo("## Fact Freshness Report\n")
+    click.echo(f"overall_memory.md last modified: {age} days ago\n")
+
+    content = path.read_text()
+    facts = _extract_dated_facts(content)
+
+    if not facts:
+        click.echo("No dated facts found in overall_memory.md.")
+        return
+
+    stale = [f for f in facts if f.age_days >= days]
+    fresh = [f for f in facts if f.age_days < days]
+
+    if stale:
+        click.echo(f"**STALE** ({len(stale)} facts older than {days} days):\n")
+        for f in sorted(stale, key=lambda x: x.age_days, reverse=True):
+            truncated = f.text[:120] + "..." if len(f.text) > 120 else f.text
+            click.echo(f"  L{f.line_num} ({f.age_days}d): {truncated}")
+        click.echo()
+
+    click.echo(f"**Summary**: {len(stale)} stale, {len(fresh)} fresh (of {len(facts)} dated facts)")
+    if stale:
+        click.echo("\nConsider verifying stale facts with the user before relying on them.")
 
 
 @cli.command()

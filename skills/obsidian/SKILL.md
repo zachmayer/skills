@@ -4,10 +4,12 @@ description: >
   Read, write, and search notes in an Obsidian vault stored as plain markdown files.
   Use when the user wants to create a note, find a note, list notes, or link notes together.
   Do NOT use for code-specific documentation (use CLAUDE.md or AGENTS.md instead).
-allowed-tools: Bash(git *), Read, Write, Glob, Grep
+allowed-tools: Bash(git *), Bash(uv run python *), Read, Write, Glob, Grep
 ---
 
 Manage notes in the Obsidian vault. The vault root is set by `CLAUDE_OBSIDIAN_DIR` (default: `~/claude/obsidian`). Follows a **nested MOC (Map of Content)** pattern: atomic notes linked through hub pages in a hub-and-spoke hierarchy.
+
+`SKILL_DIR` is the directory containing this SKILL.md file.
 
 ## MANDATORY: Source and Date Metadata
 
@@ -92,6 +94,41 @@ Date: 2026-02-09
 - **New topic, first note** — create a standalone atomic note. Link to parent MOC.
 - **3+ notes on a sub-topic** — promote: create a sub-MOC hub, move atomic links under it, update parent MOC to point to the sub-hub.
 - **Web grabs** — always create atomic notes. Link to the nearest existing hub or create one.
+
+## Staleness: Auto-Refresh Stale Notes
+
+Notes with a Source URL go stale over time. **When you read a note and it's stale, refresh it.**
+
+### Check before reading
+
+When reading a knowledge graph note, check its staleness first:
+
+```bash
+uv run python SKILL_DIR/scripts/check_staleness.py check "<note_path>" --days 90
+```
+
+Exit code 1 = stale. If stale:
+1. Re-fetch the Source URL using `web_grab` or `WebFetch`
+2. Update the note content with current information
+3. Update the `Date:` to today
+4. Commit and push the vault
+
+### Periodic audit
+
+Run periodically (or during heartbeat cycles) to find all stale notes:
+
+```bash
+uv run python SKILL_DIR/scripts/check_staleness.py audit
+uv run python SKILL_DIR/scripts/check_staleness.py stale-urls  # machine-readable
+```
+
+The `stale-urls` command outputs `<path>|<url>|<age_days>` — pipe into a refresh loop.
+
+### What counts as stale
+
+- Note has a `Source:` that is an HTTP/HTTPS URL
+- Note has a `Date:` older than 90 days (configurable with `--days`)
+- Notes without a Date or without a Source URL are not "stale" — they're "broken" (missing metadata)
 
 ## Finding Notes
 

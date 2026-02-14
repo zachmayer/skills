@@ -325,3 +325,84 @@ class TestComputeStaleness:
         report = memory._compute_staleness()
         assert report is not None
         assert report.overall == "UPDATE"
+
+
+class TestSearchCommand:
+    def test_basic_keyword_search(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- deployed pydantic v2\n- fixed bug\n")
+        result = CliRunner().invoke(memory.cli, ["search", "pydantic"])
+        assert result.exit_code == 0
+        assert "pydantic" in result.output
+        assert "2026-01-15.md" in result.output
+        assert "1 match(es) in 1 file(s)" in result.output
+
+    def test_regex_pattern(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- PR #42 merged\n- PR #99 opened\n")
+        result = CliRunner().invoke(memory.cli, ["search", r"PR #\d+"])
+        assert result.exit_code == 0
+        assert "2 match(es)" in result.output
+
+    def test_case_insensitive(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- Fixed BUG in auth\n")
+        result = CliRunner().invoke(memory.cli, ["search", "bug"])
+        assert result.exit_code == 0
+        assert "BUG" in result.output
+
+    def test_no_matches(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- nothing here\n")
+        result = CliRunner().invoke(memory.cli, ["search", "nonexistent"])
+        assert result.exit_code == 0
+        assert "No matches" in result.output
+
+    def test_empty_dir(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["search", "test"])
+        assert result.exit_code == 0
+        assert "No memory files to search" in result.output
+
+    def test_filter_by_type_daily(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- keyword in daily\n")
+        (mem_dir / "2026-01.md").write_text("# Monthly\n\n- keyword in monthly\n")
+        result = CliRunner().invoke(memory.cli, ["search", "keyword", "--type", "daily"])
+        assert result.exit_code == 0
+        assert "2026-01-15.md" in result.output
+        assert "2026-01.md" not in result.output
+
+    def test_filter_by_type_monthly(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- keyword in daily\n")
+        (mem_dir / "2026-01.md").write_text("# Monthly\n\n- keyword in monthly\n")
+        result = CliRunner().invoke(memory.cli, ["search", "keyword", "--type", "monthly"])
+        assert result.exit_code == 0
+        assert "2026-01.md" in result.output
+        assert "2026-01-15.md" not in result.output
+
+    def test_context_lines(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("line1\nline2\ntarget\nline4\nline5\n")
+        result = CliRunner().invoke(memory.cli, ["search", "target", "-C", "1"])
+        assert result.exit_code == 0
+        assert "line2" in result.output
+        assert "line4" in result.output
+
+    def test_multiple_files(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n\n- found match here\n")
+        (mem_dir / "2026-02-01.md").write_text("# Notes\n\n- found match there\n")
+        result = CliRunner().invoke(memory.cli, ["search", "found match"])
+        assert result.exit_code == 0
+        assert "2 match(es) in 2 file(s)" in result.output
+
+    def test_invalid_regex(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n")
+        result = CliRunner().invoke(memory.cli, ["search", "[invalid"])
+        assert result.exit_code != 0
+
+    def test_match_lines_marked(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("no match\nyes match\nno match\n")
+        result = CliRunner().invoke(memory.cli, ["search", "yes match"])
+        assert result.exit_code == 0
+        # Match lines are prefixed with >
+        assert "> 2: yes match" in result.output
+
+    def test_filter_no_matching_type(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-15.md").write_text("# Notes\n")
+        result = CliRunner().invoke(memory.cli, ["search", "test", "--type", "overall"])
+        assert result.exit_code == 0
+        assert "No overall files to search" in result.output

@@ -334,5 +334,79 @@ def status() -> None:
                 click.echo(f"  - ... and {len(subdirs[subdir]) - 5} more")
 
 
+@cli.command()
+@click.argument("pattern")
+@click.option(
+    "--type",
+    "file_type",
+    type=click.Choice(["all", "daily", "monthly", "overall"]),
+    default="all",
+    help="Filter by file type.",
+)
+@click.option(
+    "--context",
+    "-C",
+    "context_lines",
+    type=int,
+    default=0,
+    help="Lines of context around each match.",
+)
+def search(pattern: str, file_type: str, context_lines: int) -> None:
+    """Search memory files for a regex pattern.
+
+    Searches all .md files in the memory directory. Shows matching lines
+    with filename and line number. Supports full Python regex syntax.
+    """
+    try:
+        regex = re.compile(pattern, re.IGNORECASE)
+    except re.error as e:
+        raise click.BadParameter(f"Invalid regex: {e}", param_hint="'pattern'") from e
+
+    md_files = sorted(MEMORY_DIR.glob("*.md"))
+    if not md_files:
+        click.echo("No memory files to search.")
+        return
+
+    if file_type != "all":
+        md_files = [f for f in md_files if classify_file(f.name) == file_type]
+        if not md_files:
+            click.echo(f"No {file_type} files to search.")
+            return
+
+    total_matches = 0
+    files_with_matches = 0
+
+    for filepath in md_files:
+        lines = filepath.read_text().splitlines()
+        match_indices = [i for i, line in enumerate(lines) if regex.search(line)]
+
+        if not match_indices:
+            continue
+
+        files_with_matches += 1
+        total_matches += len(match_indices)
+        click.echo(f"\n## {filepath.name}")
+
+        # Build set of lines to display (matches + context)
+        display_lines: set[int] = set()
+        for idx in match_indices:
+            start = max(0, idx - context_lines)
+            end = min(len(lines), idx + context_lines + 1)
+            display_lines.update(range(start, end))
+
+        prev_line_num = -2  # Track gaps for separator
+        for line_num in sorted(display_lines):
+            if line_num > prev_line_num + 1 and prev_line_num >= 0:
+                click.echo("  ...")
+            prefix = ">" if line_num in match_indices else " "
+            click.echo(f"  {prefix} {line_num + 1}: {lines[line_num]}")
+            prev_line_num = line_num
+
+    if total_matches == 0:
+        click.echo(f"No matches for '{pattern}'.")
+    else:
+        click.echo(f"\n{total_matches} match(es) in {files_with_matches} file(s).")
+
+
 if __name__ == "__main__":
     cli()

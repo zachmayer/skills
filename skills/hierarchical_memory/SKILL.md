@@ -18,6 +18,7 @@ Set `CLAUDE_OBSIDIAN_DIR` to change the vault root. All paths derive from it.
 |---------|-------------|
 | `note "text"` | Append timestamped line to today, report aggregation staleness |
 | `list` | List all memory files with type and date |
+| `search "pattern"` | Regex/keyword search across memory files |
 | `read-day [YYYY-MM-DD]` | Output a day's content (default: today) |
 | `read-month [YYYY-MM]` | Output a month's summary (default: current) |
 | `read-overall` | Output overall_memory.md |
@@ -38,6 +39,21 @@ Where `SKILL_DIR` is the directory containing this skill.
 uv run --directory SKILL_DIR python scripts/memory.py note "Your note text here"
 ```
 Appends: `- **TIMESTAMP** [hostname:reponame]: TEXT` to today's daily file. Prints a staleness one-liner after saving — e.g. `Aggregation stale: 2026-02 CREATE, overall UPDATE` or `Aggregation: up to date`.
+
+### Search memory
+```bash
+# Simple keyword search (case-insensitive)
+uv run --directory SKILL_DIR python scripts/memory.py search "pydantic"
+
+# Regex pattern
+uv run --directory SKILL_DIR python scripts/memory.py search "PR #\d+"
+
+# Filter by file type: daily, monthly, or overall
+uv run --directory SKILL_DIR python scripts/memory.py search "deploy" --type daily
+
+# Show context lines around matches
+uv run --directory SKILL_DIR python scripts/memory.py search "bug" -C 2
+```
 
 ### Readers
 
@@ -95,17 +111,8 @@ $CLAUDE_OBSIDIAN_DIR/memory/
 | Big picture facts, preferences, context | `overall_memory.md` | Synthesized, compressed — current state of the world |
 | Time period context | `YYYY-MM.md` | Themed detail for a specific month |
 | Specific details | `YYYY-MM-DD.md` | Raw, unfiltered daily entries |
+| Keyword/regex across all memory | `search "pattern"` | Fast search with file and line context |
 | Curated knowledge | `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/` | Durable topic notes, personal knowledge base |
-
-For keyword search, use Grep/Glob directly on the memory directory:
-
-```bash
-# Find memory files by name pattern
-Glob("$CLAUDE_OBSIDIAN_DIR/memory/*.md")
-
-# Search memory contents for a keyword
-Grep(pattern="search term", path="$CLAUDE_OBSIDIAN_DIR/memory/")
-```
 
 ## Aggregation
 

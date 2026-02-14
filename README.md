@@ -56,7 +56,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous maintenance: aggregate memory, process tasks |
+| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous agent: picks up GitHub Issues, creates PRs |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
@@ -199,7 +199,6 @@ Skills that bundle Python code use [Click](https://click.palletsprojects.com/) f
 
 Rigid subdirectories (Claude creates these automatically):
 - `memory/` — hierarchical memory (daily logs, monthly summaries, `overall_memory.md`)
-- `heartbeat/` — task queue, questions, logs
 - `knowledge_graph/` — durable topic notes, personal knowledge
 
 ### API Keys
@@ -214,71 +213,26 @@ Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources 
 
 ## Roadmap
 
-Major improvements, curated by human and Claude together.
+Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `agent-task` for heartbeat to pick up, `enhancement` for roadmap items.
 
-### Priority
+### Completed
 
-- [x] **Consolidate beast_mode + ultra_think** — beast_mode persistence directives folded into ultra_think as `## Persistence` section. Trigger phrases absorbed into frontmatter.
-- [x] **Consolidate staff_engineer + debug** — debug's 9-step process and 5 rules folded into staff_engineer as `## Debug Mode` section. Opening principles kept verbatim.
-- [x] **Fix heartbeat** — Migrated from cron to macOS launchd user agent. Hourly wake-up, 30-min target work, 4-hour hard kill. Auth via `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (subscription billing). Uses `--permission-mode dontAsk` with explicit allowedTools. All behavior in SKILL.md (single source of truth). Three task states: Open/In Progress/Completed with sub-bullet tracking for crash recovery.
-- [ ] **Reorganize README skill index** — Current groupings (Capture/Organize/Process/Build) need updating after FT consolidation and upcoming skill merges. Rethink categories.
+- **Consolidate beast_mode + ultra_think** — persistence directives folded into ultra_think.
+- **Consolidate staff_engineer + debug** — debug's 9-step process folded into staff_engineer.
+- **Heartbeat** — GitHub Issues as work queue. Agent picks from randomized list, claims by creating `heartbeat/issue-N` branch (atomic, no TOCTOU). Parallel by design. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog.
+- **Session planner** — Read memory + tasks + todos, propose work plan.
+- **API key checker** — Verify which API keys are configured and valid.
+- **Playwright browser automation** — Headless browser for JS-heavy pages in web_grab.
+- **Fix install-ci** — Heavy deps (marker-pdf, playwright) moved to optional extras.
+- **Settings precedence** — Removed `gh pr create*` from project deny list (PR #43).
 
-### Architecture
-
-- [ ] **Flat-file skill format** — Skills that are just a prompt (no scripts/) could be a single `.md` file instead of a directory. Needs a shared build step for both `make install` and `npx skills` to normalize flat files into `name/SKILL.md` directories.
-
-### New Skills
-
-- [ ] **PR review redesign** — Current implementation (PR #34) has too much code and duplicates `discussion_partners`. Redesign as a high-freedom prompt skill: SKILL.md instructs the agent to fetch PR context via `gh` CLI, construct structured XML, and delegate to `discussion_partners` for the actual model call. Keep a small Python script for context assembly only (no pydantic-ai). Remove provider config, error handling, and model management that belong in discussion_partners.
-- [ ] **Claude Code skills reference** — Comprehensive skill built from [Agent Skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Large skill. Re-fetchable source URL for updates.
-- [ ] **Claude Code config reference** — Same pattern, built from [Claude Code settings docs](https://code.claude.com/docs/en/settings#available-settings). Full reference for permissions, env vars, hooks, MCP, CLAUDE.md format.
-- [ ] **Agent coordinator** — Orchestration: coordinator spawns specialized sub-agents, dependency-aware routing.
-- [ ] **Blueprint tracker** — Structured markdown tracking project state, dependencies, attempts.
-- [ ] **Complexity router** — Assess complexity (simple/medium/complex), route to appropriate effort level.
-- [ ] **Checkpoint system** — Mandatory review at fixed intervals, attempt budgets.
-- [ ] **Context compiler** — Assemble structured context docs from git diffs, files, memory, obsidian. Automates the PR review pattern.
-- [x] **Session planner** — On session start, read memory + tasks + todos, propose work plan. Lighter than `ralph_loop`.
-- [ ] **Capture inbox** — Smart routing for any input. Routes by scope + audience to the right destination: memory daily log (ephemeral), heartbeat tasks (recurring/future), obsidian knowledge_graph (durable knowledge), CLAUDE.md (repo-specific agent guidance), or README.md (repo dev memory).
-- [ ] **Claude constitution** — A skill encoding the user's values, principles, and preferences as a constitutional document. Applied when making judgment calls.
-- [ ] **Prompt report** — Analyze prompt effectiveness: token budget, clarity, coverage gaps. Human TODO.
-- [ ] **Modal skill** — Run compute on [Modal](https://modal.com/) GPUs. Spawn containers, run scripts, manage volumes.
-- [ ] **Reminders** — Time-aware reminder system. Agent can set reminders for the user (or itself). Heartbeat checks for due reminders on each cycle and surfaces them. Could use obsidian notes with due dates or a dedicated reminders file.
-- [x] **API key checker** — Verify which API keys are configured and valid. Check env vars, test endpoints, report status.
-- [x] **Playwright browser automation** — Headless browser for JS-heavy pages. Unblocks web_grab for SPAs. Python Click CLI at `web_grab/scripts/fetch_page.py`.
-- [ ] **Google Docs importer** — Extract content from Google Docs/Sheets into obsidian. Blocked by auth.
-- [ ] **Voice notes / audio transcription** — Whisper API or whisper.cpp. Lower the capture bar to "just talk."
-- [ ] **Daily briefing** — Morning summary from memory + tasks + vault.
-- [ ] **Messaging / mobile bridge** — Phone → Claude capture (iMessage, Slack, or chat app).
-
-### Enhancements
-
-- [ ] **Evergreen maintenance** — Generalized housekeeping that runs periodically (heartbeat or manual). Three scopes:
-  - **Repo-scoped**: prune local branches, remove dangling worktrees, clean stale PRs, doc consistency audits (already partially done by heartbeat recurring task)
-  - **Knowledge-scoped**: identify obsidian notes with stale sources that should be re-fetched (e.g., API docs that may have changed), dedup notes, prune orphans
-  - **Memory-scoped**: hierarchical memory aggregation (already exists), dedup across daily notes
-  - Parallel agents especially create clutter: dangling branches, duplicate docs, redundant issues. This skill/pattern should be the antidote. Could be one skill or a set of maintenance primitives the heartbeat invokes.
-- [ ] **Fact freshness** — Awareness that memory facts go stale. Encourage checking key facts with user.
-- [ ] **Vector search for memory** — Semantic search over memory files and obsidian vault via embeddings.
-- [ ] **Keyword search for memory** — Fast keyword/regex search across all memory files. Currently handled by Grep/Glob directly.
-- [ ] **Multi-day/month reader helper** — Read multiple days or months in a single command for broader context.
-- [x] **Fix install-ci after marker-pdf move** — Moved `marker-pdf` and `playwright` to `[project.optional-dependencies]` as `pdf` and `browser` extras. CI skips them via `--group dev` (no `--all-extras`). Saves ~4GB of CUDA/torch downloads per CI run.
-- [ ] **Heartbeat sandboxing** — `Bash()` patterns are prefix-only string matching with 97.9% shell operator bypass rate (`&&`, `;`, `||` all pass). Current `dontAsk` + `allowedTools` is a guardrail, not a sandbox. Real threat: prompt injection via web content in tasks, not self-injection. Options: wrapper script that validates commands, nsjail/sandbox-exec, or just accept the risk for a user-owned agent.
-- [ ] **Permissions model deep research** — Claude Code's permission system is not fully understood. User has granted Read permissions but agent still asks frequently. Need comprehensive research on: (1) how .claude/settings.json interacts with CLI flags, (2) when agents inherit permissions vs need explicit grants, (3) skill-scoped `allowed-tools` frontmatter effectiveness (issue #14956), (4) subagent permission inheritance, (5) permission precedence rules (global vs project, allow vs deny). Document findings and create a reference guide.
-- [ ] **Token lifecycle investigation** — User reports that `claude setup-token` (for headless heartbeat auth) logged them out of the interactive session. If true, this means setup-token invalidates the current OAuth token. Need to investigate: (1) Does setup-token create a new token or reuse existing? (2) Can multiple sessions share one token? (3) Why can't heartbeat reuse the interactive session's token (separate process/environment)? (4) Document the token lifecycle and auth priority chain. (5) Consider whether heartbeat should use a separate API key instead of OAuth.
 ### Lessons Learned
 
 - **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
 - **Use scripts, not context, for bulk operations** (2026-02): Crawling 23 Confluence wiki pages with subagents blew context on all 5 agents. Next time: write a Python script that fetches and writes notes directly (Playwright → file), then run it in a loop. The agent's context window is for orchestration, not data transport. Also wrote one-off `audit_notes.py` and `fix_tags.py` scripts for vault maintenance — much better than manual inspection.
 - **launchd over cron on macOS** (2026-02): Heartbeat cron job failed with "Not logged in" — cron has minimal env, no user security session, no Keychain access. launchd user agents run in the user session, survive sleep/wake, and are Apple-supported. `claude setup-token` provides 1-year OAuth tokens for headless use. `CLAUDE_CODE_OAUTH_TOKEN` is auth priority 2 (after `ANTHROPIC_API_KEY`), so unset API key explicitly to force subscription billing.
-
 - **Optional extras for heavy deps** (2026-02): `marker-pdf` pulled in torch + CUDA (~3.8GB) on every CI run. Tests never imported it. Standard fix: `[project.optional-dependencies]` (PEP 621). `uv sync --group dev` skips extras; `uv sync --all-extras --all-groups` gets everything. Note: `--group X` always includes project deps — you can't exclude core deps with groups alone.
-
 - **Don't trust training data for library APIs** (2026-02): PR #24 changed `result.output` to `result.data` because the agent "knew" pydantic-ai 1.57.0 had renamed the attribute. It hadn't — `.output` was correct in all versions. The false fix was bundled into an unrelated PR (violating atomic PRs), persisted in project memory as fact, and wasn't caught until GPT-5.2 red-teaming triggered the error. Fix: always inspect installed code (`dir()`, `dataclasses.fields()`) before changing API usage. Added `test_pydantic_ai_compat.py` to catch future regressions automatically.
-
-### Human TODOs
-
-- [x] **Merge PR #20** — agent-skills branch (merged as ceb3b08)
-- [ ] **Settings precedence**: project-level allow does NOT override global-level deny. Remove `gh pr create*` from project deny list if you want it enabled for this repo.
 
 ## License
 

@@ -47,7 +47,6 @@
       "Bash(gh label edit*)",
       "Bash(gh pr close*)",
       "Bash(gh pr comment*)",
-      "Bash(gh pr create*)",
       "Bash(gh pr edit*)",
       "Bash(gh pr merge*)",
       "Bash(gh pr ready*)",

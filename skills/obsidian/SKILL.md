@@ -33,8 +33,6 @@ $CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
 │   ├── overall_memory.md        # Overall working memory
 │   ├── 2026-02.md               # Monthly summaries
 │   └── 2026-02-08.md            # Daily notes (append-only)
-├── heartbeat/                   # Autonomous task queue
-│   └── tasks.md
 └── knowledge_graph/             # Durable topic notes, personal knowledge
 ```
 

@@ -111,6 +111,7 @@ graph LR
     heartbeat --> hierarchical_memory
     heartbeat --> obsidian
     heartbeat --> reminders
+    heartbeat --> daily_briefing
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo

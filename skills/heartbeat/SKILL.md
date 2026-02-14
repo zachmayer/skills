@@ -17,6 +17,8 @@ You are the heartbeat agent. The runner (heartbeat.sh) discovers available issue
 - Check for existing PRs: `gh pr list --search "issue-NUMBER"` to avoid duplicates.
 - Load skills you need: ultra_think, mental_models, staff_engineer, etc.
 - Read hierarchical memory for context from prior cycles.
+- Check `$CLAUDE_OBSIDIAN_DIR/memory/reminders.md` for due/overdue items and surface them.
+- If it's 6am or later and `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/Briefings/<today>.md` doesn't exist, write a daily briefing (use the `daily_briefing` skill).
 
 ## 2. Claim + Work
 

@@ -20,6 +20,7 @@ dependencies = [
 [project.optional-dependencies]
 pdf = ["marker-pdf>=1.0.0"]
 browser = ["playwright>=1.50.0"]
+google = ["google-api-python-client>=2.0.0"]
 
 [dependency-groups]
 dev = [

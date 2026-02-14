@@ -1,5 +1,5 @@
 #!/bin/bash
-# Heartbeat v2: GitHub Issues → worktree → Claude Code → branch + PR.
+# Heartbeat: GitHub Issues → worktree → Claude Code → branch + PR.
 # Designed for macOS launchd user agent execution.
 #
 # PARALLEL BY DESIGN: Multiple heartbeat instances may run concurrently on the

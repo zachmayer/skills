@@ -93,7 +93,7 @@ for candidate in $SHUFFLED_REPOS; do
         --author "$ISSUE_AUTHOR" \
         --label "$ISSUE_LABEL" \
         --state open \
-        --json number,title,body \
+        --json number,title,body,labels \
         --limit 25 2>/dev/null || echo "[]")
 
     if [ "$ALL_ISSUES" = "[]" ] || [ -z "$ALL_ISSUES" ]; then
@@ -106,11 +106,16 @@ for candidate in $SHUFFLED_REPOS; do
 
     # Filter claimed issues and randomize order
     # EXISTING_BRANCHES passed via env var (not interpolated into source) to prevent injection
+    # Also filters out issues with 'in-progress' label (claimed by another agent)
     AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" python3 -c "
 import sys, json, random, os
 issues = json.loads(sys.stdin.read())
 existing = set(line.strip() for line in os.environ.get('EXISTING', '').strip().split('\n') if line.strip())
-available = [i for i in issues if str(i['number']) not in existing]
+available = [
+    i for i in issues
+    if str(i['number']) not in existing
+    and 'in-progress' not in [l.get('name', '') for l in i.get('labels', [])]
+]
 random.shuffle(available)
 print(json.dumps(available))
 ")
@@ -183,6 +188,7 @@ set +e
             "Bash(git pull *)" "Bash(git fetch *)" \
             "Bash(git -C *)" "Bash(git worktree *)" \
             "Bash(gh pr create *)" "Bash(gh pr view *)" "Bash(gh pr list *)" \
+            "Bash(gh issue edit *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
             "Bash(uv run python *)" \
         --max-turns "$MAX_TURNS" \

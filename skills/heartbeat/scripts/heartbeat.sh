@@ -17,6 +17,8 @@ TIMEOUT_SECONDS=14400  # 4 hour hard kill
 WORK_MINUTES=30        # target work time per cycle
 MAX_TURNS=200
 MAX_BUDGET_USD=5
+TRIAGE_FILE="$HOME/.claude/heartbeat.triage"
+TRIAGE_COOLDOWN=21600  # 6 hours between triage sessions
 
 # --- Repo registry ---
 # Read from config file if present, otherwise use default.
@@ -125,8 +127,99 @@ print(json.dumps(available))
 done
 
 if [ -z "$REPO" ]; then
-    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No available agent-task issues in any repo"
-    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) IDLE" > "$STATUS_FILE"
+    # --- Triage mode: generate issues from goals when queue is empty ---
+    should_triage=true
+    if [ -f "$TRIAGE_FILE" ]; then
+        last_triage=$(cat "$TRIAGE_FILE")
+        now=$(date +%s)
+        elapsed=$((now - last_triage))
+        if [ "$elapsed" -lt "$TRIAGE_COOLDOWN" ]; then
+            should_triage=false
+            remaining=$(( (TRIAGE_COOLDOWN - elapsed) / 60 ))
+            echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No issues. Triage cooldown: ${remaining}min remaining"
+        fi
+    fi
+
+    if [ "$should_triage" = false ]; then
+        echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) IDLE" > "$STATUS_FILE"
+        exit 0
+    fi
+
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No issues. Entering triage mode..."
+    date +%s > "$TRIAGE_FILE"
+
+    # Use first repo for triage context
+    TRIAGE_REPO="${REPOS%% *}"
+    TRIAGE_DIR=$(repo_dir "$TRIAGE_REPO")
+    WORKDIR="/tmp/heartbeat-triage-$$"
+
+    git -C "$TRIAGE_DIR" fetch origin 2>/dev/null || true
+    git -C "$TRIAGE_DIR" worktree prune 2>/dev/null || true
+
+    cleanup() {
+        if [ -d "$WORKDIR" ]; then
+            git -C "$TRIAGE_DIR" worktree remove "$WORKDIR" --force 2>/dev/null || true
+        fi
+        git -C "$TRIAGE_DIR" worktree prune 2>/dev/null || true
+    }
+    trap cleanup EXIT
+
+    git -C "$TRIAGE_DIR" worktree add --detach "$WORKDIR" origin/main
+
+    set +e
+    (
+        cd "$WORKDIR"
+        exec claude --print \
+            --permission-mode dontAsk \
+            --add-dir "$OBSIDIAN_DIR" \
+            --allowedTools Read Write Edit Glob Grep \
+                "Bash(git status)" "Bash(git log *)" "Bash(git -C *)" \
+                "Bash(gh issue list *)" "Bash(gh issue create *)" \
+                "Bash(gh pr list *)" \
+                "Bash(ls *)" "Bash(date *)" \
+                "Bash(uv run python *)" \
+            --max-turns 50 \
+            --max-budget-usd 1 \
+            --model opus \
+            "You are the heartbeat agent in TRIAGE mode. No issues are available.
+
+Your job: review the agent goals and create 1-2 well-specified GitHub Issues.
+
+Steps:
+1. Read the Agent Goals note: $OBSIDIAN_DIR/knowledge_graph/Technical/Agent Goals.md
+2. Check existing open issues across repos: gh issue list --repo $TRIAGE_REPO --state open --json number,title
+3. Check recently merged PRs for context: gh pr list --repo $TRIAGE_REPO --state merged --limit 10 --json number,title,mergedAt
+4. Create 1-2 NEW issues that advance an active goal:
+   gh issue create --repo $TRIAGE_REPO --title '...' --label agent-task --body '...'
+5. Each issue MUST have: clear title, detailed body with numbered acceptance criteria, be completable in ~30 minutes
+6. Log what you created to hierarchical_memory
+
+Rules:
+- Create at most 2 issues per triage session
+- Only create issues for Active Goals (not 'Not Now')
+- Do NOT create issues that duplicate existing open issues or open PRs
+- Do NOT modify any code. Triage is planning only.
+- Prefer concrete, scoped tasks over vague improvement requests
+
+Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
+    ) &
+    claude_pid=$!
+
+    (sleep "$TIMEOUT_SECONDS"; kill "$claude_pid" 2>/dev/null; sleep 10; kill -9 "$claude_pid" 2>/dev/null) &
+    watchdog_pid=$!
+
+    wait "$claude_pid" 2>/dev/null
+    exit_code=$?
+    kill "$watchdog_pid" 2>/dev/null
+    wait "$watchdog_pid" 2>/dev/null
+    set -e
+
+    timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+    if [ $exit_code -eq 0 ]; then
+        echo "$timestamp TRIAGE repo=$TRIAGE_REPO" > "$STATUS_FILE"
+    else
+        echo "$timestamp TRIAGE_FAIL exit=$exit_code" > "$STATUS_FILE"
+    fi
     exit 0
 fi
 
@@ -183,6 +276,7 @@ set +e
             "Bash(git pull *)" "Bash(git fetch *)" \
             "Bash(git -C *)" "Bash(git worktree *)" \
             "Bash(gh pr create *)" "Bash(gh pr view *)" "Bash(gh pr list *)" \
+            "Bash(gh issue list *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
             "Bash(uv run python *)" \
         --max-turns "$MAX_TURNS" \

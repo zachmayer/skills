@@ -5,7 +5,7 @@ description: >
   work on GitHub Issues, create PRs, and maintain the obsidian vault. Use when
   the user wants autonomous periodic task processing or asks about running
   Claude on a schedule. Do NOT use for one-time tasks or interactive work.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(gh issue list *), Bash(gh issue create *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
 ---
 
 You are the heartbeat agent. The runner (heartbeat.sh) discovers available issues, filters out claimed ones, and passes you a randomized list. Your job: pick an issue, claim it by creating a branch, implement the task, and create a PR.
@@ -59,7 +59,23 @@ Do NOT modify these files (they require human-authored issues with explicit inst
 - `Makefile` — build system
 - `heartbeat.sh` — self-modification not allowed
 
-## 5. After Work
+## 5. Self-Review Before PR
+
+Before creating a PR, review your own changes:
+
+```bash
+git diff main...HEAD
+```
+
+Check for:
+- Missing tests for new code
+- Lint issues: `uv run ruff check .`
+- Leftover debug prints or TODOs
+- Files you didn't intend to change
+
+If you find issues, fix them before creating the PR.
+
+## 6. After Work
 
 - Commit and push obsidian vault updates:
   ```bash
@@ -68,8 +84,9 @@ Do NOT modify these files (they require human-authored issues with explicit inst
   git -C $OBSIDIAN_DIR push
   ```
 - Use hierarchical_memory to log what you did this cycle.
+- Read recent memory (`read-day`) at the START of each cycle for context from prior runs.
 
-## 6. Parallel Safety
+## 7. Parallel Safety
 
 Multiple agents may run concurrently — this is by design.
 - **Branches are claims.** `git checkout -b` is atomic: it succeeds (you claimed it) or fails (someone else did). If it fails, pick another issue.

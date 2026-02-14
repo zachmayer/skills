@@ -58,6 +58,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
 | [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous agent: picks up GitHub Issues, creates PRs |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
+| [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
@@ -115,6 +116,8 @@ graph LR
     lean_prover --> discussion_partners
     session_planner --> hierarchical_memory
     session_planner --> obsidian
+    daily_briefing --> hierarchical_memory
+    daily_briefing --> obsidian
 ```
 
 Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`

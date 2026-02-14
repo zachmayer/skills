@@ -60,6 +60,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
+| [evergreen](skills/evergreen/) | Python | Periodic housekeeping: prune branches/worktrees, find orphan notes, dedup memory |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
@@ -112,6 +113,7 @@ graph LR
     heartbeat --> obsidian
     heartbeat --> reminders
     heartbeat --> daily_briefing
+    heartbeat --> evergreen
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo

@@ -99,7 +99,8 @@ Output a single briefing in this format:
 
 ## Rules
 
-- **Read-only.** Do not modify files, create branches, or take action.
+- **Save the briefing** to `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/Briefings/<date>.md` so there's a record.
+- **Read-only.** Apart from saving the briefing, do not modify files, create branches, or take action.
 - **Concise.** Each bullet is one line. No paragraphs. The briefing should fit on one screen.
 - **Skip empty sections.** If there's nothing urgent, omit the Urgent section entirely.
 - **Prioritize.** Surface the most important items first within each section. TODOs capped at 5.

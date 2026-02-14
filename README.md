@@ -86,6 +86,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
 | [pr_review](skills/pr_review/) | Python | External AI code review: fetch PR context via gh, send to GPT-5.2 |
 | [api_key_checker](skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
+| [modal](skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
 
 ## Skill Graph
@@ -123,7 +124,7 @@ graph LR
     daily_briefing --> obsidian
 ```
 
-Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
+Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
 
 ## Install
 
@@ -220,6 +221,8 @@ Rigid subdirectories (Claude creates these automatically):
 | `OPENAI_API_KEY` | `discussion_partners` (`openai:` and `openai-responses:` models) |
 | `ANTHROPIC_API_KEY` | `discussion_partners` (`anthropic:` models) |
 | `GOOGLE_API_KEY` | `discussion_partners` (`google-gla:` models) |
+| `MODAL_TOKEN_ID` | `modal` (Modal compute) |
+| `MODAL_TOKEN_SECRET` | `modal` (Modal compute) |
 
 Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources your shell profile at startup — no extra configuration needed.
 

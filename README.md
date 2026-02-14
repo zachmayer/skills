@@ -59,6 +59,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous agent: picks up GitHub Issues, creates PRs |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
+| [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
@@ -109,6 +110,7 @@ graph LR
     remember_session --> obsidian
     heartbeat --> hierarchical_memory
     heartbeat --> obsidian
+    heartbeat --> reminders
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo

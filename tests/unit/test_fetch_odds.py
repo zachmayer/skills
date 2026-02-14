@@ -1,6 +1,5 @@
 """Tests for march_madness odds fetching and parsing."""
 
-from skills.march_madness.scripts.fetch_odds import display_name
 from skills.march_madness.scripts.fetch_odds import parse_futures
 from skills.march_madness.scripts.fetch_odds import parse_game_odds
 
@@ -83,28 +82,17 @@ SAMPLE_GAME_ODDS = [
 ]
 
 
-class TestDisplayName:
-    def test_known_bookmaker(self):
-        assert display_name("fanduel") == "FanDuel"
-        assert display_name("williamhill_us") == "Caesars"
-
-    def test_unknown_bookmaker(self):
-        assert display_name("some_new_book") == "some_new_book"
-
-
 class TestParseFutures:
     def test_basic_parsing(self):
         rows = parse_futures(SAMPLE_FUTURES)
-        assert len(rows) == 3  # 3 teams
+        assert len(rows) == 3
 
-    def test_team_names(self):
+    def test_team_names_sorted(self):
         rows = parse_futures(SAMPLE_FUTURES)
         names = [r["team_name"] for r in rows]
-        assert "Auburn Tigers" in names
-        assert "Duke Blue Devils" in names
-        assert "Houston Cougars" in names
+        assert names == ["Auburn Tigers", "Duke Blue Devils", "Houston Cougars"]
 
-    def test_wide_format(self):
+    def test_wide_format_uses_api_title(self):
         rows = parse_futures(SAMPLE_FUTURES)
         duke = next(r for r in rows if r["team_name"] == "Duke Blue Devils")
         assert duke["FanDuel"] == 600
@@ -113,7 +101,6 @@ class TestParseFutures:
     def test_missing_bookmaker_is_none(self):
         rows = parse_futures(SAMPLE_FUTURES)
         auburn = next(r for r in rows if r["team_name"] == "Auburn Tigers")
-        # Auburn only in FanDuel, not DraftKings
         assert auburn["FanDuel"] == 1000
         assert auburn["DraftKings"] is None
 
@@ -122,17 +109,15 @@ class TestParseFutures:
 
 
 class TestParseGameOdds:
-    def test_basic_parsing(self):
+    def test_row_count(self):
         rows = parse_game_odds(SAMPLE_GAME_ODDS)
-        # 1 game × 2 teams × 1 bookmaker = 2 rows
-        assert len(rows) == 2
+        assert len(rows) == 2  # 1 game × 2 teams × 1 bookmaker
 
     def test_team_names(self):
         rows = parse_game_odds(SAMPLE_GAME_ODDS)
-        names = {r["team_name"] for r in rows}
-        assert names == {"Duke Blue Devils", "North Carolina Tar Heels"}
+        assert {r["team_name"] for r in rows} == {"Duke Blue Devils", "North Carolina Tar Heels"}
 
-    def test_h2h_odds(self):
+    def test_h2h(self):
         rows = parse_game_odds(SAMPLE_GAME_ODDS)
         duke = next(r for r in rows if r["team_name"] == "Duke Blue Devils")
         assert duke["h2h"] == -180
@@ -143,12 +128,12 @@ class TestParseGameOdds:
         assert duke["spread_point"] == -4.5
         assert duke["spread_price"] == -110
 
-    def test_totals(self):
+    def test_totals_are_game_level(self):
         rows = parse_game_odds(SAMPLE_GAME_ODDS)
-        duke = next(r for r in rows if r["team_name"] == "Duke Blue Devils")
-        assert duke["total_point"] == 152.5
-        assert duke["total_over"] == -110
-        assert duke["total_under"] == -110
+        for row in rows:
+            assert row["total_point"] == 152.5
+            assert row["total_over"] == -110
+            assert row["total_under"] == -110
 
     def test_home_away(self):
         rows = parse_game_odds(SAMPLE_GAME_ODDS)
@@ -157,7 +142,7 @@ class TestParseGameOdds:
         assert duke["is_home"] is True
         assert unc["is_home"] is False
 
-    def test_bookmaker_name(self):
+    def test_bookmaker_uses_api_title(self):
         rows = parse_game_odds(SAMPLE_GAME_ODDS)
         assert all(r["bookmaker"] == "FanDuel" for r in rows)
 

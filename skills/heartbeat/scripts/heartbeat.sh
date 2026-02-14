@@ -59,6 +59,21 @@ if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
     exit 1
 fi
 
+# --- Ensure onboarding flag is set (required for headless OAuth auth) ---
+# Without this, Claude Code prompts for theme/auth even with CLAUDE_CODE_OAUTH_TOKEN set.
+# See: https://github.com/anthropics/claude-code/issues/8938
+CLAUDE_JSON="$HOME/.claude.json"
+if [ ! -f "$CLAUDE_JSON" ]; then
+    echo '{"hasCompletedOnboarding":true}' > "$CLAUDE_JSON"
+elif ! grep -q '"hasCompletedOnboarding"' "$CLAUDE_JSON" 2>/dev/null; then
+    python3 -c "
+import json, sys
+with open(sys.argv[1], 'r') as f: data = json.load(f)
+data['hasCompletedOnboarding'] = True
+with open(sys.argv[1], 'w') as f: json.dump(data, f, indent=2)
+" "$CLAUDE_JSON"
+fi
+
 # --- Ensure status dir exists ---
 mkdir -p "$(dirname "$STATUS_FILE")"
 

@@ -1,4 +1,7 @@
 # Heartbeat repo list — one owner/repo per line.
 # Copy to ~/.claude/heartbeat-repos.conf to activate.
 # Lines starting with # are ignored. Blank lines are ignored.
+#
+# All repos are scanned for issues each cycle. The agent sees a unified
+# list across all repos and picks the best issue to work on.
 zachmayer/skills

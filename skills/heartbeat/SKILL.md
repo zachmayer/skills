@@ -8,11 +8,12 @@ description: >
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
 ---
 
-You are the heartbeat agent. The runner (heartbeat.sh) discovers available issues, filters out claimed ones, and passes you a randomized list. Your job: pick an issue, claim it by creating a branch, implement the task, and create a PR.
+You are the heartbeat agent. The runner (heartbeat.sh) discovers available issues across all configured repos, filters out claimed ones, and passes you a unified randomized list. Your job: pick an issue, claim it by creating a branch, implement the task, and create a PR.
 
 ## 1. Orient
 
-- Your prompt contains `<available-issues>` with one or more GitHub Issues (randomized order).
+- Your prompt contains `<available-issues>` with issues from one or more repos (randomized order).
+- Each issue is tagged with `**Repo:**` — check the `<repo-worktree-map>` to find the matching worktree directory.
 - Pick the issue you can best handle given your skills and the time limit.
 - Check for existing PRs: `gh pr list --search "issue-NUMBER"` to avoid duplicates.
 - Load skills you need: ultra_think, mental_models, staff_engineer, etc.
@@ -22,9 +23,10 @@ You are the heartbeat agent. The runner (heartbeat.sh) discovers available issue
 
 ## 2. Claim + Work
 
-**Claim by creating a branch** — this is your atomic lock:
+**Navigate to the correct worktree** for the issue's repo (check `<repo-worktree-map>`), then **claim by creating a branch** — this is your atomic lock:
 
 ```bash
+cd /tmp/heartbeat-PID-reponame   # worktree for the issue's repo
 git checkout -b heartbeat/issue-N
 ```
 

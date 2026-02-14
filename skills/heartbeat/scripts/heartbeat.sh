@@ -62,24 +62,14 @@ fi
 # --- Ensure status dir exists ---
 mkdir -p "$(dirname "$STATUS_FILE")"
 
-# --- Discover available issues (random repo selection) ---
-# Shuffle repos so parallel agents naturally diverge. For each repo, fetch up to
-# 25 open agent-task issues and filter out ones with existing heartbeat branches
-# on origin (already claimed). Stop at the first repo that has available issues.
-REPO=""
-REPO_DIR=""
-AVAILABLE_ISSUES="[]"
-ISSUE_COUNT=0
+# --- Discover available issues across ALL repos ---
+# Iterate every repo, fetch up to 25 open agent-task issues each, filter out
+# ones with existing heartbeat branches on origin (already claimed). Collect
+# issues from all repos into a unified list tagged with repo metadata.
+ALL_REPO_ISSUES="[]"  # Combined JSON array across all repos
+REPOS_WITH_ISSUES=""  # Space-separated list of repos that have available issues
 
-# Randomize repo order
-SHUFFLED_REPOS=$(echo "$REPOS" | tr ' ' '\n' | python3 -c "
-import sys, random
-repos = [l.strip() for l in sys.stdin if l.strip()]
-random.shuffle(repos)
-print(' '.join(repos))
-")
-
-for candidate in $SHUFFLED_REPOS; do
+for candidate in $REPOS; do
     candidate_dir=$(repo_dir "$candidate")
     if [ ! -d "$candidate_dir/.git" ]; then
         echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Skipping $candidate — $candidate_dir not a git repo"
@@ -88,7 +78,7 @@ for candidate in $SHUFFLED_REPOS; do
 
     git -C "$candidate_dir" fetch origin 2>/dev/null || continue
 
-    ALL_ISSUES=$(gh issue list \
+    CANDIDATE_ISSUES=$(gh issue list \
         --repo "$candidate" \
         --author "$ISSUE_AUTHOR" \
         --label "$ISSUE_LABEL" \
@@ -96,7 +86,7 @@ for candidate in $SHUFFLED_REPOS; do
         --json number,title,body \
         --limit 25 2>/dev/null || echo "[]")
 
-    if [ "$ALL_ISSUES" = "[]" ] || [ -z "$ALL_ISSUES" ]; then
+    if [ "$CANDIDATE_ISSUES" = "[]" ] || [ -z "$CANDIDATE_ISSUES" ]; then
         continue
     fi
 
@@ -104,78 +94,129 @@ for candidate in $SHUFFLED_REPOS; do
     EXISTING_BRANCHES=$(git -C "$candidate_dir" ls-remote --heads origin 'refs/heads/heartbeat/issue-*' 2>/dev/null \
         | awk '{print $2}' | sed 's|refs/heads/heartbeat/issue-||' || echo "")
 
-    # Filter claimed issues and randomize order
-    # EXISTING_BRANCHES passed via env var (not interpolated into source) to prevent injection
-    AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" python3 -c "
-import sys, json, random, os
+    # Filter claimed issues and tag each with repo metadata
+    # EXISTING_BRANCHES and REPO passed via env vars (not interpolated into source) to prevent injection
+    FILTERED=$(echo "$CANDIDATE_ISSUES" | EXISTING="$EXISTING_BRANCHES" REPO_NAME="$candidate" python3 -c "
+import sys, json, os
 issues = json.loads(sys.stdin.read())
 existing = set(line.strip() for line in os.environ.get('EXISTING', '').strip().split('\n') if line.strip())
-available = [i for i in issues if str(i['number']) not in existing]
-random.shuffle(available)
+repo = os.environ['REPO_NAME']
+available = [dict(i, repo=repo) for i in issues if str(i['number']) not in existing]
 print(json.dumps(available))
 ")
 
-    ISSUE_COUNT=$(echo "$AVAILABLE_ISSUES" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
+    FILTERED_COUNT=$(echo "$FILTERED" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
 
-    if [ "$ISSUE_COUNT" != "0" ]; then
-        REPO="$candidate"
-        REPO_DIR="$candidate_dir"
-        break
+    if [ "$FILTERED_COUNT" != "0" ]; then
+        # Merge into combined list
+        ALL_REPO_ISSUES=$(echo "$ALL_REPO_ISSUES" | ADDITIONS="$FILTERED" python3 -c "
+import sys, json, os
+existing = json.loads(sys.stdin.read())
+additions = json.loads(os.environ['ADDITIONS'])
+existing.extend(additions)
+print(json.dumps(existing))
+")
+        REPOS_WITH_ISSUES="$REPOS_WITH_ISSUES $candidate"
     fi
 done
 
-if [ -z "$REPO" ]; then
+# Shuffle the combined list so parallel agents naturally diverge
+AVAILABLE_ISSUES=$(echo "$ALL_REPO_ISSUES" | python3 -c "
+import sys, json, random
+issues = json.loads(sys.stdin.read())
+random.shuffle(issues)
+print(json.dumps(issues))
+")
+
+ISSUE_COUNT=$(echo "$AVAILABLE_ISSUES" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
+
+if [ "$ISSUE_COUNT" = "0" ]; then
     echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No available agent-task issues in any repo"
     echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) IDLE" > "$STATUS_FILE"
     exit 0
 fi
 
-# Format issue list for the agent prompt
+# Determine unique repos that have issues
+REPOS_WITH_ISSUES=$(echo "$REPOS_WITH_ISSUES" | tr ' ' '\n' | sort -u | grep -v '^\s*$' | tr '\n' ' ' || true)
+REPO_COUNT=$(echo "$REPOS_WITH_ISSUES" | wc -w | tr -d ' ')
+
+# Format issue list for the agent prompt (includes repo labels)
 ISSUE_LIST=$(echo "$AVAILABLE_ISSUES" | python3 -c "
 import sys, json
 for i in json.loads(sys.stdin.read()):
+    repo = i.get('repo', 'unknown')
     print(f'### Issue #{i[\"number\"]}: {i[\"title\"]}')
+    print(f'**Repo:** {repo}')
     body = (i.get('body') or '').strip()
     if body:
         print(body)
     print()
 ")
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $ISSUE_COUNT available issues in $REPO. Creating worktree..."
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $ISSUE_COUNT available issues across $REPO_COUNT repo(s):$REPOS_WITH_ISSUES"
 
-# --- Clean stale local heartbeat branches ---
-# If a prior run was killed after creating a local branch but before pushing,
-# the branch lingers locally. Prune stale worktrees first (so branch -D succeeds),
-# then clean up any heartbeat branches that aren't checked out elsewhere.
-git -C "$REPO_DIR" worktree prune 2>/dev/null || true
-for branch in $(git -C "$REPO_DIR" branch --list 'heartbeat/issue-*' | tr -d ' *'); do
-    git -C "$REPO_DIR" branch -D "$branch" 2>/dev/null || true
+# --- Clean stale local heartbeat branches (all repos) ---
+for repo_slug in $REPOS_WITH_ISSUES; do
+    rd=$(repo_dir "$repo_slug")
+    git -C "$rd" worktree prune 2>/dev/null || true
+    for branch in $(git -C "$rd" branch --list 'heartbeat/issue-*' | tr -d ' *'); do
+        git -C "$rd" branch -D "$branch" 2>/dev/null || true
+    done
 done
 
-# --- Set up worktree (detached HEAD on origin/main) ---
-# The agent will create its own branch via `git checkout -b heartbeat/issue-N`.
-# Detached HEAD avoids conflicts with branches checked out in other worktrees.
-WORKDIR="/tmp/heartbeat-$$"
+# --- Set up worktrees (one per repo with issues) ---
+# Each repo gets a worktree at /tmp/heartbeat-PID-REPONAME.
+# The agent will create its branch via `git checkout -b heartbeat/issue-N`
+# in the appropriate worktree for the issue's repo.
+WORKDIR_BASE="/tmp/heartbeat-$$"
+PRIMARY_WORKDIR="" # First worktree (used as primary CWD for claude)
+ADD_DIR_ARGS=""    # Extra --add-dir args for additional repos
+
+# Build repo→worktree mapping for the agent prompt
+REPO_WORKDIR_MAP=""
+
+for repo_slug in $REPOS_WITH_ISSUES; do
+    rd=$(repo_dir "$repo_slug")
+    repo_basename=$(basename "$repo_slug")
+    workdir="${WORKDIR_BASE}-${repo_basename}"
+
+    git -C "$rd" worktree add --detach "$workdir" origin/main
+
+    REPO_WORKDIR_MAP="${REPO_WORKDIR_MAP}
+- ${repo_slug} → ${workdir}"
+
+    if [ -z "$PRIMARY_WORKDIR" ]; then
+        PRIMARY_WORKDIR="$workdir"
+        PRIMARY_REPO="$repo_slug"
+    else
+        ADD_DIR_ARGS="$ADD_DIR_ARGS --add-dir $workdir"
+    fi
+done
 
 cleanup() {
-    if [ -d "$WORKDIR" ]; then
-        git -C "$REPO_DIR" worktree remove "$WORKDIR" --force 2>/dev/null || true
-    fi
-    git -C "$REPO_DIR" worktree prune 2>/dev/null || true
+    for repo_slug in $REPOS_WITH_ISSUES; do
+        rd=$(repo_dir "$repo_slug")
+        repo_basename=$(basename "$repo_slug")
+        workdir="${WORKDIR_BASE}-${repo_basename}"
+        if [ -d "$workdir" ]; then
+            git -C "$rd" worktree remove "$workdir" --force 2>/dev/null || true
+        fi
+        git -C "$rd" worktree prune 2>/dev/null || true
+    done
 }
 trap cleanup EXIT
 
-git -C "$REPO_DIR" worktree add --detach "$WORKDIR" origin/main
-
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree at $WORKDIR. Invoking Claude Code with $ISSUE_COUNT issues..."
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktrees created. Invoking Claude Code with $ISSUE_COUNT issues across $REPO_COUNT repo(s)..."
 
 # --- Invoke Claude Code with safety bounds ---
 set +e
 (
-    cd "$WORKDIR"
+    cd "$PRIMARY_WORKDIR"
+    # shellcheck disable=SC2086
     exec claude --print \
         --permission-mode dontAsk \
         --add-dir "$OBSIDIAN_DIR" \
+        $ADD_DIR_ARGS \
         --allowedTools Read Write Edit Glob Grep \
             "Bash(git status)" "Bash(git diff *)" "Bash(git log *)" \
             "Bash(git add *)" "Bash(git commit *)" \
@@ -198,7 +239,15 @@ NEVER commit to main.
 $ISSUE_LIST
 </available-issues>
 
-Repo: $REPO. Obsidian dir: $OBSIDIAN_DIR. Time limit: $WORK_MINUTES minutes. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
+<repo-worktree-map>
+Each issue is tagged with its repo. Use the matching worktree directory:
+$REPO_WORKDIR_MAP
+
+Your primary working directory is $PRIMARY_WORKDIR (repo: $PRIMARY_REPO).
+If you pick an issue from a different repo, cd to its worktree first.
+</repo-worktree-map>
+
+Obsidian dir: $OBSIDIAN_DIR. Time limit: $WORK_MINUTES minutes. Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)."
 ) &
 claude_pid=$!
 
@@ -222,13 +271,13 @@ set -e
 # --- Record outcome ---
 timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 if [ $exit_code -eq 0 ]; then
-    echo "$timestamp OK repo=$REPO issues_available=$ISSUE_COUNT" > "$STATUS_FILE"
+    echo "$timestamp OK repos=\"$REPOS_WITH_ISSUES\" issues_available=$ISSUE_COUNT" > "$STATUS_FILE"
     echo "[$timestamp] Heartbeat cycle complete"
 elif [ $exit_code -eq 137 ] || [ $exit_code -eq 143 ]; then
-    echo "$timestamp TIMEOUT repo=$REPO" > "$STATUS_FILE"
+    echo "$timestamp TIMEOUT repos=\"$REPOS_WITH_ISSUES\"" > "$STATUS_FILE"
     echo "[$timestamp] ERROR: Claude killed after ${TIMEOUT_SECONDS}s timeout"
 else
-    echo "$timestamp FAIL exit=$exit_code repo=$REPO" > "$STATUS_FILE"
+    echo "$timestamp FAIL exit=$exit_code repos=\"$REPOS_WITH_ISSUES\"" > "$STATUS_FILE"
     echo "[$timestamp] ERROR: Claude exited with code $exit_code"
 fi
 

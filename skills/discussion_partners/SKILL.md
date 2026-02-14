@@ -83,6 +83,7 @@ variable to set. If the key exists but the call fails, common errors:
 ## Options
 
 - `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.2`)
+- `--reasoning-effort` / `-r`: Reasoning effort level (`low`, `medium`, `high`, `xhigh`). Auto-detected if not set — defaults to `xhigh` for most models, `high` for mini models (which don't support `xhigh`). If you request `xhigh` on a mini model, it's automatically capped to `high` with a warning. Ignored for Google models (thinking is always enabled).
 - `--system` / `-s`: Optional system prompt override
 - `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.
 

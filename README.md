@@ -208,6 +208,7 @@ Skills that bundle Python code use [Click](https://click.palletsprojects.com/) f
 | File | Default | Description |
 |------|---------|-------------|
 | `~/.claude/heartbeat-repos.conf` | `zachmayer/skills` | Repos for heartbeat to monitor. One `owner/repo` per line. See `skills/heartbeat/heartbeat-repos.conf.example`. |
+| `~/.claude/heartbeat.env` | — | Heartbeat auth tokens and git identity. See `skills/heartbeat/heartbeat.env.example`. For machine account setup, see [`skills/heartbeat/MACHINE_ACCOUNT.md`](skills/heartbeat/MACHINE_ACCOUNT.md). |
 
 Rigid subdirectories (Claude creates these automatically):
 - `memory/` — hierarchical memory (daily logs, monthly summaries, `overall_memory.md`)

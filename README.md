@@ -73,6 +73,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
 | [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
 | [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
+| [checkpoint](skills/checkpoint/) | Prompt | Mandatory self-review at fixed intervals with attempt budgets |
 
 ### Build
 
@@ -117,6 +118,7 @@ graph LR
     hierarchical_memory --> private_repo
     web_grab --> obsidian
     lean_prover --> discussion_partners
+    checkpoint --> staff_engineer
     session_planner --> hierarchical_memory
     session_planner --> obsidian
     daily_briefing --> hierarchical_memory

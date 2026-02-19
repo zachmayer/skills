@@ -143,7 +143,13 @@ The `note` command reports staleness after each save. Finish all your notes firs
 
 ## Fact Freshness
 
-Key facts in `overall_memory.md` can go stale — jobs change, preferences evolve, projects wind down. When relying on a fact from memory that seems like it could have changed (employment, location, active projects, tool preferences), consider asking the user to confirm it's still current rather than assuming. This is especially true for facts that are months old. Don't be annoying about it — just be aware that memory is a snapshot, not a live feed.
+Memory is a snapshot, not a live feed. When relying on a fact, consider its **information velocity** — how fast that kind of fact typically changes:
+
+- **Fast** (weeks): current project, active tasks, what someone is working on right now
+- **Medium** (months): tool preferences, workflows, team structure
+- **Slow** (years): employer, location, core skills, long-term preferences
+
+If a fact's age exceeds its expected velocity, ask the user to confirm before relying on it. Don't be annoying — just be aware that a 6-month-old "current project" is almost certainly stale, while a 6-month-old employer is probably fine.
 
 ## Git Integration
 

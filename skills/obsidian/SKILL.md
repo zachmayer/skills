@@ -27,7 +27,12 @@ Date: <YYYY-MM-DD — when was this note created?>
 
 ## Staleness Detection
 
-When reading notes, check the `Date:` field. Notes older than 90 days with a URL `Source:` may contain outdated information — flag this to the user and offer to re-fetch from the source URL using `web_grab`. Notes with `Source: original` or `Source: Claude Code session` don't need re-fetching but may still be stale if the topic is fast-moving (e.g. library docs, API references). Use judgment — a note about historical facts doesn't go stale the way a note about a software library does.
+When reading notes, consider whether the content may have drifted since the `Date:` field. Use judgment based on **information velocity** — how fast that kind of information typically changes:
+
+- **Notes with a URL `Source:`** — if the topic moves fast (library docs, API references, news), offer to re-fetch via `web_grab`. A 3-month-old note about a Python library is probably stale; a note about a historical event is not.
+- **Notes with personal facts** — if a note records something that could have changed (current project, team structure, tool preferences), ask the user to confirm rather than assuming. See the `hierarchical_memory` skill's Fact Freshness section for velocity guidance.
+
+Don't over-flag — most notes age fine. Focus on notes you're actively relying on for decisions.
 
 ## Vault Structure
 

@@ -1,65 +1,14 @@
 #!/usr/bin/env python3
-"""Review a GitHub PR using an external AI model via pydantic-ai."""
+"""Assemble structured PR context for review. No model calls — just gh + XML."""
 
 import json
-import os
 import subprocess
-import sys
 from pathlib import Path
 from typing import Any
-from typing import cast
 
 import click
-from pydantic_ai import Agent
-from pydantic_ai.models import KnownModelName
-from pydantic_ai.settings import ModelSettings
 
-DEFAULT_MODEL = "openai:gpt-5.2"
 MAX_DIFF_CHARS = 80_000
-
-# Mirror of discussion_partners provider config (prefix → env var, thinking settings)
-PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {
-    "openai": ("OPENAI_API_KEY", {"openai_reasoning_effort": "xhigh"}),
-    "openai-responses": ("OPENAI_API_KEY", {"openai_reasoning_effort": "xhigh"}),
-    "anthropic": (
-        "ANTHROPIC_API_KEY",
-        {"anthropic_thinking": {"type": "adaptive"}, "anthropic_effort": "max"},
-    ),
-    "google-gla": (
-        "GOOGLE_API_KEY",
-        {"google_thinking_config": {"include_thoughts": True}},
-    ),
-}
-
-
-def _cap_reasoning_effort(model: str, thinking: dict[str, Any]) -> dict[str, Any]:
-    """Cap reasoning effort to 'high' for mini models (they don't support 'xhigh')."""
-    if "mini" in model and thinking.get("openai_reasoning_effort") == "xhigh":
-        return {**thinking, "openai_reasoning_effort": "high"}
-    return thinking
-
-
-REVIEW_SYSTEM = (
-    "You are an expert code reviewer. Review the PR diff and report findings.\n"
-    "Rules:\n"
-    "- Focus on correctness, bugs, security issues, and design problems\n"
-    "- Skip style nits, formatting, and naming unless they cause confusion\n"
-    "- Each finding must reference a specific file and line/hunk\n"
-    "- Rate severity: critical (breaks things), warning (likely problem), note (worth considering)\n"
-    "- If the code looks good, say so briefly — don't invent issues\n"
-    "- Be direct. No filler."
-)
-
-DEFAULT_FOCUS = (
-    "Review this PR for real issues. Flag bugs, security problems, logic errors, "
-    "and design concerns. Skip style nits.\n\n"
-    "For each finding:\n"
-    "- **Severity**: critical / warning / note\n"
-    "- **Location**: file:line or file:hunk\n"
-    "- **Issue**: what's wrong\n"
-    "- **Suggestion**: how to fix it\n\n"
-    "If the PR looks clean, say so."
-)
 
 
 def _run_gh(*args: str) -> str:
@@ -72,7 +21,7 @@ def _run_gh(*args: str) -> str:
 
 
 def _parse_pr_ref(ref: str) -> tuple[str | None, str]:
-    """Parse PR reference → (repo_or_none, number).
+    """Parse PR reference -> (repo_or_none, number).
 
     Accepts: URL, owner/repo#123, #123, or 123.
     Returns repo=None when using current repo.
@@ -113,11 +62,13 @@ def _fetch_pr(repo: str | None, number: str) -> tuple[dict[str, Any], str]:
     return meta, diff
 
 
-def _build_context(meta: dict[str, Any], diff: str, context_files: tuple[str, ...]) -> str:
+def _build_context(
+    meta: dict[str, Any], diff: str, context_files: tuple[str, ...], max_diff: int
+) -> str:
     """Assemble structured XML context document."""
-    if len(diff) > MAX_DIFF_CHARS:
-        click.echo(f"Diff is {len(diff):,} chars, truncating to {MAX_DIFF_CHARS:,}", err=True)
-        diff = diff[:MAX_DIFF_CHARS] + "\n\n[TRUNCATED — diff too large for full review]"
+    if len(diff) > max_diff:
+        click.echo(f"Diff is {len(diff):,} chars, truncating to {max_diff:,}", err=True)
+        diff = diff[:max_diff] + "\n\n[TRUNCATED — diff too large for full review]"
 
     files = meta.get("files") or []
     file_list = "\n".join(
@@ -155,8 +106,6 @@ def _build_context(meta: dict[str, Any], diff: str, context_files: tuple[str, ..
 
 @click.command()
 @click.argument("pr_ref")
-@click.option("--model", "-m", default=DEFAULT_MODEL, show_default=True, help="Model for review")
-@click.option("--focus", "-f", default=None, help="Review focus prompt override")
 @click.option(
     "--context-file",
     "-c",
@@ -164,54 +113,25 @@ def _build_context(meta: dict[str, Any], diff: str, context_files: tuple[str, ..
     type=click.Path(exists=True),
     help="Extra context files to include",
 )
-@click.option("--dry-run", is_flag=True, help="Print context without calling model")
-def main(
-    pr_ref: str,
-    model: str,
-    focus: str | None,
-    context_file: tuple[str, ...],
-    dry_run: bool,
-) -> None:
-    """Review a GitHub PR using an external AI model.
+@click.option(
+    "--max-diff",
+    default=MAX_DIFF_CHARS,
+    show_default=True,
+    help="Max diff characters before truncation",
+)
+def main(pr_ref: str, context_file: tuple[str, ...], max_diff: int) -> None:
+    """Assemble structured PR context for review.
 
     PR_REF can be a URL, owner/repo#123, #123, or just 123.
+    Outputs XML context to stdout for piping to discussion_partners.
     """
     repo, number = _parse_pr_ref(pr_ref)
     display_repo = repo or "(current repo)"
     click.echo(f"Fetching PR #{number} from {display_repo}...", err=True)
 
     meta, diff = _fetch_pr(repo, number)
-    context = _build_context(meta, diff, context_file)
-
-    if dry_run:
-        click.echo(context)
-        return
-
-    # Resolve provider
-    prefix = model.rsplit(":", 1)[0] if ":" in model else model
-    config = PROVIDER_CONFIG.get(prefix)
-    if config is None:
-        known = ", ".join(sorted(PROVIDER_CONFIG))
-        raise click.BadParameter(f"Unknown prefix '{prefix}'. Known: {known}")
-
-    key_name, thinking = config
-    thinking = _cap_reasoning_effort(model, thinking)
-    if not os.environ.get(key_name):
-        shell = "~/.zshrc" if sys.platform == "darwin" else "~/.bashrc"
-        click.echo(f"{key_name} not set. Add to {shell}.", err=True)
-        raise SystemExit(1)
-
-    question = f"{focus or DEFAULT_FOCUS}\n\n{context}"
-    click.echo(f"Sending to {model} for review...", err=True)
-
-    agent = Agent(cast(KnownModelName, model), system_prompt=REVIEW_SYSTEM)
-    try:
-        result = agent.run_sync(question, model_settings=cast(ModelSettings, thinking))
-    except Exception as e:
-        click.echo(f"Review failed: {e}", err=True)
-        raise SystemExit(1)
-
-    click.echo(result.output)
+    context = _build_context(meta, diff, context_file, max_diff)
+    click.echo(context)
 
 
 if __name__ == "__main__":

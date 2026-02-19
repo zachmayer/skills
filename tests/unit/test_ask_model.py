@@ -166,10 +166,67 @@ class TestCLIMissingApiKey:
         assert "GOOGLE_API_KEY not set" in result.output
 
 
-class TestCLISuccessfulCall:
-    """Test CLI with mocked API calls."""
+def _make_stream_mock(chunks: list[str]) -> MagicMock:
+    """Create a mock agent whose run_stream_sync yields chunks."""
+    mock_stream = MagicMock()
+    mock_stream.stream_text.return_value = iter(chunks)
+    mock_stream.__enter__ = MagicMock(return_value=mock_stream)
+    mock_stream.__exit__ = MagicMock(return_value=False)
 
-    def test_successful_call_prints_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    mock_agent = MagicMock()
+    mock_agent.run_stream_sync.return_value = mock_stream
+    return mock_agent
+
+
+class TestCLIStreamingCall:
+    """Test CLI streaming (default) mode."""
+
+    def test_streaming_prints_chunks(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = _make_stream_mock(["The ", "answer ", "is 4."])
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent) as mock_agent_cls:
+            result = CliRunner().invoke(
+                ask_model.main, ["--model", "openai:gpt-5.2", "What is 2+2?"]
+            )
+
+        assert result.exit_code == 0
+        assert "The answer is 4." in result.output
+        mock_agent_cls.assert_called_once()
+        mock_agent.run_stream_sync.assert_called_once()
+
+    def test_custom_system_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = _make_stream_mock(["Done."])
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent) as mock_agent_cls:
+            result = CliRunner().invoke(
+                ask_model.main,
+                ["--system", "You are a math tutor.", "Explain calculus."],
+            )
+
+        assert result.exit_code == 0
+        call_kwargs = mock_agent_cls.call_args
+        assert call_kwargs[1]["system_prompt"] == "You are a math tutor."
+
+    def test_default_system_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = _make_stream_mock(["Response."])
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent) as mock_agent_cls:
+            CliRunner().invoke(ask_model.main, ["What is AI?"])
+
+        call_kwargs = mock_agent_cls.call_args
+        assert "discussion partner" in call_kwargs[1]["system_prompt"]
+
+
+class TestCLINoStreamCall:
+    """Test CLI with --no-stream flag (non-streaming mode)."""
+
+    def test_no_stream_prints_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_result = MagicMock()
@@ -180,7 +237,7 @@ class TestCLISuccessfulCall:
 
         with patch.object(ask_model, "Agent", return_value=mock_agent) as mock_agent_cls:
             result = CliRunner().invoke(
-                ask_model.main, ["--model", "openai:gpt-5.2", "What is 2+2?"]
+                ask_model.main, ["--no-stream", "--model", "openai:gpt-5.2", "What is 2+2?"]
             )
 
         assert result.exit_code == 0
@@ -188,50 +245,15 @@ class TestCLISuccessfulCall:
         mock_agent_cls.assert_called_once()
         mock_agent.run_sync.assert_called_once()
 
-    def test_custom_system_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
-
-        mock_result = MagicMock()
-        mock_result.output = "Done."
-
-        mock_agent = MagicMock()
-        mock_agent.run_sync.return_value = mock_result
-
-        with patch.object(ask_model, "Agent", return_value=mock_agent) as mock_agent_cls:
-            result = CliRunner().invoke(
-                ask_model.main,
-                ["--system", "You are a math tutor.", "Explain calculus."],
-            )
-
-        assert result.exit_code == 0
-        # Verify custom system prompt was passed to Agent
-        call_kwargs = mock_agent_cls.call_args
-        assert call_kwargs[1]["system_prompt"] == "You are a math tutor."
-
-    def test_default_system_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
-
-        mock_result = MagicMock()
-        mock_result.output = "Response."
-
-        mock_agent = MagicMock()
-        mock_agent.run_sync.return_value = mock_result
-
-        with patch.object(ask_model, "Agent", return_value=mock_agent) as mock_agent_cls:
-            CliRunner().invoke(ask_model.main, ["What is AI?"])
-
-        call_kwargs = mock_agent_cls.call_args
-        assert "discussion partner" in call_kwargs[1]["system_prompt"]
-
 
 class TestCLIErrorHandling:
     """Test CLI error handling for API errors."""
 
-    def test_insufficient_quota_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_insufficient_quota_error_streaming(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
-        mock_agent.run_sync.side_effect = Exception("insufficient_quota")
+        mock_agent.run_stream_sync.side_effect = Exception("insufficient_quota")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
             result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
@@ -239,11 +261,11 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "insufficient quota" in result.output
 
-    def test_invalid_api_key_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_invalid_api_key_error_streaming(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
-        mock_agent.run_sync.side_effect = Exception("invalid_api_key")
+        mock_agent.run_stream_sync.side_effect = Exception("invalid_api_key")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
             result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
@@ -251,11 +273,11 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "invalid" in result.output
 
-    def test_rate_limit_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_rate_limit_error_streaming(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
-        mock_agent.run_sync.side_effect = Exception("rate_limit exceeded")
+        mock_agent.run_stream_sync.side_effect = Exception("rate_limit exceeded")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
             result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
@@ -263,11 +285,11 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "Rate limited" in result.output
 
-    def test_generic_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_generic_error_streaming(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
-        mock_agent.run_sync.side_effect = Exception("Something unexpected happened")
+        mock_agent.run_stream_sync.side_effect = Exception("Something unexpected happened")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
             result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
@@ -275,12 +297,26 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "Something unexpected happened" in result.output
 
+    def test_error_no_stream(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = MagicMock()
+        mock_agent.run_sync.side_effect = Exception("insufficient_quota")
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent):
+            result = CliRunner().invoke(
+                ask_model.main, ["--no-stream", "--model", "openai:gpt-5.2", "test"]
+            )
+
+        assert result.exit_code != 0
+        assert "insufficient quota" in result.output
+
     def test_incorrect_api_key_variant(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """'Incorrect API key' is an alternate phrasing from some providers."""
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
-        mock_agent.run_sync.side_effect = Exception("Incorrect API key provided")
+        mock_agent.run_stream_sync.side_effect = Exception("Incorrect API key provided")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
             result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
@@ -293,7 +329,7 @@ class TestCLIErrorHandling:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
-        mock_agent.run_sync.side_effect = Exception("HTTP 429 Too Many Requests")
+        mock_agent.run_stream_sync.side_effect = Exception("HTTP 429 Too Many Requests")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
             result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])

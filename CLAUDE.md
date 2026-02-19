@@ -20,6 +20,12 @@ All Python scripts use Click for CLIs and are run via `uv run python <script>`. 
 
 Use README.md as the development memory for this repo. It contains the skill inventory, architecture notes, roadmap, and TODOs. Update it as you work.
 
+## Dependency Updates
+
+- **Always stay on latest versions.** When dependabot opens a PR to bump a dependency, the update should be merged — not reverted. If a dependency bump breaks tests, **fix the tests and code to work with the new version**. Do not revert the bump or pin to an old version.
+- **Tests validate the current API, not a frozen snapshot.** The `test_pydantic_ai_compat.py` test dynamically detects the correct `AgentRunResult` attribute from the installed version. If pydantic-ai renames fields again, update the scripts to match — the test will tell you what the correct attribute is.
+- **Conflicting transitive deps get isolated.** If a heavy optional dependency (e.g. marker-pdf) pins a transitive dep (e.g. anthropic) to a range incompatible with core deps (e.g. pydantic-ai), use PEP 723 inline script metadata (`# /// script`) so the skill runs in its own isolated env via `uv run --script`. Do not hold back core dependency upgrades to accommodate optional extras.
+
 ## Anti-patterns
 
 - **Root-cause before you build.** When something fails, diagnose the actual error before building infrastructure to work around it. Misreading `insufficient_quota` (billing) as "keys not found" (config) led to an hour of unnecessary .env plumbing. The fix was swapping one API key. Staff engineers solve the right problem; senior engineers write code for the wrong one.

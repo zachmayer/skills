@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "click>=8.3.0",
+#     "marker-pdf>=1.10.0",
+# ]
+# ///
 """Convert a PDF file to markdown using marker."""
 
 from pathlib import Path

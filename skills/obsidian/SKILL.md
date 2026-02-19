@@ -25,6 +25,10 @@ Date: <YYYY-MM-DD — when was this note created?>
 
 **A note without a Date is always broken.** A note without a Source is broken unless there is genuinely no source.
 
+## Staleness Detection
+
+When reading notes, check the `Date:` field. Notes older than 90 days with a URL `Source:` may contain outdated information — flag this to the user and offer to re-fetch from the source URL using `web_grab`. Notes with `Source: original` or `Source: Claude Code session` don't need re-fetching but may still be stale if the topic is fast-moving (e.g. library docs, API references). Use judgment — a note about historical facts doesn't go stale the way a note about a software library does.
+
 ## Vault Structure
 
 ```

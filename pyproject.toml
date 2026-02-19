@@ -13,7 +13,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "click>=8.1.0",
-    "pydantic-ai>=0.0.31",
+    "pydantic-ai>=1.60.0",
     "python-frontmatter>=1.1.0",
 ]
 

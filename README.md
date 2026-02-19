@@ -165,7 +165,9 @@ make upgrade        # Upgrade all dependencies
 
 ## Creating a New Skill
 
-Each skill is a directory under `skills/` with a `SKILL.md` file:
+Skills support two formats: **directory** (for skills with scripts or multiple files) and **flat-file** (for prompt-only skills).
+
+### Directory format
 
 ```
 skills/my_skill/
@@ -174,7 +176,17 @@ skills/my_skill/
     └── my_script.py
 ```
 
-The `SKILL.md` format:
+### Flat-file format
+
+Prompt-only skills (no `scripts/`) can be a single file:
+
+```
+skills/my_skill.md     # Same YAML frontmatter + markdown content
+```
+
+The flat-file format is equivalent to `skills/my_skill/SKILL.md` — just less boilerplate for simple skills. Run `uv run python scripts/normalize_skills.py` to convert flat files into directory format (e.g. before install). Use `--dry-run` to preview.
+
+### SKILL.md format
 
 ```yaml
 ---

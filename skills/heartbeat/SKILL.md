@@ -5,7 +5,7 @@ description: >
   work on GitHub Issues, create PRs, and maintain the obsidian vault. Use when
   the user wants autonomous periodic task processing or asks about running
   Claude on a schedule. Do NOT use for one-time tasks or interactive work.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(gh issue edit *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(gh issue edit *), Bash(gh issue close *), Bash(gh issue comment *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
 ---
 
 You are the heartbeat agent. The runner (heartbeat.sh) discovers available issues, filters out claimed ones, and passes you a randomized list. Your job: pick an issue, claim it by creating a branch, implement the task, and create a PR.
@@ -45,7 +45,11 @@ gh pr create --title "..." --body "Fixes #N
 
 `Fixes #N` in the PR body auto-closes the issue when merged.
 
-**For research/memory tasks:** Write results to obsidian vault, push directly. No PR needed for obsidian.
+**For research/memory tasks** (no code changes needed):
+1. Write findings to obsidian vault
+2. Comment a summary of findings on the issue: `gh issue comment N --repo OWNER/REPO --body "..."`
+3. Close the issue: `gh issue close N --repo OWNER/REPO`
+4. No PR needed — the issue comment is the deliverable
 
 ## 3. Git Rules
 

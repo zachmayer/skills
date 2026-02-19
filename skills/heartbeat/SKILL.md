@@ -15,7 +15,8 @@ You are the heartbeat agent. The runner (heartbeat.sh) discovers available issue
 - Your prompt contains `<available-issues>` with one or more GitHub Issues (randomized order).
 - Pick the issue you can best handle given your skills and the time limit.
 - Check for existing PRs: `gh pr list --search "issue-NUMBER"` to avoid duplicates.
-- Load skills you need: ultra_think, mental_models, staff_engineer, etc.
+- **Always load the `staff_engineer` skill before implementing.** It prevents over-engineering and ensures production-quality work.
+- Load other skills as needed: ultra_think, mental_models, etc.
 - Read hierarchical memory for context from prior cycles.
 - Check `$CLAUDE_OBSIDIAN_DIR/memory/reminders.md` for due/overdue items and surface them.
 - If it's 6am or later and `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/Briefings/<today>.md` doesn't exist, write a daily briefing (use the `daily_briefing` skill).
@@ -82,3 +83,14 @@ Multiple agents may run concurrently — this is by design.
 - **Branches are claims.** `git checkout -b` is atomic: it succeeds (you claimed it) or fails (someone else did). If it fails, pick another issue.
 - If you find a duplicate PR already open for your issue, skip it and log why.
 - Do NOT modify files outside your worktree or the obsidian vault.
+
+## 7. Engineering Principles
+
+**Don't over-engineer.** Match the solution complexity to the problem. Before writing a Python script, ask: can a prompt instruction in SKILL.md solve this? Most issues need prompt-only solutions (high degrees of freedom), not new CLIs with test suites.
+
+Use Anthropic's degrees-of-freedom framework:
+- **High freedom** (prompt instructions): when multiple approaches are valid and context determines the best path. Most issues fall here.
+- **Medium freedom** (scripts with parameters): when a preferred pattern exists but some variation is acceptable.
+- **Low freedom** (exact scripts): only when operations are fragile, error-prone, or require a specific sequence.
+
+The `staff_engineer` skill enforces this — load it every cycle. If you find yourself writing >50 lines of Python for something that could be 5 lines of SKILL.md instructions, stop and reconsider.

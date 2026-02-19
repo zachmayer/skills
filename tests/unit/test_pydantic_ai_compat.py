@@ -1,9 +1,8 @@
 """Verify pydantic-ai API compatibility.
 
-pydantic-ai has renamed AgentRunResult attributes across versions:
-  0.0.31: .output
-  1.57.0: .data
-  1.58.0: .output (reverted)
+pydantic-ai AgentRunResult attribute history (verified against source):
+  0.0.31: .data
+  0.1.0+: .output (renamed once, never changed back)
 
 This test catches regressions when dependabot bumps the version.
 """

@@ -202,7 +202,7 @@ set +e
             "Bash(git pull *)" "Bash(git fetch *)" \
             "Bash(git -C *)" "Bash(git worktree *)" \
             "Bash(gh pr create *)" "Bash(gh pr view *)" "Bash(gh pr list *)" \
-            "Bash(gh issue edit *)" \
+            "Bash(gh issue edit *)" "Bash(gh issue close *)" "Bash(gh issue comment *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
             "Bash(uv run python *)" \
         --max-turns "$MAX_TURNS" \

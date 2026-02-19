@@ -325,3 +325,150 @@ class TestComputeStaleness:
         report = memory._compute_staleness()
         assert report is not None
         assert report.overall == "UPDATE"
+
+
+class TestReadDaysCommand:
+    def test_range(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-10.md").write_text("# Day 10\n")
+        (mem_dir / "2026-01-11.md").write_text("# Day 11\n")
+        (mem_dir / "2026-01-12.md").write_text("# Day 12\n")
+        result = CliRunner().invoke(memory.cli, ["read-days", "2026-01-10", "2026-01-12"])
+        assert result.exit_code == 0
+        assert "Day 10" in result.output
+        assert "Day 11" in result.output
+        assert "Day 12" in result.output
+        assert "3 day(s) shown" in result.output
+
+    def test_range_skips_missing(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-10.md").write_text("# Day 10\n")
+        (mem_dir / "2026-01-12.md").write_text("# Day 12\n")
+        result = CliRunner().invoke(memory.cli, ["read-days", "2026-01-10", "2026-01-12"])
+        assert result.exit_code == 0
+        assert "Day 10" in result.output
+        assert "Day 12" in result.output
+        assert "2 day(s) shown" in result.output
+
+    def test_last_n(self, mem_dir: Path) -> None:
+        from datetime import date
+        from datetime import timedelta
+
+        today = date.today()
+        yesterday = today - timedelta(days=1)
+        (mem_dir / f"{today.isoformat()}.md").write_text("# Today\n")
+        (mem_dir / f"{yesterday.isoformat()}.md").write_text("# Yesterday\n")
+        result = CliRunner().invoke(memory.cli, ["read-days", "--last", "2"])
+        assert result.exit_code == 0
+        assert "Yesterday" in result.output
+        assert "Today" in result.output
+        assert "2 day(s) shown" in result.output
+
+    def test_no_notes_in_range(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-days", "2020-01-01", "2020-01-05"])
+        assert result.exit_code == 0
+        assert "No daily notes found" in result.output
+
+    def test_start_only_reads_to_today(self, mem_dir: Path) -> None:
+        from datetime import date
+
+        today = date.today()
+        (mem_dir / f"{today.isoformat()}.md").write_text("# Today\n")
+        (mem_dir / "2026-01-01.md").write_text("# Jan 1\n")
+        result = CliRunner().invoke(memory.cli, ["read-days", "2026-01-01"])
+        assert result.exit_code == 0
+        assert "Jan 1" in result.output
+
+    def test_rejects_bad_format(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-days", "bad-date", "2026-01-01"])
+        assert result.exit_code != 0
+
+    def test_rejects_start_after_end(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-days", "2026-01-15", "2026-01-10"])
+        assert result.exit_code != 0
+
+    def test_rejects_last_with_args(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(
+            memory.cli, ["read-days", "--last", "3", "2026-01-01", "2026-01-05"]
+        )
+        assert result.exit_code != 0
+
+    def test_rejects_no_args(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-days"])
+        assert result.exit_code != 0
+
+    def test_separator_between_days(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01-10.md").write_text("# Day 10\n")
+        (mem_dir / "2026-01-11.md").write_text("# Day 11\n")
+        result = CliRunner().invoke(memory.cli, ["read-days", "2026-01-10", "2026-01-11"])
+        assert result.exit_code == 0
+        assert "---" in result.output
+
+
+class TestReadMonthsCommand:
+    def test_range(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01.md").write_text("# January\n")
+        (mem_dir / "2026-02.md").write_text("# February\n")
+        result = CliRunner().invoke(memory.cli, ["read-months", "2026-01", "2026-02"])
+        assert result.exit_code == 0
+        assert "January" in result.output
+        assert "February" in result.output
+        assert "2 month(s) shown" in result.output
+
+    def test_range_skips_missing(self, mem_dir: Path) -> None:
+        (mem_dir / "2025-11.md").write_text("# November\n")
+        (mem_dir / "2026-01.md").write_text("# January\n")
+        result = CliRunner().invoke(memory.cli, ["read-months", "2025-11", "2026-01"])
+        assert result.exit_code == 0
+        assert "November" in result.output
+        assert "January" in result.output
+        assert "2 month(s) shown" in result.output
+
+    def test_last_n(self, mem_dir: Path) -> None:
+        from datetime import date
+
+        today = date.today()
+        this_month = today.strftime("%Y-%m")
+        (mem_dir / f"{this_month}.md").write_text("# This month\n")
+        result = CliRunner().invoke(memory.cli, ["read-months", "--last", "1"])
+        assert result.exit_code == 0
+        assert "This month" in result.output
+        assert "1 month(s) shown" in result.output
+
+    def test_no_summaries_in_range(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-months", "2020-01", "2020-03"])
+        assert result.exit_code == 0
+        assert "No monthly summaries found" in result.output
+
+    def test_start_only_reads_to_current(self, mem_dir: Path) -> None:
+        from datetime import date
+
+        today = date.today()
+        this_month = today.strftime("%Y-%m")
+        (mem_dir / f"{this_month}.md").write_text("# Current\n")
+        result = CliRunner().invoke(memory.cli, ["read-months", this_month])
+        assert result.exit_code == 0
+        assert "Current" in result.output
+
+    def test_rejects_bad_format(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-months", "bad", "2026-01"])
+        assert result.exit_code != 0
+
+    def test_rejects_start_after_end(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-months", "2026-03", "2026-01"])
+        assert result.exit_code != 0
+
+    def test_rejects_last_with_args(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(
+            memory.cli, ["read-months", "--last", "3", "2026-01", "2026-02"]
+        )
+        assert result.exit_code != 0
+
+    def test_rejects_no_args(self, mem_dir: Path) -> None:
+        result = CliRunner().invoke(memory.cli, ["read-months"])
+        assert result.exit_code != 0
+
+    def test_separator_between_months(self, mem_dir: Path) -> None:
+        (mem_dir / "2026-01.md").write_text("# January\n")
+        (mem_dir / "2026-02.md").write_text("# February\n")
+        result = CliRunner().invoke(memory.cli, ["read-months", "2026-01", "2026-02"])
+        assert result.exit_code == 0
+        assert "---" in result.output

@@ -1,9 +1,11 @@
 ---
 name: web_grab
 description: >
-  WHEN: User shares a URL and wants to read, extract, or save its content.
-  WHEN NOT: The URL is a GitHub repo (use gh CLI), a PDF (use pdf_to_markdown),
-  or a skill to steal (use skill_stealer).
+  Fetch URL content and save to obsidian. Use when the user shares a URL and
+  wants to read, extract, or save its content. Do NOT use when the URL is a
+  GitHub repo (use gh CLI), a PDF (use pdf_to_markdown), or a skill to steal
+  (use skill_stealer).
+allowed-tools: Bash(uv run *), Bash(curl *), Bash(wget *)
 ---
 
 # Web Grab

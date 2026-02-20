@@ -1,14 +1,14 @@
 ---
 name: modal
 description: >
-  Run compute on Modal (https://modal.com/) GPUs. Spawn containers, run scripts,
-  manage volumes. Use when the user needs GPU compute, wants to run ML inference,
-  train models, or execute heavy workloads in the cloud. Do NOT use for local-only
+  Run compute on Modal — GPUs, CPU swarms, persistent volumes.
+  Use when the user needs cloud compute, GPU inference, training,
+  batch processing, or parallel workloads. Do NOT use for local-only
   tasks or when the user has not set up a Modal account.
 allowed-tools: Bash(uv run *), Bash(modal *), Read, Write, Glob
 ---
 
-Run GPU compute on Modal from your local machine. Modal provides serverless GPU containers with sub-5s cold starts — no SSH, no Kubernetes, no Docker registry.
+Modal provides serverless containers with sub-5s cold starts. No SSH, no Kubernetes, no Docker registry.
 
 ## Prerequisites
 
@@ -18,57 +18,18 @@ Run GPU compute on Modal from your local machine. Modal provides serverless GPU 
    export MODAL_TOKEN_ID="your-token-id"
    export MODAL_TOKEN_SECRET="your-token-secret"
    ```
-3. **Check auth**: `uv run --directory SKILL_DIR python scripts/modal_helper.py check-auth`
+3. **Check auth**: `uv run --script SKILL_DIR/scripts/modal_helper.py check-auth`
 
-## Quick Reference
-
-### Run a function on a GPU
+## CLI Quick Reference
 
 ```bash
-modal run script.py  # runs @app.local_entrypoint()
-```
-
-### Interactive GPU shell
-
-```bash
-modal shell --gpu A100          # bare GPU shell
-modal shell script.py::my_func  # shell with function's image/volumes
-```
-
-### Deploy a persistent app
-
-```bash
-modal deploy script.py  # creates versioned deployment
-```
-
-### Volume management
-
-```bash
-modal volume create my-data            # create
-modal volume ls my-data                # list contents
+modal run script.py                     # run @app.local_entrypoint()
+modal shell --gpu A100                  # interactive GPU shell
+modal deploy script.py                  # persistent deployment
+modal volume create my-data             # create volume
 modal volume put my-data ./local /remote  # upload
 modal volume get my-data /remote ./local  # download
 ```
-
-## Generating App Boilerplate
-
-Use the helper script to generate Modal app templates:
-
-```bash
-# Basic GPU function
-uv run --directory SKILL_DIR python scripts/modal_helper.py scaffold --gpu A100 --name my_app
-
-# With pip dependencies
-uv run --directory SKILL_DIR python scripts/modal_helper.py scaffold --gpu A100 --name my_app -p torch -p transformers
-
-# With a volume
-uv run --directory SKILL_DIR python scripts/modal_helper.py scaffold --gpu A100 --name my_app --volume my-data:/mnt/data
-
-# CPU-only (no GPU)
-uv run --directory SKILL_DIR python scripts/modal_helper.py scaffold --name batch_job
-```
-
-Then run it: `modal run <generated_file>.py`
 
 ## GPU Options
 
@@ -77,15 +38,16 @@ Then run it: `modal run <generated_file>.py`
 | `T4` | 16 GB | Light inference, prototyping |
 | `L4` | 24 GB | Inference, small fine-tuning |
 | `A10G` | 24 GB | Inference, moderate training |
-| `L40S` | 48 GB | Vision, inference, mid training |
 | `A100` | 40/80 GB | Training, large inference |
 | `H100` | 80 GB | Large-scale training |
 
-Multi-GPU: use `A100:4` syntax for 4x GPUs.
+Multi-GPU: `gpu="A100:4"` for 4x GPUs. CPU-only: omit the `gpu=` parameter.
 
-## Modal App Patterns
+## Patterns
 
-### Minimal GPU function
+Write Modal apps directly — no scaffold needed. Use these patterns as building blocks.
+
+### GPU function
 
 ```python
 import modal
@@ -96,15 +58,14 @@ image = modal.Image.debian_slim(python_version="3.11").pip_install("torch")
 @app.function(gpu="A100", image=image, timeout=3600)
 def train():
     import torch
-    print(f"CUDA available: {torch.cuda.is_available()}")
-    print(f"Device: {torch.cuda.get_device_name(0)}")
+    print(f"CUDA: {torch.cuda.is_available()}, Device: {torch.cuda.get_device_name(0)}")
 
 @app.local_entrypoint()
 def main():
     train.remote()
 ```
 
-### With volumes for persistent storage
+### Persistent storage with volumes
 
 ```python
 import modal
@@ -112,12 +73,10 @@ import modal
 app = modal.App("data-app")
 volume = modal.Volume.from_name("my-data", create_if_missing=True)
 
-@app.function(gpu="A100", volumes={"/mnt/data": volume}, timeout=3600)
+@app.function(volumes={"/mnt/data": volume}, timeout=3600)
 def process():
     import os
-    files = os.listdir("/mnt/data")
-    print(f"Files in volume: {files}")
-    # Write results — auto-committed on exit
+    print(f"Files: {os.listdir('/mnt/data')}")
     with open("/mnt/data/output.txt", "w") as f:
         f.write("done")
 
@@ -126,22 +85,7 @@ def main():
     process.remote()
 ```
 
-### With secrets
-
-```python
-import modal
-
-app = modal.App("secure-app")
-
-@app.function(secrets=[modal.Secret.from_name("my-api-keys")])
-def call_api():
-    import os
-    api_key = os.environ["API_KEY"]  # injected by secret
-```
-
-Create secrets in the Modal dashboard or via: `modal secret create my-api-keys API_KEY=value`
-
-### Parallel map over inputs
+### Parallel map (CPU swarm or GPU fleet)
 
 ```python
 @app.function(gpu="T4", image=image)
@@ -150,41 +94,37 @@ def process_item(item: str) -> str:
 
 @app.local_entrypoint()
 def main():
-    items = ["a", "b", "c", "d"]
-    results = list(process_item.map(items))  # parallel execution
-    for r in results:
-        print(r)
+    results = list(process_item.map(["a", "b", "c", "d"]))
+    print(results)
 ```
 
-## Common Workflows
+Omit `gpu=` for a CPU swarm. Modal scales containers automatically.
 
-### Run a local script on a GPU
+### Secrets
 
-1. Wrap your script in a Modal function (use `scaffold` to generate boilerplate)
-2. `modal run your_modal_app.py`
+```python
+@app.function(secrets=[modal.Secret.from_name("my-api-keys")])
+def call_api():
+    import os
+    api_key = os.environ["API_KEY"]  # injected by secret
+```
 
-### Serve an inference endpoint
+Create secrets: `modal secret create my-api-keys API_KEY=value`
+
+### Web endpoint
 
 ```python
 @app.function(gpu="A100", image=image)
 @modal.web_endpoint()
 def predict(prompt: str):
-    # load model, run inference
     return {"result": "..."}
 ```
 
-Deploy with `modal deploy script.py`, get a URL back.
-
-### Download results from a volume
-
-```bash
-modal volume get my-data /output ./local_output
-```
+Deploy: `modal deploy script.py` — returns a URL.
 
 ## Troubleshooting
 
 - **"Modal token not found"**: Run `modal token set` or set `MODAL_TOKEN_ID` + `MODAL_TOKEN_SECRET`
-- **OOM on GPU**: Use a larger GPU (`A100` instead of `T4`) or reduce batch size
-- **Timeout**: Increase `timeout=` parameter (default is 300s)
-- **Cold start slow**: Pre-build the image with `modal run --build` or use `modal deploy` for warm containers
-- **Import errors in container**: Add missing packages to `.pip_install()` in the image definition
+- **OOM on GPU**: Use a larger GPU or reduce batch size
+- **Timeout**: Increase `timeout=` parameter (default 300s)
+- **Import errors in container**: Add packages to `.pip_install()` in the image definition

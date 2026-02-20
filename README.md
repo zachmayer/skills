@@ -102,6 +102,7 @@ graph LR
     ralph_loop --> ultra_think
     ralph_loop --> staff_engineer
     ralph_loop --> ask_questions
+    ralph_loop --> mental_models
     ralph_loop --> hierarchical_memory
     ralph_loop --> obsidian
     ultra_think --> mental_models

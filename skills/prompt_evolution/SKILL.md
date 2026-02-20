@@ -86,3 +86,29 @@ Maximize parallelism at each step. Wait for all results before proceeding to sel
 
 - If the top variant achieves 100% pass rate for 2 consecutive generations
 - If fitness plateaus (no improvement for 2 generations)
+
+## Archive Persistence
+
+After evolution completes, persist the winning prompt and runner-up to the obsidian vault. This lets future runs seed from proven prompts instead of starting from scratch — the single biggest improvement from meta-learning research (ADAS, Clune lab).
+
+**Save to** `$CLAUDE_OBSIDIAN_DIR/prompt_archive/<task-slug>.md`:
+
+```markdown
+# <Task Name>
+
+## Best Prompt (score: <fitness>)
+<the winning prompt text>
+
+## Runner-Up (score: <fitness>)
+<second-best prompt text>
+
+## Metadata
+- Criterion: <judge criterion used>
+- Generations: <N>
+- Date: <ISO date>
+- Test inputs: <count>
+```
+
+**Before starting a new evolution run**, check the archive for an existing entry matching the task. If found, use the archived best prompt as the seed instead of the user's naive seed. Tell the user: "Found archived prompt for this task (score: X). Using it as seed."
+
+This creates a ratchet: each evolution run builds on the best result from prior runs rather than re-evolving from scratch.

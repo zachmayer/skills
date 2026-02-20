@@ -19,7 +19,9 @@ Set `CLAUDE_OBSIDIAN_DIR` to change the vault root. All paths derive from it.
 | `note "text"` | Append timestamped line to today, report aggregation staleness |
 | `list` | List all memory files with type and date |
 | `read-day [YYYY-MM-DD]` | Output a day's content (default: today) |
+| `read-days START [END]` | Output multiple days (range or `--last N`) |
 | `read-month [YYYY-MM]` | Output a month's summary (default: current) |
+| `read-months START [END]` | Output multiple months (range or `--last N`) |
 | `read-overall` | Output overall_memory.md |
 | `read-current` | Output overall + current month + today in one call |
 | `status` | Show aggregation staleness |
@@ -41,14 +43,26 @@ Appends: `- **TIMESTAMP** [hostname:reponame]: TEXT` to today's daily file. Prin
 
 ### Readers
 
-Three focused readers + one convenience shortcut:
+Three focused readers, two multi-readers, and one convenience shortcut:
 
 ```bash
 # Read a specific day (default: today)
 uv run --directory SKILL_DIR python scripts/memory.py read-day 2026-02-10
 
+# Read multiple days (range)
+uv run --directory SKILL_DIR python scripts/memory.py read-days 2026-02-10 2026-02-14
+
+# Read last 7 days
+uv run --directory SKILL_DIR python scripts/memory.py read-days --last 7
+
 # Read a monthly summary (default: current month)
 uv run --directory SKILL_DIR python scripts/memory.py read-month 2026-02
+
+# Read multiple months (range)
+uv run --directory SKILL_DIR python scripts/memory.py read-months 2026-01 2026-02
+
+# Read last 3 months
+uv run --directory SKILL_DIR python scripts/memory.py read-months --last 3
 
 # Read overall memory
 uv run --directory SKILL_DIR python scripts/memory.py read-overall
@@ -129,7 +143,13 @@ The `note` command reports staleness after each save. Finish all your notes firs
 
 ## Fact Freshness
 
-Key facts in `overall_memory.md` can go stale — jobs change, preferences evolve, projects wind down. When relying on a fact from memory that seems like it could have changed (employment, location, active projects, tool preferences), consider asking the user to confirm it's still current rather than assuming. This is especially true for facts that are months old. Don't be annoying about it — just be aware that memory is a snapshot, not a live feed.
+Memory is a snapshot, not a live feed. When relying on a fact, consider its **information velocity** — how fast that kind of fact typically changes:
+
+- **Fast** (weeks): current project, active tasks, what someone is working on right now
+- **Medium** (months): tool preferences, workflows, team structure
+- **Slow** (years): employer, location, core skills, long-term preferences
+
+If a fact's age exceeds its expected velocity, ask the user to confirm before relying on it. Don't be annoying — just be aware that a 6-month-old "current project" is almost certainly stale, while a 6-month-old employer is probably fine.
 
 ## Git Integration
 

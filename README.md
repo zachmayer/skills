@@ -60,6 +60,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
+| [evergreen](skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
@@ -78,6 +79,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 
 | Skill | Type | Description |
 |-------|------|-------------|
+| [orchestrate](skills/orchestrate/) | Prompt | Decompose tasks into a dependency DAG, route to specialized sub-agents, execute in parallel |
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
@@ -95,9 +97,13 @@ Skills reference each other to compose larger workflows:
 
 ```mermaid
 graph LR
+    orchestrate --> ultra_think
+    orchestrate --> staff_engineer
+    orchestrate --> ask_questions
     ralph_loop --> ultra_think
     ralph_loop --> staff_engineer
     ralph_loop --> ask_questions
+    ralph_loop --> mental_models
     ralph_loop --> hierarchical_memory
     ralph_loop --> obsidian
     ultra_think --> mental_models
@@ -113,6 +119,7 @@ graph LR
     heartbeat --> obsidian
     heartbeat --> reminders
     heartbeat --> daily_briefing
+    heartbeat --> evergreen
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo
@@ -246,8 +253,8 @@ Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `a
 - **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
 - **Use scripts, not context, for bulk operations** (2026-02): Crawling 23 Confluence wiki pages with subagents blew context on all 5 agents. Next time: write a Python script that fetches and writes notes directly (Playwright → file), then run it in a loop. The agent's context window is for orchestration, not data transport. Also wrote one-off `audit_notes.py` and `fix_tags.py` scripts for vault maintenance — much better than manual inspection.
 - **launchd over cron on macOS** (2026-02): Heartbeat cron job failed with "Not logged in" — cron has minimal env, no user security session, no Keychain access. launchd user agents run in the user session, survive sleep/wake, and are Apple-supported. `claude setup-token` provides 1-year OAuth tokens for headless use. `CLAUDE_CODE_OAUTH_TOKEN` is auth priority 2 (after `ANTHROPIC_API_KEY`), so unset API key explicitly to force subscription billing.
-- **Optional extras for heavy deps** (2026-02): `marker-pdf` pulled in torch + CUDA (~3.8GB) on every CI run. Tests never imported it. Standard fix: `[project.optional-dependencies]` (PEP 621). `uv sync --group dev` skips extras; `uv sync --all-extras --all-groups` gets everything. Note: `--group X` always includes project deps — you can't exclude core deps with groups alone.
-- **Don't trust training data for library APIs** (2026-02): PR #24 changed `result.output` to `result.data` because the agent "knew" pydantic-ai 1.57.0 had renamed the attribute. It hadn't — `.output` was correct in all versions. The false fix was bundled into an unrelated PR (violating atomic PRs), persisted in project memory as fact, and wasn't caught until GPT-5.2 red-teaming triggered the error. Fix: always inspect installed code (`dir()`, `dataclasses.fields()`) before changing API usage. Added `test_pydantic_ai_compat.py` to catch future regressions automatically.
+- **Optional extras for heavy deps** (2026-02): `marker-pdf` pulled in torch + CUDA (~3.8GB) on every CI run. Tests never imported it. Initially moved to `[project.optional-dependencies]`. Later, marker-pdf pinned `anthropic<0.47.0` which conflicted with pydantic-ai's `anthropic>=0.80.0`. Final fix: removed marker-pdf from pyproject.toml entirely and added PEP 723 inline script metadata to `convert.py`, so it runs in its own isolated env via `uv run --script`. Skills with heavy/conflicting deps should manage their own dependencies this way.
+- **Don't trust training data for library APIs** (2026-02): PR #24 changed `result.output` to `result.data` because the agent "knew" pydantic-ai 1.57.0 had renamed the attribute. It hadn't — `.data` only existed in 0.0.31, renamed to `.output` in 0.1.0 and stable ever since (verified by installing 18 versions). The false fix was bundled into an unrelated PR (violating atomic PRs), persisted in project memory as fact, and wasn't caught until GPT-5.2 red-teaming triggered the error. Fix: always inspect installed code (`dir()`, `dataclasses.fields()`) before changing API usage. Added `test_pydantic_ai_compat.py` to catch future regressions automatically.
 
 ## License
 

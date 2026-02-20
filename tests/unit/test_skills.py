@@ -44,3 +44,25 @@ class TestSkillStructure:
         assert name.replace("-", "").replace("_", "").isalnum(), (
             "directory name must be alphanumeric with hyphens/underscores"
         )
+
+    def test_description_uses_standard_pattern(self, skill_dir: Path) -> None:
+        """Descriptions must use 'Use when'/'Do NOT use' pattern, not 'WHEN'/'WHEN NOT'."""
+        text = (skill_dir / "SKILL.md").read_text()
+        post = frontmatter.loads(text)
+        desc = post.metadata.get("description", "")
+        # Reject WHEN:/WHEN NOT: pattern (should be "Use when"/"Do NOT use")
+        assert "WHEN:" not in desc and "WHEN NOT:" not in desc, (
+            f"{skill_dir.name}: description uses 'WHEN:/WHEN NOT:' pattern — "
+            "use 'Use when'/'Do NOT use' instead for consistency"
+        )
+
+    def test_scripts_have_allowed_tools(self, skill_dir: Path) -> None:
+        """Skills with scripts/ directories should declare allowed-tools."""
+        scripts_dir = skill_dir / "scripts"
+        if not scripts_dir.exists():
+            pytest.skip("no scripts directory")
+        text = (skill_dir / "SKILL.md").read_text()
+        post = frontmatter.loads(text)
+        assert "allowed-tools" in post.metadata, (
+            f"{skill_dir.name}: has scripts/ but no 'allowed-tools' in frontmatter"
+        )

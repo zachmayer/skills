@@ -8,7 +8,9 @@ import subprocess
 from collections import defaultdict
 from dataclasses import dataclass
 from dataclasses import field
+from datetime import date
 from datetime import datetime
+from datetime import timedelta
 from pathlib import Path
 
 import click
@@ -273,6 +275,116 @@ def read_current() -> None:
         click.echo(day_path.read_text())
     else:
         click.echo(f"## Today ({datetime.now().strftime('%Y-%m-%d')})\n\n(no notes yet)\n")
+
+
+def _parse_date(s: str) -> date:
+    """Parse YYYY-MM-DD string to a date object."""
+    try:
+        return date.fromisoformat(s)
+    except ValueError:
+        raise click.BadParameter(f"Expected YYYY-MM-DD, got '{s}'")
+
+
+def _parse_month(s: str) -> date:
+    """Parse YYYY-MM string to the first day of that month."""
+    if not re.match(r"^\d{4}-\d{2}$", s):
+        raise click.BadParameter(f"Expected YYYY-MM, got '{s}'")
+    return date.fromisoformat(f"{s}-01")
+
+
+@cli.command(name="read-days")
+@click.argument("start", default="")
+@click.argument("end", default="")
+@click.option("--last", type=int, default=0, help="Read last N days (including today).")
+def read_days(start: str, end: str, last: int) -> None:
+    """Read multiple days. Usage: read-days START END or read-days --last N."""
+    today = date.today()
+
+    if last > 0:
+        if start or end:
+            raise click.UsageError("Cannot use --last with START/END arguments.")
+        end_date = today
+        start_date = today - timedelta(days=last - 1)
+    elif start and end:
+        start_date = _parse_date(start)
+        end_date = _parse_date(end)
+        if start_date > end_date:
+            raise click.UsageError(f"START ({start}) must be before END ({end}).")
+    elif start and not end:
+        start_date = _parse_date(start)
+        end_date = today
+    else:
+        raise click.UsageError("Provide START [END] or --last N.")
+
+    found = 0
+    current = start_date
+    while current <= end_date:
+        path = MEMORY_DIR / f"{current.isoformat()}.md"
+        if path.exists():
+            if found > 0:
+                click.echo("\n---\n")
+            click.echo(path.read_text())
+            found += 1
+        current += timedelta(days=1)
+
+    if found == 0:
+        click.echo(f"No daily notes found between {start_date} and {end_date}.")
+    else:
+        click.echo(f"\n({found} day(s) shown)")
+
+
+@cli.command(name="read-months")
+@click.argument("start", default="")
+@click.argument("end", default="")
+@click.option("--last", type=int, default=0, help="Read last N months (including current).")
+def read_months(start: str, end: str, last: int) -> None:
+    """Read multiple monthly summaries. Usage: read-months START END or read-months --last N."""
+    today = date.today()
+
+    if last > 0:
+        if start or end:
+            raise click.UsageError("Cannot use --last with START/END arguments.")
+        end_date = today.replace(day=1)
+        # Go back last-1 months
+        month = end_date.month - (last - 1)
+        year = end_date.year
+        while month < 1:
+            month += 12
+            year -= 1
+        start_date = date(year, month, 1)
+    elif start and end:
+        start_date = _parse_month(start)
+        end_date = _parse_month(end)
+        if start_date > end_date:
+            raise click.UsageError(f"START ({start}) must be before END ({end}).")
+    elif start and not end:
+        start_date = _parse_month(start)
+        end_date = today.replace(day=1)
+    else:
+        raise click.UsageError("Provide START [END] or --last N.")
+
+    found = 0
+    current = start_date
+    while current <= end_date:
+        month_str = current.strftime("%Y-%m")
+        path = MEMORY_DIR / f"{month_str}.md"
+        if path.exists():
+            if found > 0:
+                click.echo("\n---\n")
+            click.echo(path.read_text())
+            found += 1
+        # Advance to next month
+        if current.month == 12:
+            current = date(current.year + 1, 1, 1)
+        else:
+            current = date(current.year, current.month + 1, 1)
+
+    if found == 0:
+        click.echo(
+            f"No monthly summaries found between {start_date.strftime('%Y-%m')} and {end_date.strftime('%Y-%m')}."
+        )
+    else:
+        click.echo(f"\n({found} month(s) shown)")
 
 
 @cli.command()

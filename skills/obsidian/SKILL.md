@@ -25,6 +25,15 @@ Date: <YYYY-MM-DD — when was this note created?>
 
 **A note without a Date is always broken.** A note without a Source is broken unless there is genuinely no source.
 
+## Staleness Detection
+
+When reading notes, consider whether the content may have drifted since the `Date:` field. Use judgment based on **information velocity** — how fast that kind of information typically changes:
+
+- **Notes with a URL `Source:`** — if the topic moves fast (library docs, API references, news), offer to re-fetch via `web_grab`. A 3-month-old note about a Python library is probably stale; a note about a historical event is not.
+- **Notes with personal facts** — if a note records something that could have changed (current project, team structure, tool preferences), ask the user to confirm rather than assuming. See the `hierarchical_memory` skill's Fact Freshness section for velocity guidance.
+
+Don't over-flag — most notes age fine. Focus on notes you're actively relying on for decisions.
+
 ## Vault Structure
 
 ```

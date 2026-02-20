@@ -10,15 +10,18 @@ allowed-tools: Bash(uv run *), Read, Write, Glob
 
 Modal provides serverless containers with sub-5s cold starts. No SSH, no Kubernetes, no Docker registry. [Docs](https://modal.com/docs/guide) · [Examples](https://modal.com/docs/examples) · [API Reference](https://modal.com/docs/reference)
 
-## Prerequisites
+## Setup
 
-1. **Install**: `uv add modal` (adds to project deps)
-2. **Authenticate**: `uv run modal token set` or set env vars:
-   ```bash
-   export MODAL_TOKEN_ID="your-token-id"
-   export MODAL_TOKEN_SECRET="your-token-secret"
-   ```
-3. **Check auth**: `uv run --script SKILL_DIR/scripts/modal_helper.py check-auth`
+1. **Create account**: Sign up at [modal.com](https://modal.com) and create an API token from the dashboard
+2. **Authenticate** (one of these — token file is simplest):
+   - **Token file** (recommended): `uv run modal token set --token-id <ID> --token-secret <SECRET>`
+     Writes to `~/.modal.toml`. Use `--profile <name>` for multiple accounts, then `modal profile activate <name>`.
+   - **Env vars** (CI/headless — takes precedence over token file):
+     ```bash
+     export MODAL_TOKEN_ID="ak-..."
+     export MODAL_TOKEN_SECRET="as-..."
+     ```
+3. **Verify**: `uv run --script SKILL_DIR/scripts/modal_helper.py check-auth`
 
 ## CLI (always use `uv run modal`)
 

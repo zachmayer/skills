@@ -48,6 +48,8 @@ Select and apply the most relevant mental models from this toolkit. For models w
 
 **Five Whys** — When something breaks, ask "why?" five times. Each answer becomes the subject of the next question. Stops you from fixing symptoms. See [five-whys.md](five-whys.md).
 
+**Post-Mortem** — After a failure, structured diagnosis before retrying. State what happened, what you expected, trace root cause, classify the failure (wrong assumption, wrong approach, scope error, flaky), then plan a fix based on the classification. Prevents blind retry loops. See [post-mortem.md](post-mortem.md).
+
 **OODA Loop** — Observe → Orient → Decide → Act, then repeat faster than the environment changes. Speed of the loop matters more than perfection of any step. See [ooda-loop.md](ooda-loop.md).
 
 ## Critical Analysis
@@ -133,7 +135,8 @@ When applying a model:
 
 When uncertain which model to use, start with these high-hit-rate defaults:
 - **Stuck?** → Inversion, First Principles
-- **Debugging?** → Five Whys, Bottleneck Analysis
+- **Debugging?** → Five Whys, Post-Mortem, Bottleneck Analysis
+- **Something failed?** → Post-Mortem (diagnose before retrying)
 - **Deciding?** → Second-Order Thinking, Reversibility, Opportunity Cost
 - **Analyzing an argument?** → Excavate, Negspace, Rhetoricize
 - **Comparing options?** → Dimensionalize

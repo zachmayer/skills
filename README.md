@@ -60,6 +60,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
+| [evergreen](skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
@@ -78,6 +79,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 
 | Skill | Type | Description |
 |-------|------|-------------|
+| [orchestrate](skills/orchestrate/) | Prompt | Decompose tasks into a dependency DAG, route to specialized sub-agents, execute in parallel |
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
@@ -94,9 +96,13 @@ Skills reference each other to compose larger workflows:
 
 ```mermaid
 graph LR
+    orchestrate --> ultra_think
+    orchestrate --> staff_engineer
+    orchestrate --> ask_questions
     ralph_loop --> ultra_think
     ralph_loop --> staff_engineer
     ralph_loop --> ask_questions
+    ralph_loop --> mental_models
     ralph_loop --> hierarchical_memory
     ralph_loop --> obsidian
     ultra_think --> mental_models
@@ -112,6 +118,7 @@ graph LR
     heartbeat --> obsidian
     heartbeat --> reminders
     heartbeat --> daily_briefing
+    heartbeat --> evergreen
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo

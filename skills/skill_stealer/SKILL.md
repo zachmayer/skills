@@ -63,12 +63,15 @@ description: >
 
 ## Quality Checks
 
-Apply the `skills_reference` skill's checklist and conventions. Key points:
+Apply the `skills_reference` skill for the full checklist. Key points:
 
-- Challenge every line: "Does Claude need this?" The context window is shared.
-- Default to high freedom. Low freedom only for fragile operations.
-- SKILL.md under 500 lines. Split reference material into separate files.
-- Description in third person with WHEN/WHEN NOT triggers.
+**Conciseness**: Challenge every line: "Does Claude need this?" The context window is shared.
+
+**Degrees of freedom**: Default to high freedom. Low freedom only for fragile operations. Over-specifying heuristic tasks wastes tokens and constrains Claude from finding better approaches.
+
+**Progressive disclosure**: SKILL.md under 500 lines. Split reference material into separate files Claude reads on-demand. References one level deep only.
+
+**Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both WHEN to use and WHEN NOT to use.
 
 ## Post-Creation: Compress if Needed
 

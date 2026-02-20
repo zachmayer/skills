@@ -1,5 +1,5 @@
 ---
-name: agent_coordinator
+name: orchestrate
 description: >
   Orchestration: decompose a task into a dependency graph of sub-tasks, spawn
   specialized sub-agents in parallel where possible, and aggregate results.
@@ -16,6 +16,17 @@ Also apply these skills as needed:
 - `staff_engineer` for engineering rigor
 - `ask_questions` if the task is ambiguous — clarify before decomposing
 
+## Agent Routing Guide
+
+Choose the right sub-agent type for each sub-task:
+
+| Agent type | Route when... |
+|------------|---------------|
+| `Explore` | Finding files, searching code, understanding structure — read-only |
+| `Bash` | Running commands, builds, tests, git operations |
+| `Plan` | Designing architecture, planning implementation strategy |
+| `general-purpose` | Multi-step work requiring read + write + search + commands |
+
 ## Phase 1: Decompose
 
 Analyze the task and break it into sub-tasks. Each sub-task needs:
@@ -24,18 +35,9 @@ Analyze the task and break it into sub-tasks. Each sub-task needs:
 |-------|-------------|
 | `id` | Short identifier (e.g. `research-api`, `impl-schema`, `write-tests`) |
 | `title` | What this sub-task accomplishes |
-| `agent` | Sub-agent type: `Explore`, `Bash`, `Plan`, or `general-purpose` |
+| `agent` | Sub-agent type from the routing guide above |
 | `depends_on` | List of task IDs that must complete before this one starts |
 | `prompt` | Complete, self-contained prompt for the sub-agent |
-
-### Agent routing guide
-
-| Agent type | Route when... |
-|------------|---------------|
-| `Explore` | Finding files, searching code, understanding structure — read-only |
-| `Bash` | Running commands, builds, tests, git operations |
-| `Plan` | Designing architecture, planning implementation strategy |
-| `general-purpose` | Multi-step work requiring read + write + search + commands |
 
 ### Decomposition rules
 
@@ -62,7 +64,7 @@ Output the DAG as a fenced JSON block for the user to review:
       "title": "Add input validation to endpoints",
       "agent": "general-purpose",
       "depends_on": ["research-api"],
-      "prompt": "Given these API endpoints: {results.research-api}..."
+      "prompt": "Given these API endpoints: [RESULTS FROM research-api]..."
     }
   ]
 }
@@ -86,8 +88,8 @@ Process the DAG in topological order:
 1. **Identify the ready set** — all tasks whose dependencies are satisfied (completed or have no dependencies).
 2. **Launch ready tasks in parallel** using the Task tool. Use `description` for the task title and `subagent_type` matching the `agent` field.
 3. **Collect results.** When a task completes, store its result keyed by task ID.
-4. **Inject results into dependents.** Before launching a dependent task, replace `{results.task-id}` placeholders in its prompt with actual results from completed tasks.
-5. **Update progress.** Use TodoWrite to mark tasks as they progress through pending → in_progress → completed.
+4. **Inject results into dependents.** Before launching a dependent task, manually substitute the results from completed upstream tasks into the dependent's prompt. Write the actual data inline — sub-agents cannot access prior results automatically.
+5. **Track progress.** Use `TaskCreate` to register sub-tasks and `TaskUpdate` to mark them as `in_progress` → `completed` as they execute.
 6. **Repeat** until all tasks are complete or a task fails.
 
 ### Handling failures

@@ -42,7 +42,6 @@
       "Bash(gh gist delete*)",
       "Bash(gh gist edit*)",
       "Bash(gh issue close*)",
-      "Bash(gh issue create*)",
       "Bash(gh issue delete*)",
       "Bash(gh issue edit*)",
       "Bash(gh issue transfer*)",

@@ -32,7 +32,7 @@ def process_file(path):
         return ""  # Agent never knows the file was missing
 ```
 
-**Validate inputs, don't catch outcomes.** Check preconditions up front (file exists, required fields present, API key set). Let runtime errors bubble up with their natural error messages — the agent can diagnose and recover better than pre-written exception handlers.
+**Validate inputs, don't catch outcomes.** Check preconditions up front (file exists, required fields present, API key set). Pydantic is ideal for this — declare the shape of valid input and let validation errors speak for themselves. Let runtime errors bubble up with their natural error messages — the agent can diagnose and recover better than pre-written exception handlers.
 
 ## Configuration Constants
 

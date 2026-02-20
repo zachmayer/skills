@@ -55,7 +55,7 @@ Extract: `question`, `probability` (0-1), `url`, `volume`, `uniqueBettorCount`.
 curl -s "https://www.predictit.org/api/marketdata/all/"
 ```
 
-Returns all markets. Filter client-side by keyword match on `Name` or `ShortName`. Extract: `Name`, `Contracts[].LastTradePrice` (0-1 probability), `Contracts[].BestBuyYesCost`, `URL`.
+Returns all markets (no server-side search). Filter client-side by **whole-word** match on `Name` or `ShortName` — substring matching will produce false positives (e.g. "Maine" matching "ai"). Extract: `Name`, `Contracts[].LastTradePrice` (0-1 probability), `Contracts[].BestBuyYesCost`, `URL`.
 
 Rate limit: ~1 req/min. Political markets only (US elections, policy). Non-commercial use.
 
@@ -75,27 +75,21 @@ site:kalshi.com QUERY
 ```
 Visit top results with WebFetch to extract odds.
 
-### 6. Betfair Exchange (API — no auth for read)
+### 6. Betfair Exchange (WebSearch)
 
-```bash
-curl -s "https://www.betfair.com/exchange/plus/api/sports-navigation/en/politics"
-```
-
-For specific event search, use WebSearch:
+Betfair's trading API requires auth. Use WebSearch:
 ```
 site:betfair.com/exchange QUERY
 ```
-Best global liquidity on political events. Not available in US. Full API docs: https://developer.betfair.com
+Best global liquidity on political events. Not available in US. API docs: https://developer.betfair.com
 
-### 7. Smarkets (API — no auth for read)
+### 7. Smarkets (WebSearch)
 
-```bash
-curl -s "https://api.smarkets.com/v3/events/?search=QUERY&state=new,upcoming,live&type_domain=politics&limit=5"
+Smarkets API is hierarchical (categories → regions → events), not free-text searchable. Use WebSearch:
 ```
-
-Extract event IDs, then fetch markets: `curl -s "https://api.smarkets.com/v3/events/{id}/markets/"` and contracts with prices. Docs: https://docs.smarkets.com
-
-Not available in US. 2% commission exchange model.
+site:smarkets.com QUERY
+```
+Not available in US. 2% commission exchange model. API docs: https://docs.smarkets.com
 
 ## Output Format
 

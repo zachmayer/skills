@@ -13,26 +13,15 @@ allowed-tools: Bash(curl *), WebSearch, WebFetch
 
 Search prediction markets for forecasts on a topic. Platforms are searched in priority order: **Metaculus > Manifold > Polymarket > Kalshi**.
 
+## Platform Preference
+
+**Metaculus >> Manifold > Polymarket > Kalshi > others.** Metaculus is the gold standard — superforecaster-calibrated, non-speculative, best track record. Manifold is solid for coverage and liquidity. Polymarket and Kalshi are useful for cross-referencing but lower signal (speculative markets, regulatory constraints). Weight Metaculus results most heavily in the summary.
+
 ## Process
 
 Given a topic or question from the user:
 
-### 1. Manifold Markets (API)
-
-Search via the public API — no auth needed:
-
-```bash
-curl -s "https://api.manifold.markets/v0/search-markets?term=QUERY&sort=liquidity&filter=open&limit=5"
-```
-
-Extract from each result:
-- `question` — the market question
-- `probability` — current probability (0-1, display as percentage)
-- `url` — link to the market
-- `volume` — total trading volume (indicator of market depth)
-- `uniqueBettorCount` — number of unique bettors
-
-### 2. Metaculus (API)
+### 1. Metaculus (API)
 
 Search via the public API — no auth needed:
 
@@ -47,6 +36,21 @@ Extract from each result:
 - URL: `https://www.metaculus.com/questions/{id}/`
 
 Note: Metaculus hides community predictions until `cp_reveal_time`. If `centers` is null, report "prediction hidden" and still include the question.
+
+### 2. Manifold Markets (API)
+
+Search via the public API — no auth needed:
+
+```bash
+curl -s "https://api.manifold.markets/v0/search-markets?term=QUERY&sort=liquidity&filter=open&limit=5"
+```
+
+Extract from each result:
+- `question` — the market question
+- `probability` — current probability (0-1, display as percentage)
+- `url` — link to the market
+- `volume` — total trading volume (indicator of market depth)
+- `uniqueBettorCount` — number of unique bettors
 
 ### 3. Polymarket (WebSearch)
 
@@ -92,7 +96,7 @@ Present results as a table, one row per relevant market found:
 ## Rules
 
 - **Search all four platforms**, even if the first one returns good results. Cross-platform comparison is the whole point.
-- **Prioritize liquid markets.** A market with $100k volume is more informative than one with $50.
+- **Lead with Metaculus.** When summarizing, anchor on the Metaculus forecast. Note where other platforms agree or disagree. If Metaculus has no market but others do, say so explicitly — the absence on Metaculus is informative.
 - **Flag disagreements.** If platforms diverge by >15 percentage points, call it out explicitly.
 - **Report "no markets found"** for a platform rather than omitting it — the absence of a market is informative.
 - **URL-encode the search query** in API calls. Replace spaces with `+` or `%20`.

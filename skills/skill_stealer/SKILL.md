@@ -23,24 +23,7 @@ Given $ARGUMENTS (a URL or description of a skill idea), extract and create a ne
 
 3. **Extract the core** - What does this tell the AI to do differently? Reduce to the minimum effective prompt. Only keep what Claude doesn't already know.
 
-4. **Choose the right degree of freedom** for each part of the skill:
-
-   **High freedom** (text instructions) — use when multiple approaches are valid, decisions depend on context, or heuristics guide the approach. Most skill content should be high freedom.
-   ```
-   Example: "Validate with the project's quality checks. Fix failures before proceeding."
-   ```
-
-   **Medium freedom** (pseudocode, templates, suggested formats) — use when a preferred pattern exists but some variation is acceptable.
-   ```
-   Example: A suggested JSON schema with "adapt as needed for your project"
-   ```
-
-   **Low freedom** (exact scripts, specific commands) — use ONLY when operations are fragile, error-prone, or consistency is critical. Rewrite scripts to Python with Click CLIs run via `uv run`.
-   ```
-   Example: A validation script that must run exactly as written to avoid data corruption
-   ```
-
-   **The test**: imagine Claude as a robot on a path. Is this a narrow bridge with cliffs (low freedom needed) or an open field (high freedom, many paths lead to success)?
+4. **Choose the right degree of freedom** for each part of the skill (see `skills_reference` Core Principles for the full framework). Default to high freedom. Drop to medium/low only when the operation is fragile or a specific sequence is required.
 
 5. **Steal the code** (only when low freedom is justified) - If the source has scripts for fragile/mechanical operations:
    - Rewrite to Python using Click for CLIs, run via `uv run python scripts/<name>.py`
@@ -63,17 +46,10 @@ description: >
 
 ## Quality Checks
 
-Apply the `skills_reference` skill for the full checklist. Key points:
+Apply the `skills_reference` checklist. The two most common mistakes when stealing skills:
 
-**Conciseness**: Challenge every line: "Does Claude need this?" The context window is shared.
-
-**Degrees of freedom**: Default to high freedom. Low freedom only for fragile operations. Over-specifying heuristic tasks wastes tokens and constrains Claude from finding better approaches.
-
-**Progressive disclosure**: SKILL.md under 500 lines. Split reference material into separate files Claude reads on-demand. References one level deep only.
-
-**Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both WHEN to use and WHEN NOT to use.
-
-**Provide defaults, not options**: Don't present multiple approaches unless necessary. Pick the best default, mention alternatives only as escape hatches.
+- **Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both WHEN to use and WHEN NOT to use.
+- **Provide defaults, not options**: Don't present multiple approaches unless necessary. Pick the best default, mention alternatives only as escape hatches.
 
 ## Post-Creation: Compress if Needed
 

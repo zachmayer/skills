@@ -14,23 +14,28 @@ Comprehensive reference for writing effective SKILL.md files following the [Agen
 
 ## Core Principles
 
-### Conciseness
+### Concise is key
 
-The context window is shared. Only add context Claude doesn't already have. Challenge each line: "Does Claude need this?" Default assumption: Claude is already very smart.
+The context window is a public good. Your skill shares it with the system prompt, conversation history, other skills' metadata, and the actual request. Only add context Claude doesn't already have.
 
-### Degrees of Freedom
+**Default assumption**: Claude is already very smart. Challenge each piece of information:
+- "Does Claude really need this explanation?"
+- "Can I assume Claude knows this?"
+- "Does this paragraph justify its token cost?"
 
-Match specificity to task fragility (see `mental_models` Reversibility — high freedom for two-way doors, low freedom for one-way doors):
+### Set appropriate degrees of freedom
 
-- **High freedom** (text instructions): Multiple valid approaches, context-dependent decisions
-- **Medium freedom** (pseudocode/parameterized scripts): Preferred pattern exists, some variation OK
-- **Low freedom** (exact scripts, no params): Fragile operations, consistency critical, specific sequence required
+Match specificity to task fragility:
 
-Analogy: narrow bridge with cliffs (low freedom) vs open field (high freedom).
+- **High freedom** (text instructions): Multiple valid approaches, context-dependent decisions. Most skill content should be high freedom.
+- **Medium freedom** (pseudocode/parameterized scripts): Preferred pattern exists, some variation OK.
+- **Low freedom** (exact scripts, no params): Fragile operations, consistency critical, specific sequence required.
 
-### Test with Target Models
+Think of Claude as a robot on a path: **narrow bridge with cliffs** (low freedom, one safe way forward) vs **open field** (high freedom, many paths lead to success).
 
-Skills effectiveness depends on the model. Haiku may need more guidance; Opus may need less. Test with all models you plan to use.
+### Test with target models
+
+Skill effectiveness depends on the model. Haiku may need more guidance; Opus may need less. Test with all models you plan to use.
 
 ## Skill Structure
 
@@ -180,7 +185,7 @@ Guide through decision points:
 
 ### Feedback Loop Pattern
 
-Run validator → fix errors → repeat (see `mental_models` OODA Loop). Greatly improves output quality:
+Run validator → fix errors → repeat. Greatly improves output quality:
 
 ```markdown
 1. Make edits
@@ -243,7 +248,7 @@ The `` !`command` `` syntax runs shell commands before skill content is sent to 
 
 ## Evaluation
 
-Build evaluations BEFORE writing docs. Evaluation-driven development (see `mental_models` Pre-Mortem — imagine the skill failing before you write it):
+Build evaluations BEFORE writing docs. Evaluation-driven development:
 
 1. Run Claude on tasks WITHOUT the skill. Document failures
 2. Build 3 scenarios testing those gaps

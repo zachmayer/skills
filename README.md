@@ -83,12 +83,12 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
-| [claude_code_config](skills/claude_code_config/) | Prompt | Claude Code settings, permissions, hooks, MCP, and CLAUDE.md reference |
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
 | [pr_review](skills/pr_review/) | Python | External AI code review: fetch PR context via gh, send to GPT-5.2 |
 | [api_key_checker](skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
+| [skills_reference](skills/skills_reference/) | Prompt | Agent Skills authoring best practices and Claude Code config reference |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
 
 ## Skill Graph
@@ -131,7 +131,7 @@ graph LR
     daily_briefing --> obsidian
 ```
 
-Standalone skills (no imports): `api_key_checker`, `claude_code_config`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
+Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`, `skills_reference`
 
 ## Install
 

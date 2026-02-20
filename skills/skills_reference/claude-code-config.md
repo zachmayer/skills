@@ -1,13 +1,15 @@
----
-name: claude_code_config
-description: >
-  Claude Code configuration reference for settings, permissions, env vars,
-  hooks, MCP, and CLAUDE.md format. Use when configuring Claude Code behavior,
-  writing permission rules, setting up hooks, or adding MCP servers. Do NOT
-  use for general Claude Code usage questions.
----
+# Claude Code Configuration Reference
 
-Claude Code configuration reference. For basic usage, consult `claude --help` — this covers the config surface area that's hard to remember.
+Configuration reference for Claude Code settings, permissions, env vars, hooks, MCP, and CLAUDE.md format. For basic usage, consult `claude --help` — this covers the config surface area that's hard to remember.
+
+## Contents
+- Settings files and precedence
+- CLAUDE.md memory
+- Permission modes and rules
+- Key settings (model, sandbox, attribution, MCP)
+- Hooks (events, handlers, exit codes)
+- MCP (adding servers, scopes, OAuth, tool search)
+- Environment variables
 
 ## Settings Files & Precedence
 

@@ -1,61 +1,37 @@
 ---
 name: evergreen
 description: >
-  Generalized housekeeping that runs periodically (heartbeat or manual). Three scopes:
-  repo-scoped (prune branches, worktrees), knowledge-scoped (orphans, broken links, missing metadata),
-  and memory-scoped (duplicate entries). Use when the agent environment has accumulated clutter
-  from parallel agents, stale branches, or organic growth. Do NOT use for one-time cleanup of a
-  specific file or note.
+  Periodic vault and repo housekeeping. Use when the heartbeat has spare time,
+  the user asks to tidy up, or things feel cluttered. Do NOT use for one-time
+  cleanup of a specific file.
+allowed-tools: Bash(git *), Read, Write, Glob, Grep
 ---
 
-Maintenance skill for keeping repos, knowledge graph, and memory clean. Run periodically via heartbeat or manually when things feel cluttered.
+Periodic maintenance for the obsidian vault and repos. All checks use Glob, Grep, and Read — no scripts needed.
 
-## Usage
+## Knowledge Graph Health
 
-```bash
-# Repo maintenance (dry run — report only)
-uv run python skills/evergreen/scripts/evergreen.py repo /path/to/repo
+Check `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/` for:
 
-# Repo maintenance (actually prune merged branches and dangling worktrees)
-uv run python skills/evergreen/scripts/evergreen.py repo /path/to/repo --prune
+- **Orphan notes**: Notes not linked from any hub or other note. Use Grep to find all `[[wikilinks]]` across the vault, then Glob to list all note files. Notes whose title appears in no other file's wikilinks are orphans. Link them to an appropriate hub or create one.
+- **Broken wikilinks**: `[[targets]]` that don't resolve to any `.md` file in the vault. Rename the link or create the missing note.
+- **Missing metadata**: Notes without `Source:` or `Date:` lines. Every knowledge graph note needs both (see obsidian skill). Add them.
 
-# Knowledge graph maintenance (orphans, broken links, duplicates, missing metadata)
-uv run python skills/evergreen/scripts/evergreen.py knowledge
+## Memory Health
 
-# Memory maintenance (duplicate entries across daily notes)
-uv run python skills/evergreen/scripts/evergreen.py memory
+Check `$CLAUDE_OBSIDIAN_DIR/memory/` for:
 
-# Run all scopes
-uv run python skills/evergreen/scripts/evergreen.py all /path/to/repo
-uv run python skills/evergreen/scripts/evergreen.py all --prune /path/to/repo
-```
+- **Aggregation staleness**: Run `uv run --directory SKILL_DIR python scripts/memory.py status` (hierarchical_memory skill). Aggregate any stale months.
+- **Fact drift**: Scan `overall_memory.md` for facts whose velocity suggests they may be stale (see hierarchical_memory Fact Freshness section). Flag for user confirmation.
 
-## Scopes
+## Repo Health
 
-### Repo-scoped
-- **Merged branches**: local branches already merged into main/master
-- **Dangling worktrees**: worktree directories that no longer exist on disk
-- Use `--prune` to actually delete (default is dry-run report)
+- **Stale branches**: `git branch --merged main` shows branches already merged. Delete them with `git branch -d <name>`.
+- **Dangling worktrees**: `git worktree list` then `git worktree prune`.
+- The heartbeat runner already cleans its own branches — this is for organic accumulation in the main repo.
 
-### Knowledge-scoped
-- **Orphan notes**: knowledge graph notes not linked from any other note
-- **Broken wikilinks**: `[[targets]]` that don't resolve to any file
-- **Duplicate names**: same filename in different subdirectories
-- **Missing metadata**: notes without `Source:` or `Date:` lines
+## When to Run
 
-### Memory-scoped
-- **Duplicate entries**: identical log entries appearing across multiple daily notes
-- Normalizes entries (strips timestamps and context tags) before comparing
-
-## Heartbeat Integration
-
-When running as heartbeat, include evergreen as a periodic task:
-
-1. Run `evergreen.py all /path/to/repo` to get a report
-2. Review findings — orphans and broken links often indicate notes that should be linked or renamed
-3. Use `--prune` for repo cleanup only after confirming the branches are truly stale
-4. For knowledge/memory issues, fix manually or create targeted issues
-
-## Environment
-
-- `CLAUDE_OBSIDIAN_DIR`: vault root (default: `~/claude/obsidian`)
+- Heartbeat: when no urgent issues are available, spend remaining time on maintenance
+- Manual: when the user asks to tidy up or the vault feels cluttered
+- Don't force it — maintenance is lower priority than issue work

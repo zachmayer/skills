@@ -120,6 +120,8 @@ cd /tmp/project-feature && git checkout -b ralph/feature-name
 
 **Validation is mandatory**: Never mark a story complete if tests fail. Broken code compounds across iterations.
 
+**Diagnose before retrying**: When validation fails, apply `mental_models` (Post-Mortem, Five Whys) before attempting a fix. Never blind-retry — classify the failure first, then act based on the classification.
+
 **Front-load risk**: Do the hardest, most uncertain stories first while you have the most time to recover.
 
 **Prefer reversible decisions**: When self-guiding without user input, choose two-way doors over one-way doors. Reversible actions (creating a branch, writing a test, adding a feature flag) are safe to do autonomously. Irreversible actions (deleting data, merging to main, publishing) should wait for the user.

@@ -33,12 +33,14 @@ Use README.md as the development memory for this repo. It contains the skill inv
 - **Verify before "fixing" dependency bumps.** When dependabot bumps a library, don't assume the API changed. Test the actual behavior (`uv run python -c "..."`) before modifying code. PR #24 introduced a bug by "fixing" a non-existent API rename in pydantic-ai. Always branch from `origin/main` (not a stale local main) and run tests against the current dependency versions.
 - **Don't trust training data for library APIs.** Your knowledge cutoff may reflect a beta, a different version, or simply be wrong. Inspect the actual installed code to determine data structures: `uv run python -c "from lib import Class; print(dir(Class()))"`. Packages like pydantic-ai change fast — what you "know" about the API may be stale. If you believe an API changed but can't reproduce the error, your training data is wrong. Trust the installed version, not your memory.
 - **Fix tests, don't revert dep bumps.** When a dependency update breaks tests, the tests need to be fixed — not the update reverted. Staying on old versions creates compounding tech debt. The compat test (`test_pydantic_ai_compat.py`) exists to detect pydantic-ai API changes; when it fires, update the code to match the new API.
+- **Don't give the user indented heredocs.** `<<'EOF'` requires the closing `EOF` at column 0 — any leading whitespace prevents termination and the shell hangs. When giving the user shell commands, pass strings directly with flags (`--body "..."`) instead of `$(cat <<'EOF' ... EOF)` patterns.
 
 ## Git Workflow
 
 - **Always use PRs.** Never commit directly to main. Create a feature branch, push it, and open a PR. The human merges.
 - **Use worktrees** when the current branch is occupied. `git worktree add /tmp/skills-<name> main` then branch from there. This prevents clobbering other in-progress work.
 - **Atomic PRs.** Each PR should be independently mergeable. Don't bundle unrelated changes. If two features don't depend on each other, make two PRs.
+- **When superseding a PR**, remind the human to close the old PR. Give them the `gh pr close` command with a comment. Do NOT open the new PR until the human confirms the old one is closed. Keep reminding until you can verify closure with `gh pr view`.
 
 ## Conventions
 

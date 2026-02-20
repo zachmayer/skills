@@ -9,27 +9,29 @@ description: >
 allowed-tools: Bash(uv run *)
 ---
 
-Semantic search over markdown files using local sentence-transformers embeddings and FAISS approximate nearest neighbor search.
+Semantic search over markdown files using local sentence-transformers embeddings and FAISS.
+
+Embeds whole files (not chunks). Caches embeddings with timestamps so only changed files are re-embedded. Returns filenames only — read the matched files yourself.
 
 ## Commands
 
 ### Index the vault
 
-Builds (or rebuilds) the search index for all markdown files:
-
 ```bash
 uv run --script SKILL_DIR/scripts/vector_search.py index "$CLAUDE_OBSIDIAN_DIR"
 ```
 
-This embeds every markdown file using `all-MiniLM-L6-v2` (runs locally, no API keys needed) and stores a FAISS HNSW index in `$CLAUDE_OBSIDIAN_DIR/.vector_index/`.
+Embeds every markdown file using `all-MiniLM-L6-v2` (runs locally, no API keys needed). Stores a FAISS index and embedding cache in `$CLAUDE_OBSIDIAN_DIR/.vector_index/`.
 
-Re-run after adding or changing notes. Indexing a few hundred files takes ~10-30 seconds.
+Only re-embeds files that changed since last index. Re-indexing a vault where most files are cached is near-instant.
 
 ### Search
 
 ```bash
 uv run --script SKILL_DIR/scripts/vector_search.py search "$CLAUDE_OBSIDIAN_DIR" "your query here"
 ```
+
+Returns matching filenames ranked by cosine similarity. Read the files yourself to find what you need.
 
 Options:
 - `-k N` — number of results (default: 5)
@@ -41,12 +43,7 @@ Options:
 uv run --script SKILL_DIR/scripts/vector_search.py status "$CLAUDE_OBSIDIAN_DIR"
 ```
 
-## How it works
-
-1. **Chunking**: Markdown files are split by `##` headers. Each section becomes a searchable chunk.
-2. **Embedding**: Chunks are embedded locally using `all-MiniLM-L6-v2` (384 dimensions, sentence-transformers).
-3. **Indexing**: Embeddings are stored in a FAISS HNSW index for fast approximate nearest neighbor search.
-4. **Search**: Query is embedded with the same model, then searched against the index. Results are ranked by cosine similarity.
+Shows how many files are indexed, how many need re-indexing.
 
 ## When to use
 

@@ -82,7 +82,7 @@ AVAILABLE_PRS="[]"
 PR_COUNT=0
 
 # Randomize repo order
-SHUFFLED_REPOS=$(echo "$REPOS" | tr ' ' '\n' | python3 -c "
+SHUFFLED_REPOS=$(echo "$REPOS" | tr ' ' '\n' | uv run python -c "
 import sys, random
 repos = [l.strip() for l in sys.stdin if l.strip()]
 random.shuffle(repos)
@@ -118,7 +118,7 @@ for candidate in $SHUFFLED_REPOS; do
     # stale if it has no heartbeat branch on origin AND no open PR. Stale labels
     # are removed (so the issue is available this cycle and future ones).
     OPEN_PRS=$(gh pr list --repo "$candidate" --state open --json headRefName --limit 100 2>/dev/null || echo "[]")
-    AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" OPEN_PRS="$OPEN_PRS" REPO="$candidate" python3 -c "
+    AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" OPEN_PRS="$OPEN_PRS" REPO="$candidate" uv run python -c "
 import sys, json, random, os, subprocess
 issues = json.loads(sys.stdin.read())
 existing = set(line.strip() for line in os.environ.get('EXISTING', '').strip().split('\n') if line.strip())
@@ -141,7 +141,7 @@ random.shuffle(available)
 print(json.dumps(available))
 ")
 
-    ISSUE_COUNT=$(echo "$AVAILABLE_ISSUES" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
+    ISSUE_COUNT=$(echo "$AVAILABLE_ISSUES" | uv run python -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
 
     # --- Discover actionable PRs from authorized user ---
     # Security: --author filter ensures we only see PRs from trusted authors.
@@ -162,7 +162,7 @@ print(json.dumps(available))
     # (the previous agent finished or crashed without cleanup).
     ACTIVE_HB_WORKTREES=$(git -C "$candidate_dir" worktree list 2>/dev/null | grep -c "/tmp/heartbeat-" || echo 0)
     if [ "$ACTIVE_HB_WORKTREES" -eq 0 ]; then
-        echo "$ALL_PRS" | REPO="$candidate" python3 -c "
+        echo "$ALL_PRS" | REPO="$candidate" uv run python -c "
 import sys, json, os, subprocess
 prs = json.loads(sys.stdin.read())
 repo = os.environ['REPO']
@@ -174,7 +174,7 @@ for pr in prs:
     fi
 
     # Filter out in-progress PRs and strip non-authorized-user comments (security)
-    AVAILABLE_PRS=$(echo "$ALL_PRS" | AUTHORIZED_USER="$ISSUE_AUTHOR" python3 -c "
+    AVAILABLE_PRS=$(echo "$ALL_PRS" | AUTHORIZED_USER="$ISSUE_AUTHOR" uv run python -c "
 import sys, json, os, random
 prs = json.loads(sys.stdin.read())
 auth = os.environ['AUTHORIZED_USER']
@@ -190,7 +190,7 @@ random.shuffle(available)
 print(json.dumps(available))
 ")
 
-    PR_COUNT=$(echo "$AVAILABLE_PRS" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
+    PR_COUNT=$(echo "$AVAILABLE_PRS" | uv run python -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
 
     if [ "$ISSUE_COUNT" != "0" ] || [ "$PR_COUNT" != "0" ]; then
         REPO="$candidate"
@@ -206,7 +206,7 @@ if [ -z "$REPO" ]; then
 fi
 
 # Format issue list for the agent prompt
-ISSUE_LIST=$(echo "$AVAILABLE_ISSUES" | python3 -c "
+ISSUE_LIST=$(echo "$AVAILABLE_ISSUES" | uv run python -c "
 import sys, json
 for i in json.loads(sys.stdin.read()):
     print(f'### Issue #{i[\"number\"]}: {i[\"title\"]}')
@@ -219,7 +219,7 @@ for i in json.loads(sys.stdin.read()):
 # Format PR list for the agent prompt (authorized-user comments only)
 PR_LIST=""
 if [ "$PR_COUNT" != "0" ]; then
-    PR_LIST=$(echo "$AVAILABLE_PRS" | AUTHORIZED_USER="$ISSUE_AUTHOR" python3 -c "
+    PR_LIST=$(echo "$AVAILABLE_PRS" | AUTHORIZED_USER="$ISSUE_AUTHOR" uv run python -c "
 import sys, json, os
 prs = json.loads(sys.stdin.read())
 auth = os.environ['AUTHORIZED_USER']

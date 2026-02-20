@@ -79,6 +79,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 
 | Skill | Type | Description |
 |-------|------|-------------|
+| [orchestrate](skills/orchestrate/) | Prompt | Decompose tasks into a dependency DAG, route to specialized sub-agents, execute in parallel |
 | [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
@@ -95,6 +96,9 @@ Skills reference each other to compose larger workflows:
 
 ```mermaid
 graph LR
+    orchestrate --> ultra_think
+    orchestrate --> staff_engineer
+    orchestrate --> ask_questions
     ralph_loop --> ultra_think
     ralph_loop --> staff_engineer
     ralph_loop --> ask_questions

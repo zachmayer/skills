@@ -1,50 +1,61 @@
 ---
 name: pr_review
 description: >
-  Review a GitHub PR using an external AI model. Use when reviewing PRs,
-  getting a second opinion on code changes, or before merging. Do NOT use
-  for local code review without a PR.
-allowed-tools: Bash(uv run *), Bash(gh pr *), Bash(gh api *), Bash(git diff *), Bash(git log *)
+  Review a GitHub PR for bugs, security issues, and design problems.
+  Use when reviewing PRs, getting a second opinion on code changes, or
+  before merging. Do NOT use for local code review without a PR.
+allowed-tools: Bash(gh pr *), Bash(gh api *), Bash(git diff *), Bash(git log *)
 ---
 
-Get an external AI model to review a GitHub PR. The script fetches the PR diff, metadata, and file list via `gh`, assembles structured context, and sends it to a model (default: GPT-5.2 with xhigh thinking) for review.
+Review a GitHub PR. Two modes: **quick** (subagent, default) or **thorough** (external model via `discussion_partners`).
 
-## Usage
+## Step 1: Fetch Context
 
-```bash
-uv run --directory SKILL_DIR python scripts/review_pr.py <PR_REF> [OPTIONS]
-```
+The reviewer has zero context — you MUST fetch everything before reviewing.
 
-`PR_REF` accepts: full URL, `owner/repo#123`, `#123`, or just `123` (last two use current repo).
-
-## Options
-
-- `--model` / `-m`: Model string (default: `openai:gpt-5.2`). Same format as `discussion_partners`.
-- `--focus` / `-f`: Override the review focus prompt. Default asks for bugs, security, logic, design.
-- `--context-file` / `-c`: Extra files to include (repeatable). Use for CLAUDE.md, architecture docs, etc.
-- `--dry-run`: Print the assembled context without calling the model. Useful for checking what gets sent.
-
-## Workflow: Review → Triage → Implement
-
-1. **Review**: Run the script on a PR to get findings from an external model.
-2. **Triage**: Read the findings. Classify each as: real issue, false positive, or style nit. Not every finding needs action.
-3. **Implement**: Fix the real issues. Skip false positives and nits. Commit to the PR branch.
-
-## Examples
+Given a PR reference (number, `#123`, `owner/repo#123`, or full URL), run:
 
 ```bash
-# Review a PR in the current repo
-uv run --directory SKILL_DIR python scripts/review_pr.py 33
-
-# Review with extra context
-uv run --directory SKILL_DIR python scripts/review_pr.py 33 -c CLAUDE.md
-
-# Review with a different model
-uv run --directory SKILL_DIR python scripts/review_pr.py 33 -m anthropic:claude-opus-4-6
-
-# Security-focused review
-uv run --directory SKILL_DIR python scripts/review_pr.py 33 -f "Focus on security: injection, auth bypass, SSRF, secrets in code"
-
-# See what context gets sent (no API call)
-uv run --directory SKILL_DIR python scripts/review_pr.py 33 --dry-run
+gh pr view <N> [--repo owner/repo] --json title,body,author,state,baseRefName,headRefName,files,url
+gh pr diff <N> [--repo owner/repo]
 ```
+
+Also read `CLAUDE.md` and any relevant project docs from the repo so the reviewer understands repo conventions.
+
+## Step 2: Review
+
+Choose a mode based on the PR's complexity and the user's request.
+
+### Quick Review (default)
+
+Launch a **Task tool subagent** (`general-purpose`) with all the context from Step 1 and this system prompt:
+
+> You are an expert code reviewer. Review the PR diff and report findings.
+> Rules:
+> - Focus on correctness, bugs, security issues, and design problems
+> - Skip style nits, formatting, and naming unless they cause confusion
+> - Each finding must reference a specific file and line/hunk
+> - Rate severity: critical / warning / note
+> - If the code looks good, say so briefly — don't invent issues
+> - Be direct. No filler.
+
+Ask the subagent to review for real issues — bugs, security problems, logic errors, design concerns — and format each finding with severity, location, issue, and suggestion.
+
+### Thorough Review
+
+Use the `discussion_partners` skill to send the context to an external model. Include the same system prompt as above using the `-s` flag, and pass the PR context plus review instructions as the question.
+
+Use thorough mode when:
+- The PR is large or touches critical code
+- Design decisions need outside perspective
+- The user explicitly requests a thorough or external review
+
+## Step 3: Triage
+
+Not every finding is actionable. Classify each as:
+
+- **Real issue** — fix it
+- **False positive** — skip (explain why if non-obvious)
+- **Style nit** — skip unless it causes confusion
+
+Implement fixes for real issues. Don't blindly apply every suggestion.

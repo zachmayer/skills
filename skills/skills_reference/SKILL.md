@@ -149,7 +149,7 @@ Here is a sensible default format, but use your best judgment:
 
 ### Examples Pattern
 
-Provide input/output pairs for output-quality-sensitive skills:
+Provide 1-2 minimal input/output pairs for output-quality-sensitive skills. Examples are expensive — keep them short and only include when they lock in a strict format or demonstrate a non-obvious transformation. Move longer examples to `examples.md`:
 
 ````markdown
 **Example 1:**

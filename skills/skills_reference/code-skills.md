@@ -63,7 +63,7 @@ Document each script's interface:
 ````markdown
 **analyze_form.py**: Extract form fields from PDF
 ```bash
-python scripts/analyze_form.py input.pdf > fields.json
+uv run python scripts/analyze_form.py input.pdf > fields.json
 ```
 Output format:
 ```json
@@ -72,7 +72,7 @@ Output format:
 
 **validate.py**: Check for errors
 ```bash
-python scripts/validate.py fields.json
+uv run python scripts/validate.py fields.json
 # Returns: "OK" or lists conflicts
 ```
 ````
@@ -82,7 +82,7 @@ python scripts/validate.py fields.json
 When inputs can be rendered as images, have Claude analyze them visually. Claude's vision capabilities help understand layouts and structures.
 
 ```markdown
-1. Convert PDF to images: `python scripts/pdf_to_images.py form.pdf`
+1. Convert PDF to images: `uv run python scripts/pdf_to_images.py form.pdf`
 2. Analyze each page image to identify form fields
 ```
 

@@ -60,6 +60,35 @@ class TestParseProvider:
             ask_model._parse_provider("badmodel")
 
 
+class TestCapReasoningEffort:
+    """Test _cap_reasoning_effort for mini model handling."""
+
+    def test_mini_model_caps_xhigh_to_high(self) -> None:
+        thinking = {"openai_reasoning_effort": "xhigh"}
+        result = ask_model._cap_reasoning_effort("openai:gpt-4.1-mini", thinking)
+        assert result["openai_reasoning_effort"] == "high"
+
+    def test_non_mini_model_keeps_xhigh(self) -> None:
+        thinking = {"openai_reasoning_effort": "xhigh"}
+        result = ask_model._cap_reasoning_effort("openai:gpt-5.2", thinking)
+        assert result["openai_reasoning_effort"] == "xhigh"
+
+    def test_mini_model_without_xhigh_unchanged(self) -> None:
+        thinking = {"openai_reasoning_effort": "high"}
+        result = ask_model._cap_reasoning_effort("openai:gpt-4.1-mini", thinking)
+        assert result["openai_reasoning_effort"] == "high"
+
+    def test_non_openai_thinking_unchanged(self) -> None:
+        thinking = {"anthropic_thinking": {"type": "adaptive"}}
+        result = ask_model._cap_reasoning_effort("anthropic:claude-mini-test", thinking)
+        assert result == thinking
+
+    def test_parse_provider_integrates_cap_for_mini(self) -> None:
+        """_parse_provider should cap reasoning for mini models end-to-end."""
+        _, _, thinking = ask_model._parse_provider("openai:gpt-4.1-mini")
+        assert thinking["openai_reasoning_effort"] == "high"
+
+
 class TestProviderConfig:
     """Test PROVIDER_CONFIG data structure."""
 
@@ -245,6 +274,48 @@ class TestCLIErrorHandling:
 
         assert result.exit_code != 0
         assert "Something unexpected happened" in result.output
+
+    def test_incorrect_api_key_variant(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """'Incorrect API key' is an alternate phrasing from some providers."""
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = MagicMock()
+        mock_agent.run_sync.side_effect = Exception("Incorrect API key provided")
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent):
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
+
+        assert result.exit_code != 0
+        assert "invalid" in result.output
+
+    def test_429_status_code_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """HTTP 429 string in error triggers rate-limit message."""
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = MagicMock()
+        mock_agent.run_sync.side_effect = Exception("HTTP 429 Too Many Requests")
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent):
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
+
+        assert result.exit_code != 0
+        assert "Rate limited" in result.output
+
+
+class TestCLIMissingApiKeyShellHint:
+    """Test that the missing API key message shows the right shell config file."""
+
+    def test_darwin_suggests_zshrc(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        monkeypatch.setattr(ask_model.sys, "platform", "darwin")
+        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
+        assert "~/.zshrc" in result.output
+
+    def test_linux_suggests_bashrc(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        monkeypatch.setattr(ask_model.sys, "platform", "linux")
+        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.2", "test"])
+        assert "~/.bashrc" in result.output
 
 
 class TestGetKnownModels:

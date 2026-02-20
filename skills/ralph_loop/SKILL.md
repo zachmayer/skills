@@ -118,20 +118,9 @@ cd /tmp/project-feature && git checkout -b ralph/feature-name
 
 **Fresh context per iteration**: Each story gets a clean mental slate. Re-read relevant code. Use the Task tool for sub-agents when stories are independent.
 
-**Validation is mandatory**: Never mark a story complete if tests fail. Broken code compounds across iterations. When validation fails, run the diagnosis step (below) before retrying.
+**Validation is mandatory**: Never mark a story complete if tests fail. Broken code compounds across iterations.
 
-**Diagnose before retrying**: When a story fails validation (tests, lint, typecheck), don't immediately jump to a fix. First do structured failure analysis:
-
-```
-DIAGNOSIS:
-- What failed: <exact error or test name>
-- What I expected: <intended behavior>
-- Root cause: <why it actually failed — trace the data, don't guess>
-- Fix plan: <specific change to make>
-- Validation: <how I'll confirm the fix worked>
-```
-
-This prevents the common failure mode of blind retry loops where the same wrong assumption produces the same error. Inspired by the Darwin Godel Machine's `diagnose_problem()` pattern — agents that analyze failures before acting recover faster than agents that immediately retry.
+**Diagnose before retrying**: When validation fails, apply `mental_models` (Post-Mortem, Five Whys) before attempting a fix. Never blind-retry — classify the failure first, then act based on the classification.
 
 **Front-load risk**: Do the hardest, most uncertain stories first while you have the most time to recover.
 

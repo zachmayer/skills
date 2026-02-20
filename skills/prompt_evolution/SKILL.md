@@ -38,6 +38,12 @@ Launch parallel sub-agents, each using `discussion_partners` to produce one vari
 
 For generation 1, all variants mutate from the seed. For later generations, half the population uses crossover from the top 2 parents, half uses mutation from a random survivor.
 
+**Reflexion pass** (before scoring): After generating each variant, critically review it against the archive of prior variants before sending it to the judge. Ask: (1) Is this actually different from what we've already tried? (2) Are there obvious mistakes? (3) Can it be improved without changing the design? Discard or revise duplicates. This prevents wasting evaluation budget on near-copies. (From ADAS two-pass reflexion.)
+
+### 2b. Feed history as context
+
+When generating variants in generation 2+, include the **full history** of all prior variants and their scores (survivors AND dead variants) as context to the generator. The generator should see what worked, what failed, and why — so it can explicitly reason about what to try next rather than blindly mutating. The archive IS the prompt engineering; accumulating it gives the generator more signal over time.
+
 ### 3. Score each variant
 
 For each variant, for each test input:
@@ -50,6 +56,8 @@ Variant fitness = pass rate across all test inputs.
 ### 4. Select
 
 Keep the top 50% of variants (minimum 2). These become parents for the next generation.
+
+**Parent selection for next generation**: Don't always mutate from the top scorer. Penalize parents that already have many children — a parent used 3 times should be less likely to be picked than an equally-scored parent used once. This prevents over-exploiting one lineage and encourages exploring diverse approaches. (From DGM score-child proportional selection.)
 
 ### 5. Repeat
 

@@ -24,7 +24,7 @@ Modal 1.0 (May 2025) renamed several APIs. Use the new names:
 | Custom `__init__` on `@app.cls` | `modal.parameter()` + `@modal.enter()` |
 | `@modal.build` | Deprecated; use `Image.run_function()` |
 
-Pin: `modal~=1.0.0`. [Migration guide](https://modal.com/docs/guide/modal-1-0-migration)
+Always use latest Modal (`uv add modal`). [Migration guide](https://modal.com/docs/guide/modal-1-0-migration)
 
 ## Secrets
 

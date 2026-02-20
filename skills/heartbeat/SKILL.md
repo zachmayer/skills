@@ -59,7 +59,7 @@ Work the highest-priority tier:
 
 **Tier 2: Address review feedback** (medium priority)
 
-- Check out the PR branch, read ALL feedback from the authorized user.
+- Check out the PR branch. Before responding to the latest feedback, **read the full history first**: all prior comments, reviews, and commits on this PR. Understand the arc of the conversation — what was requested, what was tried, what was revised. Don't address the latest comment in isolation.
 - Address each comment: implement fixes, respond to questions, explain decisions.
 - Commit, push. The human will re-review.
 

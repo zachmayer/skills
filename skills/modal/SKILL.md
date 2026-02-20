@@ -58,7 +58,7 @@ Multi-GPU: `gpu="A100:4"`. GPU fallbacks: `gpu=["h100", "a100", "any"]`. CPU-onl
 import modal
 
 app = modal.App("my-app")
-image = modal.Image.debian_slim(python_version="3.12").pip_install("torch")
+image = modal.Image.debian_slim(python_version="3.12").uv_pip_install("torch")
 
 @app.function(gpu="A100", image=image, timeout=3600)
 def train():
@@ -78,7 +78,7 @@ Use for GPU inference — load model once, serve many requests:
 import modal
 
 app = modal.App("inference")
-image = modal.Image.debian_slim(python_version="3.12").pip_install("vllm")
+image = modal.Image.debian_slim(python_version="3.12").uv_pip_install("vllm")
 
 @app.cls(gpu="H100", image=image)
 @modal.concurrent(max_inputs=32)
@@ -199,8 +199,7 @@ Callers send single inputs; Modal accumulates into batches transparently.
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .apt_install("ffmpeg", "git")
-    .pip_install("torch==2.8.0", "transformers")  # pin versions
-    .uv_pip_install("httpx", "click")             # faster alternative
+    .uv_pip_install("torch==2.8.0", "transformers")  # pin versions
     .env({"MY_VAR": "value"})
     .add_local_python_source("my_package")        # replaces deprecated mount=
 )
@@ -216,5 +215,5 @@ For advanced patterns (sandboxes, dicts/queues, secrets, 1.0 migration), see [re
 - **Auth failed**: Run `uv run modal token set` or set `MODAL_TOKEN_ID` + `MODAL_TOKEN_SECRET`
 - **OOM on GPU**: Use a larger GPU or reduce batch size
 - **Timeout**: Increase `timeout=` (default 300s, max 24h). Use `--detach` for long jobs
-- **Import errors in container**: Add packages to `.pip_install()` in the image definition
+- **Import errors in container**: Add packages to `.uv_pip_install()` in the image definition
 - **Cold starts slow**: Use `min_containers`, or bake model into image with `Image.run_function()`

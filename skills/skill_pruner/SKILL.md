@@ -129,7 +129,7 @@ Tested with GPT 5.2 (xhigh thinking) on three conditions — full skill (~300 li
 
 ## References
 
-When auditing skills, use `skills_reference` for the canonical quality checklist, frontmatter conventions, and structural patterns that skills should follow.
+Use `skills_reference` for the canonical quality checklist, frontmatter conventions, and structural patterns that skills should follow — applies to both auditing existing skills and creating new ones.
 
 ## Principles
 

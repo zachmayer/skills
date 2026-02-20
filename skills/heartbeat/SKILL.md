@@ -46,15 +46,17 @@ Only pick up new issues when no PRs need attention. Check for existing PRs first
 
 ### PR Lifecycle
 
-This is the full cycle for a single piece of work:
+```mermaid
+graph LR
+    A[Open Issue] -->|"Tier 3: Implement"| B[PR Created]
+    B -->|"Tier 1: Review"| C[PR Reviewed]
+    C -->|Human comments| D[Has Feedback]
+    D -->|"Tier 2: Revise"| E[PR Revised]
+    E -->|Human merges| F[Done]
+    E -->|Human comments| D
+```
 
-1. **Issue → PR** (tier 3): Agent picks up issue, implements, creates PR.
-2. **Review** (tier 1): Next cycle, agent reviews the unreviewed PR.
-3. **Human feedback**: Authorized user reviews, leaves comments.
-4. **Revision** (tier 2): Next cycle, agent addresses the feedback, pushes.
-5. **Merge or more feedback**: Human merges, or leaves additional comments (back to step 4).
-
-This example shows one issue/PR. In practice, multiple items flow through concurrently — the agent always works the highest-priority tier across all available items.
+Multiple items flow concurrently — the agent always works the highest-priority tier across all available items.
 
 ### Claiming a PR
 

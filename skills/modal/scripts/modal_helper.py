@@ -3,12 +3,12 @@
 # requires-python = ">=3.11"
 # dependencies = [
 #     "click>=8.0",
+#     "modal>=1.0",
 # ]
 # ///
 """Helper utilities for the Modal compute skill."""
 
 import os
-import subprocess
 
 import click
 
@@ -29,25 +29,16 @@ def check_auth() -> None:
     else:
         click.echo("Environment: MODAL_TOKEN_ID / MODAL_TOKEN_SECRET not set (may use token file).")
 
-    try:
-        result = subprocess.run(
-            ["modal", "app", "list"],
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-    except FileNotFoundError:
-        click.echo("Auth: FAILED — modal CLI not found. Install with: uv add modal", err=True)
-        raise SystemExit(1)
+    import modal
 
-    if result.returncode == 0:
-        click.echo("Auth: OK — Modal CLI authenticated successfully.")
-    else:
-        stderr = result.stderr.strip()
-        click.echo(f"Auth: FAILED — {stderr}", err=True)
+    try:
+        modal.App.lookup("_auth_check", create_if_missing=True)
+        click.echo("Auth: OK — Modal authenticated successfully.")
+    except modal.exception.AuthError as e:
+        click.echo(f"Auth: FAILED — {e}", err=True)
         click.echo("", err=True)
         click.echo("To authenticate, either:", err=True)
-        click.echo("  1. Run: modal token set", err=True)
+        click.echo("  1. Run: uv run modal token set", err=True)
         click.echo("  2. Set env vars in ~/.zshrc:", err=True)
         click.echo('     export MODAL_TOKEN_ID="your-token-id"', err=True)
         click.echo('     export MODAL_TOKEN_SECRET="your-token-secret"', err=True)

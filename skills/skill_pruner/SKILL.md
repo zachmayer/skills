@@ -127,6 +127,10 @@ Tested with GPT 5.2 (xhigh thinking) on three conditions — full skill (~300 li
 
 **Conclusion**: Procedural structure is the value. Prose documentation is filler. Strong models don't need examples — they need the procedure and the key distinctions.
 
+## References
+
+Use `skills_reference` for the canonical quality checklist, frontmatter conventions, and structural patterns that skills should follow — applies to both auditing existing skills and creating new ones.
+
 ## Principles
 
 - **Not aggressive**: Surface candidates, don't auto-delete. The human decides.

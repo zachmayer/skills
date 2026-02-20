@@ -73,6 +73,8 @@ Apply the `skills_reference` skill for the full checklist. Key points:
 
 **Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both WHEN to use and WHEN NOT to use.
 
+**Provide defaults, not options**: Don't present multiple approaches unless necessary. Pick the best default, mention alternatives only as escape hatches.
+
 ## Post-Creation: Compress if Needed
 
 After creating a skill, evaluate its length. If it exceeds 150 lines, run it through the compression process in the `skill_pruner` skill (Skill Compression section). The key: preserve the procedural skeleton, output schema, key distinctions, and taxonomies. Cut examples, anti-pattern catalogs, genre-specific patterns, meta-commentary, and references. Target ~20% of original length.

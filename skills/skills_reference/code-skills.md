@@ -9,6 +9,7 @@ Detailed guidance for skills that include scripts and executable code.
 - Visual analysis
 - Verifiable intermediate outputs
 - Dependencies and runtime
+- How Claude accesses skills
 - MCP tool references
 
 ## Fail Clearly, Don't Swallow
@@ -127,6 +128,21 @@ Available fields: customer_name, order_total, signature_date_signed
 - Can install packages from npm and PyPI
 
 Always list required packages in SKILL.md and verify availability.
+
+## How Claude Accesses Skills
+
+Understanding the runtime model helps you structure skills effectively:
+
+1. **Metadata pre-loaded**: At startup, `name` and `description` from all skills load into the system prompt
+2. **Files read on-demand**: Claude uses tools to read SKILL.md and other files from the filesystem when needed
+3. **Scripts executed efficiently**: Utility scripts run via bash — only their output consumes tokens, not their source
+4. **No context penalty for large files**: Reference files, data, and docs don't consume tokens until actually read
+
+Implications:
+- **Bundle comprehensive resources** — large reference files, datasets, and API docs cost nothing until accessed
+- **Prefer scripts for deterministic operations** — write `validate_form.py` rather than asking Claude to generate validation code
+- **Name files descriptively** — `form_validation_rules.md` not `doc2.md`
+- **Organize by domain** — `reference/finance.md`, `reference/sales.md` not `docs/file1.md`, `docs/file2.md`
 
 ## MCP Tool References
 

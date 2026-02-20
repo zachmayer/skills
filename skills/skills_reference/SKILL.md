@@ -23,6 +23,21 @@ The context window is a public good. At startup, only name and description from 
 - "Can I assume Claude knows this?"
 - "Does this paragraph justify its token cost?"
 
+**Good** (~50 tokens):
+````markdown
+## Extract PDF text
+Use pdfplumber for text extraction:
+```python
+import pdfplumber
+with pdfplumber.open("file.pdf") as pdf:
+    text = pdf.pages[0].extract_text()
+```
+````
+
+**Bad** (~150 tokens): "PDF (Portable Document Format) files are a common file format that contains text, images, and other content. To extract text from a PDF, you'll need to use a library. There are many libraries available..."
+
+The concise version assumes Claude knows what PDFs are and how libraries work.
+
 ### Set appropriate degrees of freedom
 
 Match specificity to task fragility:
@@ -35,7 +50,13 @@ Think of Claude as a robot on a path: **narrow bridge with cliffs** (low freedom
 
 ### Test with target models
 
-Skill effectiveness depends on the model. Haiku may need more guidance; Opus may need less. Test with all models you plan to use.
+Skill effectiveness depends on the model. Test with all models you plan to use:
+
+- **Haiku** (fast, economical): Does the skill provide enough guidance?
+- **Sonnet** (balanced): Is the skill clear and efficient?
+- **Opus** (powerful reasoning): Does the skill avoid over-explaining?
+
+What works for Opus may need more detail for Haiku.
 
 ## Skill Structure
 
@@ -130,6 +151,36 @@ my-skill/
 - Form filling: See [FORMS.md](FORMS.md) for complete guide
 - API reference: See [REFERENCE.md](REFERENCE.md) for all methods
 ```
+
+### Domain-Specific Organization
+
+For skills with multiple domains, organize content by domain to avoid loading irrelevant context:
+
+```
+bigquery-skill/
+├── SKILL.md (overview and navigation)
+└── reference/
+    ├── finance.md (revenue, billing metrics)
+    ├── sales.md (opportunities, pipeline)
+    └── product.md (API usage, features)
+```
+
+When a user asks about revenue, Claude reads only `reference/finance.md`. Other files stay on disk, consuming zero context.
+
+### Conditional Details
+
+Show basic content inline, link to advanced content:
+
+```markdown
+## Creating documents
+Use docx-js for new documents. See [DOCX-JS.md](DOCX-JS.md).
+
+## Editing documents
+For simple edits, modify the XML directly.
+**For tracked changes**: See [REDLINING.md](REDLINING.md)
+```
+
+Claude reads REDLINING.md only when the user needs that feature.
 
 ## Common Patterns
 
@@ -239,7 +290,16 @@ The `` !`command` `` syntax runs shell commands before skill content is sent to 
 
 - **Too verbose**: Don't explain what Claude already knows (what PDFs are, how libraries work)
 - **Too many options**: Provide a default, not "you can use X, Y, or Z..."
-- **Time-sensitive info**: Don't write "before August 2025, use old API." Use an "old patterns" section
+- **Time-sensitive info**: Don't write "before August 2025, use old API." Use a collapsible "old patterns" section:
+  ```markdown
+  ## Current method
+  Use the v2 API endpoint: `api.example.com/v2/messages`
+
+  <details>
+  <summary>Legacy v1 API (deprecated 2025-08)</summary>
+  The v1 API used: `api.example.com/v1/messages`
+  </details>
+  ```
 - **Inconsistent terminology**: Pick one term and use it throughout
 - **Windows paths**: Always use forward slashes, even on Windows
 - **Deep nesting**: Don't chain `advanced.md` → `details.md` → actual content
@@ -261,7 +321,7 @@ For detailed evaluation and iterative development guidance, see [evaluation.md](
 ## Checklist
 
 ### Core quality
-- [ ] Description is specific with key terms and WHEN/WHEN NOT
+- [ ] Description includes WHAT and WHEN/WHEN NOT with key terms
 - [ ] SKILL.md body under 500 lines
 - [ ] Details in separate files if needed
 - [ ] No time-sensitive information
@@ -269,16 +329,20 @@ For detailed evaluation and iterative development guidance, see [evaluation.md](
 - [ ] Concrete examples
 - [ ] File references one level deep
 - [ ] Progressive disclosure used appropriately
+- [ ] Workflows have clear steps
 
 ### Code and scripts
 - [ ] Scripts validate inputs and fail with clear messages (don't silently swallow errors)
 - [ ] Let errors bubble up — the agent reasons about them better than pre-written handlers
 - [ ] No magic numbers
-- [ ] Required packages listed
+- [ ] Required packages listed and verified as available
+- [ ] Scripts have clear documentation (interface, output format)
+- [ ] No Windows-style paths (all forward slashes)
 - [ ] Validation/verification for critical operations
 - [ ] Feedback loops for quality-critical tasks
 
 ### Testing
 - [ ] At least 3 evaluations created
-- [ ] Tested with target models
+- [ ] Tested with target models (Haiku, Sonnet, Opus)
 - [ ] Tested with real usage scenarios
+- [ ] Team feedback incorporated (if applicable)

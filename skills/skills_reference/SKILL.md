@@ -20,7 +20,7 @@ The context window is shared. Only add context Claude doesn't already have. Chal
 
 ### Degrees of Freedom
 
-Match specificity to task fragility:
+Match specificity to task fragility (see `mental_models` Reversibility — high freedom for two-way doors, low freedom for one-way doors):
 
 - **High freedom** (text instructions): Multiple valid approaches, context-dependent decisions
 - **Medium freedom** (pseudocode/parameterized scripts): Preferred pattern exists, some variation OK
@@ -180,7 +180,7 @@ Guide through decision points:
 
 ### Feedback Loop Pattern
 
-Run validator → fix errors → repeat. Greatly improves output quality:
+Run validator → fix errors → repeat (see `mental_models` OODA Loop). Greatly improves output quality:
 
 ```markdown
 1. Make edits
@@ -243,7 +243,7 @@ The `` !`command` `` syntax runs shell commands before skill content is sent to 
 
 ## Evaluation
 
-Build evaluations BEFORE writing docs. Evaluation-driven development:
+Build evaluations BEFORE writing docs. Evaluation-driven development (see `mental_models` Pre-Mortem — imagine the skill failing before you write it):
 
 1. Run Claude on tasks WITHOUT the skill. Document failures
 2. Build 3 scenarios testing those gaps
@@ -266,8 +266,8 @@ For detailed evaluation and iterative development guidance, see [evaluation.md](
 - [ ] Progressive disclosure used appropriately
 
 ### Code and scripts
-- [ ] Scripts solve problems, don't punt to Claude
-- [ ] Explicit error handling
+- [ ] Scripts validate inputs and fail with clear messages (don't silently swallow errors)
+- [ ] Let errors bubble up — the agent reasons about them better than pre-written handlers
 - [ ] No magic numbers
 - [ ] Required packages listed
 - [ ] Validation/verification for critical operations

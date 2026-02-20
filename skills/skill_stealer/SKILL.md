@@ -44,7 +44,7 @@ Given $ARGUMENTS (a URL or description of a skill idea), extract and create a ne
 
 5. **Steal the code** (only when low freedom is justified) - If the source has scripts for fragile/mechanical operations:
    - Rewrite to Python using Click for CLIs, run via `uv run python scripts/<name>.py`
-   - Handle errors explicitly (don't punt to Claude)
+   - Validate inputs up front, let errors bubble up with clear messages (don't silently swallow)
    - No magic constants — justify values
    - If Claude can do it natively (manage JSON, use git, call APIs), don't write a script for it
 
@@ -63,26 +63,12 @@ description: >
 
 ## Quality Checks
 
-Apply the [Agent Skills Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) throughout:
+Apply the `skills_reference` skill's checklist and conventions. Key points:
 
-**Conciseness**: The context window is a public good. Claude is already very smart — only add what it doesn't know. Challenge every line: "Does Claude need this?"
-
-**Degrees of freedom**: Default to high freedom. Only drop to medium/low when the task is fragile. Over-specifying heuristic tasks wastes tokens and constrains Claude from finding better approaches.
-
-**Progressive disclosure**: SKILL.md is the overview (under 500 lines). Split reference material into separate files Claude reads on-demand. References one level deep only.
-
-**Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both what it does and when to use it.
-
-**Workflows for complex tasks**: Break multi-step operations into clear sequential steps. Include feedback loops (validate → fix → repeat) for quality-critical operations.
-
-**Provide defaults, not options**: Don't present multiple approaches unless necessary. Pick the best default, mention alternatives only as escape hatches.
-
-**Checklist**:
-- Description uses WHEN/WHEN NOT pattern
-- Instructions are actionable, not philosophical
-- Under 500 lines for SKILL.md (split into reference files if needed)
-- Name is snake_case, memorable, and descriptive
-- No time-sensitive information
+- Challenge every line: "Does Claude need this?" The context window is shared.
+- Default to high freedom. Low freedom only for fragile operations.
+- SKILL.md under 500 lines. Split reference material into separate files.
+- Description in third person with WHEN/WHEN NOT triggers.
 
 ## Post-Creation: Compress if Needed
 

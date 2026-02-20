@@ -11,29 +11,28 @@ Detailed guidance for skills that include scripts and executable code.
 - Dependencies and runtime
 - MCP tool references
 
-## Solve, Don't Punt
+## Fail Clearly, Don't Swallow
 
-Handle error conditions in scripts rather than letting them bubble up to Claude.
+Scripts should fail with clear, actionable error messages — not silently recover. The agent is intelligent; let it reason about errors in context rather than pre-specifying all error handling.
 
 ```python
-# Good: handle errors explicitly
+# Good: fail with a clear message the agent can act on
+def process_file(path):
+    if not os.path.exists(path):
+        raise click.ClickException(f"File not found: {path}")
+    with open(path) as f:
+        return f.read()
+
+# Bad: silently swallow errors
 def process_file(path):
     try:
         with open(path) as f:
             return f.read()
     except FileNotFoundError:
-        print(f"File {path} not found, creating default")
-        with open(path, "w") as f:
-            f.write("")
-        return ""
-    except PermissionError:
-        print(f"Cannot access {path}, using default")
-        return ""
-
-# Bad: punt to Claude
-def process_file(path):
-    return open(path).read()
+        return ""  # Agent never knows the file was missing
 ```
+
+**Validate inputs, don't catch outcomes.** Check preconditions up front (file exists, required fields present, API key set). Let runtime errors bubble up with their natural error messages — the agent can diagnose and recover better than pre-written exception handlers.
 
 ## Configuration Constants
 

@@ -38,6 +38,8 @@ Select and apply the most relevant mental models from this toolkit. For models w
 
 **Leverage Points** — Places in a system where small changes produce big effects. Meadows' hierarchy: parameters < buffers < feedback loops < information flows < rules < goals < paradigms. Intervene at the highest leverage point you can reach. See [leverage-points.md](leverage-points.md).
 
+**Recursive Self-Improvement** — When a system improves itself, distinguish grind (80%, systematic iteration within current paradigm) from paradigm shift (20%, entirely new approaches). Small improvements compound multiplicatively (multiplier effect), but hit diminishing returns ("adding nines"). Agents excel at grind; paradigm decisions need human judgment. See [recursive-self-improvement.md](recursive-self-improvement.md).
+
 ## Problem Solving
 
 **First Principles** — Decompose to fundamental truths. Reason up from there instead of reasoning by analogy. Breaks through "we've always done it this way." See [first-principles.md](first-principles.md).
@@ -135,6 +137,7 @@ When applying a model:
 
 When uncertain which model to use, start with these high-hit-rate defaults:
 - **Stuck?** → Inversion, First Principles
+- **Meta-work?** (improving tools/skills/processes) → Recursive Self-Improvement, Leverage Points
 - **Debugging?** → Five Whys, Post-Mortem, Bottleneck Analysis
 - **Something failed?** → Post-Mortem (diagnose before retrying)
 - **Deciding?** → Second-Order Thinking, Reversibility, Opportunity Cost

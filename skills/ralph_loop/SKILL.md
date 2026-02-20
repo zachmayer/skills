@@ -16,6 +16,7 @@ Execute a Ralph-style autonomous development loop for: $ARGUMENTS
 Also apply these skills throughout the loop:
 - `ultra_think` for deep thinking, complex debugging, and maximum persistence
 - `staff_engineer` for engineering standards, anti-sycophancy, and line-by-line debugging
+- `mental_models` for structured reasoning — OODA loop drives the iteration, post-mortem and Five Whys for failure diagnosis
 - `ask_questions` if requirements are unclear — clarify before building
 - `hierarchical_memory` to read past context and save learnings
 - `obsidian` to record durable knowledge and architectural decisions
@@ -119,6 +120,8 @@ cd /tmp/project-feature && git checkout -b ralph/feature-name
 **Fresh context per iteration**: Each story gets a clean mental slate. Re-read relevant code. Use the Task tool for sub-agents when stories are independent.
 
 **Validation is mandatory**: Never mark a story complete if tests fail. Broken code compounds across iterations.
+
+**Diagnose before retrying**: When validation fails, apply `mental_models` (Post-Mortem, Five Whys) before attempting a fix. Never blind-retry — classify the failure first, then act based on the classification.
 
 **Front-load risk**: Do the hardest, most uncertain stories first while you have the most time to recover.
 

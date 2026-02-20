@@ -3,9 +3,12 @@
 # Designed for macOS launchd user agent execution.
 #
 # PARALLEL BY DESIGN: Multiple heartbeat instances may run concurrently on the
-# same machine. Each gets its own worktree. Coordination uses git branches as
-# atomic claims — `git checkout -b heartbeat/issue-N` either succeeds (claimed)
-# or fails (another agent got it first). No locking, no label-based claiming.
+# same machine. Each gets its own worktree. Two coordination mechanisms:
+#   1. Git branches as atomic claims — `git checkout -b heartbeat/issue-N`
+#      either succeeds (claimed) or fails (another agent got it first).
+#   2. `in-progress` label — applied after claiming, survives branch deletion.
+#      Scavenged automatically: if an issue has the label but no branch and
+#      no open PR, the label is removed so the issue can be re-picked.
 # The agent receives a randomized list of available issues and picks one.
 set -euo pipefail
 
@@ -93,7 +96,7 @@ for candidate in $SHUFFLED_REPOS; do
         --author "$ISSUE_AUTHOR" \
         --label "$ISSUE_LABEL" \
         --state open \
-        --json number,title,body \
+        --json number,title,body,labels \
         --limit 25 2>/dev/null || echo "[]")
 
     if [ "$ALL_ISSUES" = "[]" ] || [ -z "$ALL_ISSUES" ]; then
@@ -104,13 +107,29 @@ for candidate in $SHUFFLED_REPOS; do
     EXISTING_BRANCHES=$(git -C "$candidate_dir" ls-remote --heads origin 'refs/heads/heartbeat/issue-*' 2>/dev/null \
         | awk '{print $2}' | sed 's|refs/heads/heartbeat/issue-||' || echo "")
 
-    # Filter claimed issues and randomize order
-    # EXISTING_BRANCHES passed via env var (not interpolated into source) to prevent injection
-    AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" python3 -c "
-import sys, json, random, os
+    # Scavenge stale in-progress labels then filter. An in-progress issue is
+    # stale if it has no heartbeat branch on origin AND no open PR. Stale labels
+    # are removed (so the issue is available this cycle and future ones).
+    OPEN_PRS=$(gh pr list --repo "$candidate" --state open --json headRefName --limit 100 2>/dev/null || echo "[]")
+    AVAILABLE_ISSUES=$(echo "$ALL_ISSUES" | EXISTING="$EXISTING_BRANCHES" OPEN_PRS="$OPEN_PRS" REPO="$candidate" python3 -c "
+import sys, json, random, os, subprocess
 issues = json.loads(sys.stdin.read())
 existing = set(line.strip() for line in os.environ.get('EXISTING', '').strip().split('\n') if line.strip())
-available = [i for i in issues if str(i['number']) not in existing]
+open_pr_branches = {pr['headRefName'] for pr in json.loads(os.environ.get('OPEN_PRS', '[]'))}
+repo = os.environ['REPO']
+available = []
+for i in issues:
+    num = str(i['number'])
+    if num in existing:
+        continue
+    labels = {l['name'] for l in i.get('labels', [])}
+    if 'in-progress' in labels:
+        branch_name = f'heartbeat/issue-{num}'
+        if branch_name in open_pr_branches:
+            continue  # legitimately in progress — has open PR
+        # Stale label: no branch, no open PR. Remove and make available.
+        subprocess.run(['gh', 'issue', 'edit', num, '--repo', repo, '--remove-label', 'in-progress'], capture_output=True)
+    available.append(i)
 random.shuffle(available)
 print(json.dumps(available))
 ")
@@ -183,6 +202,7 @@ set +e
             "Bash(git pull *)" "Bash(git fetch *)" \
             "Bash(git -C *)" "Bash(git worktree *)" \
             "Bash(gh pr create *)" "Bash(gh pr view *)" "Bash(gh pr list *)" \
+            "Bash(gh issue edit *)" "Bash(gh issue close *)" "Bash(gh issue comment *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
             "Bash(uv run python *)" \
         --max-turns "$MAX_TURNS" \
@@ -192,6 +212,7 @@ set +e
 
 Pick ONE issue from the list below. Create branch heartbeat/issue-N and work on it.
 If git checkout -b fails, the issue is claimed by another agent — pick a different one.
+After claiming an issue, label it in-progress: gh issue edit N --repo $REPO --add-label in-progress
 NEVER commit to main.
 
 <available-issues>

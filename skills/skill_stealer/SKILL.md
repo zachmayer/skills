@@ -23,28 +23,14 @@ Given $ARGUMENTS (a URL or description of a skill idea), extract and create a ne
 
 3. **Extract the core** - What does this tell the AI to do differently? Reduce to the minimum effective prompt. Only keep what Claude doesn't already know.
 
-4. **Choose the right degree of freedom** for each part of the skill:
-
-   **High freedom** (text instructions) — use when multiple approaches are valid, decisions depend on context, or heuristics guide the approach. Most skill content should be high freedom.
-   ```
-   Example: "Validate with the project's quality checks. Fix failures before proceeding."
-   ```
-
-   **Medium freedom** (pseudocode, templates, suggested formats) — use when a preferred pattern exists but some variation is acceptable.
-   ```
-   Example: A suggested JSON schema with "adapt as needed for your project"
-   ```
-
-   **Low freedom** (exact scripts, specific commands) — use ONLY when operations are fragile, error-prone, or consistency is critical. Rewrite scripts to Python with Click CLIs run via `uv run`.
-   ```
-   Example: A validation script that must run exactly as written to avoid data corruption
-   ```
-
-   **The test**: imagine Claude as a robot on a path. Is this a narrow bridge with cliffs (low freedom needed) or an open field (high freedom, many paths lead to success)?
+4. **Choose the right degree of freedom** for each part of the skill (see `skills_reference` Core Principles for the full framework):
+   - **High** (default): "Validate with the project's quality checks" — most content
+   - **Medium**: Suggested JSON schema with "adapt as needed"
+   - **Low**: Exact validation script, no modifications — only for fragile operations
 
 5. **Steal the code** (only when low freedom is justified) - If the source has scripts for fragile/mechanical operations:
    - Rewrite to Python using Click for CLIs, run via `uv run python scripts/<name>.py`
-   - Handle errors explicitly (don't punt to Claude)
+   - Validate inputs up front, let errors bubble up with clear messages (don't silently swallow)
    - No magic constants — justify values
    - If Claude can do it natively (manage JSON, use git, call APIs), don't write a script for it
 
@@ -63,30 +49,14 @@ description: >
 
 ## Quality Checks
 
-Apply the [Agent Skills Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) throughout:
+Apply the `skills_reference` checklist. The two most common mistakes when stealing skills:
 
-**Conciseness**: The context window is a public good. Claude is already very smart — only add what it doesn't know. Challenge every line: "Does Claude need this?"
-
-**Degrees of freedom**: Default to high freedom. Only drop to medium/low when the task is fragile. Over-specifying heuristic tasks wastes tokens and constrains Claude from finding better approaches.
-
-**Progressive disclosure**: SKILL.md is the overview (under 500 lines). Split reference material into separate files Claude reads on-demand. References one level deep only.
-
-**Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both what it does and when to use it.
-
-**Workflows for complex tasks**: Break multi-step operations into clear sequential steps. Include feedback loops (validate → fix → repeat) for quality-critical operations.
-
-**Provide defaults, not options**: Don't present multiple approaches unless necessary. Pick the best default, mention alternatives only as escape hatches.
-
-**Checklist**:
-- Description uses WHEN/WHEN NOT pattern
-- Instructions are actionable, not philosophical
-- Under 500 lines for SKILL.md (split into reference files if needed)
-- Name is snake_case, memorable, and descriptive
-- No time-sensitive information
+- **Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both WHEN to use and WHEN NOT to use.
+- **Provide defaults, not options**: Don't present multiple approaches unless necessary. Pick the best default, mention alternatives only as escape hatches.
 
 ## Post-Creation: Compress if Needed
 
-After creating a skill, evaluate its length. If it exceeds 150 lines, run it through the compression process in the `skill_pruner` skill (Skill Compression section). The key: preserve the procedural skeleton, output schema, key distinctions, and taxonomies. Cut examples, anti-pattern catalogs, genre-specific patterns, meta-commentary, and references. Target ~20% of original length.
+After creating a skill, evaluate its length. If it exceeds 150 lines, run it through the `skill_pruner` skill (Skill Compression section) for compression.
 
 ## Output
 

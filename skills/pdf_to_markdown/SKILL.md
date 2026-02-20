@@ -12,10 +12,12 @@ Convert the PDF at the given path to markdown.
 ## Usage
 
 ```bash
-uv run --directory SKILL_DIR python scripts/convert.py "$ARGUMENTS"
+uv run --script SKILL_DIR/scripts/convert.py "$ARGUMENTS"
 ```
 
 Where `SKILL_DIR` is the directory containing this skill (use the resolved path from the skill's location).
+
+The script uses PEP 723 inline metadata to manage its own dependencies (marker-pdf), so it runs in an isolated environment.
 
 The script:
 1. Takes a PDF file path as input

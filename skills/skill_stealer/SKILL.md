@@ -23,7 +23,10 @@ Given $ARGUMENTS (a URL or description of a skill idea), extract and create a ne
 
 3. **Extract the core** - What does this tell the AI to do differently? Reduce to the minimum effective prompt. Only keep what Claude doesn't already know.
 
-4. **Choose the right degree of freedom** for each part of the skill (see `skills_reference` Core Principles for the full framework). Default to high freedom. Drop to medium/low only when the operation is fragile or a specific sequence is required.
+4. **Choose the right degree of freedom** for each part of the skill (see `skills_reference` Core Principles for the full framework):
+   - **High** (default): "Validate with the project's quality checks" — most content
+   - **Medium**: Suggested JSON schema with "adapt as needed"
+   - **Low**: Exact validation script, no modifications — only for fragile operations
 
 5. **Steal the code** (only when low freedom is justified) - If the source has scripts for fragile/mechanical operations:
    - Rewrite to Python using Click for CLIs, run via `uv run python scripts/<name>.py`
@@ -53,7 +56,7 @@ Apply the `skills_reference` checklist. The two most common mistakes when steali
 
 ## Post-Creation: Compress if Needed
 
-After creating a skill, evaluate its length. If it exceeds 150 lines, run it through the compression process in the `skill_pruner` skill (Skill Compression section). The key: preserve the procedural skeleton, output schema, key distinctions, and taxonomies. Cut examples, anti-pattern catalogs, genre-specific patterns, meta-commentary, and references. Target ~20% of original length.
+After creating a skill, evaluate its length. If it exceeds 150 lines, run it through the `skill_pruner` skill (Skill Compression section) for compression.
 
 ## Output
 

@@ -16,7 +16,7 @@ Comprehensive reference for writing effective SKILL.md files following the [Agen
 
 ### Concise is key
 
-The context window is a public good. Your skill shares it with the system prompt, conversation history, other skills' metadata, and the actual request. Only add context Claude doesn't already have.
+The context window is a public good. At startup, only name and description from all skills are loaded. Claude reads SKILL.md only when relevant — but once loaded, every token competes with the system prompt, conversation history, other active skills, and the actual request. Only add context Claude doesn't already have.
 
 **Default assumption**: Claude is already very smart. Challenge each piece of information:
 - "Does Claude really need this explanation?"
@@ -243,7 +243,7 @@ The `` !`command` `` syntax runs shell commands before skill content is sent to 
 - **Inconsistent terminology**: Pick one term and use it throughout
 - **Windows paths**: Always use forward slashes, even on Windows
 - **Deep nesting**: Don't chain `advanced.md` → `details.md` → actual content
-- **Assuming tools installed**: Explicitly list required packages
+- **Assuming tools installed**: Explicitly list required packages (see [code-skills.md](code-skills.md) Dependencies and Runtime)
 - **Magic numbers**: Document why constants have specific values
 
 ## Evaluation

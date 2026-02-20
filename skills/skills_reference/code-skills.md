@@ -3,7 +3,7 @@
 Detailed guidance for skills that include scripts and executable code.
 
 ## Contents
-- Solve, don't punt
+- Fail clearly, don't swallow
 - Configuration constants
 - Utility scripts
 - Visual analysis
@@ -14,6 +14,8 @@ Detailed guidance for skills that include scripts and executable code.
 ## Fail Clearly, Don't Swallow
 
 Scripts should fail with clear, actionable error messages — not silently recover. The agent is intelligent; let it reason about errors in context rather than pre-specifying all error handling.
+
+> **Note**: Anthropic's best practices recommend scripts handle errors rather than punt to Claude. We take a more targeted position: validate inputs up front (preconditions), but let runtime errors bubble up with clear messages. The agent reasons about unexpected failures better than pre-written catch-all handlers.
 
 ```python
 # Good: fail with a clear message the agent can act on

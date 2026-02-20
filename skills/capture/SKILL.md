@@ -1,5 +1,5 @@
 ---
-name: capture_inbox
+name: capture
 description: >
   Smart routing for any input. Routes by scope + audience to the right
   destination: memory daily log (ephemeral), GitHub Issues with agent-task

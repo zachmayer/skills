@@ -16,6 +16,7 @@ Execute a Ralph-style autonomous development loop for: $ARGUMENTS
 Also apply these skills throughout the loop:
 - `ultra_think` for deep thinking, complex debugging, and maximum persistence
 - `staff_engineer` for engineering standards, anti-sycophancy, and line-by-line debugging
+- `mental_models` for structured reasoning — OODA loop drives the iteration, post-mortem and Five Whys for failure diagnosis
 - `ask_questions` if requirements are unclear — clarify before building
 - `hierarchical_memory` to read past context and save learnings
 - `obsidian` to record durable knowledge and architectural decisions

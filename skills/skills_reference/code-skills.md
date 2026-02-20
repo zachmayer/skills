@@ -34,7 +34,7 @@ def process_file(path):
         return ""  # Agent never knows the file was missing
 ```
 
-**Validate inputs, don't catch outcomes.** Check preconditions up front (file exists, required fields present, API key set). Pydantic is ideal for this — declare the shape of valid input and let validation errors speak for themselves. Let runtime errors bubble up with their natural error messages — the agent can diagnose and recover better than pre-written exception handlers.
+**Validate inputs, don't catch outcomes.** Check preconditions up front (file exists, required fields present, API key set). Use type hints, type checking, and runtime type validation as your first line of defense — Pydantic is ideal for this: declare the shape of valid input and let validation errors speak for themselves. Let runtime errors bubble up with their natural error messages — the agent can diagnose and recover better than pre-written exception handlers.
 
 ## Configuration Constants
 
@@ -115,6 +115,7 @@ Available fields: customer_name, order_total, signature_date_signed
 ### Claude Code
 - Full network access, same as any program on the user's computer
 - Avoid global package installs; install locally to avoid interfering with user's system
+- Prefer modern package managers: `uv` for Python, `pnpm`/`bun` for TypeScript/JS. Use inline script dependencies (`uv run --with`) or project-level deps over global installs
 
 ### Claude API
 - No network access, no runtime package installation

@@ -52,9 +52,9 @@ This is the full cycle for a single piece of work:
 2. **Review** (tier 1): Next cycle, agent reviews the unreviewed PR.
 3. **Human feedback**: Authorized user reviews, leaves comments.
 4. **Revision** (tier 2): Next cycle, agent addresses the feedback, pushes.
-5. **Merge**: Human merges the PR.
+5. **Merge or more feedback**: Human merges, or leaves additional comments (back to step 4).
 
-Between steps, if no PRs need attention, the agent picks up new issues (tier 3).
+This example shows one issue/PR. In practice, multiple items flow through concurrently — the agent always works the highest-priority tier across all available items.
 
 ### Claiming a PR
 

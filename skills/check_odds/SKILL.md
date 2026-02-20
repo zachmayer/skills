@@ -13,9 +13,18 @@ allowed-tools: Bash(curl *), WebSearch, WebFetch
 
 Search prediction markets for forecasts on a topic. Platforms are searched in priority order: **Metaculus > Manifold > Polymarket > Kalshi**.
 
-## Platform Preference
+## Platform Weighting
 
-**Metaculus >> Manifold > Polymarket > Kalshi > others.** Metaculus is the gold standard — superforecaster-calibrated, non-speculative, best track record. Manifold is solid for coverage and liquidity. Polymarket and Kalshi are useful for cross-referencing but lower signal (speculative markets, regulatory constraints). Weight Metaculus results most heavily in the summary.
+When synthesizing across platforms, weight by calibration quality:
+
+| Tier | Platform | Weight | Why |
+|------|----------|--------|-----|
+| 1 | **Metaculus** | Anchor | Superforecaster-calibrated, best track record, non-speculative |
+| 2 | **Manifold** | Strong signal | Good coverage, real-money liquidity, solid community |
+| 3 | **Polymarket, Kalshi** | Cross-reference | Speculative markets, regulatory constraints, lower calibration |
+| 4 | **New/niche platforms** | Weak signal | Unproven track record, thin markets |
+
+When platforms disagree, trust higher tiers. The summary should primarily reflect Metaculus, with Manifold as supporting evidence and Poly/Kalshi as color.
 
 ## Process
 
@@ -96,7 +105,7 @@ Present results as a table, one row per relevant market found:
 ## Rules
 
 - **Search all four platforms**, even if the first one returns good results. Cross-platform comparison is the whole point.
-- **Lead with Metaculus.** When summarizing, anchor on the Metaculus forecast. Note where other platforms agree or disagree. If Metaculus has no market but others do, say so explicitly — the absence on Metaculus is informative.
+- **Weight by tier.** Anchor the summary on the Metaculus forecast. Use Manifold as supporting evidence. Treat Polymarket/Kalshi as cross-references, not primary sources. If Metaculus has no market but others do, say so explicitly — the absence on Metaculus is informative.
 - **Flag disagreements.** If platforms diverge by >15 percentage points, call it out explicitly.
 - **Report "no markets found"** for a platform rather than omitting it — the absence of a market is informative.
 - **URL-encode the search query** in API calls. Replace spaces with `+` or `%20`.

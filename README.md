@@ -61,6 +61,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
 | [evergreen](skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
+| [issue_creator](skills/issue_creator/) | Prompt | Create well-specified GitHub issues from Agent Goals in triage mode |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
@@ -116,6 +117,7 @@ graph LR
     remember_session --> obsidian
     heartbeat --> hierarchical_memory
     heartbeat --> obsidian
+    heartbeat --> issue_creator
     heartbeat --> reminders
     heartbeat --> daily_briefing
     heartbeat --> evergreen

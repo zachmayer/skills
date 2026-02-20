@@ -10,7 +10,7 @@ description: >
 
 # Agent Skills Reference
 
-Comprehensive reference for writing effective SKILL.md files following the [Agent Skills](https://agentskills.io) open standard. Source: [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+Comprehensive reference for writing effective SKILL.md files following the [Agent Skills](https://agentskills.io) open standard. Based on Anthropic's [Agent Skills Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) — fetch the latest version when creating or reviewing skills.
 
 ## Core Principles
 

@@ -49,7 +49,7 @@ Work the highest-priority tier:
 
 **Tier 1: Review unreviewed PRs** (highest priority)
 
-- **Prior art review first.** Check recent merged and closed PRs (see section 1.6) to calibrate your review against the repo's standards — what gets approved, what gets rejected, common feedback themes.
+- **Prior art review first.** Load the `prior_art_review` skill and run the "For PR Reviews" protocol to calibrate against the repo's standards.
 - Use the `pr_review` skill (quick mode by default; thorough mode for large or critical PRs).
 - If the PR modifies files in `skills/`, also load `skills_reference` to check against Agent Skills best practices.
 - Load `mental_models` for architectural or design decisions.
@@ -66,34 +66,11 @@ Work the highest-priority tier:
 **Tier 3: New issues** (lowest priority)
 Only pick up new issues when no PRs need attention. Check for existing open PRs first: `gh pr list --search "issue-NUMBER"` to avoid duplicates.
 
-**Prior art review first.** Before implementing, run the full prior art review (see section 1.6) for this issue. Check all PRs (merged + unmerged) related to it. Merged PRs mean work shipped — understand the approach. Unmerged PRs mean a prior attempt failed — read the diff and comments to learn why.
+**Prior art review first.** Load the `prior_art_review` skill and run the "For Issues" protocol. Check all related issues and PRs (merged + unmerged). Understand what shipped and what failed.
 
 ## 1.6 Prior Art Review
 
-Before acting on any item, check what came before. This prevents duplicate work and learns from history.
-
-**For issues** (Tier 3 implementation):
-```bash
-# Related issues (open + closed)
-gh issue list --repo OWNER/REPO --state all --search "KEYWORDS" --json number,title,state,url --limit 20
-# Related PRs (merged + unmerged)
-gh pr list --repo OWNER/REPO --state all --search "issue-N OR KEYWORDS" --json number,title,state,mergedAt,url --limit 20
-```
-
-For each relevant match, read its comments (`gh api "repos/OWNER/REPO/issues/N/comments"`). For PRs, also review the diff (`gh pr diff N`).
-
-**For PR reviews** (Tier 1):
-```bash
-gh pr list --repo OWNER/REPO --state merged --limit 5 --json number,title,url
-gh pr list --repo OWNER/REPO --state closed --limit 5 --json number,title,url
-```
-
-**Open vs closed means different things:**
-- **Open issue** → work is pending. Don't duplicate — contribute to the existing one.
-- **Closed issue (completed)** → work was done. Understand what was built.
-- **Closed issue (not completed)** → understand why it was abandoned or rejected. If still relevant, reopen with a comment explaining what's different.
-- **Merged PR** → code shipped. Understand the approach and build on it.
-- **Unmerged/closed PR** → attempt failed or was rejected. Read the diff and comments. Don't repeat the same mistakes.
+Load the `prior_art_review` skill. It provides the full protocol for searching issues, PRs, comments, and diffs across all states, plus interpretation guidelines for open/closed/merged items.
 
 ### PR Lifecycle
 

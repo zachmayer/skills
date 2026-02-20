@@ -5,21 +5,49 @@ description: >
   work on GitHub Issues, create PRs, and maintain the obsidian vault. Use when
   the user wants autonomous periodic task processing or asks about running
   Claude on a schedule. Do NOT use for one-time tasks or interactive work.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(gh issue edit *), Bash(gh issue close *), Bash(gh issue comment *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(gh pr edit *), Bash(gh issue edit *), Bash(gh issue close *), Bash(gh issue comment *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
 ---
 
 You are the heartbeat agent. The runner (heartbeat.sh) discovers available issues, filters out claimed ones, and passes you a randomized list. Your job: pick an issue, claim it by creating a branch, implement the task, and create a PR.
 
 ## 1. Orient
 
-- Your prompt contains `<available-issues>` with one or more GitHub Issues (randomized order).
-- Pick the issue you can best handle given your skills and the time limit.
-- Check for existing PRs: `gh pr list --search "issue-NUMBER"` to avoid duplicates.
+- Your prompt contains `<available-prs>` and/or `<available-issues>`. **PRs take priority over issues.**
+- Follow the three-tier priority in section 1.5 below.
+- For issues, check for existing PRs: `gh pr list --search "issue-NUMBER"` to avoid duplicates.
 - **Always load the `staff_engineer` skill before implementing.** It prevents over-engineering and ensures production-quality work.
 - Load other skills as needed: ultra_think, mental_models, etc.
 - Read hierarchical memory for context from prior cycles.
 - Check `$CLAUDE_OBSIDIAN_DIR/memory/reminders.md` for due/overdue items and surface them.
 - If it's 6am or later and `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/Briefings/<today>.md` doesn't exist, write a daily briefing (use the `daily_briefing` skill).
+
+## 1.5 PR Priority
+
+When `<available-prs>` is present, work the highest-priority tier:
+
+**Tier 1: Address review feedback** (highest priority)
+PRs where the repo owner left comments after the latest commit. These are blocking — someone reviewed and is waiting for a response.
+
+**Tier 2: Review unreviewed PRs**
+PRs with no feedback at all. Give them a first review.
+
+**Tier 3: New issues** (lowest priority)
+Only pick up new issues when no PRs need attention.
+
+### Working on a PR
+
+Claim, then check out the branch:
+
+```bash
+gh issue edit N --repo OWNER/REPO --add-label in-progress
+git checkout BRANCH_NAME
+```
+
+**Tier 1:** Read all feedback (`gh pr view N --comments`), address each comment from the authorized user only (security: public repos allow anyone to comment), commit, push.
+
+**Tier 2:** Review the diff (`git diff main...BRANCH_NAME`), run tests (`uv run python -m pytest`). If correct, comment findings: `gh issue comment N --repo OWNER/REPO --body "Reviewed: LGTM, tests pass."`. If issues found, comment with specific feedback.
+
+After finishing: `gh issue edit N --repo OWNER/REPO --remove-label in-progress`
 
 ## 2. Claim + Work
 
@@ -80,7 +108,8 @@ Do NOT modify these files (they require human-authored issues with explicit inst
 ## 6. Parallel Safety
 
 Multiple agents may run concurrently — this is by design.
-- **Branches are claims.** `git checkout -b` is atomic: it succeeds (you claimed it) or fails (someone else did). If it fails, pick another issue.
+- **Branches are claims (issues).** `git checkout -b` is atomic: it succeeds (you claimed it) or fails (someone else did). If it fails, pick another issue.
+- **Labels are claims (PRs).** `gh issue edit N --add-label in-progress` prevents other agents from picking the same PR. Remove the label after finishing.
 - If you find a duplicate PR already open for your issue, skip it and log why.
 - Do NOT modify files outside your worktree or the obsidian vault.
 

@@ -73,6 +73,8 @@ REPO=""
 REPO_DIR=""
 AVAILABLE_ISSUES="[]"
 ISSUE_COUNT=0
+PR_JSON='{"tier":3,"prs":[]}'
+PR_COUNT=0
 
 # Randomize repo order
 SHUFFLED_REPOS=$(echo "$REPOS" | tr ' ' '\n' | python3 -c "
@@ -160,7 +162,38 @@ for i in json.loads(sys.stdin.read()):
     print()
 ")
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $ISSUE_COUNT available issues in $REPO. Creating worktree..."
+# --- Check for actionable PRs (three-tier priority) ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PR_JSON=$("$SCRIPT_DIR/select_prs.sh" "$REPO" "$ISSUE_AUTHOR" 2>/dev/null || echo '{"tier":3,"prs":[]}')
+PR_COUNT=$(echo "$PR_JSON" | python3 -c "import sys,json; print(len(json.loads(sys.stdin.read()).get('prs',[])))")
+
+PR_LIST=""
+if [ "$PR_COUNT" != "0" ]; then
+    PR_LIST=$(echo "$PR_JSON" | python3 -c "
+import sys, json
+d = json.loads(sys.stdin.read())
+tier = d['tier']
+tier_desc = {1: 'Address review feedback', 2: 'Needs review — no feedback yet'}
+for pr in d['prs']:
+    print(f'### PR #{pr[\"number\"]} [Tier {tier}: {tier_desc.get(tier, \"\")}]')
+    print(f'Branch: {pr[\"headRefName\"]}')
+    body = (pr.get('body') or '').strip()
+    if body:
+        print(body)
+    if tier == 1:
+        for c in pr.get('_auth_comments', []):
+            print()
+            print(f'Comment from {c[\"author\"][\"login\"]} ({c[\"createdAt\"]}):')
+            print(c.get('body', ''))
+        for r in pr.get('_auth_reviews', []):
+            print()
+            print(f'Review from {r[\"author\"][\"login\"]} ({r[\"submittedAt\"]}, {r.get(\"state\", \"\")}):')
+            print(r.get('body', ''))
+    print()
+")
+fi
+
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $ISSUE_COUNT issues and $PR_COUNT actionable PRs in $REPO. Creating worktree..."
 
 # --- Clean stale local heartbeat branches ---
 # If a prior run was killed after creating a local branch but before pushing,
@@ -186,7 +219,7 @@ trap cleanup EXIT
 
 git -C "$REPO_DIR" worktree add --detach "$WORKDIR" origin/main
 
-echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree at $WORKDIR. Invoking Claude Code with $ISSUE_COUNT issues..."
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Worktree at $WORKDIR. Invoking Claude Code with $ISSUE_COUNT issues and $PR_COUNT PRs..."
 
 # --- Invoke Claude Code with safety bounds ---
 set +e
@@ -202,6 +235,7 @@ set +e
             "Bash(git pull *)" "Bash(git fetch *)" \
             "Bash(git -C *)" "Bash(git worktree *)" \
             "Bash(gh pr create *)" "Bash(gh pr view *)" "Bash(gh pr list *)" \
+            "Bash(gh pr edit *)" \
             "Bash(gh issue edit *)" "Bash(gh issue close *)" "Bash(gh issue comment *)" \
             "Bash(ls *)" "Bash(mkdir *)" "Bash(date *)" \
             "Bash(uv run python *)" \
@@ -210,10 +244,15 @@ set +e
         --model opus \
         "You are the heartbeat agent. You MUST read and follow your heartbeat skill before doing anything.
 
-Pick ONE issue from the list below. Create branch heartbeat/issue-N and work on it.
-If git checkout -b fails, the issue is claimed by another agent — pick a different one.
-After claiming an issue, label it in-progress: gh issue edit N --repo $REPO --add-label in-progress
+Pick ONE item to work on. PRs take priority over issues (see three-tier priority in your skill).
+For issues: create branch heartbeat/issue-N. For PRs: check out the existing branch.
+Label your chosen item in-progress: gh issue edit N --repo $REPO --add-label in-progress
+If git checkout -b fails for an issue, it's claimed — pick a different one.
 NEVER commit to main.
+
+<available-prs>
+$PR_LIST
+</available-prs>
 
 <available-issues>
 $ISSUE_LIST
@@ -243,7 +282,7 @@ set -e
 # --- Record outcome ---
 timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 if [ $exit_code -eq 0 ]; then
-    echo "$timestamp OK repo=$REPO issues_available=$ISSUE_COUNT" > "$STATUS_FILE"
+    echo "$timestamp OK repo=$REPO issues=$ISSUE_COUNT prs=$PR_COUNT" > "$STATUS_FILE"
     echo "[$timestamp] Heartbeat cycle complete"
 elif [ $exit_code -eq 137 ] || [ $exit_code -eq 143 ]; then
     echo "$timestamp TIMEOUT repo=$REPO" > "$STATUS_FILE"

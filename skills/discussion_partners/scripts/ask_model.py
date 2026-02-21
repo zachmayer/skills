@@ -139,10 +139,10 @@ def main(
 
     if stream:
         try:
-            with agent.run_stream_sync(question, model_settings=settings) as result:
-                for chunk in result.stream_text(delta=True):
-                    click.echo(chunk, nl=False)
-                click.echo()  # trailing newline
+            result = agent.run_stream_sync(question, model_settings=settings)
+            for chunk in result.stream_text(delta=True):
+                click.echo(chunk, nl=False)
+            click.echo()  # trailing newline
         except Exception as e:
             _handle_api_error(e, prefix, key_name)
     else:

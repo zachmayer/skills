@@ -167,11 +167,9 @@ class TestCLIMissingApiKey:
 
 
 def _make_stream_mock(chunks: list[str]) -> MagicMock:
-    """Create a mock agent whose run_stream_sync yields chunks."""
+    """Create a mock agent whose run_stream_sync returns a stream result."""
     mock_stream = MagicMock()
     mock_stream.stream_text.return_value = iter(chunks)
-    mock_stream.__enter__ = MagicMock(return_value=mock_stream)
-    mock_stream.__exit__ = MagicMock(return_value=False)
 
     mock_agent = MagicMock()
     mock_agent.run_stream_sync.return_value = mock_stream

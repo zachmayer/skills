@@ -5,6 +5,9 @@
   },
   "permissions": {
     "allow": [
+      "Read",
+      "Glob",
+      "Grep",
       "Bash(echo *)",
       "Bash(git *)",
       "Bash(gh --help*)",
@@ -70,7 +73,6 @@
       "Bash(uv tool run*)",
       "Bash(uv cache clean*)",
       "Bash(uvx *)",
-      "Read(~/claude/obsidian/**)",
       "Edit(~/claude/obsidian/**)",
       "Write(~/claude/obsidian/**)"
     ],

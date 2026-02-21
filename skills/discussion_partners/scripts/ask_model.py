@@ -20,10 +20,6 @@ PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {
         "OPENAI_API_KEY",
         {"openai_reasoning_effort": "xhigh"},
     ),
-    "openai-responses": (
-        "OPENAI_API_KEY",
-        {"openai_reasoning_effort": "xhigh"},
-    ),
     "anthropic": (
         "ANTHROPIC_API_KEY",
         {"anthropic_thinking": {"type": "adaptive"}, "anthropic_effort": "max"},

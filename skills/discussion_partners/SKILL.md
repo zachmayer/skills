@@ -17,6 +17,8 @@ Query another AI model for an outside perspective on a difficult problem. One me
 | Model | When to use | API key needed |
 |-------|-------------|----------------|
 | `openai:gpt-5.2` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
+| `openai:codex-mini-latest` | Fast code-focused reasoning. Good for implementation questions | `OPENAI_API_KEY` |
+| `openai:gpt-5.1-codex` | Deep code reasoning. Best for architecture and complex debugging | `OPENAI_API_KEY` |
 | `google-gla:gemini-3-1-pro` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
 
@@ -58,16 +60,16 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opu
 # Gemini 3 Pro with thinking enabled
 uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3-pro-preview "question"
 
-# Codex models (via OpenAI Responses API)
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5-codex "question"
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:codex-mini-latest "question"
+# Codex models (code-focused reasoning)
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:codex-mini-latest "question"
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:gpt-5.1-codex "question"
 ```
 
 ## API Key Setup
 
 Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`):
 ```bash
-export OPENAI_API_KEY="your-key"      # Required for openai: and openai-responses: models
+export OPENAI_API_KEY="your-key"      # Required for openai: models (including Codex)
 export ANTHROPIC_API_KEY="your-key"   # Required for anthropic: models
 export GOOGLE_API_KEY="your-key"      # Required for google-gla: models
 ```
@@ -82,7 +84,7 @@ variable to set. If the key exists but the call fails, common errors:
 
 - `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.2`)
 - `--system` / `-s`: Optional system prompt override
-- `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.
+- `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`).
 
 ## Multiple Calls
 

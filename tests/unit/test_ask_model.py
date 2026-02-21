@@ -34,10 +34,11 @@ class TestParseProvider:
         assert prefix == "openai"
         assert "openai_reasoning_effort" in thinking
 
-    def test_openai_responses_prefix(self) -> None:
-        key_name, prefix, thinking = ask_model._parse_provider("openai-responses:gpt-5.2")
+    def test_codex_model_uses_openai_prefix(self) -> None:
+        key_name, prefix, thinking = ask_model._parse_provider("openai:codex-mini-latest")
         assert key_name == "OPENAI_API_KEY"
-        assert prefix == "openai-responses"
+        assert prefix == "openai"
+        assert thinking["openai_reasoning_effort"] == "high"  # mini → capped
 
     def test_anthropic_prefix(self) -> None:
         key_name, prefix, thinking = ask_model._parse_provider("anthropic:claude-opus-4-6")

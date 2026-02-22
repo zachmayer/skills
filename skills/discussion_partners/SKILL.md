@@ -12,15 +12,17 @@ Query another AI model for an outside perspective on a difficult problem. One me
 
 ## Recommended Models
 
-**Always use the script default** (`openai:gpt-5.2`) unless you have a specific reason to change. Do NOT override with older models like o3 — they are expensive and superseded.
+**By default, call all three models in parallel** to get diverse perspectives. Use the Task tool to launch three parallel Bash calls:
 
-| Model | When to use | API key needed |
-|-------|-------------|----------------|
-| `openai:gpt-5.2` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
-| `google-gla:gemini-3.1-pro-preview` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
-| `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
+| Model | Perspective | Auth |
+|-------|-------------|------|
+| `openai:gpt-5.2` | General reasoning, xhigh thinking | `OPENAI_API_KEY` |
+| `codex:gpt-5.3-codex` | Code-focused reasoning via Codex CLI | `codex login` |
+| `google-gla:gemini-3.1-pro-preview` | Brilliantly intelligent, different angle | `GOOGLE_API_KEY` |
 
-Before calling, verify the required API key is set: `echo $OPENAI_API_KEY | head -c 8` (should show `sk-...`).
+If you only need one opinion, pick the model that fits. For code questions, `codex:gpt-5.3-codex` alone is fine. `anthropic:claude-opus-4-6` is also available as a fourth option.
+
+Before calling, verify the required API key is set: `echo $OPENAI_API_KEY | head -c 8` (should show `sk-...`). For `codex:` models, authenticate via `codex login`.
 
 ## Framing Your Question
 
@@ -58,9 +60,8 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opu
 # Gemini 3.1 Pro with thinking enabled
 uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview "question"
 
-# Codex models (via OpenAI Responses API)
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5-codex "question"
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:codex-mini-latest "question"
+# Codex via Codex CLI (requires `codex login`)
+uv run --directory SKILL_DIR python scripts/ask_model.py -m codex:gpt-5.3-codex "question"
 ```
 
 ## API Key Setup
@@ -80,9 +81,9 @@ variable to set. If the key exists but the call fails, common errors:
 
 ## Options
 
-- `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.2`)
+- `--model` / `-m`: Model string (default: `openai:gpt-5.2`). Use `codex:<model>` for Codex CLI models.
 - `--system` / `-s`: Optional system prompt override
-- `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.
+- `--list-models` / `-l`: List known pydantic-ai model names, optionally filtered by prefix
 
 ## Multiple Calls
 

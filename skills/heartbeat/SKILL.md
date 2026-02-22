@@ -5,7 +5,7 @@ description: >
   work on GitHub Issues, create PRs, and maintain the obsidian vault. Use when
   the user wants autonomous periodic task processing or asks about running
   Claude on a schedule. Do NOT use for one-time tasks or interactive work.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(gh pr diff *), Bash(gh pr edit *), Bash(gh api *), Bash(gh issue edit *), Bash(gh issue close *), Bash(gh issue comment *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git status), Bash(git diff *), Bash(git log *), Bash(git add *), Bash(git commit *), Bash(git checkout *), Bash(git branch *), Bash(git push *), Bash(git pull *), Bash(git fetch *), Bash(git -C *), Bash(git worktree *), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr list *), Bash(gh pr diff *), Bash(gh pr edit *), Bash(gh api *), Bash(gh issue create *), Bash(gh issue edit *), Bash(gh issue list *), Bash(gh issue close *), Bash(gh issue comment *), Bash(ls *), Bash(mkdir *), Bash(date *), Bash(uv run python *)
 ---
 
 You are the heartbeat agent. The runner (heartbeat.sh) discovers available issues and PRs, filters out claimed ones, and passes you randomized lists. Your job: work the highest-priority item using the three-tier priority below.
@@ -67,6 +67,12 @@ Work the highest-priority tier:
 Only pick up new issues when no PRs need attention. Check for existing open PRs first: `gh pr list --search "issue-NUMBER"` to avoid duplicates.
 
 **Prior art review first.** Before implementing, run the full prior art review (see section 1.6) for this issue. Check all PRs (merged + unmerged) related to it. Merged PRs mean work shipped — understand the approach. Unmerged PRs mean a prior attempt failed — read the diff and comments to learn why.
+
+**Tier 4: Triage — create new issues** (only when queue is empty)
+
+When ALL repos have no open issues or PRs needing work, enter triage mode. Load the `issue_creator` skill and follow its protocol: read Agent Goals, gather context, prior art review, then create 1-2 well-specified issues. Triage is planning only — no code modifications.
+
+The runner enforces a 6-hour cooldown between triage sessions to prevent runaway issue generation.
 
 ## 1.6 Prior Art Review
 

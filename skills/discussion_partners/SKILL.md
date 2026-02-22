@@ -82,7 +82,6 @@ variable to set. If the key exists but the call fails, common errors:
 
 - `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.2`)
 - `--system` / `-s`: Optional system prompt override
-- `--stream` / `--no-stream`: Stream tokens as they arrive (default: `--stream`). Use `--no-stream` to wait for the full response before printing.
 - `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.
 
 ## Multiple Calls

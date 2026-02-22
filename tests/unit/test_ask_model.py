@@ -221,33 +221,10 @@ class TestCLIStreamingCall:
         assert "discussion partner" in call_kwargs[1]["system_prompt"]
 
 
-class TestCLINoStreamCall:
-    """Test CLI with --no-stream flag (non-streaming mode)."""
-
-    def test_no_stream_prints_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
-
-        mock_result = MagicMock()
-        mock_result.output = "The answer is 4."
-
-        mock_agent = MagicMock()
-        mock_agent.run_sync.return_value = mock_result
-
-        with patch.object(ask_model, "Agent", return_value=mock_agent) as mock_agent_cls:
-            result = CliRunner().invoke(
-                ask_model.main, ["--no-stream", "--model", "openai:gpt-5.2", "What is 2+2?"]
-            )
-
-        assert result.exit_code == 0
-        assert "The answer is 4." in result.output
-        mock_agent_cls.assert_called_once()
-        mock_agent.run_sync.assert_called_once()
-
-
 class TestCLIErrorHandling:
     """Test CLI error handling for API errors."""
 
-    def test_insufficient_quota_error_streaming(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_insufficient_quota_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
@@ -259,7 +236,7 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "insufficient quota" in result.output
 
-    def test_invalid_api_key_error_streaming(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_invalid_api_key_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
@@ -271,7 +248,7 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "invalid" in result.output
 
-    def test_rate_limit_error_streaming(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_rate_limit_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
@@ -283,7 +260,7 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "Rate limited" in result.output
 
-    def test_generic_error_streaming(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_generic_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
 
         mock_agent = MagicMock()
@@ -294,20 +271,6 @@ class TestCLIErrorHandling:
 
         assert result.exit_code != 0
         assert "Something unexpected happened" in result.output
-
-    def test_error_no_stream(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
-
-        mock_agent = MagicMock()
-        mock_agent.run_sync.side_effect = Exception("insufficient_quota")
-
-        with patch.object(ask_model, "Agent", return_value=mock_agent):
-            result = CliRunner().invoke(
-                ask_model.main, ["--no-stream", "--model", "openai:gpt-5.2", "test"]
-            )
-
-        assert result.exit_code != 0
-        assert "insufficient quota" in result.output
 
     def test_incorrect_api_key_variant(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """'Incorrect API key' is an alternate phrasing from some providers."""

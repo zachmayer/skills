@@ -10,18 +10,38 @@ allowed-tools: Bash(uv run *), Read, Write, Glob
 
 Modal provides serverless containers with sub-5s cold starts. No SSH, no Kubernetes, no Docker registry. [Docs](https://modal.com/docs/guide) · [Examples](https://modal.com/docs/examples) · [API Reference](https://modal.com/docs/reference)
 
-## Setup
+## First-Time Setup
 
-1. **Create account**: Sign up at [modal.com](https://modal.com) and create an API token from the dashboard
-2. **Authenticate** (one of these — token file is simplest):
-   - **Token file** (recommended): `uv run modal token set --token-id <ID> --token-secret <SECRET>`
-     Writes to `~/.modal.toml`. Use `--profile <name>` for multiple accounts, then `modal profile activate <name>`.
-   - **Env vars** (CI/headless — takes precedence over token file):
-     ```bash
-     export MODAL_TOKEN_ID="ak-..."
-     export MODAL_TOKEN_SECRET="as-..."
-     ```
-3. **Verify**: `uv run --script SKILL_DIR/scripts/modal_helper.py check-auth`
+### Prerequisites
+
+- **Python 3.11+** and **[uv](https://docs.astral.sh/uv/getting-started/installation/)** installed
+- **Modal package**: If using this skills repo, `make install` handles it. Standalone: `uv tool install modal`
+
+### 1. Create a Modal Account
+
+Sign up at [modal.com](https://modal.com). Go to **Settings → API Tokens** to create a token pair (token ID + secret).
+
+### 2. Authenticate
+
+**For humans** — token file (simplest):
+```bash
+uv run modal token set --token-id <ID> --token-secret <SECRET>
+```
+Writes to `~/.modal.toml`. Use `--profile <name>` for multiple accounts, then `modal profile activate <name>`.
+
+**For agents and CI** — environment variables (takes precedence over token file):
+Add to `~/.zshrc` (or `~/.bashrc`) so they're available when Claude Code launches:
+```bash
+export MODAL_TOKEN_ID="ak-..."
+export MODAL_TOKEN_SECRET="as-..."
+```
+Then `source ~/.zshrc` or restart your terminal.
+
+### 3. Verify
+
+```bash
+uv run --script SKILL_DIR/scripts/modal_helper.py check-auth
+```
 
 ## CLI (always use `uv run modal`)
 

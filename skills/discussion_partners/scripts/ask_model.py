@@ -65,6 +65,25 @@ def _get_known_models() -> list[str]:
     return sorted(typing.get_args(KnownModelName.__value__))
 
 
+def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
+    """Handle common API errors with helpful messages, then exit."""
+    msg = str(e)
+    if "insufficient_quota" in msg:
+        click.echo(f"Error: {prefix} account has insufficient quota.", err=True)
+        click.echo(
+            "This is a billing issue — add credits at the provider's dashboard.",
+            err=True,
+        )
+    elif "invalid_api_key" in msg or "Incorrect API key" in msg:
+        click.echo(f"Error: {key_name} is invalid.", err=True)
+        click.echo("Check the key value and run: source ~/.zshrc", err=True)
+    elif "rate_limit" in msg or "429" in msg:
+        click.echo(f"Error: Rate limited by {prefix}. Wait and retry.", err=True)
+    else:
+        click.echo(f"Error from {prefix}: {msg}", err=True)
+    raise SystemExit(1)
+
+
 @click.command()
 @click.option(
     "--model",
@@ -78,7 +97,12 @@ def _get_known_models() -> list[str]:
     "--list-models", "-l", default=None, help="List known models (optionally filter by prefix)"
 )
 @click.argument("question", required=False)
-def main(model: str, system: str | None, list_models: str | None, question: str | None) -> None:
+def main(
+    model: str,
+    system: str | None,
+    list_models: str | None,
+    question: str | None,
+) -> None:
     """Ask a question to another AI model with extended thinking."""
     if list_models is not None:
         prefix_filter = list_models if list_models else None
@@ -104,25 +128,15 @@ def main(model: str, system: str | None, list_models: str | None, question: str 
         system_prompt=system
         or "You are a discussion partner. Think carefully and help discover the truth.",
     )
+    settings = cast(ModelSettings, thinking)
+
     try:
-        result = agent.run_sync(question, model_settings=cast(ModelSettings, thinking))
+        result = agent.run_stream_sync(question, model_settings=settings)
+        for chunk in result.stream_text(delta=True):
+            click.echo(chunk, nl=False)
+        click.echo()  # trailing newline
     except Exception as e:
-        msg = str(e)
-        if "insufficient_quota" in msg:
-            click.echo(f"Error: {prefix} account has insufficient quota.", err=True)
-            click.echo(
-                "This is a billing issue — add credits at the provider's dashboard.",
-                err=True,
-            )
-        elif "invalid_api_key" in msg or "Incorrect API key" in msg:
-            click.echo(f"Error: {key_name} is invalid.", err=True)
-            click.echo("Check the key value and run: source ~/.zshrc", err=True)
-        elif "rate_limit" in msg or "429" in msg:
-            click.echo(f"Error: Rate limited by {prefix}. Wait and retry.", err=True)
-        else:
-            click.echo(f"Error from {prefix}: {msg}", err=True)
-        raise SystemExit(1)
-    click.echo(result.output)
+        _handle_api_error(e, prefix, key_name)
 
 
 if __name__ == "__main__":

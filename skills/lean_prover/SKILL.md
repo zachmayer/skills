@@ -7,6 +7,7 @@ description: >
   orchestrating complex proof campaigns across multiple lemmas.
   Do NOT use for general programming, non-Lean math, or single-tactic proofs that
   need no orchestration.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(lean *), Bash(lake *), Bash(loogle *), Bash(leandex *)
 ---
 
 Prove Lean 4 theorems using a multi-agent coordinator pattern with blueprint-driven dependency tracking and systematic exploration. Extracted from [numina-lean-agent](https://github.com/project-numina/numina-lean-agent), which proved all 12 Putnam 2025 problems.

@@ -2,7 +2,10 @@
 """Ask a question to another AI model using pydantic-ai with thinking enabled."""
 
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 import typing
 from typing import Any
 from typing import cast
@@ -84,6 +87,32 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
     raise SystemExit(1)
 
 
+def _run_codex(model_name: str, question: str, system: str | None) -> None:
+    """Run a question through the Codex CLI and print the response."""
+    if not shutil.which("codex"):
+        click.echo(
+            "Error: codex CLI not found. Install from https://github.com/openai/codex", err=True
+        )
+        raise SystemExit(1)
+
+    prompt = f"{system}\n\n{question}" if system else question
+
+    with tempfile.NamedTemporaryFile(mode="r", suffix=".txt", delete=False) as f:
+        outfile = f.name
+
+    try:
+        cmd = ["codex", "exec", "--ephemeral", "-o", outfile, "-m", model_name, prompt]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            stderr = result.stderr.strip()
+            click.echo(f"Error from codex: {stderr or 'unknown error'}", err=True)
+            raise SystemExit(1)
+        with open(outfile) as f:
+            click.echo(f.read())
+    finally:
+        os.unlink(outfile)
+
+
 @click.command()
 @click.option(
     "--model",
@@ -113,6 +142,12 @@ def main(
 
     if not question:
         raise click.UsageError("Missing argument 'QUESTION'.")
+
+    # Codex CLI models bypass pydantic-ai entirely
+    if model.startswith("codex:"):
+        model_name = model.split(":", 1)[1]
+        _run_codex(model_name, question, system)
+        return
 
     key_name, prefix, thinking = _parse_provider(model)
 

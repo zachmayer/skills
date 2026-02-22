@@ -315,6 +315,71 @@ class TestCLIMissingApiKeyShellHint:
         assert "~/.bashrc" in result.output
 
 
+class TestCodexCLI:
+    """Test codex: prefix routing to Codex CLI."""
+
+    def test_codex_prefix_calls_run_codex(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(ask_model.shutil, "which", lambda _: "/usr/bin/codex")
+        mock_run = MagicMock()
+        mock_run.return_value = MagicMock(returncode=0)
+        monkeypatch.setattr(ask_model.subprocess, "run", mock_run)
+
+        with patch.object(ask_model.os, "unlink"):
+            with patch(
+                "builtins.open",
+                MagicMock(
+                    return_value=MagicMock(
+                        __enter__=MagicMock(
+                            return_value=MagicMock(
+                                read=MagicMock(return_value="Four\n"), name="/tmp/test"
+                            )
+                        ),
+                        __exit__=MagicMock(return_value=False),
+                    )
+                ),
+            ):
+                CliRunner().invoke(ask_model.main, ["--model", "codex:codex-5.3", "What is 2+2?"])
+
+        assert mock_run.called
+        cmd = mock_run.call_args[0][0]
+        assert cmd[0] == "codex"
+        assert cmd[1] == "exec"
+        assert "codex-5.3" in cmd
+
+    def test_codex_missing_cli_errors(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(ask_model.shutil, "which", lambda _: None)
+        result = CliRunner().invoke(ask_model.main, ["--model", "codex:codex-5.3", "What is 2+2?"])
+        assert result.exit_code != 0
+        assert "codex CLI not found" in result.output
+
+    def test_codex_bypasses_api_key_check(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """codex: prefix should not require OPENAI_API_KEY."""
+        monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        monkeypatch.setattr(ask_model.shutil, "which", lambda _: "/usr/bin/codex")
+        mock_run = MagicMock()
+        mock_run.return_value = MagicMock(returncode=0)
+        monkeypatch.setattr(ask_model.subprocess, "run", mock_run)
+
+        with patch.object(ask_model.os, "unlink"):
+            with patch(
+                "builtins.open",
+                MagicMock(
+                    return_value=MagicMock(
+                        __enter__=MagicMock(
+                            return_value=MagicMock(
+                                read=MagicMock(return_value="answer"), name="/tmp/test"
+                            )
+                        ),
+                        __exit__=MagicMock(return_value=False),
+                    )
+                ),
+            ):
+                result = CliRunner().invoke(ask_model.main, ["--model", "codex:codex-5.3", "test"])
+
+        # Should not error about missing API key
+        assert "API_KEY not set" not in (result.output or "")
+
+
 class TestGetKnownModels:
     """Test _get_known_models helper."""
 

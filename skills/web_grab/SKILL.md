@@ -20,9 +20,9 @@ Try these tiers in order. Stop at the first one that returns useful content:
 2. **`curl -sL <url>`** — raw HTML, useful for simple pages
 3. **`wget -r -l 1 -np -A "*.html,*.htm" <url>`** — fetch a page and its immediate children (useful for multi-page content or site hierarchies)
 4. **`gh api`** — if it's a GitHub URL (issues, PRs, files)
-5. **Playwright headless browser** — for JS-heavy SPAs (Confluence, Atlassian, React apps) where tiers 1-2 return only JS bundles:
+5. **Playwright headless browser** — for JS-heavy SPAs (Confluence, Atlassian, React apps) where tiers 1-2 return only JS bundles. Requires `playwright install chromium` (one-time browser binary download):
    ```bash
-   uv run --directory SKILL_DIR python scripts/fetch_page.py <url>
+   uv run --script SKILL_DIR/scripts/fetch_page.py <url>
    ```
    Options: `--timeout 60000` (slow pages), `--wait-for "css-selector"` (lazy content), `--selector "css-selector"` (extract specific element), `--full-page` (skip main-content detection). If content looks short or empty, retry with `--full-page` or `--selector`.
 6. **Manual save** — if all automated methods fail (auth, JS rendering, bot blocking): ask the user to open the URL in Chrome, `Cmd+S` → "Webpage, Complete" or "HTML Only", and tell you the file path. Then read the saved HTML and extract meaningful content.

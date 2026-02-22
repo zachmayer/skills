@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "click>=8.0",
+#     "playwright>=1.58.0",
+# ]
+# ///
 """Fetch a JS-heavy page using Playwright and output clean text."""
 
 import click

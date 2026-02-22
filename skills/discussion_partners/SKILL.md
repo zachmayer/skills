@@ -12,14 +12,15 @@ Query another AI model for an outside perspective on a difficult problem. One me
 
 ## Recommended Models
 
-**Always use the script default** (`openai:gpt-5.2`) unless you have a specific reason to change. Do NOT override with older models like o3 — they are expensive and superseded.
+**By default, call all three models in parallel** to get diverse perspectives. Use the Task tool to launch three parallel Bash calls:
 
-| Model | When to use | Auth |
+| Model | Perspective | Auth |
 |-------|-------------|------|
-| `openai:gpt-5.2` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
-| `codex:gpt-5.3-codex` | Best code reasoning (Codex CLI default) | `codex login` |
-| `google-gla:gemini-3.1-pro-preview` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
-| `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
+| `openai:gpt-5.2` | General reasoning, xhigh thinking | `OPENAI_API_KEY` |
+| `codex:gpt-5.3-codex` | Code-focused reasoning via Codex CLI | `codex login` |
+| `google-gla:gemini-3.1-pro-preview` | Brilliantly intelligent, different angle | `GOOGLE_API_KEY` |
+
+If you only need one opinion, pick the model that fits. For code questions, `codex:gpt-5.3-codex` alone is fine. `anthropic:claude-opus-4-6` is also available as a fourth option.
 
 Before calling, verify the required API key is set: `echo $OPENAI_API_KEY | head -c 8` (should show `sk-...`). For `codex:` models, authenticate via `codex login`.
 

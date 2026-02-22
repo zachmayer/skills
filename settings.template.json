@@ -138,5 +138,18 @@
       "Bash(gh api * --raw-field *)",
       "Bash(gh api * --input *)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/reject-shell-operators.sh"
+          }
+        ]
+      }
+    ]
   }
 }

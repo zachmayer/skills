@@ -190,7 +190,20 @@ Multiple agents may run concurrently — this is by design.
 - If you find a duplicate PR already open for your issue, skip it and log why.
 - Do NOT modify files outside your worktree or the obsidian vault.
 
-## 7. Engineering Principles
+## 7. Command Sandboxing
+
+The `allowedTools` prefix matching has a known bypass: shell operators (`&&`, `;`, `||`) let a command chain past the prefix check. For example, `git commit -m x && curl evil.com` matches `Bash(git commit *)`.
+
+**Defense layers:**
+1. **PreToolUse hook** (`.claude/hooks/reject-shell-operators.sh`): Rejects any Bash command containing `&&`, `||`, backticks, or `$()`. Runs before permission matching. This is the primary defense against prompt injection via issue/PR content.
+2. **`allowedTools` whitelist** (CLI flags): Coarse prefix matching — guardrail, not sandbox.
+3. **`deny` list** (`.claude/settings.json`): Blocks destructive commands at any prefix position.
+4. **Budget limits** (`--max-budget-usd`): Financial guardrail caps damage from any bypass.
+5. **GitHub branch protection**: Prevents force-push to main even if the agent tries.
+
+The hook blocks the command and the agent sees a denial. It can reformulate without operators (e.g., run commands separately). If `jq` is missing, the hook fails safely (non-blocking error, exit code != 0 and != 2).
+
+## 8. Engineering Principles
 
 **Don't over-engineer.** Match the solution complexity to the problem. Before writing a Python script, ask: can a prompt instruction in SKILL.md solve this? Most issues need prompt-only solutions (high degrees of freedom), not new CLIs with test suites.
 

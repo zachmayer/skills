@@ -7,6 +7,7 @@ import pytest
 
 SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
 SKILL_DIRS = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir() and d.name != "__pycache__")
+SKILL_DIRS_WITH_SCRIPTS = sorted(d for d in SKILL_DIRS if (d / "scripts").exists())
 
 
 @pytest.fixture(params=[d.name for d in SKILL_DIRS], ids=lambda n: n)
@@ -56,13 +57,17 @@ class TestSkillStructure:
             "use 'Use when'/'Do NOT use' instead for consistency"
         )
 
-    def test_scripts_have_allowed_tools(self, skill_dir: Path) -> None:
+
+@pytest.fixture(params=[d.name for d in SKILL_DIRS_WITH_SCRIPTS], ids=lambda n: n)
+def skill_dir_with_scripts(request: pytest.FixtureRequest) -> Path:
+    return SKILLS_DIR / request.param
+
+
+class TestScriptSkills:
+    def test_scripts_have_allowed_tools(self, skill_dir_with_scripts: Path) -> None:
         """Skills with scripts/ directories should declare allowed-tools."""
-        scripts_dir = skill_dir / "scripts"
-        if not scripts_dir.exists():
-            pytest.skip("no scripts directory")
-        text = (skill_dir / "SKILL.md").read_text()
+        text = (skill_dir_with_scripts / "SKILL.md").read_text()
         post = frontmatter.loads(text)
         assert "allowed-tools" in post.metadata, (
-            f"{skill_dir.name}: has scripts/ but no 'allowed-tools' in frontmatter"
+            f"{skill_dir_with_scripts.name}: has scripts/ but no 'allowed-tools' in frontmatter"
         )

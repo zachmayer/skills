@@ -48,6 +48,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [hierarchical_memory](skills/hierarchical_memory/) | Python | Quick notes aggregated into daily/monthly/overall summaries |
 | [web_grab](skills/web_grab/) | Python | Fetch URL content and save to obsidian — Playwright for JS SPAs |
 | [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
+| [google_docs](skills/google_docs/) | Prompt | Extract Google Docs and Sheets into obsidian via export URLs |
 | [remember_session](skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
 | [skill_stealer](skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
 
@@ -124,6 +125,7 @@ graph LR
     obsidian --> private_repo
     hierarchical_memory --> private_repo
     web_grab --> obsidian
+    google_docs --> obsidian
     lean_prover --> discussion_partners
     session_planner --> hierarchical_memory
     session_planner --> obsidian

@@ -65,13 +65,17 @@ Work the highest-priority tier:
 
 - Check out the PR branch. Before responding to the latest feedback, **read the full history first**: all prior comments, reviews, formal reviews, inline code comments, and commits on this PR. Understand the arc of the conversation — what was requested, what was tried, what was revised. Don't address the latest comment in isolation.
 - Address **all** feedback — issue comments, formal reviews, AND inline review comments on specific lines. Fetch all three types using the queries above.
-- For each piece of feedback: implement the fix, then **reply to the comment** explaining what you changed. Use `gh api` to reply to inline review comments:
+- **Triage each comment** — not all feedback requires code changes:
+  - **Actionable feedback** (bug, missing feature, wrong behavior): implement the fix, commit, push.
+  - **Questions or clarifications**: reply with an explanation. No code change needed.
+  - **Non-blocking observations** (style nits, "could also do X", informational): reply acknowledging. No code change needed unless you agree it's an improvement.
+  - **Already addressed** (feedback about something fixed in a later commit): reply noting which commit addressed it.
+- **Reply to every comment** explaining what you did (or why no change was needed). Use `gh api` to reply to inline review comments:
   ```bash
-  # Reply to an inline review comment
-  gh api "repos/OWNER/REPO/pulls/N/comments/COMMENT_ID/replies" -f body="Done — <explanation>"
+  gh api "repos/OWNER/REPO/pulls/N/comments/COMMENT_ID/replies" -f body="<response>"
   ```
   For issue comments, reply with `gh issue comment N --repo OWNER/REPO --body "..."`.
-- Commit, push. The human will re-review.
+- If code changes were made: commit, push. If only replies: no commit needed — just the replies are the deliverable.
 
 **Tier 3: New issues** (lowest priority)
 Only pick up new issues when no PRs need attention. Check for existing open PRs first: `gh pr list --search "issue-NUMBER"` to avoid duplicates.

@@ -116,7 +116,31 @@ Available fields: customer_name, order_total, signature_date_signed
 ### Claude Code
 - Full network access, same as any program on the user's computer
 - Avoid global package installs; install locally to avoid interfering with user's system
-- Prefer modern package managers: `uv` for Python, `pnpm`/`bun` for TypeScript/JS. Use inline script dependencies (`uv run --with`) or project-level deps over global installs
+- Prefer modern package managers: `uv` for Python, `pnpm`/`bun` for TypeScript/JS
+
+### Python Dependency Strategy
+
+**Prefer inline script metadata (PEP 723)** for skill scripts. This makes each script self-contained — it declares its own dependencies and `uv run --script` creates an isolated env automatically. No pollution of the project's dependency tree, no transitive dependency conflicts.
+
+```python
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "click>=8.0",
+#     "httpx>=0.27",
+# ]
+# ///
+"""My skill helper."""
+import click
+import httpx
+```
+
+Run with: `uv run --script scripts/helper.py`
+
+**Use project-level deps** (`uv add`) only when multiple scripts share the same heavy dependency or when the package provides a CLI entry point needed in PATH.
+
+**Never use `pip install`** — always `uv add` for project deps or PEP 723 inline metadata for script-level deps.
 
 ### Claude API
 - No network access, no runtime package installation

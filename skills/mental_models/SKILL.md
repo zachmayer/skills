@@ -12,6 +12,8 @@ Select and apply the most relevant mental models from this toolkit. For models w
 
 ## Decision Making
 
+**Exploit-Explore Tradeoff** — Every decision allocates between exploit (refine what works) and explore (try something new). Pure exploit converges to a local maximum; pure explore never compounds. Calibrate the ratio: short time horizon or high stakes → exploit; diminishing returns or changing environment → explore. Maps to grind vs paradigm in recursive self-improvement. See [exploit-explore.md](exploit-explore.md).
+
 **Inversion** — Instead of asking "how do I succeed?", ask "what would guarantee failure?" and avoid those. Unblocks stuck thinking by reversing the question. See [inversion.md](inversion.md).
 
 **Second-Order Thinking** — Ask "and then what?" at least three times. First-order effects are obvious; second and third-order effects are where plans fail. See [second-order-thinking.md](second-order-thinking.md).
@@ -37,6 +39,8 @@ Select and apply the most relevant mental models from this toolkit. For models w
 **Emergence** — Simple rules produce complex behavior. Look for the simple rules underneath complex systems before adding complexity to your solution. See [emergence.md](emergence.md).
 
 **Leverage Points** — Places in a system where small changes produce big effects. Meadows' hierarchy: parameters < buffers < feedback loops < information flows < rules < goals < paradigms. Intervene at the highest leverage point you can reach. See [leverage-points.md](leverage-points.md).
+
+**Recursive Self-Improvement** — When a system improves itself, distinguish grind (80%, systematic iteration within current paradigm) from paradigm shift (20%, entirely new approaches). Small improvements compound multiplicatively (multiplier effect), but hit diminishing returns ("adding nines"). Agents excel at grind; paradigm decisions need human judgment. See [recursive-self-improvement.md](recursive-self-improvement.md).
 
 ## Problem Solving
 
@@ -135,9 +139,11 @@ When applying a model:
 
 When uncertain which model to use, start with these high-hit-rate defaults:
 - **Stuck?** → Inversion, First Principles
+- **Meta-work?** (improving tools/skills/processes) → Recursive Self-Improvement, Exploit-Explore, Leverage Points
 - **Debugging?** → Five Whys, Post-Mortem, Bottleneck Analysis
 - **Something failed?** → Post-Mortem (diagnose before retrying)
 - **Deciding?** → Second-Order Thinking, Reversibility, Opportunity Cost
+- **Known approach vs new approach?** → Exploit-Explore, Reversibility
 - **Analyzing an argument?** → Excavate, Negspace, Rhetoricize
 - **Comparing options?** → Dimensionalize
 - **Conflicting views?** → Synthesize, Antithesize

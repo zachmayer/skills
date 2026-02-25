@@ -8,7 +8,7 @@ When a system improves itself, the improvements compound — but the dynamics ar
 
 **Paradigm shift** (20% of work) — Exploring entirely new approaches. Not "faster car" but "flying car." Rarer, harder to automate, requires novel hypotheses that current models struggle to generate. Humans (or lucky accidents) tend to drive these.
 
-**Balance both.** A portfolio of all grind and no paradigm exploration eventually hits diminishing returns. A portfolio of all paradigm exploration and no grind never compounds. The compounding comes from the grind; the step functions come from paradigm shifts.
+**Balance both.** A portfolio of all grind and no paradigm exploration eventually hits diminishing returns. A portfolio of all paradigm exploration and no grind never compounds. The compounding comes from the grind; the step functions come from paradigm shifts. This is the [exploit-explore tradeoff](exploit-explore.md) applied to self-improvement: grind is exploit, paradigm shift is explore.
 
 ## The Multiplier Effect
 

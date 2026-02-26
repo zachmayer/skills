@@ -137,8 +137,14 @@ uninstall-heartbeat: ## Remove heartbeat launchd agent
 .PHONY: uninstall-heartbeat
 
 
-test-heartbeat: ## Run heartbeat script once manually (dry run)
+setup-labels: ## Create status:human/lead/dev labels across heartbeat repos
+	@scripts/setup-labels.sh
+.PHONY: setup-labels
+
+
+test-heartbeat: ## Run heartbeat once (label issues with status:lead or status:dev first)
 	@echo "Running heartbeat manually..."
+	@echo "  Hint: label an issue with status:lead or status:dev to trigger processing"
 	@$(SKILLS_DIR)/heartbeat/scripts/heartbeat.sh
 .PHONY: test-heartbeat
 

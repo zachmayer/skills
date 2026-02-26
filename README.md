@@ -56,7 +56,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous agent: picks up GitHub Issues, creates PRs |
+| [heartbeat](skills/heartbeat/) | Shell | Two-agent FSM (lead + dev) driven by `status:*` labels, spawned by launchd |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
@@ -115,11 +115,15 @@ graph LR
     discussion_partners --> mental_models
     remember_session --> hierarchical_memory
     remember_session --> obsidian
-    heartbeat --> hierarchical_memory
-    heartbeat --> obsidian
-    heartbeat --> reminders
-    heartbeat --> daily_briefing
-    heartbeat --> evergreen
+    heartbeat_lead --> staff_engineer
+    heartbeat_lead --> gh_cli
+    heartbeat_lead --> pr_review
+    heartbeat_lead --> mental_models
+    heartbeat_lead --> ultra_think
+    heartbeat_lead --> ask_questions
+    heartbeat_dev --> staff_engineer
+    heartbeat_dev --> ralph_loop
+    heartbeat_dev --> gh_cli
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo
@@ -168,7 +172,7 @@ make lint           # Run ruff linting and formatting
 make typecheck      # Run ty type checker
 make test           # Run pytest
 make upgrade        # Upgrade all dependencies
-
+make setup-labels   # Create status:human/lead/dev labels across repos
 ```
 
 ## Creating a New Skill
@@ -235,13 +239,13 @@ Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources 
 
 ## Roadmap
 
-Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `agent-task` for heartbeat to pick up, `enhancement` for roadmap items.
+Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `status:lead` for heartbeat lead agent, `status:dev` for dev agent, `enhancement` for roadmap items.
 
 ### Completed
 
 - **Consolidate beast_mode + ultra_think** — persistence directives folded into ultra_think.
 - **Consolidate staff_engineer + debug** — debug's 9-step process folded into staff_engineer.
-- **Heartbeat** — GitHub Issues as work queue. Agent picks from randomized list, claims by creating `heartbeat/issue-N` branch (atomic, no TOCTOU). Parallel by design. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog.
+- **Heartbeat** — Two-agent FSM (lead + dev) driven by `status:*` labels. Lead agent routes, scopes, and reviews. Dev agent builds and hands back. Spawned by launchd every 15 min. Safety: branch protection, CODEOWNERS, path restrictions, 4hr watchdog, per-issue budget caps.
 - **Session planner** — Read memory + tasks + todos, propose work plan.
 - **API key checker** — Verify which API keys are configured and valid.
 - **Playwright browser automation** — Headless browser for JS-heavy pages in web_grab.

@@ -56,7 +56,15 @@ Daily work goes to `memory/` subdirectory via hierarchical_memory. Durable knowl
 
 ### 5. Aggregate memory
 
-If any `note` outputs showed stale aggregations (e.g. `Aggregation stale: 2026-02 CREATE, overall UPDATE`), run the monthly and overall memory aggregation sub-agents from the `hierarchical_memory` skill for those items. If all notes said `Aggregation: up to date`, skip this step.
+If any `note` outputs showed stale aggregations (e.g. `Aggregation stale: 2026-02 CREATE, overall UPDATE`), aggregate. If all notes said `Aggregation: up to date`, skip this step.
+
+There is no CLI command for aggregation — it requires LLM summarization. For each stale month, launch a Task tool sub-agent with this prompt:
+
+> Read all daily notes for YYYY-MM in `$CLAUDE_OBSIDIAN_DIR/memory/` (files matching `YYYY-MM-*.md`). Read the existing monthly summary at `$CLAUDE_OBSIDIAN_DIR/memory/YYYY-MM.md` if it exists. Write an updated monthly summary that incorporates the new daily notes. Organize by theme, not by date. Drop noise. Tag themes with `#topic` tags. Include `[[wiki-links]]` to related vault notes. Keep it concise.
+
+If `status` also shows overall needs UPDATE, launch a second sub-agent after monthly aggregation:
+
+> Read all monthly summaries in `$CLAUDE_OBSIDIAN_DIR/memory/` chronologically. Write `$CLAUDE_OBSIDIAN_DIR/memory/overall_memory.md` as a current-state working memory. Facts use last-write-wins. Compress events to milestones. The result should read like a living profile, not a changelog.
 
 ### 6. Commit and push
 

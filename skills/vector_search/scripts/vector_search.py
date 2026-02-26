@@ -181,7 +181,7 @@ def status(vault_path: str):
     files = cache.get("files", {})
     current_files = collect_files(vault)
 
-    stale = sum(1 for p, m in current_files.items() if p not in files or files[p]["mtime"] < m)
+    stale = sum(1 for p, m in current_files.items() if p in files and files[p]["mtime"] < m)
     new = sum(1 for p in current_files if p not in files)
     removed = sum(1 for p in files if p not in current_files)
 

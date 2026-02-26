@@ -265,7 +265,7 @@ if [ "$lead_count" = "0" ] && [ "$dev_count" = "0" ]; then
     echo "$timestamp IDLE" > "$STATUS_FILE"
     echo "[$timestamp] No issues to process"
 else
-    local status="OK"
+    status="OK"
     if [ "$lead_ok" -lt "$lead_count" ] || [ "$dev_ok" -lt "$dev_count" ]; then
         status="PARTIAL"
     fi

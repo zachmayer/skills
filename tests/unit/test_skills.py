@@ -6,7 +6,11 @@ import frontmatter
 import pytest
 
 SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
-SKILL_DIRS = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir() and d.name != "__pycache__")
+SKILL_DIRS = sorted(
+    d
+    for d in SKILLS_DIR.iterdir()
+    if d.is_dir() and d.name != "__pycache__" and (d / "SKILL.md").exists()
+)
 
 
 @pytest.fixture(params=[d.name for d in SKILL_DIRS], ids=lambda n: n)

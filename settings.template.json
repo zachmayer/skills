@@ -15,7 +15,9 @@
       "Bash(gh cache list*)",
       "Bash(gh config get*)",
       "Bash(gh config list*)",
+      "Bash(gh issue close*)",
       "Bash(gh issue create*)",
+      "Bash(gh issue edit*)",
       "Bash(gh issue list*)",
       "Bash(gh issue status*)",
       "Bash(gh issue view*)",
@@ -23,6 +25,7 @@
       "Bash(gh org list*)",
       "Bash(gh pr checks*)",
       "Bash(gh pr diff*)",
+      "Bash(gh pr edit*)",
       "Bash(gh pr list*)",
       "Bash(gh pr status*)",
       "Bash(gh pr view*)",
@@ -90,9 +93,7 @@
       "Bash(gh gist create*)",
       "Bash(gh gist delete*)",
       "Bash(gh gist edit*)",
-      "Bash(gh issue close*)",
       "Bash(gh issue delete*)",
-      "Bash(gh issue edit*)",
       "Bash(gh issue transfer*)",
       "Bash(gh label create*)",
       "Bash(gh label delete*)",
@@ -100,7 +101,6 @@
       "Bash(gh pr close*)",
       "Bash(gh pr comment*)",
       "Bash(gh pr create*)",
-      "Bash(gh pr edit*)",
       "Bash(gh pr merge*)",
       "Bash(gh pr ready*)",
       "Bash(gh pr reopen*)",
@@ -137,6 +137,19 @@
       "Bash(gh api * --field *)",
       "Bash(gh api * --raw-field *)",
       "Bash(gh api * --input *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/reject-shell-operators.sh"
+          }
+        ]
+      }
     ]
   }
 }

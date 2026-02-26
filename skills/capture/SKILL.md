@@ -2,7 +2,7 @@
 name: capture
 description: >
   Smart routing for any input. Routes by scope + audience to the right
-  destination: memory daily log (ephemeral), GitHub Issues with agent-task
+  destination: memory daily log (ephemeral), GitHub Issues with status:lead
   label (agent work), obsidian knowledge_graph (durable knowledge),
   CLAUDE.md (repo-specific agent guidance), or README.md (repo dev memory).
   Use when the user says "capture this", "save this", "inbox", "route this",
@@ -53,8 +53,8 @@ Classify the input on three axes, then route:
 | Durable | Personal | Self | **Obsidian knowledge_graph** |
 | Durable | Cross-project | Self | **Obsidian knowledge_graph** |
 | Durable | Repo-specific | Human | **README.md** (dev memory section) |
-| Task | Any | Agent | **GitHub Issue** (agent-task label) |
-| Task | Any | Human | **GitHub Issue** (no agent-task label) |
+| Task | Any | Agent | **GitHub Issue** (status:lead label) |
+| Task | Any | Human | **GitHub Issue** (no status:lead label) |
 | Guidance | Repo-specific | Agent | **CLAUDE.md** |
 | Guidance | Personal | Agent | **Obsidian knowledge_graph** (agent preferences note) |
 
@@ -102,10 +102,10 @@ Create or update an atomic note in the obsidian vault following the `obsidian` s
 Create an issue on the appropriate repo:
 
 ```bash
-gh issue create --repo OWNER/REPO --title "TITLE" --body "BODY" --label "agent-task"
+gh issue create --repo OWNER/REPO --title "TITLE" --body "BODY" --label "status:lead"
 ```
 
-- Add `--label "agent-task"` only for tasks the agent should pick up autonomously.
+- Add `--label "status:lead"` only for tasks the agent should pick up autonomously.
 - Omit the label for human tasks.
 - If no repo context is obvious, ask the user which repo.
 
@@ -154,7 +154,7 @@ Captured → README.md: added to ## Dev Memory (staged, not committed)
 → Also: Ephemeral → **Memory daily log**
 
 **User:** "inbox: add retry logic to the webhook handler"
-→ Route: Task + Agent → **GitHub Issue** with agent-task label
+→ Route: Task + Agent → **GitHub Issue** with status:lead label
 
 **User:** "save this: always use uv run, never raw python"
 → Route: Guidance + Repo-specific + Agent → **CLAUDE.md**

@@ -11,7 +11,7 @@ allowedTools:
   - Bash(gh pr view *)
   - Bash(gh pr diff *)
   - Bash(gh pr edit *)
-  - Bash(gh pr create *)
+  - Bash(gh pr close *)
   - Bash(gh issue list *)
   - Bash(gh issue view *)
   - Bash(gh issue edit *)

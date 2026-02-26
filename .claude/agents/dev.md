@@ -24,6 +24,7 @@ allowedTools:
   - Bash(gh pr list *)
   - Bash(gh pr diff *)
   - Bash(gh pr edit *)
+  - Bash(gh pr ready *)
   - Bash(gh issue edit *)
   - Bash(gh issue comment *)
   - Bash(gh api *)
@@ -56,7 +57,7 @@ pick up status:dev issue
          create branch + draft PR (use "Fixes #N" in body)
          implement
          run tests (uv run pytest, make lint)
-         mark PR ready for review (gh pr edit N --remove-label draft || true)
+         mark PR ready for review (gh pr ready N)
          transition to status:lead
 ```
 

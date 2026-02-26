@@ -28,13 +28,15 @@ Launch BOTH in parallel — do not wait for one before starting the other.
 
 > You are an expert code reviewer. Review the PR diff. Focus on correctness, bugs, security, and design. Skip style nits, formatting, and naming unless they cause real confusion. Each finding: severity (critical/warning/note), file, line, issue, suggested fix. If the code is clean, say so. Be direct. No filler.
 
-**discussion_partners**: Send the same context to an external model for an independent review.
+**discussion_partners**: Write the PR context (metadata + diff + conventions) to a temp file, then send via `--input-file` to avoid shell quoting issues with large diffs:
 
 ```bash
 # SKILL_DIR below refers to the discussion_partners skill directory
+# 1. Write review payload to a file (PR metadata, diff, repo conventions)
+# 2. Send via --input-file
 uv run --directory SKILL_DIR python scripts/ask_model.py \
   -s "You are an expert code reviewer. Focus on correctness, bugs, security, and design. Skip style nits. Each finding: severity (critical/warning/note), file, line, issue, suggested fix. If the code is clean, say so. Be direct." \
-  "Review this PR. <include PR metadata, diff, and repo conventions here>"
+  -f /tmp/pr-review-payload.txt
 ```
 
 ## Step 3: Synthesize and Triage

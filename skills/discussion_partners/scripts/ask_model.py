@@ -96,11 +96,19 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
 @click.option(
     "--list-models", "-l", default=None, help="List known models (optionally filter by prefix)"
 )
+@click.option(
+    "--input-file",
+    "-f",
+    type=click.Path(exists=True),
+    default=None,
+    help="Read question from a file instead of CLI argument",
+)
 @click.argument("question", required=False)
 def main(
     model: str,
     system: str | None,
     list_models: str | None,
+    input_file: str | None,
     question: str | None,
 ) -> None:
     """Ask a question to another AI model with extended thinking."""
@@ -111,8 +119,13 @@ def main(
                 click.echo(name)
         return
 
+    if input_file:
+        with open(input_file) as fh:
+            question = fh.read().strip()
     if not question:
-        raise click.UsageError("Missing argument 'QUESTION'.")
+        raise click.UsageError(
+            "Missing argument 'QUESTION'. Provide as argument or via --input-file."
+        )
 
     key_name, prefix, thinking = _parse_provider(model)
 

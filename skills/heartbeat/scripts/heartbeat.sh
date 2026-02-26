@@ -13,6 +13,8 @@ TIMEOUT_SECONDS=14400  # 4 hour hard kill
 LEAD_BUDGET=1          # $/issue for lead
 DEV_BUDGET=4           # $/issue for dev
 MAX_TURNS=200
+MAX_ISSUES=10          # Max issues per step (bounds billing)
+AUTH_USER="${HEARTBEAT_AUTH_USER:-}"  # Trusted human (falls back to repo owner)
 
 # --- Repo registry ---
 REPOS_FILE="${HOME}/.claude/heartbeat-repos.conf"
@@ -63,8 +65,9 @@ run_agent() {
     local repo_dir
     repo_dir=$(repo_dir "$repo")
 
-    local owner
-    owner=$(echo "$repo" | cut -d/ -f1)
+    # AUTH_USER: explicit config > repo owner fallback
+    local auth_user
+    auth_user="${AUTH_USER:-$(echo "$repo" | cut -d/ -f1)}"
 
     echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Running $agent on $repo#$issue_number (budget: \$$budget)"
 
@@ -73,8 +76,7 @@ run_agent() {
     local run_dir="$repo_dir"
 
     if [ "$agent" = "dev" ]; then
-        # Dev gets a worktree for isolation
-        workdir="/tmp/heartbeat-$$-${issue_number}"
+        workdir=$(mktemp -d "/tmp/heartbeat-${issue_number}-XXXXXX")
         cleanup_workdir="$workdir"
         git -C "$repo_dir" worktree prune 2>/dev/null || true
         git -C "$repo_dir" worktree add --detach "$workdir" origin/main 2>/dev/null || {
@@ -84,10 +86,22 @@ run_agent() {
         run_dir="$workdir"
     fi
 
-    local issue_title
-    issue_title=$(echo "$issue_json" | uv run python -c "import sys,json; print(json.loads(sys.stdin.read()).get('title',''))")
-    local issue_body
-    issue_body=$(echo "$issue_json" | uv run python -c "import sys,json; print(json.loads(sys.stdin.read()).get('body',''))")
+    # Build prompt via Python (single call for title + body, safe for special chars)
+    local prompt
+    prompt=$(echo "$issue_json" | REPO="$repo" ISSUE_NUMBER="$issue_number" AUTH_USER="$auth_user" \
+        OBSIDIAN_DIR="$OBSIDIAN_DIR" TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        uv run python -c "
+import sys, json, os
+i = json.loads(sys.stdin.read())
+repo = os.environ['REPO']
+num = os.environ['ISSUE_NUMBER']
+auth_user = os.environ['AUTH_USER']
+obsdir = os.environ['OBSIDIAN_DIR']
+ts = os.environ['TIMESTAMP']
+title = i.get('title', '')
+body = i.get('body', '')
+print(f'<issue>\nRepo: {repo}\nIssue: #{num}\nTitle: {title}\nAuthorized user: {auth_user}\nObsidian dir: {obsdir}\nCurrent time: {ts}\n\n{body}\n</issue>')
+")
 
     set +e
     (
@@ -97,16 +111,7 @@ run_agent() {
             --add-dir "$OBSIDIAN_DIR" \
             --max-turns "$MAX_TURNS" \
             --max-budget-usd "$budget" \
-            "<issue>
-Repo: $repo
-Issue: #$issue_number
-Title: $issue_title
-Authorized user: $owner
-Obsidian dir: $OBSIDIAN_DIR
-Current time: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-
-$issue_body
-</issue>"
+            "$prompt"
     )
     local exit_code=$?
     set -e
@@ -131,7 +136,6 @@ collect_issues() {
     local label="$1"
     local all_issues="[]"
 
-    # Randomize repo order
     local shuffled
     shuffled=$(echo "$REPOS" | tr ' ' '\n' | uv run python -c "
 import sys, random
@@ -162,7 +166,6 @@ print(' '.join(repos))
             issues="[]"
         fi
 
-        # Annotate each issue with its repo
         all_issues=$(echo "$all_issues" | ISSUES="$issues" REPO="$repo" uv run python -c "
 import sys, json, os
 existing = json.loads(sys.stdin.read())
@@ -178,15 +181,17 @@ print(json.dumps(existing))
     echo "$all_issues"
 }
 
-# --- Watchdog: kill the entire round after timeout ---
+# --- Watchdog: kill the entire process group after timeout ---
 (
+    trap '' TERM  # Survive the group kill to escalate to SIGKILL
     sleep "$TIMEOUT_SECONDS"
-    kill $$ 2>/dev/null
+    echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] TIMEOUT: killing process group after ${TIMEOUT_SECONDS}s" >&2
+    kill -- -$$ 2>/dev/null
     sleep 10
-    kill -9 $$ 2>/dev/null
+    kill -9 -- -$$ 2>/dev/null
 ) &
 watchdog_pid=$!
-trap "kill $watchdog_pid 2>/dev/null; wait $watchdog_pid 2>/dev/null" EXIT
+trap "kill -9 $watchdog_pid 2>/dev/null; wait $watchdog_pid 2>/dev/null" EXIT
 
 # --- Main: two-step FSM ---
 timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -200,58 +205,59 @@ dev_ok=0
 # Step 1: Lead agent on all status:lead issues
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Step 1: Querying status:lead issues..."
 LEAD_ISSUES=$(collect_issues "status:lead")
-lead_count=$(echo "$LEAD_ISSUES" | uv run python -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
+
+# Parse into tab-separated lines (repo\tnumber\tjson) via temp file to preserve variable scope
+lead_tmpfile=$(mktemp)
+echo "$LEAD_ISSUES" | MAX_ISSUES="$MAX_ISSUES" uv run python -c "
+import sys, json, os
+issues = json.loads(sys.stdin.read())
+max_n = int(os.environ['MAX_ISSUES'])
+for i in issues[:max_n]:
+    print(f'{i[\"repo\"]}\t{i[\"number\"]}\t{json.dumps(i)}')
+" > "$lead_tmpfile"
+
+lead_count=$(wc -l < "$lead_tmpfile" | tr -d ' ')
 
 if [ "$lead_count" != "0" ]; then
     echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $lead_count status:lead issues"
-    echo "$LEAD_ISSUES" | uv run python -c "
-import sys, json
-for i in json.loads(sys.stdin.read()):
-    print(f'{i[\"repo\"]}#{i[\"number\"]} {i[\"title\"][:60]}')
-"
-    # Process each issue sequentially
-    echo "$LEAD_ISSUES" | uv run python -c "
-import sys, json
-for i in json.loads(sys.stdin.read()):
-    print(json.dumps(i))
-" | while IFS= read -r issue_line; do
-        repo=$(echo "$issue_line" | uv run python -c "import sys,json; print(json.loads(sys.stdin.read())['repo'])")
-        number=$(echo "$issue_line" | uv run python -c "import sys,json; print(json.loads(sys.stdin.read())['number'])")
-        if run_agent "lead" "$repo" "$number" "$issue_line" "$LEAD_BUDGET"; then
+    while IFS=$'\t' read -r repo number issue_json; do
+        echo "  $repo#$number"
+        if run_agent "lead" "$repo" "$number" "$issue_json" "$LEAD_BUDGET"; then
             lead_ok=$((lead_ok + 1))
         fi
-    done
+    done < "$lead_tmpfile"
 else
     echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No status:lead issues found"
 fi
+rm -f "$lead_tmpfile"
 
 # Step 2: Dev agent on all status:dev issues
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Step 2: Querying status:dev issues..."
 DEV_ISSUES=$(collect_issues "status:dev")
-dev_count=$(echo "$DEV_ISSUES" | uv run python -c "import sys,json; print(len(json.loads(sys.stdin.read())))")
+
+dev_tmpfile=$(mktemp)
+echo "$DEV_ISSUES" | MAX_ISSUES="$MAX_ISSUES" uv run python -c "
+import sys, json, os
+issues = json.loads(sys.stdin.read())
+max_n = int(os.environ['MAX_ISSUES'])
+for i in issues[:max_n]:
+    print(f'{i[\"repo\"]}\t{i[\"number\"]}\t{json.dumps(i)}')
+" > "$dev_tmpfile"
+
+dev_count=$(wc -l < "$dev_tmpfile" | tr -d ' ')
 
 if [ "$dev_count" != "0" ]; then
     echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Found $dev_count status:dev issues"
-    echo "$DEV_ISSUES" | uv run python -c "
-import sys, json
-for i in json.loads(sys.stdin.read()):
-    print(f'{i[\"repo\"]}#{i[\"number\"]} {i[\"title\"][:60]}')
-"
-    # Process each issue sequentially
-    echo "$DEV_ISSUES" | uv run python -c "
-import sys, json
-for i in json.loads(sys.stdin.read()):
-    print(json.dumps(i))
-" | while IFS= read -r issue_line; do
-        repo=$(echo "$issue_line" | uv run python -c "import sys,json; print(json.loads(sys.stdin.read())['repo'])")
-        number=$(echo "$issue_line" | uv run python -c "import sys,json; print(json.loads(sys.stdin.read())['number'])")
-        if run_agent "dev" "$repo" "$number" "$issue_line" "$DEV_BUDGET"; then
+    while IFS=$'\t' read -r repo number issue_json; do
+        echo "  $repo#$number"
+        if run_agent "dev" "$repo" "$number" "$issue_json" "$DEV_BUDGET"; then
             dev_ok=$((dev_ok + 1))
         fi
-    done
+    done < "$dev_tmpfile"
 else
     echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] No status:dev issues found"
 fi
+rm -f "$dev_tmpfile"
 
 # --- Record outcome ---
 timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -259,8 +265,12 @@ if [ "$lead_count" = "0" ] && [ "$dev_count" = "0" ]; then
     echo "$timestamp IDLE" > "$STATUS_FILE"
     echo "[$timestamp] No issues to process"
 else
-    echo "$timestamp OK lead=$lead_count dev=$dev_count" > "$STATUS_FILE"
-    echo "[$timestamp] Round complete: lead=$lead_count dev=$dev_count"
+    local status="OK"
+    if [ "$lead_ok" -lt "$lead_count" ] || [ "$dev_ok" -lt "$dev_count" ]; then
+        status="PARTIAL"
+    fi
+    echo "$timestamp $status lead=$lead_ok/$lead_count dev=$dev_ok/$dev_count" > "$STATUS_FILE"
+    echo "[$timestamp] Round complete ($status): lead=$lead_ok/$lead_count dev=$dev_ok/$dev_count"
 fi
 
 exit 0

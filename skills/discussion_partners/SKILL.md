@@ -38,11 +38,21 @@ Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 in
 
 ## Usage
 
+For short, single-line questions, pass directly as an argument:
+
 ```bash
-uv run --directory SKILL_DIR python scripts/ask_model.py -m <model> "Your detailed question with full context"
+uv run --directory SKILL_DIR python scripts/ask_model.py "Why would a bash trap handler not fire on SIGTERM?"
 ```
 
-Where `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/) — the provider prefix determines which API key and thinking settings to use.
+For longer questions — code review diffs, multi-file context, anything with newlines or special characters — write to a file first and use `--input-file`:
+
+```bash
+# Write your question/context to a file
+# Then pass via --input-file (-f) to avoid shell quoting issues
+uv run --directory SKILL_DIR python scripts/ask_model.py -m <model> -f /tmp/my-question.txt
+```
+
+`SKILL_DIR` is the directory containing this skill. The `-m` flag takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/) — the provider prefix determines which API key and thinking settings to use.
 
 ## Models
 
@@ -82,6 +92,7 @@ variable to set. If the key exists but the call fails, common errors:
 
 - `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.2`)
 - `--system` / `-s`: Optional system prompt override
+- `--input-file` / `-f`: Read question from a file instead of CLI argument. Use for large payloads (code review diffs, long analyses) to avoid shell quoting issues.
 - `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.
 
 ## Multiple Calls

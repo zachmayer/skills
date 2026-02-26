@@ -57,13 +57,7 @@ Note: PRs awaiting review, PRs with review comments, assigned issues.
 
 ### 4. Obsidian TODOs
 
-Search the vault for outstanding action items:
-
-```bash
-# Find TODOs and action items across the vault
-```
-
-Use Grep to search `$CLAUDE_OBSIDIAN_DIR` for patterns like `TODO`, `- [ ]`, `ASAP`, `deadline`.
+Search the vault for outstanding action items using Grep on `$CLAUDE_OBSIDIAN_DIR` for patterns like `TODO`, `- [ ]`, `ASAP`, `deadline`.
 
 ### 5. Calendar Awareness
 

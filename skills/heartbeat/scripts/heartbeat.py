@@ -7,7 +7,9 @@ Step 2: Dev agent processes all status:dev issues (build, push, hand back).
 import json
 import os
 import random
+import shutil
 import subprocess
+import tempfile
 from datetime import datetime
 from datetime import timezone
 from pathlib import Path
@@ -52,7 +54,14 @@ def collect_issues(repos: list[str], label: str, max_issues: int) -> list[dict]:
             log(f"Skipping {repo} — {rdir} not a git repo")
             continue
 
-        subprocess.run(["git", "-C", str(rdir), "fetch", "origin"], capture_output=True)
+        if (
+            subprocess.run(
+                ["git", "-C", str(rdir), "fetch", "origin"], capture_output=True
+            ).returncode
+            != 0
+        ):
+            log(f"Skipping {repo} — fetch failed")
+            continue
 
         result = subprocess.run(
             [
@@ -84,8 +93,8 @@ def collect_issues(repos: list[str], label: str, max_issues: int) -> list[dict]:
 
 
 def build_prompt(repo: str, number: int, issue: dict, auth_user: str, obsidian_dir: str) -> str:
-    title = issue.get("title", "")
-    body = issue.get("body", "")
+    title = issue.get("title") or ""
+    body = issue.get("body") or ""
     return (
         f"<issue>\nRepo: {repo}\nIssue: #{number}\nTitle: {title}\n"
         f"Authorized user: {auth_user}\nObsidian dir: {obsidian_dir}\n"
@@ -114,13 +123,7 @@ def run_agent(
     run_dir = rdir
 
     if agent == "dev":
-        workdir = Path(
-            subprocess.check_output(
-                ["mktemp", "-d", f"/tmp/heartbeat-{number}-XXXXXX"],
-            )
-            .decode()
-            .strip()
-        )
+        workdir = Path(tempfile.mkdtemp(prefix=f"heartbeat-{number}-"))
         subprocess.run(["git", "-C", str(rdir), "worktree", "prune"], capture_output=True)
         result = subprocess.run(
             ["git", "-C", str(rdir), "worktree", "add", "--detach", str(workdir), "origin/main"],
@@ -128,6 +131,7 @@ def run_agent(
         )
         if result.returncode != 0:
             log(f"Failed to create worktree for {repo}#{number}")
+            shutil.rmtree(workdir, ignore_errors=True)
             return False
         run_dir = workdir
 
@@ -149,7 +153,8 @@ def run_agent(
             cwd=str(run_dir),
         )
         ok = result.returncode == 0
-    except Exception:
+    except Exception as exc:
+        log(f"{agent} on {repo}#{number} error: {exc!r}")
         ok = False
 
     if not ok:

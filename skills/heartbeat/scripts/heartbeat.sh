@@ -40,6 +40,7 @@ TIMEOUT_SECONDS=14400
 watchdog_pid=$!
 trap "kill -9 $watchdog_pid 2>/dev/null; wait $watchdog_pid 2>/dev/null" EXIT
 
-# --- Run Python ---
+# --- Run Python (no exec: EXIT trap must fire to kill watchdog) ---
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-exec uv run python "$SCRIPT_DIR/heartbeat.py"
+cd "$SCRIPT_DIR/../../.."
+uv run python "$SCRIPT_DIR/heartbeat.py" "$@"

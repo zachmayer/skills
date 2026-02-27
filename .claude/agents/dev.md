@@ -97,7 +97,7 @@ Do NOT modify these files (they require human-authored issues with explicit inst
 - `.github/workflows/` — CI configuration
 - `*.plist` — launchd configuration
 - `Makefile` — build system
-- `heartbeat.sh` — self-modification not allowed
+- `heartbeat.sh`, `heartbeat.py` — self-modification not allowed
 - `.claude/agents/` — agent definitions
 
 ## Git Rules

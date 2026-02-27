@@ -121,7 +121,7 @@ Do NOT modify (read-only agent — you shouldn't modify anything, but especially
 - `.github/workflows/`
 - `*.plist`
 - `Makefile`
-- `heartbeat.sh`
+- `heartbeat.sh`, `heartbeat.py`
 
 ## Git Rules
 

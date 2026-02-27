@@ -97,6 +97,10 @@ Skills reference each other to compose larger workflows:
 
 ```mermaid
 graph LR
+    subgraph agents [Agents]
+        lead
+        dev
+    end
     orchestrate --> ultra_think
     orchestrate --> staff_engineer
     orchestrate --> ask_questions
@@ -115,15 +119,15 @@ graph LR
     discussion_partners --> mental_models
     remember_session --> hierarchical_memory
     remember_session --> obsidian
-    heartbeat_lead --> staff_engineer
-    heartbeat_lead --> gh_cli
-    heartbeat_lead --> pr_review
-    heartbeat_lead --> mental_models
-    heartbeat_lead --> ultra_think
-    heartbeat_lead --> ask_questions
-    heartbeat_dev --> staff_engineer
-    heartbeat_dev --> ralph_loop
-    heartbeat_dev --> gh_cli
+    lead --> staff_engineer
+    lead --> gh_cli
+    lead --> pr_review
+    lead --> mental_models
+    lead --> ultra_think
+    lead --> ask_questions
+    dev --> staff_engineer
+    dev --> ralph_loop
+    dev --> gh_cli
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo

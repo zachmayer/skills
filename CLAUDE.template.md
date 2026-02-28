@@ -4,6 +4,10 @@
 
 Default to **Sonnet or Opus** for all subagents and reasoning tasks. Use Haiku only for genuinely mechanical work (token counting, simple parsing, trivial transforms). When in doubt, use Sonnet. The `ANTHROPIC_DEFAULT_HAIKU_MODEL` env var enforces Sonnet as the floor — this preference explains the intent behind it.
 
+## Shell Operators
+
+A pre-tool-use hook blocks `&&`, `||`, backticks, and `$()` in Bash commands. This prevents shell injection via permission bypass. Run commands sequentially (separate tool calls) instead of chaining them. Use `git commit -F file` instead of `git commit -m "$(cat file)"`. Pipes (`|`) and semicolons (`;`) are allowed.
+
 ## Temporary Files
 
 Use `~/claude/scratch/` for all temporary files (PR bodies, commit messages, scripts, intermediate data, etc.).

@@ -153,8 +153,8 @@ npx skills add zachmayer/skills -g
 ```bash
 git clone https://github.com/zachmayer/skills.git
 cd skills
-make install        # Install deps, settings, and symlink skills
-make install-local  # Settings + symlink skills only (no deps)
+make install        # Install deps, settings, hooks, global CLAUDE.md, and symlink skills
+make install-local  # Settings, hooks, global CLAUDE.md, and symlink skills (no deps)
 ```
 
 ## Development

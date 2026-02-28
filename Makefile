@@ -10,6 +10,8 @@ help: ## Show this help
 install: ## Install all dependencies, settings, and local skills
 	uv python install
 	uv sync --locked --all-extras --all-groups
+	@echo "Clearing core.hooksPath so pre-commit can manage .git/hooks"
+	git config --unset-all core.hooksPath || true
 	uv run pre-commit install
 	uv run playwright install chromium
 	$(MAKE) install-local
@@ -19,6 +21,8 @@ install: ## Install all dependencies, settings, and local skills
 install-ci: ## Install without heavy deps (marker-pdf/torch) for CI
 	uv python install
 	uv sync --locked --group dev
+	@echo "Clearing core.hooksPath so pre-commit can manage .git/hooks"
+	git config --unset-all core.hooksPath || true
 	uv run pre-commit install
 .PHONY: install-ci
 
@@ -49,13 +53,24 @@ build: ## Build package
 .PHONY: build
 
 
-install-local: ## Install settings and symlink skills to ~/.claude/
+install-local: ## Install settings, global CLAUDE.md, and symlink skills to ~/.claude/
 	@mkdir -p $(INSTALL_DIR)
-	@if [ -f "$(HOME)/.claude/settings.json" ]; then \
-		cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.bak"; \
+	@mkdir -p $(HOME)/claude/scratch
+	@mkdir -p $(HOME)/claude/worktrees
+	@mkdir -p $(HOME)/.claude/hooks
+	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@chmod +x $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@ts=$$(date +%Y%m%d%H%M%S); \
+	if [ -f "$(HOME)/.claude/settings.json" ]; then \
+		cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; \
+	fi; \
+	if [ -f "$(HOME)/CLAUDE.md" ]; then \
+		cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.$$ts.bak"; \
 	fi
 	@cp settings.template.json $(HOME)/.claude/settings.json
 	@echo "Installed settings to ~/.claude/settings.json"
+	@cp CLAUDE.template.md $(HOME)/CLAUDE.md
+	@echo "Installed global CLAUDE.md to ~/CLAUDE.md"
 	@for skill_dir in $(SKILLS_DIR)/*/; do \
 		skill_name=$$(basename "$$skill_dir"); \
 		echo "  Linking $$skill_name"; \

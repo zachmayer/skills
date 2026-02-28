@@ -4,8 +4,8 @@ A shared, open-source collection of agent skills following the Agent Skills open
 
 ## Build & Test
 
-- Install: `make install` (deps + settings + symlink skills)
-- Install local only: `make install-local` (settings + symlink skills to ~/.claude/)
+- Install: `make install` (deps + settings + hooks + global CLAUDE.md + symlink skills)
+- Install local only: `make install-local` (settings + hooks + global CLAUDE.md + symlink skills)
 - Lint: `make lint`
 - Test: `make test`
 
@@ -37,13 +37,14 @@ Use README.md as the development memory for this repo. It contains the skill inv
 
 ## Git Workflow
 
-- **Always use PRs.** Never commit directly to main. Create a feature branch, push it, and open a PR. The human merges.
-- **Use worktrees** when the current branch is occupied. `git worktree add /tmp/skills-<name> main` then branch from there. This prevents clobbering other in-progress work.
-- **Atomic PRs.** Each PR should be independently mergeable. Don't bundle unrelated changes. If two features don't depend on each other, make two PRs.
-- **When superseding a PR**, remind the human to close the old PR. Give them the `gh pr close` command with a comment. Do NOT open the new PR until the human confirms the old one is closed. Keep reminding until you can verify closure with `gh pr view`.
+Global defaults (PRs always, worktrees, atomic PRs) are in `~/CLAUDE.md`. Skills-repo specifics:
+
+- **Worktree naming**: use `git worktree add ~/claude/worktrees/skills-<name> main` (prefix `skills-` to identify this repo's worktrees).
+- **When superseding a PR**, close the old PR directly: `gh pr close <number> --comment "Superseded by #<new>"`. Then open the new PR. You have permission to do this; the human can reopen if needed.
 
 ## Conventions
 
+- **Temporary files go in `~/claude/scratch/`**, not `/tmp/`. Claude Code cannot auto-approve `/tmp/` writes on macOS (symlink resolution bug). `~/claude/scratch/` is in the allow list and always works.
 - Each skill is a directory with `SKILL.md` as the entry point
 - SKILL.md uses YAML frontmatter with `name` and `description`
 - Descriptions use WHEN/WHEN NOT pattern for clear invocation boundaries

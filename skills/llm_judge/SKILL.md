@@ -34,22 +34,11 @@ One narrow, specific failure mode:
 
 Use the `discussion_partners` skill to send the judge prompt to an external model:
 
+Write the judge prompt to a file, then pass with `--file`:
+
 ```bash
-# SKILL_DIR below refers to the discussion_partners skill directory
-uv run --directory SKILL_DIR python scripts/ask_model.py "$(cat <<'EOF'
-You are evaluating an AI response for [CRITERION].
-
-Context: [what the AI was asked to do]
-Input: [the user's request]
-Output: [the AI's response]
-
-Evaluate ONLY whether [specific criterion]. Ignore all other quality dimensions.
-
-Respond in this exact format:
-CRITIQUE: [2-3 sentences explaining your reasoning with specific evidence from the output]
-RESULT: PASS or FAIL
-EOF
-)"
+# Write judge prompt to scratch file, then call discussion_partners
+uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/judge-prompt.txt
 ```
 
 ### 3. Calibrate with examples

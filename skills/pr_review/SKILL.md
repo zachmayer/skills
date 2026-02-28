@@ -4,7 +4,7 @@ description: >
   Review a GitHub PR for bugs, security issues, and design problems.
   Use when reviewing PRs or before merging. Do NOT use for local code
   review without a PR.
-allowed-tools: Bash(gh pr *), Bash(gh api *), Bash(git diff *), Bash(git log *), Bash(uv run *)
+allowed-tools: Bash(gh pr *), Bash(git diff *), Bash(git log *), Bash(uv run *)
 ---
 
 ## Step 1: Fetch Context
@@ -28,14 +28,7 @@ Launch BOTH in parallel — do not wait for one before starting the other.
 
 > You are an expert code reviewer. Review the PR diff. Focus on correctness, bugs, security, and design. Skip style nits, formatting, and naming unless they cause real confusion. Each finding: severity (critical/warning/note), file, line, issue, suggested fix. If the code is clean, say so. Be direct. No filler.
 
-**discussion_partners**: Send the same context to an external model for an independent review.
-
-```bash
-# SKILL_DIR below refers to the discussion_partners skill directory
-uv run --directory SKILL_DIR python scripts/ask_model.py \
-  -s "You are an expert code reviewer. Focus on correctness, bugs, security, and design. Skip style nits. Each finding: severity (critical/warning/note), file, line, issue, suggested fix. If the code is clean, say so. Be direct." \
-  "Review this PR. <include PR metadata, diff, and repo conventions here>"
-```
+**discussion_partners**: Use the `discussion_partners` skill for independent external reviews. Write the prompt (system context + PR metadata + diff + repo conventions) to `~/claude/scratch/pr-review-prompt.txt`, then call with `--file`. Run multiple models in parallel — see `discussion_partners` for available models and defaults.
 
 ## Step 3: Synthesize and Triage
 
@@ -51,23 +44,9 @@ Only real issues survive triage.
 
 ## Step 4: Post Review to GitHub
 
-Map each surviving finding to inline comments with severity tags:
+Post a summary review that calls out specific files and lines in the body text.
 
-```bash
-gh api repos/{owner}/{repo}/pulls/{number}/reviews \
-  --method POST \
-  --input - <<'JSON'
-{
-  "event": "COMMENT",
-  "body": "Review summary here",
-  "comments": [
-    {"path": "file.py", "line": 42, "body": "**warning**: Description\n\nSuggested fix: ..."}
-  ]
-}
-JSON
-```
-
-If findings cannot be mapped to specific lines, fall back to:
+If there are real issues, post a comment review:
 
 ```bash
 gh pr review <N> --comment --body "review body"

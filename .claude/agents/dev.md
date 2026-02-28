@@ -52,15 +52,23 @@ Your prompt contains `<issue>` with the issue number, repo, and body. Work that 
 
 ## Step 1: Find Existing PRs
 
-**NEVER create a new PR without first confirming no open PR exists.** Use ALL three methods:
+**NEVER create a new PR without first confirming no open PR exists.** Use this GraphQL query:
 
 ```bash
-# 1. Text search
-gh pr list --repo OWNER/REPO --state all --search "NUMBER" --json number,title,state,url --limit 20
-# 2. Timeline cross-references
-gh api repos/OWNER/REPO/issues/NUMBER/timeline --paginate --jq '[.[] | select(.event == "cross-referenced") | select(.source.issue.pull_request != null) | {number: .source.issue.number, state: .source.issue.state}] | unique_by(.number)'
-# 3. Branch name
-gh pr list --repo OWNER/REPO --state all --head "heartbeat/issue-NUMBER" --json number,title,state,url
+gh api graphql -f query='
+query {
+  repository(owner: "OWNER", name: "REPO") {
+    issue(number: NUMBER) {
+      timelineItems(itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT], first: 50) {
+        nodes {
+          ... on CrossReferencedEvent { source { ... on PullRequest { number title state } } }
+          ... on ConnectedEvent { subject { ... on PullRequest { number title state } } }
+        }
+      }
+    }
+  }
+}
+'
 ```
 
 Also check if lead left a `<!-- fsm:selected_pr=NUMBER -->` comment on the issue — if so, use that PR.

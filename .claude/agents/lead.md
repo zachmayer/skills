@@ -45,18 +45,26 @@ Your prompt contains `<issue>` with the issue number, repo, and body. Work that 
 
 ## Step 1: Discover Linked PRs
 
-Use ALL three methods — any single method can miss PRs:
+Single GraphQL query returns all PRs linked to the issue (cross-references + manual links):
 
 ```bash
-# 1. Text search (catches keyword mentions)
-gh pr list --repo OWNER/REPO --state all --search "NUMBER" --json number,title,state,url --limit 20
-# 2. Timeline cross-references (catches "Fixes #N" linkage)
-gh api repos/OWNER/REPO/issues/NUMBER/timeline --paginate --jq '[.[] | select(.event == "cross-referenced") | select(.source.issue.pull_request != null) | {number: .source.issue.number, state: .source.issue.state}] | unique_by(.number)'
-# 3. Branch name (catches agent-created PRs)
-gh pr list --repo OWNER/REPO --state all --head "heartbeat/issue-NUMBER" --json number,title,state,url
+gh api graphql -f query='
+query {
+  repository(owner: "OWNER", name: "REPO") {
+    issue(number: NUMBER) {
+      timelineItems(itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT], first: 50) {
+        nodes {
+          ... on CrossReferencedEvent { source { ... on PullRequest { number title state } } }
+          ... on ConnectedEvent { subject { ... on PullRequest { number title state } } }
+        }
+      }
+    }
+  }
+}
+'
 ```
 
-Merge and deduplicate results. Classify each PR as open or closed.
+Classify each PR as OPEN or CLOSED/MERGED.
 
 ## Step 2: Check Bounce Count
 

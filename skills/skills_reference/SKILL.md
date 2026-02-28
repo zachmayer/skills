@@ -240,7 +240,7 @@ Run validator → fix errors → repeat. Greatly improves output quality:
 
 ```markdown
 1. Make edits
-2. Validate: `python scripts/validate.py`
+2. Validate: `uv run python scripts/validate.py`
 3. If validation fails → fix → validate again
 4. Only proceed when validation passes
 ```

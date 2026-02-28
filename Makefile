@@ -53,6 +53,7 @@ build: ## Build package
 
 install-local: ## Install settings and symlink skills to ~/.claude/
 	@mkdir -p $(INSTALL_DIR)
+	@mkdir -p $(HOME)/claude/scratch
 	@if [ -f "$(HOME)/.claude/settings.json" ]; then \
 		cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.bak"; \
 	fi

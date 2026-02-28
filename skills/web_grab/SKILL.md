@@ -64,7 +64,7 @@ Special handling for specific content types. Add new entries as needed.
 
 - **YouTube videos** (youtube.com, youtu.be) — Use `yt-dlp` to extract metadata and transcript. Install if needed: `uv tool install yt-dlp`. Steps:
   1. Get metadata: `yt-dlp --skip-download --print title --print channel --print upload_date --print description "<url>" 2>/dev/null`
-  2. Download auto-generated subtitles: `yt-dlp --write-auto-sub --sub-lang en --skip-download -o "/tmp/yt-%(id)s" "<url>"`
+  2. Download auto-generated subtitles: `yt-dlp --write-auto-sub --sub-lang en --skip-download -o "$HOME/claude/scratch/yt-%(id)s" "<url>"`
   3. Clean the VTT file into plain text by stripping timestamps, VTT headers, and duplicate lines (use a short Python script via `uv run python -c "..."`)
   4. Use the transcript + metadata to write the note. Summarize key points; include chapter timestamps from the description if available. Do NOT include the raw transcript verbatim — distill it into structured content.
 - **Factorio blueprints** (factoriobin.com) — Always include the full blueprint string. Check the page HTML for a CDN link (`cdn.factoriobin.com`) and curl it to get the raw string. Save it in a collapsible `<details>` block.

@@ -8,5 +8,5 @@ Do NOT write to `/tmp/` — on macOS, `/tmp` is a symlink and Claude Code cannot
 ## Git Workflow
 
 - **Always use PRs.** Never commit directly to main. Create a feature branch, push it, and open a PR. The human merges.
-- **Use worktrees** when the current branch is occupied: `git worktree add /tmp/project-<name> main` then branch from there.
+- **Use worktrees** when the current branch is occupied: `git worktree add ~/claude/worktrees/project-<name> main` then branch from there.
 - **Atomic PRs.** Each PR should be independently mergeable. Don't bundle unrelated changes.

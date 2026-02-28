@@ -10,6 +10,7 @@ help: ## Show this help
 install: ## Install all dependencies, settings, and local skills
 	uv python install
 	uv sync --locked --all-extras --all-groups
+	@echo "Clearing core.hooksPath so pre-commit can manage .git/hooks"
 	git config --unset-all core.hooksPath || true
 	uv run pre-commit install
 	uv run playwright install chromium
@@ -20,6 +21,7 @@ install: ## Install all dependencies, settings, and local skills
 install-ci: ## Install without heavy deps (marker-pdf/torch) for CI
 	uv python install
 	uv sync --locked --group dev
+	@echo "Clearing core.hooksPath so pre-commit can manage .git/hooks"
 	git config --unset-all core.hooksPath || true
 	uv run pre-commit install
 .PHONY: install-ci
@@ -54,6 +56,7 @@ build: ## Build package
 install-local: ## Install settings, global CLAUDE.md, and symlink skills to ~/.claude/
 	@mkdir -p $(INSTALL_DIR)
 	@mkdir -p $(HOME)/claude/scratch
+	@mkdir -p $(HOME)/claude/worktrees
 	@if [ -f "$(HOME)/.claude/settings.json" ]; then \
 		cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.bak"; \
 	fi

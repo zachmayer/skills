@@ -34,6 +34,7 @@ Use README.md as the development memory for this repo. It contains the skill inv
 - **Don't trust training data for library APIs.** Your knowledge cutoff may reflect a beta, a different version, or simply be wrong. Inspect the actual installed code to determine data structures: `uv run python -c "from lib import Class; print(dir(Class()))"`. Packages like pydantic-ai change fast — what you "know" about the API may be stale. If you believe an API changed but can't reproduce the error, your training data is wrong. Trust the installed version, not your memory.
 - **Fix tests, don't revert dep bumps.** When a dependency update breaks tests, the tests need to be fixed — not the update reverted. Staying on old versions creates compounding tech debt. The compat test (`test_pydantic_ai_compat.py`) exists to detect pydantic-ai API changes; when it fires, update the code to match the new API.
 - **Don't give the user indented heredocs.** `<<'EOF'` requires the closing `EOF` at column 0 — any leading whitespace prevents termination and the shell hangs. When giving the user shell commands, pass strings directly with flags (`--body "..."`) instead of `$(cat <<'EOF' ... EOF)` patterns.
+- **Regexes are a code smell.** If you're parsing a structured format (markdown, HTML, JSON, YAML, etc.), use a proper parser or library — not a regex. Regexes are brittle, hard to read, and break on edge cases that a parser handles correctly.
 
 ## Git Workflow
 

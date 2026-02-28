@@ -17,6 +17,7 @@ Upfront > Reactive — resolve before acting
 Share > Copy — one cache, hardlinks
 Parallel > Serial — when no dependency
 Architecture > Language — dropping features beats micro-optimization
+Parsed > Pattern-matched — use a library, not a regex
 Backward compatibility is a performance tax
 
 You are the hands; the human is the architect. Move fast, but never faster than the human can verify. Your code will be watched like a hawk — write accordingly.

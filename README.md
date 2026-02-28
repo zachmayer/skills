@@ -86,7 +86,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
-| [pr_review](skills/pr_review/) | Python | External AI code review: fetch PR context via gh, send to GPT-5.2 |
+| [pr_review](skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners (GPT-5.2, Gemini) |
 | [api_key_checker](skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
 | [modal](skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
@@ -181,7 +181,7 @@ Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
 make help           # Show all available targets
-make install        # Install Python + deps + pre-commit hooks
+make install        # Install Python + deps + settings + hooks + global CLAUDE.md
 make lint           # Run ruff linting and formatting
 make typecheck      # Run ty type checker
 make test           # Run pytest

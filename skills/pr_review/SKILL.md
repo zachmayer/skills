@@ -4,7 +4,7 @@ description: >
   Review a GitHub PR for bugs, security issues, and design problems.
   Use when reviewing PRs or before merging. Do NOT use for local code
   review without a PR.
-allowed-tools: Bash(gh pr *), Bash(gh api *), Bash(git diff *), Bash(git log *), Bash(uv run *)
+allowed-tools: Bash(gh pr *), Bash(git diff *), Bash(git log *), Bash(uv run *)
 ---
 
 ## Step 1: Fetch Context

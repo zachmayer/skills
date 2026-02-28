@@ -74,6 +74,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
 | [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
 | [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
+| [vector_search](skills/vector_search/) | Python | Semantic search over obsidian vault via local embeddings and FAISS |
 
 ### Build
 
@@ -131,7 +132,7 @@ graph LR
     daily_briefing --> obsidian
 ```
 
-Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
+Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`, `vector_search`
 
 ## Install
 

@@ -37,9 +37,9 @@ Use README.md as the development memory for this repo. It contains the skill inv
 
 ## Git Workflow
 
-- **Always use PRs.** Never commit directly to main. Create a feature branch, push it, and open a PR. The human merges.
-- **Use worktrees** when the current branch is occupied. `git worktree add /tmp/skills-<name> main` then branch from there. This prevents clobbering other in-progress work.
-- **Atomic PRs.** Each PR should be independently mergeable. Don't bundle unrelated changes. If two features don't depend on each other, make two PRs.
+Global defaults (PRs always, worktrees, atomic PRs) are in `~/CLAUDE.md`. Skills-repo specifics:
+
+- **Worktree naming**: use `git worktree add /tmp/skills-<name> main` (prefix `skills-` to identify this repo's worktrees).
 - **When superseding a PR**, remind the human to close the old PR. Give them the `gh pr close` command with a comment. Do NOT open the new PR until the human confirms the old one is closed. Keep reminding until you can verify closure with `gh pr view`.
 
 ## Conventions

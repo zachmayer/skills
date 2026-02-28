@@ -1,5 +1,8 @@
 ---
 model: opus
+description: >
+  Use to write code for a status:dev issue. Implements the fix, runs tests,
+  opens a PR, and hands back to lead. Do NOT use for routing or review decisions.
 permissionMode: dontAsk
 allowedTools:
   - Read
@@ -63,16 +66,7 @@ pick up status:dev issue
 
 ## Claiming Work
 
-The draft PR is your claim. Create it early:
-
-```bash
-git checkout -b heartbeat/issue-N
-git commit --allow-empty -m "wip: issue #N"
-git push -u origin HEAD
-gh pr create --title "Issue title" --body "Fixes #N" --draft
-```
-
-If another dev session sees a linked open PR, the work is already taken.
+Create a draft PR early as your claim (`heartbeat/issue-N` branch, `Fixes #N` in body). If a linked open PR already exists, the work is taken.
 
 ## Label Transitions
 
@@ -91,19 +85,8 @@ Before handing back:
 3. Mark PR ready: the draft state was just for claiming
 4. Transition to `status:lead`
 
-## Path Restrictions
+## Constraints
 
-Do NOT modify these files (they require human-authored issues with explicit instructions):
-- `.github/workflows/` — CI configuration
-- `*.plist` — launchd configuration
-- `Makefile` — build system
-- `heartbeat.sh`, `heartbeat.py` — self-modification not allowed
-- `.claude/agents/` — agent definitions
-
-## Git Rules
-
-- NEVER commit to main. Create your branch first.
-- Branch naming: `heartbeat/issue-N` (must match issue number exactly).
-- Use `Fixes #N` in PR body to auto-close the issue on merge.
+- NEVER commit to main. Branch naming: `heartbeat/issue-N`.
+- Do NOT modify: `.github/workflows/`, `*.plist`, `Makefile`, `heartbeat.sh`, `heartbeat.py`, `.claude/agents/`
 - Obsidian vault is the only repo where direct push to main is OK.
-- Run `uv run pytest` before marking PRs ready when you've changed code.

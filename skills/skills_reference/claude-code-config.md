@@ -103,7 +103,7 @@ Glob patterns: `**/*.ts`, `src/**/*`, `*.md`, `src/**/*.{ts,tsx}`, `{src,lib}/**
 
 `*` matches one directory level; `**` matches recursively.
 
-**Bash wildcard note:** `Bash(ls *)` (space before `*`) enforces word boundary — matches `ls -la` but NOT `lsof`. Claude Code is aware of `&&` so `Bash(safe-cmd *)` won't match `safe-cmd && evil-cmd`.
+**Bash wildcard note:** `Bash(ls *)` (space before `*`) enforces word boundary — matches `ls -la` but NOT `lsof`. **Warning:** Bash pattern matching does NOT parse shell operators — `Bash(safe-cmd *)` WILL match `safe-cmd && evil-cmd` due to simple prefix matching. Use PreToolUse hooks to block shell operators (`&&`, `||`, backticks, `$()`) as the primary defense.
 
 ## Key Settings
 

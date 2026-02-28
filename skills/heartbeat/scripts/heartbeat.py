@@ -206,11 +206,18 @@ def process_step(
 
 
 @click.command()
-@click.option("--lead-budget", default=1, help="$/issue for lead agent")
-@click.option("--dev-budget", default=4, help="$/issue for dev agent")
-@click.option("--max-turns", default=200)
+@click.option("--lead-budget", default=3, help="$/issue for lead agent")
+@click.option("--dev-budget", default=8, help="$/issue for dev agent")
+@click.option("--lead-turns", default=50, help="Max turns for lead agent")
+@click.option("--dev-turns", default=100, help="Max turns for dev agent")
 @click.option("--max-issues", default=10, help="Max issues per step")
-def main(lead_budget: int, dev_budget: int, max_turns: int, max_issues: int) -> None:
+def main(
+    lead_budget: int,
+    dev_budget: int,
+    lead_turns: int,
+    dev_turns: int,
+    max_issues: int,
+) -> None:
     obsidian_dir = str(
         Path(os.environ.get("CLAUDE_OBSIDIAN_DIR", "~/claude/obsidian")).expanduser()
     )
@@ -224,7 +231,7 @@ def main(lead_budget: int, dev_budget: int, max_turns: int, max_issues: int) -> 
         "lead",
         repos,
         lead_budget,
-        max_turns,
+        lead_turns,
         max_issues,
         auth_user,
         obsidian_dir,
@@ -234,7 +241,7 @@ def main(lead_budget: int, dev_budget: int, max_turns: int, max_issues: int) -> 
         "dev",
         repos,
         dev_budget,
-        max_turns,
+        dev_turns,
         max_issues,
         auth_user,
         obsidian_dir,

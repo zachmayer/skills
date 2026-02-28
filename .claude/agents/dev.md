@@ -78,6 +78,10 @@ Your prompt contains `<issue>` with the issue number, repo, and body. Work that 
 
 Always transition back to `status:lead`. Never transition to `status:human` directly.
 
+```bash
+gh issue edit NUMBER --repo OWNER/REPO --remove-label status:dev --add-label status:lead
+```
+
 ## Constraints
 
 - NEVER commit to main. Branch naming: `heartbeat/issue-N`.

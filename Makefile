@@ -58,7 +58,7 @@ install-local: ## Install settings, global CLAUDE.md, and symlink skills to ~/.c
 	@mkdir -p $(HOME)/claude/scratch
 	@mkdir -p $(HOME)/claude/worktrees
 	@mkdir -p $(HOME)/.claude/hooks
-	@cp .claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@ts=$$(date +%Y%m%d%H%M%S); \
 	if [ -f "$(HOME)/.claude/settings.json" ]; then \
 		cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; \

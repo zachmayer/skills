@@ -57,14 +57,15 @@ install-local: ## Install settings, global CLAUDE.md, and symlink skills to ~/.c
 	@mkdir -p $(INSTALL_DIR)
 	@mkdir -p $(HOME)/claude/scratch
 	@mkdir -p $(HOME)/claude/worktrees
-	@if [ -f "$(HOME)/.claude/settings.json" ]; then \
-		cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.bak"; \
+	@ts=$$(date +%Y%m%d%H%M%S); \
+	if [ -f "$(HOME)/.claude/settings.json" ]; then \
+		cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; \
+	fi; \
+	if [ -f "$(HOME)/CLAUDE.md" ]; then \
+		cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.$$ts.bak"; \
 	fi
 	@cp settings.template.json $(HOME)/.claude/settings.json
 	@echo "Installed settings to ~/.claude/settings.json"
-	@if [ -f "$(HOME)/CLAUDE.md" ]; then \
-		cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.bak"; \
-	fi
 	@cp CLAUDE.template.md $(HOME)/CLAUDE.md
 	@echo "Installed global CLAUDE.md to ~/CLAUDE.md"
 	@for skill_dir in $(SKILLS_DIR)/*/; do \

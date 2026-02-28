@@ -157,6 +157,24 @@ make install        # Install deps, settings, hooks, global CLAUDE.md, and symli
 make install-local  # Settings, hooks, global CLAUDE.md, and symlink skills (no deps)
 ```
 
+### What install sets up
+
+`make install` creates a two-layer configuration:
+
+**Global config** (applies to all repos):
+- `~/.claude/settings.json` — Permissions: `Bash(*)` allow with targeted deny rules (destructive git, dangerous gh commands). Deny always wins over allow.
+- `~/.claude/hooks/reject-shell-operators.sh` — PreToolUse hook that blocks `&&`, `||`, backticks, and `$()` in Bash commands. Primary defense against shell injection.
+- `~/CLAUDE.md` — Global agent instructions: model preferences (Opus default, Sonnet floor), temp file conventions, git workflow (always PRs, use worktrees).
+
+**Agent workspace** (created by install):
+- `~/claude/scratch/` — Agent scratch pad for temp files (PR bodies, commit messages, review prompts, downloads). Used instead of `/tmp/` because Claude Code can't auto-approve `/tmp/` writes on macOS.
+- `~/claude/worktrees/` — Git worktrees for parallel development.
+- `~/claude/obsidian/` — Obsidian vault (hierarchical memory + knowledge graph). Set by `CLAUDE_OBSIDIAN_DIR`.
+
+**Per-project config** (this repo only):
+- `.claude/settings.json` — Adds `Edit(**)` and `Write(**)` so the agent can edit any file in the repo. All other permissions (Bash, deny rules, hooks) inherit from the global config.
+- `CLAUDE.md` — Repo-specific conventions. References `~/CLAUDE.md` for global defaults.
+
 ## Development
 
 Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).

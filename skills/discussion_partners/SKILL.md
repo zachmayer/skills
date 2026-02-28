@@ -19,6 +19,7 @@ Query another AI model for an outside perspective on a difficult problem. One me
 | `openai:gpt-5.2` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
 | `google-gla:gemini-3.1-pro-preview` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
+| `openai-responses:codex-mini-latest` | Coding specialist — code review, debugging, refactors | `OPENAI_API_KEY` |
 
 Before calling, verify the required API key is set: `echo $OPENAI_API_KEY | head -c 8` (should show `sk-...`).
 
@@ -50,6 +51,12 @@ For longer questions — code review diffs, multi-file context, anything with ne
 # Write your question/context to a file
 # Then pass via --input-file (-f) to avoid shell quoting issues
 uv run --directory SKILL_DIR python scripts/ask_model.py -m <model> -f /tmp/my-question.txt
+```
+
+The script also supports standalone execution via `uv run --script` (no project install needed — deps declared inline):
+
+```bash
+uv run --script SKILL_DIR/scripts/ask_model.py "question"
 ```
 
 `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/) — the provider prefix determines which API key and thinking settings to use.

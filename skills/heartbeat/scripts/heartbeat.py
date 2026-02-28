@@ -151,14 +151,22 @@ def run_agent(
                 prompt,
             ],
             cwd=str(run_dir),
+            capture_output=True,
+            text=True,
         )
         ok = result.returncode == 0
+        if result.stdout.strip():
+            log(f"{agent} output:\n{result.stdout.strip()}")
+        if result.stderr.strip():
+            log(f"{agent} stderr:\n{result.stderr.strip()}")
     except Exception as exc:
         log(f"{agent} on {repo}#{number} error: {exc!r}")
         ok = False
 
     if not ok:
-        log(f"{agent} on {repo}#{number} failed")
+        log(
+            f"{agent} on {repo}#{number} failed (exit {result.returncode if 'result' in dir() else '?'})"
+        )
 
     if workdir and workdir.is_dir():
         subprocess.run(

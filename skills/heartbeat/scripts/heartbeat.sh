@@ -38,7 +38,8 @@ TIMEOUT_SECONDS=14400
     kill -9 -- -$$ 2>/dev/null
 ) &
 watchdog_pid=$!
-trap "kill -9 $watchdog_pid 2>/dev/null; wait $watchdog_pid 2>/dev/null" EXIT
+cleanup() { kill "$watchdog_pid" 2>/dev/null; wait "$watchdog_pid" 2>/dev/null || true; }
+trap cleanup EXIT
 
 # --- Run Python (no exec: EXIT trap must fire to kill watchdog) ---
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

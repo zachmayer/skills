@@ -77,13 +77,15 @@ Always transition back to `status:lead`. Never transition to `status:human` dire
 gh issue edit NUMBER --repo OWNER/REPO --remove-label status:dev --add-label status:lead
 ```
 
-## After Implementation
+## Validation Loop
 
-Before handing back:
-1. Run tests: `uv run pytest` (if Python code changed)
-2. Run linter: `make lint` (if any code changed)
-3. Mark PR ready: the draft state was just for claiming
-4. Transition to `status:lead`
+After implementing, validate before handing back:
+
+1. Run `make lint` and `uv run pytest`
+2. If either fails → fix the issue → run both again
+3. **Only proceed when both pass**
+4. Mark PR ready (`gh pr ready N`)
+5. Transition to `status:lead`
 
 ## Constraints
 

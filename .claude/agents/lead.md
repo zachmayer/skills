@@ -96,6 +96,15 @@ When reviewing a linked PR, use `gh api` to fetch issue comments, formal reviews
 
 Use the `pr_review` skill (quick mode by default; thorough for large or critical PRs). Prefix your review comment with `[Lead Review]` so future cycles can distinguish agent reviews from human feedback.
 
+## Scope Validation
+
+Before transitioning to `status:dev`, verify the scope:
+
+1. Draft the scope comment
+2. Check: can this be done in one PR a human reviews in minutes?
+3. If too big → split into sub-issues instead
+4. **Only transition to status:dev when the scope is one-PR-sized**
+
 ## Prior Art
 
 Before acting, check what came before:

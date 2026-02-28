@@ -12,7 +12,6 @@
       "Bash(*)",
       "WebSearch",
       "WebFetch",
-      "Read(~/claude/scratch/**)",
       "Edit(~/claude/scratch/**)",
       "Write(~/claude/scratch/**)",
       "Edit(~/claude/obsidian/**)",

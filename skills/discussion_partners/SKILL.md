@@ -20,7 +20,7 @@ Query another AI model for an outside perspective on a difficult problem. One me
 | `openai:gpt-5.2` | Deep reasoning with xhigh thinking, slower | `OPENAI_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
 
-Before calling, verify the required API key is set: `echo $GOOGLE_API_KEY | head -c 8`.
+Before calling, verify the required API key is set: `echo $GOOGLE_API_KEY | head -c 8` (should show `AIza...`).
 
 ## Framing Your Question
 

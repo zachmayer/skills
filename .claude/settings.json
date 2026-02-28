@@ -11,13 +11,7 @@
       "Write(**)",
       "Bash(*)",
       "WebSearch",
-      "WebFetch(domain:docs.astral.sh)",
-      "WebFetch(domain:platform.openai.com)",
-      "WebFetch(domain:docs.anthropic.com)",
-      "WebFetch(domain:ai.google.dev)",
-      "WebFetch(domain:ai.pydantic.dev)",
-      "WebFetch(domain:claude.com)",
-      "WebFetch(domain:hamel.dev)"
+      "WebFetch"
     ],
     "deny": [
       "Bash(rm -rf *)",
@@ -47,7 +41,6 @@
       "Bash(gh label create*)",
       "Bash(gh label delete*)",
       "Bash(gh label edit*)",
-      "Bash(gh pr comment*)",
       "Bash(gh pr merge*)",
       "Bash(gh pr ready*)",
       "Bash(gh pr reopen*)",
@@ -57,7 +50,6 @@
       "Bash(gh release edit*)",
       "Bash(gh release upload*)",
       "Bash(gh repo archive*)",
-      "Bash(gh repo create*)",
       "Bash(gh repo delete*)",
       "Bash(gh repo edit*)",
       "Bash(gh repo fork*)",
@@ -75,14 +67,7 @@
       "Bash(gh variable set*)",
       "Bash(gh workflow disable*)",
       "Bash(gh workflow enable*)",
-      "Bash(gh workflow run*)",
-      "Bash(gh api * --method *)",
-      "Bash(gh api * -X *)",
-      "Bash(gh api * -f *)",
-      "Bash(gh api * -F *)",
-      "Bash(gh api * --field *)",
-      "Bash(gh api * --raw-field *)",
-      "Bash(gh api * --input *)"
+      "Bash(gh workflow run*)"
     ]
   },
   "hooks": {
@@ -92,7 +77,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/reject-shell-operators.sh"
+            "command": "~/.claude/hooks/reject-shell-operators.sh"
           }
         ]
       }

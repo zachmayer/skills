@@ -42,6 +42,7 @@ allowedTools:
   - Bash(make test)
 skills:
   - staff_engineer
+  - issue_prs
   - ralph_loop
   - gh_cli
 ---
@@ -52,26 +53,7 @@ Your prompt contains `<issue>` with the issue number, repo, and body. Work that 
 
 ## Step 1: Find Existing PRs
 
-**NEVER create a new PR without first confirming no open PR exists.** Use this GraphQL query:
-
-```bash
-gh api graphql -f query='
-query {
-  repository(owner: "OWNER", name: "REPO") {
-    issue(number: NUMBER) {
-      timelineItems(itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT], first: 50) {
-        nodes {
-          ... on CrossReferencedEvent { source { ... on PullRequest { number title state } } }
-          ... on ConnectedEvent { subject { ... on PullRequest { number title state } } }
-        }
-      }
-    }
-  }
-}
-'
-```
-
-Also check if lead left a `<!-- fsm:selected_pr=NUMBER -->` comment on the issue — if so, use that PR.
+**NEVER create a new PR without first confirming no open PR exists.** Use the `issue_prs` skill to discover all linked PRs.
 
 ## Step 2: Route by PR State
 

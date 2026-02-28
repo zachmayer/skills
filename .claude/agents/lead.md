@@ -33,6 +33,7 @@ allowedTools:
 skills:
   - staff_engineer
   - gh_cli
+  - issue_prs
   - pr_review
   - mental_models
   - ultra_think
@@ -45,30 +46,9 @@ Your prompt contains `<issue>` with the issue number, repo, and body. Work that 
 
 ## Step 1: Discover Linked PRs
 
-Single GraphQL query returns all PRs linked to the issue (cross-references + manual links):
-
-```bash
-gh api graphql -f query='
-query {
-  repository(owner: "OWNER", name: "REPO") {
-    issue(number: NUMBER) {
-      timelineItems(itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT], first: 50) {
-        nodes {
-          ... on CrossReferencedEvent { source { ... on PullRequest { number title state } } }
-          ... on ConnectedEvent { subject { ... on PullRequest { number title state } } }
-        }
-      }
-    }
-  }
-}
-'
-```
-
-Classify each PR as OPEN or CLOSED/MERGED.
+Use the `issue_prs` skill to find all PRs linked to this issue. Classify each as OPEN or CLOSED/MERGED.
 
 ## Step 2: Check Bounce Count
-
-Count `status:dev` label events in the issue timeline:
 
 ```bash
 gh api repos/OWNER/REPO/issues/NUMBER/events --paginate --jq '[.[] | select(.event == "labeled") | select(.label.name == "status:dev")] | length'
@@ -110,11 +90,7 @@ gh api repos/OWNER/REPO/issues/NUMBER/events --paginate --jq '[.[] | select(.eve
 1. Read the diff: `gh pr diff PR_NUMBER --repo OWNER/REPO`
 2. Check merge status: `gh pr view PR_NUMBER --repo OWNER/REPO --json mergeStateStatus,mergeable`
 3. Use the `pr_review` skill. Prefix review with `[Lead Review]`.
-4. Post a machine-readable comment on the **issue** so dev knows which PR to work on:
-   ```
-   <!-- fsm:selected_pr=PR_NUMBER -->
-   [Lead Review] Reviewing PR #PR_NUMBER. [summary of findings]
-   ```
+4. Post `fsm:selected_pr` on the issue (see `issue_prs` skill for format).
 
 Post code feedback on the **PR** (not the issue). Then decide:
 - **Behind main / not mergeable?** → include "merge main and resolve conflicts" in PR feedback

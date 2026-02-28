@@ -156,7 +156,9 @@ If a fact's age exceeds its expected velocity, ask the user to confirm before re
 After saving notes or aggregating, commit and push. Use `git -C` to avoid `cd` (matches the `Bash(git *)` permission):
 
 ```bash
-git -C $CLAUDE_OBSIDIAN_DIR add -A && git -C $CLAUDE_OBSIDIAN_DIR commit -m "memory update" && git -C $CLAUDE_OBSIDIAN_DIR push
+git -C $CLAUDE_OBSIDIAN_DIR add -A
+git -C $CLAUDE_OBSIDIAN_DIR commit -m "memory update"
+git -C $CLAUDE_OBSIDIAN_DIR push
 ```
 
 If no remote is configured, use the `private_repo` skill to set one up.

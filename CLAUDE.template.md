@@ -2,7 +2,7 @@
 
 ## Model Preferences
 
-Default to **Sonnet or Opus** for all subagents and reasoning tasks. Use Haiku only for genuinely mechanical work (token counting, simple parsing, trivial transforms). When in doubt, use Sonnet. The `ANTHROPIC_DEFAULT_HAIKU_MODEL` env var enforces Sonnet as the floor — this preference explains the intent behind it.
+Default to **Sonnet or Opus** for all subagents and reasoning tasks. Never request Haiku directly — the `ANTHROPIC_DEFAULT_HAIKU_MODEL` env var remaps all Haiku calls to Sonnet, so specifying Haiku just adds confusion with no cost savings. When choosing a model for a subagent, use Sonnet (the floor) or Opus (for complex reasoning).
 
 ## Shell Operators
 

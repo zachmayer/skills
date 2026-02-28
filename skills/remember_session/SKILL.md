@@ -71,5 +71,7 @@ If `status` also shows overall needs UPDATE, launch a second sub-agent after mon
 Everything is in the obsidian vault now — one commit covers both memory and notes:
 
 ```bash
-git -C $CLAUDE_OBSIDIAN_DIR add -A && git -C $CLAUDE_OBSIDIAN_DIR commit -m "session update" && git -C $CLAUDE_OBSIDIAN_DIR push
+git -C $CLAUDE_OBSIDIAN_DIR add -A
+git -C $CLAUDE_OBSIDIAN_DIR commit -m "session update"
+git -C $CLAUDE_OBSIDIAN_DIR push
 ```

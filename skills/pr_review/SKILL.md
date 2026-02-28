@@ -44,23 +44,9 @@ Only real issues survive triage.
 
 ## Step 4: Post Review to GitHub
 
-Map each surviving finding to inline comments with severity tags:
+Post a summary review that calls out specific files and lines in the body text.
 
-```bash
-gh api repos/{owner}/{repo}/pulls/{number}/reviews \
-  --method POST \
-  --input - <<'JSON'
-{
-  "event": "COMMENT",
-  "body": "Review summary here",
-  "comments": [
-    {"path": "file.py", "line": 42, "body": "**warning**: Description\n\nSuggested fix: ..."}
-  ]
-}
-JSON
-```
-
-If findings cannot be mapped to specific lines, fall back to:
+If there are real issues, post a comment review:
 
 ```bash
 gh pr review <N> --comment --body "review body"

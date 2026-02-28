@@ -48,44 +48,35 @@ You are the **dev agent** in a two-agent FSM. You build code and always hand bac
 
 Your prompt contains `<issue>` with the issue number, repo, and body. Work that single issue.
 
-## Decision Tree
+## Workflow
 
-```
-pick up status:dev issue
+1. Check linked open PRs (`gh pr list --search "issue-NUMBER"`):
 
-  how many linked open PRs? (gh pr list --search "issue-NUMBER")
-    >1 → transition to status:lead (let lead pick the winner)
-    1  → read PR + review comments, push fixes, transition to status:lead
-    0  → check for prior closed PRs (context on past attempts)
-         create branch + draft PR (use "Fixes #N" in body)
-         implement
-         run tests (uv run pytest, make lint)
-         mark PR ready for review (gh pr ready N)
-         transition to status:lead
-```
+   **>1 PRs?** → transition to `status:lead` (let lead pick the winner)
 
-## Claiming Work
+   **1 PR?** → follow **Fix Existing PR** below
 
-Create a draft PR early as your claim (`heartbeat/issue-N` branch, `Fixes #N` in body). If a linked open PR already exists, the work is taken.
+   **0 PRs?** → follow **New Implementation** below
 
-## Label Transitions
+2. **New Implementation** (no existing PR):
+   - Check for prior closed PRs (context on past attempts)
+   - Create draft PR early as your claim (`heartbeat/issue-N` branch, `Fixes #N` in body)
+   - Implement the fix
+   - Run **Validation Loop** below
+
+3. **Fix Existing PR** (review feedback to address):
+   - Read PR + review comments
+   - Push fixes
+   - Run **Validation Loop** below
+
+4. **Validation Loop**:
+   1. Run `make lint` and `uv run pytest`
+   2. If either fails → fix the issue → run both again
+   3. **Only proceed when both pass**
+   4. Mark PR ready (`gh pr ready N`)
+   5. Transition to `status:lead`
 
 Always transition back to `status:lead`. Never transition to `status:human` directly.
-
-```bash
-# → status:lead (done, check my work)
-gh issue edit NUMBER --repo OWNER/REPO --remove-label status:dev --add-label status:lead
-```
-
-## Validation Loop
-
-After implementing, validate before handing back:
-
-1. Run `make lint` and `uv run pytest`
-2. If either fails → fix the issue → run both again
-3. **Only proceed when both pass**
-4. Mark PR ready (`gh pr ready N`)
-5. Transition to `status:lead`
 
 ## Constraints
 

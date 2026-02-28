@@ -153,7 +153,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/reject-shell-operators.sh"
+            "command": "~/.claude/hooks/reject-shell-operators.sh"
           }
         ]
       }

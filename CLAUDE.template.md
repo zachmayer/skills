@@ -1,5 +1,9 @@
 # Global Claude Instructions
 
+## Model Preferences
+
+Default to **Sonnet or Opus** for all subagents and reasoning tasks. Use Haiku only for genuinely mechanical work (token counting, simple parsing, trivial transforms). When in doubt, use Sonnet. The `ANTHROPIC_DEFAULT_HAIKU_MODEL` env var enforces Sonnet as the floor — this preference explains the intent behind it.
+
 ## Temporary Files
 
 Use `~/claude/scratch/` for all temporary files (PR bodies, commit messages, scripts, intermediate data, etc.).

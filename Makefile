@@ -10,6 +10,7 @@ help: ## Show this help
 install: ## Install all dependencies, settings, and local skills
 	uv python install
 	uv sync --locked --all-extras --all-groups
+	git config --unset-all core.hooksPath || true
 	uv run pre-commit install
 	uv run playwright install chromium
 	$(MAKE) install-local
@@ -19,6 +20,7 @@ install: ## Install all dependencies, settings, and local skills
 install-ci: ## Install without heavy deps (marker-pdf/torch) for CI
 	uv python install
 	uv sync --locked --group dev
+	git config --unset-all core.hooksPath || true
 	uv run pre-commit install
 .PHONY: install-ci
 

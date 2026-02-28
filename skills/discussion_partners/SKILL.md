@@ -1,10 +1,11 @@
 ---
 name: discussion_partners
 description: >
-  Ask a question to another AI model (OpenAI, Anthropic, or Google) with
-  extended thinking enabled. Use when you are stuck on a difficult problem,
-  suspect you are spinning your wheels, or sense there is an angle you have
-  not considered. Do NOT use for routine tasks you can handle directly.
+  Ask a question to another AI model (OpenAI, Anthropic, Google, or Codex)
+  with extended thinking enabled. Use when you are stuck on a difficult
+  problem, suspect you are spinning your wheels, or sense there is an angle
+  you have not considered. Do NOT use for routine tasks you can handle
+  directly.
 allowed-tools: Bash(uv run *)
 ---
 

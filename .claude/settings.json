@@ -50,7 +50,6 @@
       "Bash(gh pr merge*)",
       "Bash(gh pr ready*)",
       "Bash(gh pr reopen*)",
-      "Bash(gh pr review*)",
       "Bash(gh pr revert*)",
       "Bash(gh release create*)",
       "Bash(gh release delete*)",

@@ -51,7 +51,7 @@ build: ## Build package
 .PHONY: build
 
 
-install-local: ## Install settings and symlink skills to ~/.claude/
+install-local: ## Install settings, global CLAUDE.md, and symlink skills to ~/.claude/
 	@mkdir -p $(INSTALL_DIR)
 	@mkdir -p $(HOME)/claude/scratch
 	@if [ -f "$(HOME)/.claude/settings.json" ]; then \
@@ -59,6 +59,11 @@ install-local: ## Install settings and symlink skills to ~/.claude/
 	fi
 	@cp settings.template.json $(HOME)/.claude/settings.json
 	@echo "Installed settings to ~/.claude/settings.json"
+	@if [ -f "$(HOME)/CLAUDE.md" ]; then \
+		cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.bak"; \
+	fi
+	@cp CLAUDE.template.md $(HOME)/CLAUDE.md
+	@echo "Installed global CLAUDE.md to ~/CLAUDE.md"
 	@for skill_dir in $(SKILLS_DIR)/*/; do \
 		skill_name=$$(basename "$$skill_dir"); \
 		echo "  Linking $$skill_name"; \

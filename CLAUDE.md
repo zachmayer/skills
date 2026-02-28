@@ -44,6 +44,7 @@ Use README.md as the development memory for this repo. It contains the skill inv
 
 ## Conventions
 
+- **Temporary files go in `~/claude/scratch/`**, not `/tmp/`. Claude Code cannot auto-approve `/tmp/` writes on macOS (symlink resolution bug). `~/claude/scratch/` is in the allow list and always works.
 - Each skill is a directory with `SKILL.md` as the entry point
 - SKILL.md uses YAML frontmatter with `name` and `description`
 - Descriptions use WHEN/WHEN NOT pattern for clear invocation boundaries

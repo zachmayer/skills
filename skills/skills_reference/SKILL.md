@@ -1,11 +1,13 @@
 ---
 name: skills_reference
 description: >
-  Comprehensive reference for authoring Agent Skills (SKILL.md files).
-  Covers structure, frontmatter, naming, descriptions, progressive disclosure,
-  patterns, anti-patterns, and evaluation. Use when creating new skills,
-  reviewing skill quality, or needing best practices for SKILL.md authoring.
-  Do NOT use for general Claude Code configuration (use config reference instead).
+  Comprehensive reference for authoring Agent Skills (SKILL.md files) and
+  configuring Claude Code. Covers structure, frontmatter, naming, descriptions,
+  progressive disclosure, patterns, anti-patterns, evaluation, and Claude Code
+  settings/permissions/hooks/MCP/env vars. Use when creating new skills,
+  reviewing skill quality, needing best practices for SKILL.md authoring,
+  or configuring Claude Code behavior. Do NOT use for general Claude Code
+  usage questions.
 ---
 
 # Agent Skills Reference
@@ -248,6 +250,8 @@ Run validator → fix errors → repeat. Greatly improves output quality:
 For detailed patterns for skills with executable code, see [code-skills.md](code-skills.md).
 
 ## Claude Code Specifics
+
+For the full Claude Code configuration reference (settings files, permissions, hooks, MCP, environment variables), see [claude-code-config.md](claude-code-config.md).
 
 ### Skill Locations
 

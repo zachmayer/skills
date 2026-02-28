@@ -28,7 +28,7 @@ Launch BOTH in parallel — do not wait for one before starting the other.
 
 > You are an expert code reviewer. Review the PR diff. Focus on correctness, bugs, security, and design. Skip style nits, formatting, and naming unless they cause real confusion. Each finding: severity (critical/warning/note), file, line, issue, suggested fix. If the code is clean, say so. Be direct. No filler.
 
-**discussion_partners**: Use the discussion_partners skill to send the same context to both OpenAI (default) and Gemini in parallel for independent reviews. Write the prompt (system context + PR metadata + diff + repo conventions) to `~/claude/scratch/pr-review-prompt.txt` first, then call with `--file`. Run both models in parallel.
+**discussion_partners**: Use the `discussion_partners` skill for independent external reviews. Write the prompt (system context + PR metadata + diff + repo conventions) to `~/claude/scratch/pr-review-prompt.txt`, then call with `--file`. Run multiple models in parallel — see `discussion_partners` for available models and defaults.
 
 ## Step 3: Synthesize and Triage
 

@@ -86,7 +86,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
-| [pr_review](skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners (GPT-5.2, Gemini) |
+| [pr_review](skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners |
 | [api_key_checker](skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
 | [modal](skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |

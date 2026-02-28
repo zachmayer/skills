@@ -40,7 +40,7 @@ Use README.md as the development memory for this repo. It contains the skill inv
 Global defaults (PRs always, worktrees, atomic PRs) are in `~/CLAUDE.md`. Skills-repo specifics:
 
 - **Worktree naming**: use `git worktree add ~/claude/worktrees/skills-<name> main` (prefix `skills-` to identify this repo's worktrees).
-- **When superseding a PR**, remind the human to close the old PR. Give them the `gh pr close` command with a comment. Do NOT open the new PR until the human confirms the old one is closed. Keep reminding until you can verify closure with `gh pr view`.
+- **When superseding a PR**, close the old PR directly: `gh pr close <number> --comment "Superseded by #<new>"`. Then open the new PR. You have permission to do this; the human can reopen if needed.
 
 ## Conventions
 

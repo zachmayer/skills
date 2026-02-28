@@ -17,7 +17,7 @@ Query another AI model for an outside perspective on a difficult problem. One me
 | Model | When to use | API key needed |
 |-------|-------------|----------------|
 | `openai:gpt-5.2` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
-| `google-gla:gemini-3-1-pro` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
+| `google-gla:gemini-3.1-pro-preview` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
 
 Before calling, verify the required API key is set: `echo $OPENAI_API_KEY | head -c 8` (should show `sk-...`).
@@ -55,8 +55,8 @@ uv run --directory SKILL_DIR python scripts/ask_model.py "question"
 # Claude Opus 4.6 with adaptive thinking at max effort
 uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opus-4-6 "question"
 
-# Gemini 3 Pro with thinking enabled
-uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3-pro-preview "question"
+# Gemini 3.1 Pro with thinking enabled
+uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview "question"
 
 # Codex models (via OpenAI Responses API)
 uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5-codex "question"

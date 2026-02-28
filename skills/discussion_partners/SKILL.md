@@ -12,15 +12,15 @@ Query another AI model for an outside perspective on a difficult problem. One me
 
 ## Recommended Models
 
-**Always use the script default** (`openai:gpt-5.2`) unless you have a specific reason to change. Do NOT override with older models like o3 — they are expensive and superseded.
+**Always use the script default** (`google-gla:gemini-3.1-pro-preview`) unless you have a specific reason to change. Do NOT override with older models like o3 — they are expensive and superseded.
 
 | Model | When to use | API key needed |
 |-------|-------------|----------------|
-| `openai:gpt-5.2` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
-| `google-gla:gemini-3.1-pro-preview` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
+| `google-gla:gemini-3.1-pro-preview` **(default)** | Primary partner. Fast, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
+| `openai:gpt-5.2` | Deep reasoning with xhigh thinking, slower | `OPENAI_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
 
-Before calling, verify the required API key is set: `echo $OPENAI_API_KEY | head -c 8` (should show `sk-...`).
+Before calling, verify the required API key is set: `echo $GOOGLE_API_KEY | head -c 8`.
 
 ## Framing Your Question
 
@@ -52,17 +52,17 @@ Where `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a 
 
 ## Models
 
-The default is `openai:gpt-5.2`. Thinking effort is automatically set to maximum for each provider.
+The default is `google-gla:gemini-3.1-pro-preview`. Thinking effort is automatically set to maximum for each provider.
 
 ```bash
-# GPT-5.2 with xhigh reasoning (default — just omit -m)
+# Gemini 3.1 Pro with thinking enabled (default — just omit -m)
 uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/prompt.txt
+
+# GPT-5.2 with xhigh reasoning
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:gpt-5.2 -f ~/claude/scratch/prompt.txt
 
 # Claude Opus 4.6 with adaptive thinking at max effort
 uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opus-4-6 -f ~/claude/scratch/prompt.txt
-
-# Gemini 3.1 Pro with thinking enabled
-uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview -f ~/claude/scratch/prompt.txt
 
 # Codex models (via OpenAI Responses API)
 uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5-codex -f ~/claude/scratch/prompt.txt
@@ -86,7 +86,7 @@ variable to set. If the key exists but the call fails, common errors:
 
 ## Options
 
-- `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.2`)
+- `--model` / `-m`: Full pydantic-ai model string (default: `google-gla:gemini-3.1-pro-preview`)
 - `--system` / `-s`: Optional system prompt override
 - `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)
 - `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.

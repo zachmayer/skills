@@ -12,7 +12,7 @@ from pydantic_ai import Agent
 from pydantic_ai.models import KnownModelName
 from pydantic_ai.settings import ModelSettings
 
-DEFAULT_MODEL = "openai:gpt-5.2"
+DEFAULT_MODEL = "google-gla:gemini-3.1-pro-preview"
 
 # Prefix → (env var name, thinking settings)
 PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {
@@ -90,7 +90,7 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
     "-m",
     default=DEFAULT_MODEL,
     show_default=True,
-    help="Full pydantic-ai model string (e.g. openai:gpt-5.2, anthropic:claude-opus-4-6)",
+    help="Full pydantic-ai model string (e.g. google-gla:gemini-3.1-pro-preview, openai:gpt-5.2)",
 )
 @click.option("--system", "-s", default=None, help="System prompt")
 @click.option(

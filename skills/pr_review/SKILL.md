@@ -28,18 +28,7 @@ Launch BOTH in parallel — do not wait for one before starting the other.
 
 > You are an expert code reviewer. Review the PR diff. Focus on correctness, bugs, security, and design. Skip style nits, formatting, and naming unless they cause real confusion. Each finding: severity (critical/warning/note), file, line, issue, suggested fix. If the code is clean, say so. Be direct. No filler.
 
-**discussion_partners**: Send the same context to **both** OpenAI and Gemini in parallel for independent reviews.
-
-```bash
-# SKILL_DIR below refers to the discussion_partners skill directory
-SYSTEM="You are an expert code reviewer. Focus on correctness, bugs, security, and design. Skip style nits. Each finding: severity (critical/warning/note), file, line, issue, suggested fix. If the code is clean, say so. Be direct."
-PROMPT="Review this PR. <include PR metadata, diff, and repo conventions here>"
-
-# Run both in parallel (background both, then wait)
-uv run --directory SKILL_DIR python scripts/ask_model.py -s "$SYSTEM" "$PROMPT" &
-uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview -s "$SYSTEM" "$PROMPT" &
-wait
-```
+**discussion_partners**: Use the discussion_partners skill to send the same context to both OpenAI (default) and Gemini in parallel for independent reviews. Write the prompt (system context + PR metadata + diff + repo conventions) to `~/claude/scratch/pr-review-prompt.txt` first, then call with `--file`. Run both models in parallel.
 
 ## Step 3: Synthesize and Triage
 

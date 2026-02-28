@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "click>=8.3.0",
+#     "pydantic-ai[openai,anthropic,google]>=1.62.0",
+# ]
+# ///
 """Ask a question to another AI model using pydantic-ai with thinking enabled."""
 
 import os

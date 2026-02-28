@@ -50,16 +50,19 @@ Your prompt contains `<issue>` with the issue number, repo, and body. Work that 
 
 ## Workflow
 
-1. Check linked open PRs (`gh pr list --search "issue-NUMBER"`):
+1. Query linked PRs (open and closed for context):
+   ```bash
+   gh pr list --repo OWNER/REPO --state all --search "issue-NUMBER" --json number,title,state,url --limit 20
+   ```
 
-   **>1 PRs?** → transition to `status:lead` (let lead pick the winner)
+   **>1 open PRs?** → transition to `status:lead` (let lead pick the winner)
 
-   **1 PR?** → follow **Fix Existing PR** below
+   **1 open PR?** → follow **Fix Existing PR** below
 
-   **0 PRs?** → follow **New Implementation** below
+   **0 open PRs?** → follow **New Implementation** below (closed PRs are context on past attempts)
 
-2. **New Implementation** (no existing PR):
-   - Check for prior closed PRs (context on past attempts)
+2. **New Implementation** (no open PR):
+   - Review any closed PRs — understand what was tried and why it failed
    - Create draft PR early as your claim (`heartbeat/issue-N` branch, `Fixes #N` in body)
    - Implement the fix
    - Run **Validation Loop** below

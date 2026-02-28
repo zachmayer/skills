@@ -49,21 +49,34 @@ Your prompt contains `<issue>` with the issue number, repo, and body. Work that 
 
    **Duplicate or stale?** → Close as not-planned, remove `status:lead`
 
-   **Has a linked open PR?** (`gh pr list --search "issue-NUMBER"`)
-   - >1 PRs → pick best, close the rest, transition to `status:dev`
-   - 1 PR → follow **PR Review** below
-
-   **No linked PR?** → follow **Scoping** below
-
    **Unclear requirements?** → comment with questions, transition to `status:human`
 
-2. **Scoping** (no PR exists):
-   - Check for prior closed PRs (context on past attempts)
+   **Otherwise** → query linked PRs (both open and closed):
+   ```bash
+   gh pr list --repo OWNER/REPO --state all --search "issue-NUMBER" --json number,title,state,url --limit 20
+   ```
+
+2. **Route by PR state:**
+
+   **Any open PRs?**
+   - Multiple open → pick best, close the rest with a comment, then **PR Review** on the winner
+   - Exactly 1 open → **PR Review** below (closed PRs are context only)
+
+   **All PRs closed (1+, none open)?** → **Failed Attempts** below
+
+   **No PRs at all?** → **Scoping** below
+
+3. **Scoping** (no PRs exist):
    - Can this be one PR a human reviews in minutes?
      - NO → split into sub-issues (`gh issue create`), close original as not-planned, apply `status:lead` to each
      - YES → comment the scope on the issue, transition to `status:dev`
 
-3. **PR Review** (1 linked PR):
+4. **Failed Attempts** (all PRs closed, none open):
+   - Review closed PRs: why were they closed? Wrong approach, too complex, review feedback?
+   - If the issue is still tractable → comment with refined scope (what to do differently), transition to `status:dev`
+   - If past attempts suggest the issue is too hard or unclear → summarize attempts, transition to `status:human`
+
+5. **PR Review** (1 open PR selected):
    - Too big? → comment asking dev to simplify, transition to `status:dev`
      - Still too big after one iteration? → summarize, transition to `status:human`
    - Bounced to dev 3+ times? (count `status:dev` transitions in issue timeline)

@@ -135,9 +135,6 @@ def run_agent(
             return False
         run_dir = workdir
 
-    # Remove CLAUDECODE env var so nested claude invocations work
-    env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
-
     try:
         result = subprocess.run(
             [
@@ -156,7 +153,6 @@ def run_agent(
             cwd=str(run_dir),
             capture_output=True,
             text=True,
-            env=env,
         )
         ok = result.returncode == 0
         if result.stdout.strip():

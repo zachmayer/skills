@@ -29,9 +29,6 @@ Where `SKILL_DIR` is the directory containing this skill.
 # Index everything (memory + knowledge_graph)
 uv run --script SKILL_DIR/scripts/vector_search.py index
 
-# Index only memory files
-uv run --script SKILL_DIR/scripts/vector_search.py index --scope memory
-
 # Force full rebuild
 uv run --script SKILL_DIR/scripts/vector_search.py index --force
 ```

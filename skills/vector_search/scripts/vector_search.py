@@ -141,16 +141,10 @@ def cli() -> None:
 
 
 @cli.command()
-@click.option(
-    "--scope",
-    type=click.Choice(["all", "memory", "knowledge"]),
-    default="all",
-    help="Which files to index.",
-)
 @click.option("--force", is_flag=True, help="Rebuild index from scratch.")
-def index(scope: str, force: bool) -> None:
+def index(force: bool) -> None:
     """Build or update the vector search index."""
-    files = collect_files(scope)
+    files = collect_files("all")
     if not files:
         click.echo("No files found to index.")
         return

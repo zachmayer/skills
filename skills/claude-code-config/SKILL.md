@@ -116,9 +116,8 @@ Instructions and context loaded at startup. Supports project-specific convention
 | `respectGitignore` | boolean | `@` picker respects `.gitignore` (default: true) |
 | `forceLoginMethod` | string | `"claudeai"` or `"console"` |
 | `forceLoginOrgUUID` | string | Auto-select org UUID on login |
-| `enableAllProjectMcpServers` | boolean | Auto-approve all `.mcp.json` MCP servers |
-| `enabledMcpjsonServers` | string[] | Approve specific MCP servers |
-| `disabledMcpjsonServers` | string[] | Reject specific MCP servers |
+| `spinnerVerbs` | object | Custom action verbs in spinner |
+| `spinnerTipsEnabled` | boolean | Show tips while Claude works (default: true) |
 | `fastModePerSessionOptIn` | boolean | Fast mode requires per-session opt-in |
 | `teammateMode` | string | `"auto"`, `"in-process"`, or `"tmux"` |
 

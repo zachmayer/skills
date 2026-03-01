@@ -112,8 +112,17 @@ def ensure_worktree(repo_path, branch, wt_path):
         # Clean up any artifacts from crashed agent runs
         run("git checkout -- .", cwd=wt_path, check=False)
         run("git clean -fdx", cwd=wt_path, check=False)
-        run("git pull --rebase=false", cwd=wt_path, check=False)
-        return
+        result = run("git pull --rebase=false", cwd=wt_path, capture=True, check=False)
+        if result.returncode != 0:
+            # Merge conflict or corrupted state — nuke and recreate
+            log.warning(f"Pull failed in {wt_path}, recreating worktree")
+            import shutil
+
+            run(f"git worktree remove --force {wt_path}", cwd=repo_path, check=False)
+            shutil.rmtree(wt_path, ignore_errors=True)
+            # Fall through to creation below
+        else:
+            return
     wt_path.parent.mkdir(parents=True, exist_ok=True)
     run("git worktree prune", cwd=repo_path, check=False)
     # Delete stale local branch (safe: worktrees just pruned)
@@ -385,6 +394,27 @@ def invoke_agent(workdir, prompt, issue_number, repo):
 # --- Main loop ---
 
 
+def sweep_draft_prs(repo):
+    """Mark draft PRs ready if CI has passed (handles CI timing gap)."""
+    drafts = gh_json(
+        f"gh pr list --repo {repo} --draft --label ai:human "
+        f"--json number,statusCheckRollup,changedFiles --limit 25"
+    )
+    if not drafts:
+        return
+    for pr in drafts:
+        if pr.get("changedFiles", 0) == 0:
+            continue
+        rollup = pr.get("statusCheckRollup") or []
+        if not rollup:
+            continue
+        ci_ok = not any(c.get("conclusion") == "FAILURE" for c in rollup)
+        pending = any(c.get("status") == "IN_PROGRESS" for c in rollup)
+        if ci_ok and not pending:
+            log.info(f"Marking {repo}#{pr['number']} ready (CI passed)")
+            run(f"gh pr ready {pr['number']} --repo {repo}", check=False)
+
+
 def sweep_stale_issues(repo):
     """Move issues stuck in ai:coding for too long to ai:human."""
     stale = gh_json(
@@ -446,27 +476,15 @@ def process_issue(repo, repo_path, issue):
     set_label(repo, num, "ai:coding", remove="ai:queued,ai:human")
     exit_code = invoke_agent(wt, prompt, num, repo)
 
-    # Safety net
-    labels = get_labels(repo, num)
-    if exit_code != 0 and "ai:coding" in labels:
+    # Safety net: always post log on failure, regardless of label state
+    if exit_code != 0:
         lf = log_path(repo, num)
         run(
             f"gh issue comment {num} --repo {repo} "
             f'--body "Agent exited with code {exit_code}. Log: {lf}"',
             check=False,
         )
-        set_label(repo, num, "ai:human", remove="ai:coding")
-    elif exit_code == 0 and "ai:human" in labels:
-        # Only mark PR ready if it has file changes AND CI is green
-        pr_data = gh_json(
-            f"gh pr view {pr_number} --repo {repo} --json changedFiles,statusCheckRollup"
-        )
-        if pr_data and pr_data.get("changedFiles", 0) > 0:
-            rollup = pr_data.get("statusCheckRollup") or []
-            ci_ok = not any(c.get("conclusion") == "FAILURE" for c in rollup)
-            pending = any(c.get("status") == "IN_PROGRESS" for c in rollup)
-            if ci_ok and not pending:
-                run(f"gh pr ready {pr_number} --repo {repo}", check=False)
+        set_label(repo, num, "ai:human", remove="ai:coding,ai:queued")
 
     log.info(f"Done {repo}#{num}, exit={exit_code}")
 
@@ -481,6 +499,7 @@ def main(dry_run):
         datefmt="%Y-%m-%dT%H:%M:%SZ",
     )
 
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
     lock_fd = open(LOCK_FILE, "w")
     try:
         fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -495,8 +514,9 @@ def main(dry_run):
                 log.info(f"Skipping {repo} — {rp} not a git repo")
                 continue
 
-            # Sweep stale ai:coding issues (crashed orchestrator/agent)
+            # Sweep stale ai:coding issues and stuck draft PRs
             sweep_stale_issues(repo)
+            sweep_draft_prs(repo)
 
             issues = (
                 gh_json(
@@ -529,6 +549,13 @@ def main(dry_run):
                     process_issue(repo, rp, issue)
                 except Exception:
                     log.exception(f"Failed to process {repo}#{issue['number']}")
+                    # Prevent infinite retry: move to ai:human so it doesn't loop
+                    run(
+                        f"gh issue comment {issue['number']} --repo {repo} "
+                        f'--body "Orchestrator error — moved to ai:human for triage."',
+                        check=False,
+                    )
+                    set_label(repo, issue["number"], "ai:human", remove="ai:queued,ai:coding")
     finally:
         fcntl.flock(lock_fd, fcntl.LOCK_UN)
         lock_fd.close()

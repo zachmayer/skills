@@ -13,9 +13,7 @@ Local semantic search over files using Jina embedding models on Apple Silicon (M
 ## Installation
 
 ```bash
-git clone https://github.com/jina-ai/jina-grep-cli.git && cd jina-grep-cli
-uv venv .venv && source .venv/bin/activate
-uv pip install -e .
+uv tool install git+https://github.com/jina-ai/jina-grep-cli.git
 ```
 
 Requires Python 3.10+ and Apple Silicon.

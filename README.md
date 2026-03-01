@@ -84,6 +84,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
 | [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
+| [jina_grep](skills/jina_grep/) | Prompt | Semantic grep using Jina embedding models on Apple Silicon |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
 | [pr_review](skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners |
@@ -131,7 +132,7 @@ graph LR
     daily_briefing --> obsidian
 ```
 
-Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
+Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `jina_grep`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
 
 ## Install
 

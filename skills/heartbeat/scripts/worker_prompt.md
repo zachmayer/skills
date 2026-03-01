@@ -52,20 +52,26 @@ Skip steps that are already complete.
 
 ### 2. Scope
 
-If requirements are vague, too large for one PR, or you have questions:
-- Post questions as a comment on Issue #$ISSUE_NUMBER
-  (`gh issue comment $ISSUE_NUMBER --repo $REPO --body "your questions"`)
-- Transition: `gh issue edit $ISSUE_NUMBER --repo $REPO --add-label ai:human --remove-label ai:coding`
-- Stop.
+Before writing any code, draft an execution plan:
+- List the specific files you will modify or create.
+- List the acceptance criteria (what "done" looks like).
+- If you cannot identify exact files based on the repo, or if requirements
+  are vague, too large for one PR, or you have questions:
+  - Post your plan + questions as a comment on Issue #$ISSUE_NUMBER
+    (`gh issue comment $ISSUE_NUMBER --repo $REPO --body "your plan and questions"`)
+  - Transition: `gh issue edit $ISSUE_NUMBER --repo $REPO --add-label ai:human --remove-label ai:coding`
+  - Stop. Do NOT proceed with ambiguous requirements.
 
-If requirements are clear, proceed.
+If the plan is clear and fits in one PR, proceed.
 
 ### 3. Code
 
 Implement the minimal necessary changes.
 - If branch is behind main, merge main first and resolve conflicts.
 - Load the staff_engineer skill — it prevents over-engineering.
-- Run `make lint` and `make test`. Fix failures. Repeat until green.
+- Run `make lint` and `make test` (if the repo has these targets).
+  Fix failures. Repeat until green (max 3 attempts per target — if
+  still failing, push the code, comment the error, and set ai:human).
 - Commit with clear messages referencing #$ISSUE_NUMBER.
 
 ### 4. Review
@@ -109,6 +115,6 @@ When tests pass and reviewers approve:
 
 ## Constraints
 
-- Do NOT modify .github/, *.plist, Makefile, or orchestrator.py
+- Do NOT modify .github/, *.plist, or orchestrator.py
 - Do NOT close or merge PRs — that's the human's job
 - Do NOT use `gh pr ready` — the orchestrator handles this

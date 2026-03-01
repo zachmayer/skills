@@ -12,6 +12,7 @@ from pathlib import Path
 import click
 
 MAX_ISSUES = 10
+STALE_HOURS = 4
 LOCK_FILE = Path.home() / ".claude" / "heartbeat.lock"
 REPOS_FILE = Path.home() / ".claude" / "heartbeat-repos.conf"
 OBSIDIAN_DIR = Path(os.environ.get("CLAUDE_OBSIDIAN_DIR", "~/claude/obsidian")).expanduser()
@@ -19,6 +20,7 @@ WORKTREE_BASE = Path.home() / "claude" / "worktrees"
 SCRATCH_DIR = Path.home() / "claude" / "scratch"
 LOG_DIR = Path.home() / ".claude"
 SCRIPT_DIR = Path(__file__).parent
+ISSUE_AUTHOR = os.environ.get("HEARTBEAT_ISSUE_AUTHOR", "zachmayer")
 
 log = logging.getLogger("heartbeat")
 
@@ -52,11 +54,17 @@ def gh_json(cmd):
 
 
 def set_label(repo, issue_number, add, *, remove=None):
-    """Set labels on an issue."""
+    """Set labels on an issue. remove can be a string or comma-separated list."""
     cmd = f"gh issue edit {issue_number} --repo {repo} --add-label {add}"
     if remove:
         cmd += f" --remove-label {remove}"
     run(cmd, check=False)
+
+
+def log_path(repo, issue_number):
+    """Log file path, namespaced by repo to avoid collisions."""
+    repo_name = repo.split("/")[-1]
+    return LOG_DIR / f"heartbeat-{repo_name}-{issue_number}.log"
 
 
 def get_labels(repo, issue_number):
@@ -101,6 +109,9 @@ def worktree_path(repo, issue_number):
 def ensure_worktree(repo_path, branch, wt_path):
     """Reuse existing worktree or create new one."""
     if wt_path.exists():
+        # Clean up any artifacts from crashed agent runs
+        run("git checkout -- .", cwd=wt_path, check=False)
+        run("git clean -fdx", cwd=wt_path, check=False)
         run("git pull --rebase=false", cwd=wt_path, check=False)
         return
     wt_path.parent.mkdir(parents=True, exist_ok=True)
@@ -245,17 +256,16 @@ def cleanup_linked_prs(repo, issue_number, canonical_pr):
 
 
 def get_human_feedback(repo, issue_number, pr_number):
-    """Get latest comments from the repo owner on issue/PR."""
-    owner = repo.split("/")[0]
+    """Get latest comments from the authorized user on issue/PR."""
     comments = gh_json(f"gh api repos/{repo}/issues/{issue_number}/comments") or []
     if pr_number:
         comments += gh_json(f"gh api repos/{repo}/issues/{pr_number}/comments") or []
         reviews = gh_json(f"gh api repos/{repo}/pulls/{pr_number}/reviews") or []
         for r in reviews:
-            if r.get("body") and r.get("user", {}).get("login") == owner:
+            if r.get("body") and r.get("user", {}).get("login") == ISSUE_AUTHOR:
                 comments.append(r)
     owner_comments = [
-        c for c in comments if c.get("user", {}).get("login") == owner and c.get("body")
+        c for c in comments if c.get("user", {}).get("login") == ISSUE_AUTHOR and c.get("body")
     ]
     if not owner_comments:
         return "None"
@@ -343,9 +353,9 @@ def build_prompt(
     )
 
 
-def invoke_agent(workdir, prompt, issue_number):
+def invoke_agent(workdir, prompt, issue_number, repo):
     """Invoke Claude Code agent. Returns exit code."""
-    log_file = LOG_DIR / f"heartbeat-{issue_number}.log"
+    log_file = log_path(repo, issue_number)
     log.info(f"Invoking agent, log: {log_file}")
     with open(log_file, "w") as lf:
         result = subprocess.run(
@@ -375,6 +385,36 @@ def invoke_agent(workdir, prompt, issue_number):
 # --- Main loop ---
 
 
+def sweep_stale_issues(repo):
+    """Move issues stuck in ai:coding for too long to ai:human."""
+    stale = gh_json(
+        f"gh issue list --repo {repo} --label ai:coding "
+        f"--state open --json number,updatedAt --limit 25"
+    )
+    if not stale:
+        return
+    from datetime import datetime
+    from datetime import timezone
+
+    cutoff = datetime.now(timezone.utc).timestamp() - (STALE_HOURS * 3600)
+    for issue in stale:
+        updated = issue.get("updatedAt", "")
+        if not updated:
+            continue
+        try:
+            ts = datetime.fromisoformat(updated.replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            continue
+        if ts < cutoff:
+            log.info(f"Sweeping stale {repo}#{issue['number']} (stuck in ai:coding)")
+            run(
+                f"gh issue comment {issue['number']} --repo {repo} "
+                f'--body "Stale ai:coding label (>{STALE_HOURS}h). Moving to ai:human."',
+                check=False,
+            )
+            set_label(repo, issue["number"], "ai:human", remove="ai:coding")
+
+
 def process_issue(repo, repo_path, issue):
     """Process a single issue: worktree -> PR -> prompt -> agent -> safety net."""
     num = issue["number"]
@@ -402,24 +442,31 @@ def process_issue(repo, repo_path, issue):
         ),
     )
 
-    set_label(repo, num, "ai:coding", remove="ai:queued")
-    exit_code = invoke_agent(wt, prompt, num)
+    # Claim: set ai:coding, remove both ai:queued and ai:human
+    set_label(repo, num, "ai:coding", remove="ai:queued,ai:human")
+    exit_code = invoke_agent(wt, prompt, num, repo)
 
     # Safety net
     labels = get_labels(repo, num)
     if exit_code != 0 and "ai:coding" in labels:
-        log_file = LOG_DIR / f"heartbeat-{num}.log"
+        lf = log_path(repo, num)
         run(
             f"gh issue comment {num} --repo {repo} "
-            f'--body "Agent exited with code {exit_code}. Log: {log_file}"',
+            f'--body "Agent exited with code {exit_code}. Log: {lf}"',
             check=False,
         )
         set_label(repo, num, "ai:human", remove="ai:coding")
     elif exit_code == 0 and "ai:human" in labels:
-        # Only mark PR ready if it has real file changes (not just scoping)
-        pr_data = gh_json(f"gh pr view {pr_number} --repo {repo} --json changedFiles")
+        # Only mark PR ready if it has file changes AND CI is green
+        pr_data = gh_json(
+            f"gh pr view {pr_number} --repo {repo} --json changedFiles,statusCheckRollup"
+        )
         if pr_data and pr_data.get("changedFiles", 0) > 0:
-            run(f"gh pr ready {pr_number} --repo {repo}", check=False)
+            rollup = pr_data.get("statusCheckRollup") or []
+            ci_ok = not any(c.get("conclusion") == "FAILURE" for c in rollup)
+            pending = any(c.get("status") == "IN_PROGRESS" for c in rollup)
+            if ci_ok and not pending:
+                run(f"gh pr ready {pr_number} --repo {repo}", check=False)
 
     log.info(f"Done {repo}#{num}, exit={exit_code}")
 
@@ -447,6 +494,9 @@ def main(dry_run):
             if not (rp / ".git").exists():
                 log.info(f"Skipping {repo} — {rp} not a git repo")
                 continue
+
+            # Sweep stale ai:coding issues (crashed orchestrator/agent)
+            sweep_stale_issues(repo)
 
             issues = (
                 gh_json(

@@ -62,6 +62,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
 | [evergreen](skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
 | [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
+| [vector_search](skills/vector_search/) | Python | Semantic search over memory and obsidian vault via local embeddings |
 
 ### Process
 
@@ -129,9 +130,10 @@ graph LR
     session_planner --> obsidian
     daily_briefing --> hierarchical_memory
     daily_briefing --> obsidian
+    vector_search --> obsidian
 ```
 
-Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
+Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`, `vector_search`
 
 ## Install
 

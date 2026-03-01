@@ -1,0 +1,43 @@
+---
+name: slack_bridge
+description: >
+  Bridge between Slack and Claude for phone-to-agent capture via the official
+  Slack MCP server. Use when the user wants to check Slack messages, send
+  Slack messages, or capture information from Slack into memory or obsidian.
+  Do NOT use for general Slack administration or when the user has not set up
+  the Slack MCP server.
+---
+
+## Prerequisites
+
+The official Slack MCP server must be configured. Check if it's available:
+
+```
+claude mcp list
+```
+
+If `slack` is not listed, the user needs to install it. The quickest method:
+
+```
+/plugin install slack
+```
+
+This authenticates via OAuth with their Slack workspace. Alternatively, add
+it manually to `.mcp.json` — see [Slack's MCP docs](https://docs.slack.dev/ai/slack-mcp-server/connect-to-claude/).
+
+## Capture Flow
+
+1. **Check** — List channels to find the target, then read recent messages from it.
+2. **Route** — For each message worth capturing:
+   - Quick notes or ideas → `hierarchical_memory` (daily note)
+   - Durable reference material → `obsidian` (knowledge graph note)
+   - Task or action item → `reminders` or GitHub Issue
+3. **Acknowledge** — Reply in the Slack thread to confirm capture.
+
+## Sending Messages
+
+Post a message to the user's channel to send notifications or results back to their phone via Slack.
+
+## Integration with Heartbeat
+
+During autonomous heartbeat runs, check a designated capture channel for new messages and route them automatically. Use the channel-listing tool to resolve the channel name to its ID first. The channel name defaults to `#claude-capture` — ask the user for their preferred channel on first use.

@@ -56,7 +56,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous agent: picks up GitHub Issues, creates PRs |
+| [heartbeat](skills/heartbeat/) | Infrastructure | Orchestrator + worker: finds GitHub Issues, manages PRs, invokes Claude Code |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
@@ -251,15 +251,70 @@ Rigid subdirectories (Claude creates these automatically):
 
 Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources your shell profile at startup — no extra configuration needed.
 
+## Heartbeat Work Loop
+
+The heartbeat is a launchd-triggered autonomous agent that processes GitHub Issues. It runs every 15 minutes and processes issues labeled for agent work.
+
+### Architecture
+
+```
+launchd → heartbeat.sh (auth + watchdog) → orchestrator.py → Claude Code agent
+```
+
+- **heartbeat.sh** — Shell wrapper: sets PATH for launchd, validates OAuth auth, runs 4-hour watchdog, records exit status.
+- **orchestrator.py** — Python Click CLI: discovers issues, manages worktrees and PRs, invokes Claude Code per issue, handles crash recovery.
+- **worker_prompt.md** — Template prompt injected with issue context (title, body, PR number, prior attempts, human feedback, CI status).
+
+### Labels
+
+| Label | Meaning | Set by |
+|-------|---------|--------|
+| `ai:queued` | Ready for agent pickup | Human |
+| `ai:coding` | Agent is actively working | Orchestrator |
+| `ai:human` | Needs human attention | Agent (or orchestrator on failure) |
+
+### Issue Lifecycle
+
+1. Human creates issue, applies `ai:queued`
+2. Orchestrator picks it up, creates worktree + branch (`ai/issue-N`) + draft PR
+3. Orchestrator sets `ai:coding`, invokes Claude Code agent with full context
+4. Agent implements, tests, gets discussion partner review, pushes code
+5. Agent sets `ai:human` when done (or orchestrator does on crash)
+6. Orchestrator marks PR ready for review once CI passes
+7. Human reviews and merges — `Fixes #N` auto-closes the issue
+
+### Safety
+
+- **flock** prevents concurrent heartbeat runs
+- **4-hour watchdog** kills stuck agents
+- **Stale sweep**: issues stuck in `ai:coding` >4h are moved to `ai:human`
+- **Crash recovery**: agent failures post logs to the issue and transition to `ai:human`
+- **Branch protection + CODEOWNERS** prevent direct pushes to main
+
+### Setup
+
+```bash
+# 1. Create labels on your repos (run from a regular terminal, not inside Claude Code)
+make setup-heartbeat-labels
+
+# 2. Generate OAuth token for headless operation
+make setup-heartbeat-token
+
+# 3. Install and start launchd agent
+make setup-heartbeat
+```
+
+The heartbeat monitors repos listed in `~/.claude/heartbeat-repos.conf` (one `owner/repo` per line). Defaults to `zachmayer/skills` if no config file exists.
+
 ## Roadmap
 
-Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `agent-task` for heartbeat to pick up, `enhancement` for roadmap items.
+Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `ai:queued` for heartbeat to pick up, `enhancement` for roadmap items.
 
 ### Completed
 
 - **Consolidate beast_mode + ultra_think** — persistence directives folded into ultra_think.
 - **Consolidate staff_engineer + debug** — debug's 9-step process folded into staff_engineer.
-- **Heartbeat** — GitHub Issues as work queue. Agent picks from randomized list, claims by creating `heartbeat/issue-N` branch (atomic, no TOCTOU). Parallel by design. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog.
+- **Heartbeat v6** — Python orchestrator (`scripts/orchestrator.py`) + worker prompt. Labels: `ai:queued` → `ai:coding` → `ai:human`. Branch naming: `ai/issue-N`. flock prevents concurrent runs. Discussion partner review before ship. Orchestrator handles worktree/PR lifecycle; agent handles code/test/review.
 - **Session planner** — Read memory + tasks + todos, propose work plan.
 - **API key checker** — Verify which API keys are configured and valid.
 - **Playwright browser automation** — Headless browser for JS-heavy pages in web_grab.

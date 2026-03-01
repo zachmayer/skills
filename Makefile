@@ -90,6 +90,23 @@ HEARTBEAT_LABEL := com.anthropic.claude-heartbeat
 HEARTBEAT_PLIST := $(HOME)/Library/LaunchAgents/$(HEARTBEAT_LABEL).plist
 HEARTBEAT_LOG_DIR := $(HOME)/.claude/logs
 
+setup-heartbeat-labels: ## Create ai:* labels on all heartbeat repos
+	@REPOS_FILE="$(HOME)/.claude/heartbeat-repos.conf"; \
+	if [ -f "$$REPOS_FILE" ]; then \
+		REPOS=$$(grep -v '^\s*#' "$$REPOS_FILE" | grep -v '^\s*$$'); \
+	else \
+		REPOS="zachmayer/skills"; \
+	fi; \
+	for repo in $$REPOS; do \
+		echo "Creating labels on $$repo..."; \
+		gh label create "ai:queued" --repo "$$repo" --color 0E8A16 --force 2>/dev/null || true; \
+		gh label create "ai:coding" --repo "$$repo" --color FBCA04 --force 2>/dev/null || true; \
+		gh label create "ai:human" --repo "$$repo" --color D93F0B --force 2>/dev/null || true; \
+	done
+	@echo "Labels created. Note: gh label create is in the deny list — run from a regular terminal."
+.PHONY: setup-heartbeat-labels
+
+
 setup-heartbeat-token: ## Generate OAuth token for heartbeat (interactive, one-time)
 	@echo "=== Heartbeat Token Setup ==="
 	@echo ""

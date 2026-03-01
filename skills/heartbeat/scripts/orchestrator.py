@@ -223,8 +223,8 @@ def cleanup_linked_prs(repo, issue_number, canonical_pr):
         "query($owner: String!, $name: String!, $number: Int!) {"
         "  repository(owner: $owner, name: $name) {"
         "    issue(number: $number) {"
-        "      closedByPullRequestsReferences(first: 20, states: OPEN) {"
-        "        nodes { number }"
+        "      closedByPullRequestsReferences(first: 20) {"
+        "        nodes { number state }"
         "      }"
         "    }"
         "  }"
@@ -254,7 +254,7 @@ def cleanup_linked_prs(repo, issue_number, canonical_pr):
             "closedByPullRequestsReferences"
         ]["nodes"]
         for pr in nodes:
-            if pr["number"] != canonical_pr:
+            if pr["number"] != canonical_pr and pr.get("state") == "OPEN":
                 run(
                     f"gh pr close {pr['number']} --repo {repo} "
                     f'--comment "Work continuing on #{canonical_pr}"',
@@ -273,6 +273,13 @@ def get_human_feedback(repo, issue_number, pr_number):
         for r in reviews:
             if r.get("body") and r.get("user", {}).get("login") == ISSUE_AUTHOR:
                 comments.append(r)
+        # Inline code review comments (on specific lines)
+        review_comments = gh_json(f"gh api repos/{repo}/pulls/{pr_number}/comments") or []
+        for c in review_comments:
+            if c.get("user", {}).get("login") == ISSUE_AUTHOR and c.get("body"):
+                path = c.get("path", "")
+                body = f"[{path}] {c['body']}" if path else c["body"]
+                comments.append({**c, "body": body})
     owner_comments = [
         c for c in comments if c.get("user", {}).get("login") == ISSUE_AUTHOR and c.get("body")
     ]
@@ -299,10 +306,10 @@ def get_ci_status(repo, pr_number):
 
 
 def get_prior_prs(repo, issue_number, current_pr):
-    """Get closed PRs related to this issue."""
+    """Get closed/merged PRs and old open PRs related to this issue."""
     prs = (
         gh_json(
-            f"gh pr list --repo {repo} --state closed "
+            f"gh pr list --repo {repo} --state all "
             f'--search "issue-{issue_number}" '
             f"--json number,title,state,body --limit 10"
         )

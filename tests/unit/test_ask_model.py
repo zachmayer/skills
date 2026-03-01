@@ -195,7 +195,7 @@ class TestCLIStreamingCall:
         mock_agent.run_stream_sync.assert_called_once()
 
     def test_custom_system_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+        monkeypatch.setenv("GOOGLE_API_KEY", "test-key-123")
 
         mock_agent = _make_stream_mock(["Done."])
 
@@ -210,7 +210,7 @@ class TestCLIStreamingCall:
         assert call_kwargs[1]["system_prompt"] == "You are a math tutor."
 
     def test_default_system_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+        monkeypatch.setenv("GOOGLE_API_KEY", "test-key-123")
 
         mock_agent = _make_stream_mock(["Response."])
 

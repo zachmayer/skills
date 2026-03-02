@@ -116,7 +116,6 @@ graph LR
     discussion_partners --> mental_models
     remember_session --> hierarchical_memory
     remember_session --> obsidian
-    heartbeat --> prior_art_review
     heartbeat --> hierarchical_memory
     heartbeat --> obsidian
     heartbeat --> reminders

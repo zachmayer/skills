@@ -9,6 +9,7 @@ Complete reference for Claude Code environment variables. Set via shell profile,
 | `ANTHROPIC_API_KEY` | API key (X-Api-Key header) |
 | `ANTHROPIC_AUTH_TOKEN` | Custom Authorization header value |
 | `ANTHROPIC_CUSTOM_HEADERS` | Custom headers (Name: Value, newline-separated) |
+| `CLAUDE_CODE_API_KEY_HELPER_TTL_MS` | Credential refresh interval for `apiKeyHelper` (ms) |
 | `AWS_BEARER_TOKEN_BEDROCK` | Bedrock API key |
 
 ## Model Configuration
@@ -24,6 +25,7 @@ Complete reference for Claude Code environment variables. Set via shell profile,
 | `CLAUDE_CODE_SUBAGENT_MODEL` | Model for subagents |
 | `CLAUDE_CODE_EFFORT_LEVEL` | `low`, `medium`, `high` (default). Opus 4.6 only |
 | `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` | `1` = disable adaptive reasoning |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` = disable `anthropic-beta` headers |
 | `CLAUDE_CODE_DISABLE_1M_CONTEXT` | `1` = disable 1M context window |
 
 ## Cloud Providers

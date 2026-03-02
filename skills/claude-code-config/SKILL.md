@@ -118,8 +118,14 @@ Instructions and context loaded at startup. Supports project-specific convention
 | `forceLoginOrgUUID` | string | Auto-select org UUID on login |
 | `spinnerVerbs` | object | Custom action verbs in spinner |
 | `spinnerTipsEnabled` | boolean | Show tips while Claude works (default: true) |
+| `spinnerTipsOverride` | object | Custom spinner tips (`excludeDefault`, `tips[]`) |
+| `terminalProgressBarEnabled` | boolean | Terminal progress bar (default: true) |
+| `prefersReducedMotion` | boolean | Reduce/disable UI animations |
 | `fastModePerSessionOptIn` | boolean | Fast mode requires per-session opt-in |
 | `teammateMode` | string | `"auto"`, `"in-process"`, or `"tmux"` |
+| `otelHeadersHelper` | string | Script for dynamic OpenTelemetry headers |
+| `awsAuthRefresh` | string | Script that modifies `.aws` directory |
+| `awsCredentialExport` | string | Script outputting JSON with AWS credentials |
 
 ### Attribution
 
@@ -142,6 +148,8 @@ Empty string `""` hides attribution entirely.
 | `allowManagedPermissionRulesOnly` | Only managed permission rules apply |
 | `allowManagedMcpServersOnly` | Only managed MCP allowlist applies |
 | `disableAllHooks` | Disable all hooks and custom status line |
+| `allowedHttpHookUrls` | URL pattern allowlist for HTTP hooks (`*` wildcards) |
+| `httpHookAllowedEnvVars` | Env vars HTTP hooks can interpolate into headers |
 
 ## Hooks
 

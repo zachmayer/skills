@@ -76,13 +76,11 @@ Implement the minimal necessary changes.
 
 Once tests pass, get external review before shipping.
 - Run `git diff origin/main` to see your full changeset.
-- Send the diff AND the issue description to discussion_partners.
-  Ask: "Is this PR minimal, correct, and ready for a human to review
+- Load the `discussion_partners` skill and review with all three
+  recommended models (see the skill's model table). Run them in parallel.
+  Ask each: "Is this PR minimal, correct, and ready for a human to review
   and merge in under 5 minutes? Be specific about any concerns."
-- Get reviews from exactly these three:
-  1. GPT-5.2 (thinking xhigh)
-  2. Gemini 3.1 Pro Preview
-  3. An Opus sub-agent
+  Include the diff AND the issue description in each prompt.
 - Address feedback. Re-test. Re-review if substantial changes were made.
 
 ### 5. Update docs

@@ -79,7 +79,10 @@ Once tests pass, get external review before shipping.
 - Send the diff AND the issue description to discussion_partners.
   Ask: "Is this PR minimal, correct, and ready for a human to review
   and merge in under 5 minutes? Be specific about any concerns."
-- Get reviews from at least 2 models (GPT-5.2 and Gemini).
+- Get reviews from exactly these three:
+  1. GPT-5.2 (thinking xhigh)
+  2. Gemini 3.1 Pro Preview
+  3. An Opus sub-agent
 - Address feedback. Re-test. Re-review if substantial changes were made.
 
 ### 5. Update docs
@@ -96,8 +99,24 @@ Skip this step if changes are purely internal.
 When tests pass and reviewers approve:
 - `git add` changed files and `git commit` with a clear message.
 - `git push origin $BRANCH`
-- Update the PR: `gh pr edit $PR_NUMBER --repo $REPO --title "..." --body "..."`
-  Include what changed, why, and which reviewers approved.
+- Update the PR title and body with `gh pr edit`. The body format:
+  ```
+  Closes #$ISSUE_NUMBER
+
+  ## Summary
+  1-3 sentences: what changed and why. Focus on the high-level picture,
+  not a file-by-file inventory (GitHub already shows files changed).
+
+  ## Sources
+  Links to docs, references, or prior art consulted (if any).
+
+  ## Review
+  - Model Name: Approve/concerns (one line per reviewer)
+
+  ## Test plan
+  - [x] `make test` passes (N passed)
+  - [x] `make lint` passes
+  ```
 - Exit normally. The orchestrator handles label transitions and marking the PR ready.
 
 ## Readiness Checklist

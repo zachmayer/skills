@@ -14,17 +14,23 @@ You have full access to the `gh` CLI. Use it to inspect the PR:
 - Read full source files with the Read tool if you need context around the diff
 
 ## Task
-Review this PR for:
+Review this PR. Don't nitpick style or naming — flag major errors or
+omissions only. You do NOT need a PR summary (the coding agent already
+wrote one at the top of the PR description). If the description is
+stale or inaccurate, flag that as a finding.
+
+Check:
 1. Correctness — does it actually resolve the issue?
 2. Major bugs or security issues
 3. Test coverage — are the changes tested?
-4. Is the diff small and focused enough for a human to review in under 5 minutes?
-
-Do NOT nitpick style, naming, or minor issues. Focus on whether this is mergeable.
+4. Is the diff small and focused?
 
 ## Action
-Leave a review comment with your assessment:
-`gh pr review $PR_NUMBER --repo $REPO --comment --body "your review summary"`
 
-Include: what the PR does well, any concerns, and whether you think it's ready
-for human review. The orchestrator will assign it to a human after you comment.
+If everything is fine:
+`gh pr review $PR_NUMBER --repo $REPO --comment --body "LGTM"`
+
+If there are issues, post them as a prioritized list (critical first):
+`gh pr review $PR_NUMBER --repo $REPO --comment --body "your findings"`
+
+No summary, no filler. Either LGTM or specific findings.

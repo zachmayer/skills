@@ -19,11 +19,11 @@ omissions only. You do NOT need a PR summary (the coding agent already
 wrote one at the top of the PR description). If the description is
 stale or inaccurate, flag that as a finding.
 
-Check:
+Focus on whether this is mergeable:
 1. Correctness — does it actually resolve the issue?
 2. Major bugs or security issues
 3. Test coverage — are the changes tested?
-4. Is the diff small and focused?
+4. Is the diff small and focused enough for a human to review in under 5 minutes?
 
 ## Action
 

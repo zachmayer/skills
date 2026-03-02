@@ -42,10 +42,11 @@ mkdir -p "$(dirname "$STATUS_FILE")"
 
 # --- Run orchestrator with watchdog ---
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Starting orchestrator..."
 set +e
-uv run python "$SCRIPT_DIR/orchestrator.py" &
+uv run --directory "$REPO_DIR" python "$SCRIPT_DIR/orchestrator.py" &
 orch_pid=$!
 
 # Watchdog: kill orchestrator after timeout

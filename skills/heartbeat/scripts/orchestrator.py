@@ -208,7 +208,19 @@ def ensure_worktree(repo_path, branch, wt_path):
     """
     if wt_path.exists():
         run(["git", "fetch", "origin"], cwd=wt_path, check=False)
-        run(["git", "reset", "--hard", f"origin/{branch}"], cwd=wt_path, check=False)
+        # Check if worktree is on the correct branch; switch if not
+        current = run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=wt_path,
+            capture=True,
+            check=False,
+        ).stdout.strip()
+        if current != branch:
+            log.info(f"Worktree on {current}, switching to {branch}")
+            # Create local branch tracking remote, or reset if it exists
+            run(["git", "checkout", "-B", branch, f"origin/{branch}"], cwd=wt_path, check=False)
+        else:
+            run(["git", "reset", "--hard", f"origin/{branch}"], cwd=wt_path, check=False)
         return
     wt_path.parent.mkdir(parents=True, exist_ok=True)
     run(["git", "worktree", "prune"], cwd=repo_path, check=False)
@@ -604,6 +616,9 @@ def process_coding(repo, repo_path, issue):
     if not pr_number:
         ensure_branch_pushed(wt, canonical, num)
         pr_number, working_branch = ensure_pr(repo, issue, canonical, all_prs, most_recent_open)
+
+    # Close duplicate PRs linked to this issue (e.g. stale heartbeat/issue-N PRs)
+    cleanup_linked_prs(repo, num, pr_number)
 
     context = build_context(
         "coding",

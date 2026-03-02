@@ -525,8 +525,11 @@ def invoke_agent(agent_name, workdir, context, issue_number, repo, *, budget=8):
         "-p",
         context,
     ]
-    with open(lf, "w") as f:
+    # Append so queue→coding→review logs accumulate in one file
+    with open(lf, "a") as f:
+        f.write(f"\n{'=' * 60}\n[{agent_name}] agent invocation\n{'=' * 60}\n")
         result = subprocess.run(cmd, cwd=workdir, stdout=f, stderr=subprocess.STDOUT)
+        f.write(f"\n[{agent_name}] exit code: {result.returncode}\n")
     return result.returncode
 
 

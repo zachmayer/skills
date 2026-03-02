@@ -43,3 +43,7 @@ force-single-line = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: tests that hit real GitHub APIs (deselect with -m 'not integration')",
+]
+addopts = "-m 'not integration'"

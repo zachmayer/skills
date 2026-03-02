@@ -56,7 +56,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Shell | launchd-based autonomous agent: picks up GitHub Issues, creates PRs |
+| [heartbeat](skills/heartbeat/) | Infrastructure | Orchestrator + worker: finds GitHub Issues, manages PRs, invokes Claude Code |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
@@ -253,13 +253,13 @@ Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources 
 
 ## Roadmap
 
-Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `agent-task` for heartbeat to pick up, `enhancement` for roadmap items.
+Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `ai:queued` for heartbeat to pick up, `enhancement` for roadmap items.
 
 ### Completed
 
 - **Consolidate beast_mode + ultra_think** — persistence directives folded into ultra_think.
 - **Consolidate staff_engineer + debug** — debug's 9-step process folded into staff_engineer.
-- **Heartbeat** — GitHub Issues as work queue. Agent picks from randomized list, claims by creating `heartbeat/issue-N` branch (atomic, no TOCTOU). Parallel by design. Safety: branch protection, CODEOWNERS, hardcoded issue filters, path restrictions, 4hr watchdog.
+- **Heartbeat v6** — Python orchestrator (`scripts/orchestrator.py`) + three agent files (queue, coding, review). Labels: `ai:queued` → `ai:coding` → `ai:review` → human. Branch naming: `ai/issue-N`. flock prevents concurrent runs. Discussion partner review before ship. Orchestrator handles worktree/PR lifecycle and label transitions; agents handle code/test/review.
 - **Session planner** — Read memory + tasks + todos, propose work plan.
 - **API key checker** — Verify which API keys are configured and valid.
 - **Playwright browser automation** — Headless browser for JS-heavy pages in web_grab.

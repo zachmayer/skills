@@ -1,0 +1,229 @@
+"""Tests for heartbeat orchestrator pure helpers."""
+
+import importlib.util
+from pathlib import Path
+from unittest.mock import patch
+
+SCRIPT = (
+    Path(__file__).resolve().parents[2] / "skills" / "heartbeat" / "scripts" / "orchestrator.py"
+)
+spec = importlib.util.spec_from_file_location("orchestrator", SCRIPT)
+orchestrator = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(orchestrator)
+
+
+def test_branch_name():
+    assert orchestrator.branch_name(42) == "ai/issue-42"
+    assert orchestrator.branch_name(1) == "ai/issue-1"
+
+
+def test_worktree_path():
+    path = orchestrator.worktree_path("zachmayer/skills", 42)
+    assert path == Path.home() / "claude" / "worktrees" / "skills" / "ai-issue-42"
+
+
+def test_worktree_path_nested_repo():
+    path = orchestrator.worktree_path("org/sub-repo", 7)
+    assert path == Path.home() / "claude" / "worktrees" / "sub-repo" / "ai-issue-7"
+
+
+def test_log_path():
+    path = orchestrator.log_path("zachmayer/skills", 42)
+    assert path == Path.home() / ".claude" / "heartbeat-skills-42.log"
+
+
+def test_load_repos_default(tmp_path, monkeypatch):
+    monkeypatch.setattr(orchestrator, "REPOS_FILE", tmp_path / "nonexistent.conf")
+    assert orchestrator.load_repos() == ["zachmayer/skills"]
+
+
+def test_load_repos_from_file(tmp_path, monkeypatch):
+    conf = tmp_path / "repos.conf"
+    conf.write_text("# Comment\norg/repo1\norg/repo2\n\n")
+    monkeypatch.setattr(orchestrator, "REPOS_FILE", conf)
+    assert orchestrator.load_repos() == ["org/repo1", "org/repo2"]
+
+
+def test_repo_dir():
+    assert orchestrator.repo_dir("zachmayer/skills") == Path.home() / "source" / "skills"
+    assert orchestrator.repo_dir("org/my-repo") == Path.home() / "source" / "my-repo"
+
+
+def test_set_label_add_only():
+    """set_label with only add should not include --remove-label."""
+    with patch.object(orchestrator, "run") as mock_run:
+        orchestrator.set_label("owner/repo", 42, "ai:coding")
+        cmd = mock_run.call_args[0][0]
+        assert "--add-label" in cmd
+        assert "ai:coding" in cmd
+        assert "--remove-label" not in cmd
+
+
+def test_set_label_add_and_remove():
+    """set_label with add and remove should include both flags."""
+    with patch.object(orchestrator, "run") as mock_run:
+        orchestrator.set_label("owner/repo", 42, "ai:coding", remove="ai:queued")
+        cmd = mock_run.call_args[0][0]
+        assert "--add-label" in cmd
+        assert "--remove-label" in cmd
+
+
+def test_set_label_remove_only():
+    """set_label with only remove should not include --add-label."""
+    with patch.object(orchestrator, "run") as mock_run:
+        orchestrator.set_label("owner/repo", 42, remove="ai:coding,ai:queued")
+        cmd = mock_run.call_args[0][0]
+        assert "--remove-label" in cmd
+        assert "--add-label" not in cmd
+
+
+def test_set_label_noop():
+    """set_label with neither add nor remove should not run anything."""
+    with patch.object(orchestrator, "run") as mock_run:
+        orchestrator.set_label("owner/repo", 42)
+        mock_run.assert_not_called()
+
+
+def test_set_label_uses_list_form():
+    """set_label should pass a list to run(), not a string (no shell)."""
+    with patch.object(orchestrator, "run") as mock_run:
+        orchestrator.set_label("owner/repo", 42, "ai:coding")
+        cmd = mock_run.call_args[0][0]
+        assert isinstance(cmd, list)
+
+
+def test_find_related_prs_merges_sources():
+    """find_related_prs deduplicates PRs from search and branch queries."""
+    pr_a = {"number": 100, "state": "CLOSED", "title": "A", "headRefName": "fix/a"}
+    pr_b = {"number": 200, "state": "OPEN", "title": "B", "headRefName": "ai/issue-5"}
+    pr_dup = {"number": 100, "state": "CLOSED", "title": "A", "headRefName": "fix/a"}
+
+    with patch.object(orchestrator, "gh_json") as mock_gh:
+        mock_gh.side_effect = [
+            [pr_a, pr_b],  # by_search
+            [pr_dup],  # by_branch
+        ]
+        all_prs, most_recent, most_recent_open = orchestrator.find_related_prs("owner/repo", 5)
+
+    assert len(all_prs) == 2
+    assert most_recent == 200
+    assert most_recent_open == 200
+
+
+def test_find_related_prs_empty():
+    """find_related_prs returns empty results when no PRs found."""
+    with patch.object(orchestrator, "gh_json") as mock_gh:
+        mock_gh.side_effect = [None, None]
+        all_prs, most_recent, most_recent_open = orchestrator.find_related_prs("owner/repo", 999)
+
+    assert all_prs == []
+    assert most_recent is None
+    assert most_recent_open is None
+
+
+def test_find_related_prs_no_open():
+    """find_related_prs returns None for most_recent_open when all PRs are closed."""
+    pr = {"number": 100, "state": "CLOSED", "title": "A", "headRefName": "fix/a"}
+    with patch.object(orchestrator, "gh_json") as mock_gh:
+        mock_gh.side_effect = [[pr], []]
+        all_prs, most_recent, most_recent_open = orchestrator.find_related_prs("owner/repo", 5)
+
+    assert len(all_prs) == 1
+    assert most_recent == 100
+    assert most_recent_open is None
+
+
+def test_build_context_queue():
+    """build_context strips frontmatter and substitutes variables."""
+    ctx = orchestrator.build_context(
+        "queue",
+        issue_number=42,
+        repo="zachmayer/skills",
+        issue_title="Test issue",
+        issue_body="Do the thing",
+        related_prs="None",
+    )
+    assert "Issue #42" in ctx
+    assert "zachmayer/skills" in ctx
+    assert "Test issue" in ctx
+    assert "Do the thing" in ctx
+    # Frontmatter should be stripped
+    assert "---" not in ctx
+    assert "maxTurns" not in ctx
+
+
+def test_build_context_coding():
+    """build_context for coding agent includes all fields."""
+    ctx = orchestrator.build_context(
+        "coding",
+        issue_number=99,
+        repo="zachmayer/skills",
+        issue_title="Test issue",
+        issue_body="Body text",
+        pr_number=100,
+        branch="ai/issue-99",
+        related_prs="#100, #200",
+        feedback="Fix the bug",
+        ci_status="All passing",
+        branch_status="Up to date with main",
+    )
+    assert "Issue #99" in ctx
+    assert "#100" in ctx
+    assert "ai/issue-99" in ctx
+    assert "#100, #200" in ctx
+    assert "Fix the bug" in ctx
+    assert "All passing" in ctx
+
+
+def test_build_context_review():
+    """build_context for review agent substitutes PR number."""
+    ctx = orchestrator.build_context(
+        "review",
+        issue_number=42,
+        repo="zachmayer/skills",
+        issue_title="Test issue",
+        issue_body="Body",
+        pr_number=100,
+    )
+    assert "PR #100" in ctx
+    assert "Issue #42" in ctx
+    assert "--comment" in ctx  # review agent uses --comment, not --approve
+
+
+def test_build_related_prs_context_empty():
+    """build_related_prs_context returns 'None' for empty PRs."""
+    result = orchestrator.build_related_prs_context([], None, None, "owner/repo")
+    assert result == "None"
+
+
+def test_build_related_prs_context_with_prs():
+    """build_related_prs_context formats PR numbers and instructions."""
+    prs = [
+        {"number": 100, "state": "CLOSED", "title": "A", "headRefName": "fix/a"},
+        {"number": 200, "state": "OPEN", "title": "B", "headRefName": "ai/issue-5"},
+    ]
+    result = orchestrator.build_related_prs_context(prs, 200, 200, "owner/repo")
+    assert "#100" in result
+    assert "#200" in result
+    assert "Most recent: #200" in result
+    assert "Most recent open: #200" in result
+    assert "gh pr view" in result
+
+
+def test_has_diff_uses_git_diff():
+    """has_diff should use git diff --quiet, not rev-list."""
+    with patch.object(orchestrator, "run") as mock_run:
+        mock_run.return_value.returncode = 1  # diff exists
+        result = orchestrator.has_diff("/some/path")
+        cmd = mock_run.call_args[0][0]
+        assert "diff" in cmd
+        assert "--quiet" in cmd
+        assert result is True
+
+
+def test_has_diff_no_changes():
+    """has_diff returns False when no file differences."""
+    with patch.object(orchestrator, "run") as mock_run:
+        mock_run.return_value.returncode = 0  # no diff
+        result = orchestrator.has_diff("/some/path")
+        assert result is False

@@ -28,10 +28,9 @@ log = logging.getLogger("heartbeat")
 
 
 def run(cmd, *, cwd=None, capture=False, check=True):
-    """Run a command. List uses direct exec (no shell); string uses shell."""
+    """Run a command (list form, no shell)."""
     result = subprocess.run(
         cmd,
-        shell=isinstance(cmd, str),
         cwd=cwd,
         capture_output=capture,
         text=True,
@@ -43,8 +42,6 @@ def run(cmd, *, cwd=None, capture=False, check=True):
 
 def gh_json(cmd):
     """Run a gh command (list form) and parse JSON output. Returns parsed JSON or None."""
-    if isinstance(cmd, str):
-        cmd = cmd.split()
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0 or not result.stdout.strip():
         return None
@@ -131,6 +128,15 @@ def gh_comment(repo, issue_number, body):
         check=False,
     )
     body_file.unlink(missing_ok=True)
+
+
+def resolve_working_branch(all_prs, most_recent_open, canonical):
+    """Determine the working branch: open PR's branch if one exists, else canonical."""
+    if most_recent_open:
+        open_pr = next((p for p in all_prs if p["number"] == most_recent_open), None)
+        if open_pr:
+            return open_pr["headRefName"]
+    return canonical
 
 
 # --- PR Discovery ---
@@ -290,12 +296,8 @@ def ensure_branch_pushed(workdir, branch, issue_number):
     run(["git", "push", "-u", "origin", branch], cwd=workdir)
 
 
-def ensure_pr(repo, issue, canonical_branch, all_prs, most_recent_open):
-    """Ensure an open PR exists. Returns (pr_number, working_branch).
-
-    If most_recent_open exists, reuse it and work off its branch.
-    Otherwise create a new PR on the canonical branch.
-    """
+def ensure_pr(repo, issue, canonical_branch):
+    """Ensure an open PR exists on the canonical branch. Returns pr_number."""
     # Fast path: canonical branch already has an open PR
     prs = gh_json(
         [
@@ -313,17 +315,7 @@ def ensure_pr(repo, issue, canonical_branch, all_prs, most_recent_open):
         ]
     )
     if prs:
-        return prs[0]["number"], canonical_branch
-
-    # Reuse most recent open PR if one exists (work off its branch)
-    if most_recent_open:
-        open_pr = next(p for p in all_prs if p["number"] == most_recent_open)
-        working_branch = open_pr["headRefName"]
-        log.info(
-            f"Reusing open PR #{most_recent_open} on branch {working_branch} "
-            f"for issue #{issue['number']}"
-        )
-        return most_recent_open, working_branch
+        return prs[0]["number"]
 
     # No open PR — create on canonical branch
     title = f"ai: resolve #{issue['number']} — {issue['title']}"
@@ -354,7 +346,7 @@ def ensure_pr(repo, issue, canonical_branch, all_prs, most_recent_open):
         raise RuntimeError(f"gh pr create failed: {result.stderr}")
     pr_url = result.stdout.strip()
     pr_number = int(pr_url.rstrip("/").split("/")[-1])
-    return pr_number, canonical_branch
+    return pr_number
 
 
 def cleanup_linked_prs(repo, issue_number, canonical_pr):
@@ -485,10 +477,15 @@ def has_diff(workdir):
 
 
 def run_verification(workdir):
-    """Run make test + make lint. Returns (test_ok, lint_ok)."""
+    """Run make test + make lint. Returns list of failure names (empty = all passed)."""
     test_result = run(["make", "test"], cwd=workdir, capture=True, check=False)
     lint_result = run(["make", "lint"], cwd=workdir, capture=True, check=False)
-    return test_result.returncode == 0, lint_result.returncode == 0
+    failures = []
+    if test_result.returncode != 0:
+        failures.append("tests")
+    if lint_result.returncode != 0:
+        failures.append("lint")
+    return failures
 
 
 # --- Agent invocation ---
@@ -614,11 +611,7 @@ def process_coding(repo, repo_path, issue):
     related_ctx = build_related_prs_context(all_prs, most_recent, most_recent_open, repo)
 
     # Determine the working branch before creating worktree
-    working_branch = canonical
-    if most_recent_open:
-        open_pr = next((p for p in all_prs if p["number"] == most_recent_open), None)
-        if open_pr:
-            working_branch = open_pr["headRefName"]
+    working_branch = resolve_working_branch(all_prs, most_recent_open, canonical)
 
     # Ensure worktree on the correct branch
     ensure_worktree(repo_path, working_branch, wt)
@@ -627,7 +620,7 @@ def process_coding(repo, repo_path, issue):
     pr_number = most_recent_open
     if not pr_number:
         ensure_branch_pushed(wt, canonical, num)
-        pr_number, working_branch = ensure_pr(repo, issue, canonical, all_prs, most_recent_open)
+        pr_number = ensure_pr(repo, issue, canonical)
 
     # Close duplicate PRs linked to this issue (e.g. stale heartbeat/issue-N PRs)
     cleanup_linked_prs(repo, num, pr_number)
@@ -664,13 +657,8 @@ def process_coding(repo, repo_path, issue):
         return
 
     # Post-build verification
-    test_ok, lint_ok = run_verification(wt)
-    if not (test_ok and lint_ok):
-        failures = []
-        if not test_ok:
-            failures.append("tests")
-        if not lint_ok:
-            failures.append("lint")
+    failures = run_verification(wt)
+    if failures:
         gh_comment(
             repo,
             num,
@@ -707,20 +695,12 @@ def process_review(repo, repo_path, issue):
     pr_number = most_recent_open
 
     # Determine working branch for worktree
-    working_branch = branch_name(num)
-    open_pr = next((p for p in all_prs if p["number"] == most_recent_open), None)
-    if open_pr:
-        working_branch = open_pr["headRefName"]
+    working_branch = resolve_working_branch(all_prs, most_recent_open, branch_name(num))
 
     # Ensure worktree exists on the correct branch and run verification
     ensure_worktree(repo_path, working_branch, wt)
-    test_ok, lint_ok = run_verification(wt)
-    if not (test_ok and lint_ok):
-        failures = []
-        if not test_ok:
-            failures.append("tests")
-        if not lint_ok:
-            failures.append("lint")
+    failures = run_verification(wt)
+    if failures:
         log.info(f"[review] {repo}#{num}: pre-review verification failed ({', '.join(failures)})")
         set_label(repo, num, "ai:coding", remove="ai:review")
         return

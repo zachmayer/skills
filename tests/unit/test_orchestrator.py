@@ -242,3 +242,38 @@ def test_get_default_owner_fallback():
     """get_default_owner falls back to repo owner when no CODEOWNERS."""
     assert orchestrator.get_default_owner("zachmayer/skills") == "zachmayer"
     assert orchestrator.get_default_owner("org/my-repo") == "org"
+
+
+# --- resolve_working_branch ---
+
+
+def test_resolve_working_branch_with_open_pr():
+    """resolve_working_branch returns the open PR's branch when one exists."""
+    all_prs = [
+        {"number": 10, "state": "CLOSED", "headRefName": "old-branch"},
+        {"number": 20, "state": "OPEN", "headRefName": "feature-branch"},
+    ]
+    assert orchestrator.resolve_working_branch(all_prs, 20, "ai/issue-5") == "feature-branch"
+
+
+def test_resolve_working_branch_no_open_pr():
+    """resolve_working_branch returns canonical when no open PR."""
+    all_prs = [{"number": 10, "state": "CLOSED", "headRefName": "old-branch"}]
+    assert orchestrator.resolve_working_branch(all_prs, None, "ai/issue-5") == "ai/issue-5"
+
+
+def test_resolve_working_branch_empty():
+    """resolve_working_branch returns canonical when no PRs at all."""
+    assert orchestrator.resolve_working_branch([], None, "ai/issue-5") == "ai/issue-5"
+
+
+# --- ensure_pr (simplified) ---
+
+
+def test_ensure_pr_signature():
+    """ensure_pr takes 3 args (no all_prs/most_recent_open)."""
+    import inspect
+
+    sig = inspect.signature(orchestrator.ensure_pr)
+    params = list(sig.parameters.keys())
+    assert params == ["repo", "issue", "canonical_branch"]

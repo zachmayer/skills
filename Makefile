@@ -70,6 +70,7 @@ install-heartbeat-agents: ## Install heartbeat agent files to ~/.claude/agents/
 .PHONY: install-heartbeat-agents
 
 
+
 install-local: ## Install settings, global CLAUDE.md, and symlink skills to ~/.claude/
 	@mkdir -p $(INSTALL_DIR)
 	@mkdir -p $(HOME)/claude/scratch

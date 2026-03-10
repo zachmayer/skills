@@ -254,28 +254,7 @@ def ensure_worktree(repo_path, branch, wt_path):
 
 def ensure_branch_pushed(workdir, branch, issue_number):
     """Ensure branch is pushed to remote with at least one commit ahead of main."""
-    remote_exists = run(
-        ["git", "ls-remote", "--heads", "origin", f"refs/heads/{branch}"],
-        cwd=workdir,
-        capture=True,
-        check=False,
-    ).stdout.strip()
-    if remote_exists:
-        return
-
-    # Check if ahead of main
-    result = run(
-        ["git", "rev-list", "--count", "origin/main..HEAD"],
-        cwd=workdir,
-        capture=True,
-        check=False,
-    )
-    try:
-        ahead = int(result.stdout.strip())
-    except ValueError:
-        ahead = 0
-
-    if ahead == 0:
+    if _rev_list_count(workdir, "origin/main..HEAD") == 0:
         run(
             ["git", "commit", "--allow-empty", "-m", f"ai: begin work on #{issue_number}"],
             cwd=workdir,
@@ -361,32 +340,23 @@ def get_ci_status(repo, pr_number):
     return "Failing: " + ", ".join(c.get("name", "?") for c in failing)
 
 
+def _rev_list_count(workdir, spec):
+    """Count commits in a rev-list spec (e.g. 'origin/main..HEAD')."""
+    result = run(["git", "rev-list", "--count", spec], cwd=workdir, capture=True, check=False)
+    try:
+        return int(result.stdout.strip())
+    except ValueError:
+        return 0
+
+
 def is_behind_main(workdir):
     """Check if branch is behind origin/main. Caller must fetch first."""
-    result = run(
-        ["git", "rev-list", "--count", "HEAD..origin/main"],
-        cwd=workdir,
-        capture=True,
-        check=False,
-    )
-    try:
-        return int(result.stdout.strip()) > 0
-    except ValueError:
-        return False
+    return _rev_list_count(workdir, "HEAD..origin/main") > 0
 
 
 def has_diff(workdir):
-    """Check if the branch has commits beyond origin/main (merge-base comparison)."""
-    result = run(
-        ["git", "rev-list", "--count", "origin/main..HEAD"],
-        cwd=workdir,
-        capture=True,
-        check=False,
-    )
-    try:
-        return int(result.stdout.strip()) > 0
-    except ValueError:
-        return False
+    """Check if the branch has commits beyond origin/main."""
+    return _rev_list_count(workdir, "origin/main..HEAD") > 0
 
 
 def run_verification(workdir):

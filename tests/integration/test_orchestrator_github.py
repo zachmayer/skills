@@ -70,11 +70,3 @@ def test_get_ci_status():
     status = orchestrator.get_ci_status(REPO, 258)
     assert isinstance(status, str)
     assert status != "No PR yet"
-
-
-@pytest.mark.integration
-def test_graphql_query_valid():
-    """cleanup_linked_prs GraphQL query should parse without error."""
-    # Just verify the query doesn't error on a real issue
-    # (cleanup_linked_prs silently returns on errors)
-    orchestrator.cleanup_linked_prs(REPO, 136, 0)

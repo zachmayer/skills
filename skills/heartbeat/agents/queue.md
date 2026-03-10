@@ -25,5 +25,5 @@ If YES — draft an execution plan as a comment on the issue:
 
 If NO — post your questions as a comment:
 - `gh issue comment $ISSUE_NUMBER --repo $REPO --body "your questions"`
-- Exit normally. The coding agent will see your questions next cycle and can
-  decide how to proceed. The human is the circuit breaker.
+- Exit normally. The orchestrator will move this to coding. The coding agent
+  will see your questions and decide how to proceed.

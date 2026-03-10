@@ -349,62 +349,6 @@ def ensure_pr(repo, issue, canonical_branch):
     return pr_number
 
 
-def cleanup_linked_prs(repo, issue_number, canonical_pr):
-    """Close non-canonical open PRs linked to an issue via GraphQL."""
-    owner, name = repo.split("/")
-    query = (
-        "query($owner: String!, $name: String!, $number: Int!) {"
-        "  repository(owner: $owner, name: $name) {"
-        "    issue(number: $number) {"
-        "      closedByPullRequestsReferences(first: 20, states: OPEN) {"
-        "        nodes { number }"
-        "      }"
-        "    }"
-        "  }"
-        "}"
-    )
-    result = subprocess.run(
-        [
-            "gh",
-            "api",
-            "graphql",
-            "-f",
-            f"query={query}",
-            "-F",
-            f"owner={owner}",
-            "-F",
-            f"name={name}",
-            "-F",
-            f"number={issue_number}",
-        ],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        return
-    try:
-        nodes = json.loads(result.stdout)["data"]["repository"]["issue"][
-            "closedByPullRequestsReferences"
-        ]["nodes"]
-        for pr in nodes:
-            if pr["number"] != canonical_pr:
-                run(
-                    [
-                        "gh",
-                        "pr",
-                        "close",
-                        str(pr["number"]),
-                        "--repo",
-                        repo,
-                        "--comment",
-                        f"Work continuing on #{canonical_pr}",
-                    ],
-                    check=False,
-                )
-    except (json.JSONDecodeError, KeyError, TypeError):
-        pass
-
-
 def get_feedback(repo, issue_number, pr_number):
     """Get latest comments and reviews on issue/PR from all users."""
     comments = gh_json(["gh", "api", f"repos/{repo}/issues/{issue_number}/comments"]) or []
@@ -466,14 +410,17 @@ def is_behind_main(workdir):
 
 
 def has_diff(workdir):
-    """Check if the worktree has actual file changes vs origin/main."""
+    """Check if the branch has commits beyond origin/main (merge-base comparison)."""
     result = run(
-        ["git", "diff", "--quiet", "origin/main"],
+        ["git", "rev-list", "--count", "origin/main..HEAD"],
         cwd=workdir,
+        capture=True,
         check=False,
     )
-    # --quiet exits 1 if there are differences, 0 if none
-    return result.returncode == 1
+    try:
+        return int(result.stdout.strip()) > 0
+    except ValueError:
+        return False
 
 
 def run_verification(workdir):
@@ -622,9 +569,6 @@ def process_coding(repo, repo_path, issue):
         ensure_branch_pushed(wt, canonical, num)
         pr_number = ensure_pr(repo, issue, canonical)
 
-    # Close duplicate PRs linked to this issue (e.g. stale heartbeat/issue-N PRs)
-    cleanup_linked_prs(repo, num, pr_number)
-
     context = build_context(
         "coding",
         issue_number=num,
@@ -653,6 +597,9 @@ def process_coding(repo, repo_path, issue):
     # Check if agent produced actual file changes
     if not has_diff(wt):
         log.info(f"[coding] {repo}#{num}: no diff, bailing")
+        gh_comment(
+            repo, num, "Coding agent completed but produced no changes. Removing from pipeline."
+        )
         remove_ai_labels(repo, num)
         return
 
@@ -773,6 +720,30 @@ def sweep_stale_issues(repo):
                 remove_ai_labels(repo, num)
 
 
+def get_labeled_issues(repo, label):
+    """Get open issues with a given label."""
+    return (
+        gh_json(
+            [
+                "gh",
+                "issue",
+                "list",
+                "--repo",
+                repo,
+                "--label",
+                label,
+                "--state",
+                "open",
+                "--json",
+                "number,title,body",
+                "--limit",
+                "25",
+            ]
+        )
+        or []
+    )
+
+
 # --- Main loop ---
 
 
@@ -794,6 +765,7 @@ def main(dry_run):
     try:
         fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
+        lock_fd.close()
         log.info("Another heartbeat is running, exiting")
         return
 
@@ -807,26 +779,7 @@ def main(dry_run):
             sweep_stale_issues(repo)
 
             # Loop 1: Queue (scope queued issues)
-            queued = (
-                gh_json(
-                    [
-                        "gh",
-                        "issue",
-                        "list",
-                        "--repo",
-                        repo,
-                        "--label",
-                        "ai:queued",
-                        "--state",
-                        "open",
-                        "--json",
-                        "number,title,body",
-                        "--limit",
-                        "25",
-                    ]
-                )
-                or []
-            )
+            queued = get_labeled_issues(repo, "ai:queued")
             for issue in queued[:MAX_ISSUES]:
                 if dry_run:
                     log.info(f"[dry-run] Would queue {repo}#{issue['number']}: {issue['title']}")
@@ -837,28 +790,8 @@ def main(dry_run):
                     log.exception(f"Failed to process queue {repo}#{issue['number']}")
 
             # Loop 2: Coding (write code for coding issues)
-            # Intentionally includes issues just promoted from queue — an issue
-            # should flow through all phases in a single heartbeat when possible.
-            coding = (
-                gh_json(
-                    [
-                        "gh",
-                        "issue",
-                        "list",
-                        "--repo",
-                        repo,
-                        "--label",
-                        "ai:coding",
-                        "--state",
-                        "open",
-                        "--json",
-                        "number,title,body",
-                        "--limit",
-                        "25",
-                    ]
-                )
-                or []
-            )
+            # Re-queries GitHub so issues just promoted from queue are included.
+            coding = get_labeled_issues(repo, "ai:coding")
             for issue in coding[:MAX_ISSUES]:
                 if dry_run:
                     log.info(f"[dry-run] Would code {repo}#{issue['number']}: {issue['title']}")
@@ -869,26 +802,7 @@ def main(dry_run):
                     log.exception(f"Failed to process coding {repo}#{issue['number']}")
 
             # Loop 3: Review (review PRs for review issues)
-            review = (
-                gh_json(
-                    [
-                        "gh",
-                        "issue",
-                        "list",
-                        "--repo",
-                        repo,
-                        "--label",
-                        "ai:review",
-                        "--state",
-                        "open",
-                        "--json",
-                        "number,title,body",
-                        "--limit",
-                        "25",
-                    ]
-                )
-                or []
-            )
+            review = get_labeled_issues(repo, "ai:review")
             for issue in review[:MAX_ISSUES]:
                 if dry_run:
                     log.info(f"[dry-run] Would review {repo}#{issue['number']}: {issue['title']}")

@@ -107,7 +107,7 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
     "--thinking",
     "-t",
     default=None,
-    help="Override reasoning effort for OpenAI models (low/medium/high/xhigh)",
+    help="Override thinking level (OpenAI: low/medium/high/xhigh, Gemini: low/high)",
 )
 @click.argument("question", required=False)
 def main(
@@ -134,9 +134,15 @@ def main(
 
     key_name, prefix, thinking_settings = _parse_provider(model)
 
-    # Override reasoning effort if requested
-    if thinking and "openai_reasoning_effort" in thinking_settings:
-        thinking_settings = {**thinking_settings, "openai_reasoning_effort": thinking}
+    # Override thinking level if requested
+    if thinking:
+        if "openai_reasoning_effort" in thinking_settings:
+            thinking_settings = {**thinking_settings, "openai_reasoning_effort": thinking}
+        elif "google_thinking_config" in thinking_settings:
+            thinking_settings = {
+                **thinking_settings,
+                "google_thinking_config": {"include_thoughts": True, "thinking_level": thinking},
+            }
 
     if not os.environ.get(key_name):
         shell = "~/.zshrc" if sys.platform == "darwin" else "~/.bashrc"

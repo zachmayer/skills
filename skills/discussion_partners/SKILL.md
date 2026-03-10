@@ -54,7 +54,7 @@ Where `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a 
 
 The default is `openai:gpt-5.4`. Thinking effort is automatically set to maximum for each provider.
 
-**GPT-5.4 with xhigh reasoning is slow on large prompts** (5+ min for ~1000-line reviews). Use `--thinking low` for fast responses — it catches the same high-level findings with much less latency. Reserve xhigh for short, precise questions.
+Use `--thinking low` for fast responses on large prompts (~1.5 min vs ~7 min for xhigh on ~1000-line reviews). Low catches the same high-level findings; xhigh is better at call-graph tracing and deep dead-code analysis.
 
 ```bash
 # GPT-5.4 with xhigh reasoning (default — just omit -m)
@@ -92,7 +92,7 @@ variable to set. If the key exists but the call fails, common errors:
 ## Options
 
 - `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.4`)
-- `--thinking` / `-t`: Override reasoning effort for OpenAI models (`low`/`medium`/`high`/`xhigh`). Default is `xhigh`. Use `low` for large prompts where speed matters more than depth.
+- `--thinking` / `-t`: Override thinking level. OpenAI: `low`/`medium`/`high`/`xhigh` (default: `xhigh`). Gemini: `low`/`high`. Use `low` for large prompts where speed matters more than depth.
 - `--system` / `-s`: Optional system prompt override
 - `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)
 - `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.

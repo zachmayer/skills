@@ -31,19 +31,18 @@ def require_gh_auth():
 @pytest.mark.integration
 def test_find_related_prs_issue_65():
     """Issue #65 should have >=3 related PRs (#121, #206, #258)."""
-    all_prs, most_recent, _most_recent_open = orchestrator.find_related_prs(REPO, 65)
+    all_prs, _most_recent_open = orchestrator.find_related_prs(REPO, 65)
     pr_numbers = {p["number"] for p in all_prs}
     assert len(all_prs) >= 3, f"Expected >=3 PRs, got {len(all_prs)}: {pr_numbers}"
     assert 121 in pr_numbers
     assert 206 in pr_numbers
     assert 258 in pr_numbers
-    assert most_recent is not None
 
 
 @pytest.mark.integration
 def test_find_related_prs_issue_194():
     """Issue #194 should have >=5 related PRs (validates #{N} search pattern)."""
-    all_prs, _most_recent, _most_recent_open = orchestrator.find_related_prs(REPO, 194)
+    all_prs, _most_recent_open = orchestrator.find_related_prs(REPO, 194)
     pr_numbers = {p["number"] for p in all_prs}
     assert len(all_prs) >= 5, f"Expected >=5 PRs, got {len(all_prs)}: {pr_numbers}"
 
@@ -51,9 +50,8 @@ def test_find_related_prs_issue_194():
 @pytest.mark.integration
 def test_find_related_prs_nonexistent():
     """An issue with no PRs should return empty results."""
-    all_prs, most_recent, most_recent_open = orchestrator.find_related_prs(REPO, 999999)
+    all_prs, most_recent_open = orchestrator.find_related_prs(REPO, 999999)
     assert all_prs == []
-    assert most_recent is None
     assert most_recent_open is None
 
 

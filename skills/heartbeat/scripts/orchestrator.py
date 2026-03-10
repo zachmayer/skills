@@ -142,8 +142,11 @@ def resolve_working_branch(all_prs, most_recent_open, canonical):
 # --- PR Discovery ---
 
 
+PR_JSON_FIELDS = "number,state,title,headRefName"
+
+
 def find_related_prs(repo, issue_number):
-    """Find all PRs related to an issue. Returns (all_prs, most_recent, most_recent_open)."""
+    """Find all PRs related to an issue. Returns (all_prs, most_recent_open_number)."""
     by_search = (
         gh_json(
             [
@@ -157,7 +160,7 @@ def find_related_prs(repo, issue_number):
                 "--search",
                 f"#{issue_number}",
                 "--json",
-                "number,state,title,headRefName",
+                PR_JSON_FIELDS,
                 "--limit",
                 "20",
             ]
@@ -165,7 +168,6 @@ def find_related_prs(repo, issue_number):
         or []
     )
 
-    canonical = branch_name(issue_number)
     by_branch = (
         gh_json(
             [
@@ -177,9 +179,9 @@ def find_related_prs(repo, issue_number):
                 "--state",
                 "all",
                 "--head",
-                canonical,
+                branch_name(issue_number),
                 "--json",
-                "number,state,title,headRefName",
+                PR_JSON_FIELDS,
                 "--limit",
                 "5",
             ]
@@ -187,26 +189,22 @@ def find_related_prs(repo, issue_number):
         or []
     )
 
-    seen = {}
-    for pr in by_search + by_branch:
-        seen[pr["number"]] = pr
+    seen = {pr["number"]: pr for pr in by_search + by_branch}
     all_prs = sorted(seen.values(), key=lambda p: p["number"])
-
-    most_recent = max((p["number"] for p in all_prs), default=None)
-    open_prs = [p for p in all_prs if p["state"] == "OPEN"]
-    most_recent_open = max((p["number"] for p in open_prs), default=None)
-
-    return all_prs, most_recent, most_recent_open
+    most_recent_open = max((p["number"] for p in all_prs if p["state"] == "OPEN"), default=None)
+    return all_prs, most_recent_open
 
 
-def build_related_prs_context(all_prs, most_recent, most_recent_open, repo):
+def build_related_prs_context(all_prs, most_recent_open, repo):
     """Format related PRs as context string for agent prompts."""
     if not all_prs:
         return "None"
     pr_nums = ", ".join(f"#{p['number']}" for p in all_prs)
-    lines = [f"All: {pr_nums}"]
-    if most_recent:
-        lines.append(f"Most recent: #{most_recent}")
+    most_recent = max(p["number"] for p in all_prs)
+    lines = [
+        f"All: {pr_nums}",
+        f"Most recent: #{most_recent}",
+    ]
     if most_recent_open:
         lines.append(f"Most recent open: #{most_recent_open}")
     lines.append(f"Use `gh pr view <number> --repo {repo}` to review prior attempts.")
@@ -222,23 +220,12 @@ def build_related_prs_context(all_prs, most_recent, most_recent_open, repo):
 def ensure_worktree(repo_path, branch, wt_path):
     """Reuse existing worktree or create new one.
 
-    When reusing, syncs to remote to ensure we have the latest pushed code.
+    When reusing, fetches and resets to remote branch (switches if needed).
     """
     if wt_path.exists():
         run(["git", "fetch", "origin"], cwd=wt_path, check=False)
-        # Check if worktree is on the correct branch; switch if not
-        current = run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            cwd=wt_path,
-            capture=True,
-            check=False,
-        ).stdout.strip()
-        if current != branch:
-            log.info(f"Worktree on {current}, switching to {branch}")
-            # Create local branch tracking remote, or reset if it exists
-            run(["git", "checkout", "-B", branch, f"origin/{branch}"], cwd=wt_path, check=False)
-        else:
-            run(["git", "reset", "--hard", f"origin/{branch}"], cwd=wt_path, check=False)
+        # checkout -B handles both cases: switches branch or resets to remote
+        run(["git", "checkout", "-B", branch, f"origin/{branch}"], cwd=wt_path, check=False)
         return
     wt_path.parent.mkdir(parents=True, exist_ok=True)
     run(["git", "worktree", "prune"], cwd=repo_path, check=False)
@@ -297,27 +284,7 @@ def ensure_branch_pushed(workdir, branch, issue_number):
 
 
 def ensure_pr(repo, issue, canonical_branch):
-    """Ensure an open PR exists on the canonical branch. Returns pr_number."""
-    # Fast path: canonical branch already has an open PR
-    prs = gh_json(
-        [
-            "gh",
-            "pr",
-            "list",
-            "--repo",
-            repo,
-            "--head",
-            canonical_branch,
-            "--state",
-            "open",
-            "--json",
-            "number",
-        ]
-    )
-    if prs:
-        return prs[0]["number"]
-
-    # No open PR — create on canonical branch
+    """Create a draft PR on the canonical branch. Returns pr_number."""
     title = f"ai: resolve #{issue['number']} — {issue['title']}"
     body = f"Resolves #{issue['number']}\n\n*AI is working on this.*"
     body_file = SCRATCH_DIR / f"pr-body-{issue['number']}.tmp"
@@ -395,8 +362,7 @@ def get_ci_status(repo, pr_number):
 
 
 def is_behind_main(workdir):
-    """Check if branch is behind origin/main."""
-    run(["git", "fetch", "origin", "main"], cwd=workdir, check=False)
+    """Check if branch is behind origin/main. Caller must fetch first."""
     result = run(
         ["git", "rev-list", "--count", "HEAD..origin/main"],
         cwd=workdir,
@@ -520,8 +486,8 @@ def process_queue(repo, repo_path, issue):
 
     log.info(f"[queue] Processing {repo}#{num}: {issue['title']}")
 
-    all_prs, most_recent, most_recent_open = find_related_prs(repo, num)
-    related_ctx = build_related_prs_context(all_prs, most_recent, most_recent_open, repo)
+    all_prs, most_recent_open = find_related_prs(repo, num)
+    related_ctx = build_related_prs_context(all_prs, most_recent_open, repo)
 
     context = build_context(
         "queue",
@@ -554,8 +520,8 @@ def process_coding(repo, repo_path, issue):
     log.info(f"[coding] Processing {repo}#{num}: {issue['title']}")
     run(["git", "fetch", "origin"], cwd=repo_path, check=False)
 
-    all_prs, most_recent, most_recent_open = find_related_prs(repo, num)
-    related_ctx = build_related_prs_context(all_prs, most_recent, most_recent_open, repo)
+    all_prs, most_recent_open = find_related_prs(repo, num)
+    related_ctx = build_related_prs_context(all_prs, most_recent_open, repo)
 
     # Determine the working branch before creating worktree
     working_branch = resolve_working_branch(all_prs, most_recent_open, canonical)
@@ -633,7 +599,7 @@ def process_review(repo, repo_path, issue):
     log.info(f"[review] Processing {repo}#{num}: {issue['title']}")
     run(["git", "fetch", "origin"], cwd=repo_path, check=False)
 
-    all_prs, _most_recent, most_recent_open = find_related_prs(repo, num)
+    all_prs, most_recent_open = find_related_prs(repo, num)
     if not most_recent_open:
         log.warning(f"[review] {repo}#{num}: no open PR found, removing labels")
         remove_ai_labels(repo, num)
@@ -692,29 +658,9 @@ def sweep_stale_issues(repo):
     with newly-labeled issues that don't have PRs yet.
     """
     for label in ["ai:coding", "ai:review"]:
-        issues = (
-            gh_json(
-                [
-                    "gh",
-                    "issue",
-                    "list",
-                    "--repo",
-                    repo,
-                    "--label",
-                    label,
-                    "--state",
-                    "open",
-                    "--json",
-                    "number",
-                    "--limit",
-                    "25",
-                ]
-            )
-            or []
-        )
-        for issue in issues:
+        for issue in get_labeled_issues(repo, label):
             num = issue["number"]
-            all_prs, _most_recent, most_recent_open = find_related_prs(repo, num)
+            all_prs, most_recent_open = find_related_prs(repo, num)
             if all_prs and not most_recent_open:
                 log.info(f"[sweep] {repo}#{num}: PRs closed/merged, removing labels")
                 remove_ai_labels(repo, num)

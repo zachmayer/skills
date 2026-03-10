@@ -103,10 +103,9 @@ def test_find_related_prs_merges_sources():
             [pr_a, pr_b],  # by_search
             [pr_dup],  # by_branch
         ]
-        all_prs, most_recent, most_recent_open = orchestrator.find_related_prs("owner/repo", 5)
+        all_prs, most_recent_open = orchestrator.find_related_prs("owner/repo", 5)
 
     assert len(all_prs) == 2
-    assert most_recent == 200
     assert most_recent_open == 200
 
 
@@ -114,10 +113,9 @@ def test_find_related_prs_empty():
     """find_related_prs returns empty results when no PRs found."""
     with patch.object(orchestrator, "gh_json") as mock_gh:
         mock_gh.side_effect = [None, None]
-        all_prs, most_recent, most_recent_open = orchestrator.find_related_prs("owner/repo", 999)
+        all_prs, most_recent_open = orchestrator.find_related_prs("owner/repo", 999)
 
     assert all_prs == []
-    assert most_recent is None
     assert most_recent_open is None
 
 
@@ -126,10 +124,9 @@ def test_find_related_prs_no_open():
     pr = {"number": 100, "state": "CLOSED", "title": "A", "headRefName": "fix/a"}
     with patch.object(orchestrator, "gh_json") as mock_gh:
         mock_gh.side_effect = [[pr], []]
-        all_prs, most_recent, most_recent_open = orchestrator.find_related_prs("owner/repo", 5)
+        all_prs, most_recent_open = orchestrator.find_related_prs("owner/repo", 5)
 
     assert len(all_prs) == 1
-    assert most_recent == 100
     assert most_recent_open is None
 
 
@@ -192,7 +189,7 @@ def test_build_context_review():
 
 def test_build_related_prs_context_empty():
     """build_related_prs_context returns 'None' for empty PRs."""
-    result = orchestrator.build_related_prs_context([], None, None, "owner/repo")
+    result = orchestrator.build_related_prs_context([], None, "owner/repo")
     assert result == "None"
 
 
@@ -202,7 +199,7 @@ def test_build_related_prs_context_with_prs():
         {"number": 100, "state": "CLOSED", "title": "A", "headRefName": "fix/a"},
         {"number": 200, "state": "OPEN", "title": "B", "headRefName": "ai/issue-5"},
     ]
-    result = orchestrator.build_related_prs_context(prs, 200, 200, "owner/repo")
+    result = orchestrator.build_related_prs_context(prs, 200, "owner/repo")
     assert "#100" in result
     assert "#200" in result
     assert "Most recent: #200" in result

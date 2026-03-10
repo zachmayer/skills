@@ -39,32 +39,23 @@ $BRANCH_STATUS
 Before doing anything, determine where this PR stands:
 
 **Fresh issue, no code**: Branch has no meaningful changes vs main.
-Start at Scope.
+The queue agent already scoped this issue — start coding.
 
 **Code exists, needs changes**: Feedback or CI failures indicate
-specific fixes needed. Start at Code, addressing the feedback.
+specific fixes needed. Address the feedback.
 
 **Code exists, tests pass, not yet reviewed**: Diff looks complete but
-no discussion partner review yet. Start at Review.
+no discussion partner review yet. Skip to Review.
 
 **Code exists, reviewed, ready to ship**: Tests pass and review feedback
-is addressed. Start at Ship.
+is addressed. Skip to Ship.
 
 **Branch behind main**: Merge first (`git fetch origin main` then
 `git merge origin/main`), resolve conflicts, then reassess.
 
 Skip steps that are already complete.
 
-### 2. Scope
-
-If requirements are vague, too large for one PR, or you have questions:
-- Post questions as a comment on Issue #$ISSUE_NUMBER
-  (`gh issue comment $ISSUE_NUMBER --repo $REPO --body "your questions"`)
-- Exit normally. The human is the circuit breaker.
-
-If requirements are clear, proceed.
-
-### 3. Code
+### 2. Code
 
 Implement the minimal necessary changes.
 - If branch is behind main, merge main first and resolve conflicts.
@@ -72,7 +63,7 @@ Implement the minimal necessary changes.
 - Run `make lint` and `make test`. Fix failures. Repeat until green.
 - Commit with clear messages referencing #$ISSUE_NUMBER.
 
-### 4. Review
+### 3. Review
 
 Once tests pass, get external review before shipping.
 - Run `git diff origin/main` to see your full changeset.
@@ -83,7 +74,7 @@ Once tests pass, get external review before shipping.
   Include the diff AND the issue description in each prompt.
 - Address feedback. Re-test. Re-review if substantial changes were made.
 
-### 5. Update docs
+### 4. Update docs
 
 If your changes affect the project's public interface, update:
 - README.md (dev memory, skill inventory, architecture notes)
@@ -92,7 +83,7 @@ If your changes affect the project's public interface, update:
 
 Skip this step if changes are purely internal.
 
-### 6. Ship
+### 5. Ship
 
 When tests pass and reviewers approve:
 - `git add` changed files and `git commit` with a clear message.

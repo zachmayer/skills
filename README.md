@@ -56,7 +56,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | Skill | Type | Description |
 |-------|------|-------------|
 | [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Infrastructure | Orchestrator + worker: finds GitHub Issues, manages PRs, invokes Claude Code |
+| [heartbeat](skills/heartbeat/) | Infrastructure | Three-phase pipeline (queue → coding → review): scopes issues, writes code, reviews PRs |
 | [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
@@ -115,11 +115,8 @@ graph LR
     discussion_partners --> mental_models
     remember_session --> hierarchical_memory
     remember_session --> obsidian
-    heartbeat --> hierarchical_memory
-    heartbeat --> obsidian
-    heartbeat --> reminders
-    heartbeat --> daily_briefing
-    heartbeat --> evergreen
+    heartbeat --> staff_engineer
+    heartbeat --> discussion_partners
     obsidian --> hierarchical_memory
     obsidian --> private_repo
     hierarchical_memory --> private_repo

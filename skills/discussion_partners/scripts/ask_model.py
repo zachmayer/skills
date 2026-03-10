@@ -12,7 +12,7 @@ from pydantic_ai import Agent
 from pydantic_ai.models import KnownModelName
 from pydantic_ai.settings import ModelSettings
 
-DEFAULT_MODEL = "openai:gpt-5.2"
+DEFAULT_MODEL = "openai:gpt-5.4"
 
 # Prefix → (env var name, thinking settings)
 PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {

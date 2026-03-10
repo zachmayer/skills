@@ -103,12 +103,19 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
     type=click.Path(exists=True),
     help="Read question from file instead of argument",
 )
+@click.option(
+    "--thinking",
+    "-t",
+    default=None,
+    help="Override reasoning effort for OpenAI models (low/medium/high/xhigh)",
+)
 @click.argument("question", required=False)
 def main(
     model: str,
     system: str | None,
     list_models: str | None,
     file: str | None,
+    thinking: str | None,
     question: str | None,
 ) -> None:
     """Ask a question to another AI model with extended thinking."""
@@ -125,7 +132,11 @@ def main(
     if not question:
         raise click.UsageError("Provide either a QUESTION argument or --file.")
 
-    key_name, prefix, thinking = _parse_provider(model)
+    key_name, prefix, thinking_settings = _parse_provider(model)
+
+    # Override reasoning effort if requested
+    if thinking and "openai_reasoning_effort" in thinking_settings:
+        thinking_settings = {**thinking_settings, "openai_reasoning_effort": thinking}
 
     if not os.environ.get(key_name):
         shell = "~/.zshrc" if sys.platform == "darwin" else "~/.bashrc"
@@ -139,7 +150,7 @@ def main(
         system_prompt=system
         or "You are a discussion partner. Think carefully and help discover the truth.",
     )
-    settings = cast(ModelSettings, thinking)
+    settings = cast(ModelSettings, thinking_settings)
 
     try:
         result = agent.run_stream_sync(question, model_settings=settings)

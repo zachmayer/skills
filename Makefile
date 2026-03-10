@@ -62,6 +62,10 @@ build: ## Build package
 install-heartbeat-agents: ## Install heartbeat agent files to ~/.claude/agents/
 	@mkdir -p $(HOME)/.claude/agents
 	@cp $(SKILLS_DIR)/heartbeat/agents/*.md $(HOME)/.claude/agents/
+	@if ! grep -q '^\* ' .github/CODEOWNERS 2>/dev/null; then \
+		echo "WARNING: .github/CODEOWNERS has no default owner (* rule)."; \
+		echo "  Heartbeat uses this for PR assignment. Add: * @yourname"; \
+	fi
 	@echo "Installed heartbeat agents to ~/.claude/agents/"
 .PHONY: install-heartbeat-agents
 

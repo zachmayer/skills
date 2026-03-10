@@ -227,3 +227,18 @@ def test_has_diff_no_changes():
         mock_run.return_value.returncode = 0  # no diff
         result = orchestrator.has_diff("/some/path")
         assert result is False
+
+
+def test_get_default_owner_from_codeowners(tmp_path, monkeypatch):
+    """get_default_owner reads the * rule from CODEOWNERS."""
+    codeowners_dir = tmp_path / ".github"
+    codeowners_dir.mkdir()
+    (codeowners_dir / "CODEOWNERS").write_text("# comment\n* @alice\n.github/ @bob\n")
+    monkeypatch.setattr(orchestrator, "repo_dir", lambda repo: tmp_path)
+    assert orchestrator.get_default_owner("org/repo") == "alice"
+
+
+def test_get_default_owner_fallback():
+    """get_default_owner falls back to repo owner when no CODEOWNERS."""
+    assert orchestrator.get_default_owner("zachmayer/skills") == "zachmayer"
+    assert orchestrator.get_default_owner("org/my-repo") == "org"

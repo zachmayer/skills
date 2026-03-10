@@ -100,6 +100,18 @@ def log_path(repo, issue_number):
     return LOG_DIR / f"heartbeat-{repo_name}-{issue_number}.log"
 
 
+def get_default_owner(repo):
+    """Get the default CODEOWNERS owner (* rule) for a repo."""
+    codeowners = repo_dir(repo) / ".github" / "CODEOWNERS"
+    if codeowners.exists():
+        for line in codeowners.read_text().splitlines():
+            stripped = line.strip()
+            if stripped.startswith("* ") and "@" in stripped:
+                return stripped.split("@")[-1].strip()
+    # Fallback: repo owner from org/repo format
+    return repo.split("/")[0]
+
+
 def gh_comment(repo, issue_number, body):
     """Post a comment on a GitHub issue."""
     body_file = SCRATCH_DIR / f"comment-{issue_number}.tmp"
@@ -733,7 +745,7 @@ def process_review(repo, repo_path, issue):
 
     # Review agent leaves a comment. Always assign to human and mark ready.
     # GitHub blocks self-approval, so we can't use gh pr review --approve.
-    owner = repo.split("/")[0]
+    owner = get_default_owner(repo)
     run(
         ["gh", "pr", "edit", str(pr_number), "--repo", repo, "--add-assignee", owner],
         check=False,

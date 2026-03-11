@@ -355,8 +355,11 @@ def is_behind_main(workdir):
 
 
 def has_diff(workdir):
-    """Check if the branch has commits beyond origin/main."""
-    return _rev_list_count(workdir, "origin/main..HEAD") > 0
+    """Check if the branch has file changes that are unique to this branch (vs merge-base)."""
+    result = run(
+        ["git", "diff", "--stat", "origin/main...HEAD"], cwd=workdir, capture=True, check=False
+    )
+    return bool(result.stdout.strip())
 
 
 def run_verification(workdir):
@@ -423,6 +426,10 @@ def invoke_agent(agent_name, workdir, context, issue_number, repo, *, budget=8):
         "--agent",
         agent_name,
         "--print",
+        # Agents run non-interactively (--print) and can't get user approval
+        # for file writes. They operate in isolated worktrees with a limited
+        # OAuth token (no repo admin, no org access).
+        "--dangerously-skip-permissions",
         "--max-budget-usd",
         str(budget),
         "--add-dir",

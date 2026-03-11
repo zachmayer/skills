@@ -45,55 +45,61 @@ Skills are grouped by their role in the capture → organize → process pipelin
 
 | Skill | Type | Description |
 |-------|------|-------------|
+| [capture](.claude/skills/capture/) | Prompt | Smart routing: memory, GitHub Issues, obsidian, CLAUDE.md, or README |
 | [hierarchical_memory](.claude/skills/hierarchical_memory/) | Python | Quick notes aggregated into daily/monthly/overall summaries |
-| [web_grab](.claude/skills/web_grab/) | Python | Fetch URL content and save to obsidian — Playwright for JS SPAs |
 | [pdf_to_markdown](.claude/skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
 | [remember_session](.claude/skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
 | [skill_stealer](.claude/skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
 | [slack_bridge](.claude/skills/slack_bridge/) | Prompt | Phone-to-Claude capture via official Slack MCP server |
+| [web_grab](.claude/skills/web_grab/) | Python | Fetch URL content and save to obsidian — Playwright for JS SPAs |
 
 ### Organize
 
 | Skill | Type | Description |
 |-------|------|-------------|
-| [obsidian](.claude/skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](.claude/skills/heartbeat/) | Infrastructure | Three-phase pipeline (queue → coding → review): scopes issues, writes code, reviews PRs |
-| [private_repo](.claude/skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [daily_briefing](.claude/skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
-| [reminders](.claude/skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
 | [evergreen](.claude/skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
+| [heartbeat](.claude/skills/heartbeat/) | Infrastructure | Three-phase pipeline (queue → coding → review): scopes issues, writes code, reviews PRs |
+| [obsidian](.claude/skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
+| [private_repo](.claude/skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
+| [reminders](.claude/skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
 | [session_planner](.claude/skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
 
 | Skill | Type | Description |
 |-------|------|-------------|
-| [ultra_think](.claude/skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
-| [mental_models](.claude/skills/mental_models/) | Prompt | 33 reasoning frameworks incl. critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
 | [ask_questions](.claude/skills/ask_questions/) | Prompt | Structured questioning: clarify before acting |
-| [discussion_partners](.claude/skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
+| [check_odds](.claude/skills/check_odds/) | Prompt | Check prediction market and forecasting platform odds |
 | [data_science](.claude/skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [discussion_partners](.claude/skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
 | [forecast](.claude/skills/forecast/) | R | Time series forecasting with auto.arima |
 | [lean_prover](.claude/skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
+| [mental_models](.claude/skills/mental_models/) | Prompt | 33 reasoning frameworks incl. critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
+| [rlm](.claude/skills/rlm/) | Prompt | Phased reasoning for large context (100K+ tokens) |
+| [superforecaster](.claude/skills/superforecaster/) | Prompt | Calibrated probabilistic forecasts with multi-model aggregation |
+| [ultra_think](.claude/skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
 
 ### Build
 
 | Skill | Type | Description |
 |-------|------|-------------|
-| [orchestrate](.claude/skills/orchestrate/) | Prompt | Decompose tasks into a dependency DAG, route to specialized sub-agents, execute in parallel |
-| [ralph_loop](.claude/skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
-| [staff_engineer](.claude/skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
+| [api_key_checker](.claude/skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
+| [claude-code-config](.claude/skills/claude-code-config/) | Prompt | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
 | [concise_writing](.claude/skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
+| [constitution](.claude/skills/constitution/) | Prompt | User values and principles for ambiguous tradeoffs |
 | [gh_cli](.claude/skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [jina_grep](.claude/skills/jina_grep/) | Prompt | Semantic grep using Jina embedding models on Apple Silicon |
-| [prompt_evolution](.claude/skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
 | [llm_judge](.claude/skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
-| [prior_art_review](.claude/skills/prior_art_review/) | Prompt | Search existing issues and PRs before acting — prevents duplicate work |
-| [pr_review](.claude/skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners |
-| [api_key_checker](.claude/skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
 | [modal](.claude/skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
+| [orchestrate](.claude/skills/orchestrate/) | Prompt | Decompose tasks into a dependency DAG, route to specialized sub-agents, execute in parallel |
+| [pr_review](.claude/skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners |
+| [prior_art_review](.claude/skills/prior_art_review/) | Prompt | Search existing issues and PRs before acting — prevents duplicate work |
+| [prompt_evolution](.claude/skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
+| [ralph_loop](.claude/skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
 | [skill_pruner](.claude/skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
-| [claude-code-config](.claude/skills/claude-code-config/) | Prompt | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
+| [skills_reference](.claude/skills/skills_reference/) | Prompt | Comprehensive reference for authoring SKILL.md files |
+| [staff_engineer](.claude/skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
 
 ## Skill Graph
 
@@ -126,13 +132,18 @@ graph LR
     hierarchical_memory --> private_repo
     web_grab --> obsidian
     lean_prover --> discussion_partners
+    superforecaster --> discussion_partners
+    superforecaster --> check_odds
+    pr_review --> discussion_partners
+    capture --> hierarchical_memory
+    capture --> obsidian
     session_planner --> hierarchical_memory
     session_planner --> obsidian
     daily_briefing --> hierarchical_memory
     daily_briefing --> obsidian
 ```
 
-Standalone skills (no cross-skill dependencies): `api_key_checker`, `claude-code-config`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `jina_grep`, `modal`, `pdf_to_markdown`, `pr_review`, `prior_art_review`, `skill_pruner`, `skill_stealer`
+Standalone skills (no cross-skill dependencies): `api_key_checker`, `check_odds`, `claude-code-config`, `concise_writing`, `constitution`, `data_science`, `forecast`, `gh_cli`, `jina_grep`, `mental_models`, `modal`, `pdf_to_markdown`, `prior_art_review`, `private_repo`, `rlm`, `skill_pruner`, `skill_stealer`, `skills_reference`, `slack_bridge`, `staff_engineer`
 
 ## Install
 
@@ -260,11 +271,11 @@ Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `a
 
 - **Consolidate beast_mode + ultra_think** — persistence directives folded into ultra_think.
 - **Consolidate staff_engineer + debug** — debug's 9-step process folded into staff_engineer.
-- **Heartbeat v6** — Python orchestrator (`scripts/orchestrator.py`) + three agent files (queue, coding, review). Labels: `ai:queued` → `ai:coding` → `ai:review` → human. Branch naming: `ai/issue-N`. flock prevents concurrent runs. Discussion partner review before ship. Orchestrator handles worktree/PR lifecycle and label transitions; agents handle code/test/review.
+- **Heartbeat v6** — Python orchestrator (`.claude/skills/heartbeat/scripts/orchestrator.py`) + three agent files (queue, coding, review). Labels: `ai:queued` → `ai:coding` → `ai:review` → human. Branch naming: `ai/issue-N`. flock prevents concurrent runs. Discussion partner review before ship. Orchestrator handles worktree/PR lifecycle and label transitions; agents handle code/test/review.
 - **Session planner** — Read memory + tasks + todos, propose work plan.
 - **API key checker** — Verify which API keys are configured and valid.
 - **Playwright browser automation** — Headless browser for JS-heavy pages in web_grab.
-- **Fix install-ci** — Heavy deps (marker-pdf, playwright) moved to optional extras.
+- **Fix install-ci** — Heavy deps isolated: marker-pdf uses PEP 723 inline script metadata (`uv run --script`), playwright is an optional extra.
 - **Settings precedence** — Removed `gh pr create*` from project deny list (PR #43).
 
 ### Lessons Learned

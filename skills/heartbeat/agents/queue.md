@@ -21,9 +21,9 @@ Assess whether this issue is actionable:
 If YES — draft an execution plan as a comment on the issue:
 - `gh issue comment $ISSUE_NUMBER --repo $REPO --body "your plan"`
 - List specific files to modify and acceptance criteria
-- Exit normally. The orchestrator will move this to coding.
+- Write: `echo actionable > $RESULT_FILE`
 
 If NO — post your questions as a comment:
 - `gh issue comment $ISSUE_NUMBER --repo $REPO --body "your questions"`
-- Exit normally. The orchestrator will move this to coding. The coding agent
-  will see your questions and decide how to proceed.
+- Write: `echo blocked > $RESULT_FILE`
+- The orchestrator will remove labels and wait for the human to answer.

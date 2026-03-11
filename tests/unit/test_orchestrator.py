@@ -147,6 +147,8 @@ def test_build_context_queue():
     # Frontmatter should be stripped
     assert "---" not in ctx
     assert "maxTurns" not in ctx
+    # Result file path should be substituted
+    assert "queue-result-42.txt" in ctx
 
 
 def test_build_context_coding():
@@ -276,3 +278,101 @@ def test_ensure_pr_signature():
     sig = inspect.signature(orchestrator.ensure_pr)
     params = list(sig.parameters.keys())
     assert params == ["repo", "issue", "canonical_branch"]
+
+
+# --- process_queue ---
+
+FAKE_ISSUE = {"number": 42, "title": "Test issue", "body": "Do the thing"}
+
+
+def test_process_queue_actionable(tmp_path, monkeypatch):
+    """process_queue moves to ai:coding when agent writes 'actionable'."""
+    monkeypatch.setattr(orchestrator, "SCRATCH_DIR", tmp_path)
+    monkeypatch.setattr(orchestrator, "find_related_prs", lambda *a: ([], None))
+    monkeypatch.setattr(orchestrator, "build_related_prs_context", lambda *a: "None")
+
+    def fake_invoke(agent, workdir, ctx, num, repo, *, budget=8):
+        (tmp_path / f"queue-result-{num}.txt").write_text("actionable\n")
+        return 0
+
+    monkeypatch.setattr(orchestrator, "invoke_agent", fake_invoke)
+
+    labels_set = []
+    monkeypatch.setattr(
+        orchestrator,
+        "set_label",
+        lambda repo, num, add=None, remove=None: labels_set.append((add, remove)),
+    )
+
+    process_queue = orchestrator.process_queue
+    process_queue("owner/repo", tmp_path, FAKE_ISSUE)
+
+    assert labels_set == [("ai:coding", "ai:queued")]
+
+
+def test_process_queue_blocked(tmp_path, monkeypatch):
+    """process_queue removes labels when agent writes 'blocked'."""
+    monkeypatch.setattr(orchestrator, "SCRATCH_DIR", tmp_path)
+    monkeypatch.setattr(orchestrator, "find_related_prs", lambda *a: ([], None))
+    monkeypatch.setattr(orchestrator, "build_related_prs_context", lambda *a: "None")
+
+    def fake_invoke(agent, workdir, ctx, num, repo, *, budget=8):
+        (tmp_path / f"queue-result-{num}.txt").write_text("blocked\n")
+        return 0
+
+    monkeypatch.setattr(orchestrator, "invoke_agent", fake_invoke)
+
+    labels_removed = []
+    monkeypatch.setattr(
+        orchestrator,
+        "set_label",
+        lambda repo, num, add=None, remove=None: labels_removed.append((add, remove)),
+    )
+
+    orchestrator.process_queue("owner/repo", tmp_path, FAKE_ISSUE)
+
+    # remove_ai_labels calls set_label with remove only
+    assert labels_removed == [(None, "ai:coding,ai:queued,ai:review")]
+
+
+def test_process_queue_crash(tmp_path, monkeypatch):
+    """process_queue removes labels and posts comment on agent crash."""
+    monkeypatch.setattr(orchestrator, "SCRATCH_DIR", tmp_path)
+    monkeypatch.setattr(orchestrator, "find_related_prs", lambda *a: ([], None))
+    monkeypatch.setattr(orchestrator, "build_related_prs_context", lambda *a: "None")
+    monkeypatch.setattr(orchestrator, "invoke_agent", lambda *a, **kw: 1)
+
+    labels_removed = []
+    monkeypatch.setattr(
+        orchestrator,
+        "set_label",
+        lambda repo, num, add=None, remove=None: labels_removed.append((add, remove)),
+    )
+    comments = []
+    monkeypatch.setattr(orchestrator, "gh_comment", lambda repo, num, body: comments.append(body))
+
+    orchestrator.process_queue("owner/repo", tmp_path, FAKE_ISSUE)
+
+    assert labels_removed == [(None, "ai:coding,ai:queued,ai:review")]
+    assert len(comments) == 1
+    assert "crashed" in comments[0]
+
+
+def test_process_queue_no_result_file(tmp_path, monkeypatch):
+    """process_queue defaults to 'actionable' when no result file written."""
+    monkeypatch.setattr(orchestrator, "SCRATCH_DIR", tmp_path)
+    monkeypatch.setattr(orchestrator, "find_related_prs", lambda *a: ([], None))
+    monkeypatch.setattr(orchestrator, "build_related_prs_context", lambda *a: "None")
+    monkeypatch.setattr(orchestrator, "invoke_agent", lambda *a, **kw: 0)
+
+    labels_set = []
+    monkeypatch.setattr(
+        orchestrator,
+        "set_label",
+        lambda repo, num, add=None, remove=None: labels_set.append((add, remove)),
+    )
+
+    orchestrator.process_queue("owner/repo", tmp_path, FAKE_ISSUE)
+
+    # Default is actionable — move to coding
+    assert labels_set == [("ai:coding", "ai:queued")]

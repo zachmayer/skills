@@ -409,6 +409,7 @@ def build_context(
         FEEDBACK=feedback,
         CI_STATUS=ci_status,
         BRANCH_STATUS=branch_status,
+        RESULT_FILE=str(SCRATCH_DIR / f"queue-result-{issue_number}.txt"),
     )
 
 
@@ -450,7 +451,7 @@ def process_queue(repo, repo_path, issue):
 
     Runs the queue agent in the repo dir (no worktree/PR needed yet).
     The agent posts a plan or questions as an issue comment.
-    Always transitions to ai:coding — the coding phase creates infrastructure.
+    Exit 0 = actionable → ai:coding. Exit 2 = needs clarification → human.
     """
     num = issue["number"]
 
@@ -469,6 +470,8 @@ def process_queue(repo, repo_path, issue):
     )
 
     # Run queue agent in the main repo dir — no worktree needed for scoping
+    result_file = SCRATCH_DIR / f"queue-result-{num}.txt"
+    result_file.unlink(missing_ok=True)
     exit_code = invoke_agent("queue", repo_path, context, num, repo, budget=1)
 
     if exit_code != 0:
@@ -476,9 +479,18 @@ def process_queue(repo, repo_path, issue):
         gh_comment(repo, num, f"Queue agent crashed (exit {exit_code}). Log: {log_path(repo, num)}")
         return
 
+    # Read agent's determination from sentinel file
+    determination = result_file.read_text().strip() if result_file.exists() else "actionable"
+    result_file.unlink(missing_ok=True)
+
+    if determination == "blocked":
+        remove_ai_labels(repo, num)
+        log.info(f"[queue] {repo}#{num}: needs clarification, returned to human")
+        return
+
     # Transition to coding — the coding phase creates worktree/PR as needed
     set_label(repo, num, "ai:coding", remove="ai:queued")
-    log.info(f"[queue] Done {repo}#{num}, exit={exit_code}")
+    log.info(f"[queue] Done {repo}#{num}, moving to coding")
 
 
 def process_coding(repo, repo_path, issue):

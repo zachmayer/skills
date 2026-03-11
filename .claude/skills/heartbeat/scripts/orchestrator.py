@@ -19,7 +19,7 @@ WORKTREE_BASE = Path.home() / "claude" / "worktrees"
 SCRATCH_DIR = Path.home() / "claude" / "scratch"
 LOG_DIR = Path.home() / ".claude"
 SCRIPT_DIR = Path(__file__).parent
-AGENT_DIR = SCRIPT_DIR.parent / "agents"
+AGENT_DIR = SCRIPT_DIR.parent.parent.parent / "agents"
 
 log = logging.getLogger("heartbeat")
 

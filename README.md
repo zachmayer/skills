@@ -165,8 +165,8 @@ npx skills add zachmayer/skills -g
 ```bash
 git clone https://github.com/zachmayer/skills.git
 cd skills
-make install        # Install deps, settings, hooks, global CLAUDE.md, and symlink skills
-make install-local  # Settings, hooks, global CLAUDE.md, and symlink skills (no deps)
+make install            # Everything: system deps, UV deps, skills, agents, config
+make install-heartbeat  # Heartbeat launchd daemon (opt-in, machine-specific)
 ```
 
 ### What install sets up
@@ -193,12 +193,25 @@ Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
 make help           # Show all available targets
-make install        # Install Python + deps + settings + hooks + global CLAUDE.md
-make lint           # Run ruff linting and formatting
-make typecheck      # Run ty type checker
-make test           # Run pytest
+make install        # Install system deps + UV deps + skills + agents + config
+make ci             # CI checks: lint + typecheck + unit tests
+make test           # All checks: CI + integration tests
 make upgrade        # Upgrade all dependencies
+```
 
+### Heartbeat (opt-in)
+
+The heartbeat runs Claude Code on a schedule via launchd, picking up `ai:queued` issues automatically. Setup is a one-time process; after that, launchd runs it every 15 minutes.
+
+```bash
+# One-time setup
+make setup-heartbeat-token   # Get OAuth token (lasts ~1 year)
+make setup-heartbeat-labels  # Create ai:* labels on monitored repos
+
+# Daemon lifecycle
+make install-heartbeat       # Install/reinstall launchd daemon
+make uninstall-heartbeat     # Remove launchd daemon
+make test-heartbeat          # Run one cycle manually
 ```
 
 ## Creating a New Skill

@@ -26,8 +26,5 @@ jobs:
     - name: Install Dependencies
       run: make install-ci
 
-    - name: Check (lint + typecheck + test)
-      run: make check
-
-    - name: Build
-      run: make build
+    - name: CI checks (lint + typecheck + unit tests)
+      run: make ci

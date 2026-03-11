@@ -62,7 +62,7 @@ Skip steps that are already complete.
 Implement the minimal necessary changes.
 - If branch is behind main, merge main first and resolve conflicts.
 - Load the staff_engineer skill — it prevents over-engineering.
-- Run `make lint` and `make test`. Fix failures. Repeat until green.
+- Run `make test`. Fix failures. Repeat until green.
 - Commit with clear messages referencing #$ISSUE_NUMBER.
 
 ### 3. Review
@@ -106,14 +106,12 @@ When tests pass and reviewers approve:
 
   ## Test plan
   - [x] `make test` passes (N passed)
-  - [x] `make lint` passes
   ```
 - Exit normally. The orchestrator handles label transitions and marking the PR ready.
 
 ## Readiness Checklist
 
-- [ ] Tests pass (`make test`)
-- [ ] Lint passes (`make lint`)
+- [ ] All checks pass (`make test`)
 - [ ] Branch merges cleanly with main
 - [ ] Code is minimal — no over-engineering
 - [ ] Discussion partners reviewed and approved

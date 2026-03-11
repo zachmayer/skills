@@ -9,8 +9,8 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git *), Bash(gh *), Bash(uv r
 ---
 
 Infrastructure skill — not interactive. The orchestrator (`scripts/orchestrator.py`)
-runs a three-phase pipeline per heartbeat cycle. Agent files live in `agents/` and
-are installed to `~/.claude/agents/` via `make install`.
+runs a three-phase pipeline per heartbeat cycle. Agent files live in `.claude/agents/`
+and are symlinked to `~/.claude/agents/` via `make install`.
 
 ## Pipeline
 
@@ -33,9 +33,9 @@ Loop 3: Review  (ai:review → review agent → human)
 
 | File | Phase | Budget | Purpose |
 |------|-------|--------|---------|
-| `agents/queue.md` | Queue | $1 | Scope the issue, post plan or questions |
-| `agents/coding.md` | Coding | $8 | Write code, run tests, self-review |
-| `agents/review.md` | Review | $2 | Review PR, approve or request changes |
+| `.claude/agents/queue.md` | Queue | $1 | Scope the issue, post plan or questions |
+| `.claude/agents/coding.md` | Coding | $8 | Write code, run tests, self-review |
+| `.claude/agents/review.md` | Review | $2 | Review PR, approve or request changes |
 
 ## Branch Naming
 

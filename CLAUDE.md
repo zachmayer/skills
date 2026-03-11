@@ -4,12 +4,10 @@ A shared, open-source collection of agent skills following the Agent Skills open
 
 ## Build & Test
 
-- Install: `make install` (deps + settings + hooks + global CLAUDE.md + symlink skills)
-- Install local only: `make install-local` (settings + hooks + global CLAUDE.md + symlink skills)
-- Lint: `make lint`
-- Typecheck: `make typecheck`
-- Test: `make test`
-- **All checks: `make check`** (lint + typecheck + test — run before every push)
+- Install: `make install` (system deps + UV deps + skills + agents + config)
+- Install heartbeat: `make install-heartbeat` (launchd daemon, opt-in)
+- CI checks: `make ci` (lint + typecheck + unit tests — what GitHub Actions runs)
+- **All checks: `make test`** (CI + integration tests — run before every push)
 
 
 ## Architecture
@@ -24,6 +22,7 @@ Use README.md as the development memory for this repo. It contains the skill inv
 
 ## Dependency Updates
 
+- **Run `make upgrade` periodically.** It updates the UV lockfile and pre-commit hooks. Include lockfile bumps in feature PRs — keeping deps current as you work prevents drift.
 - **Always stay on latest versions.** When dependabot opens a PR to bump a dependency, the update should be merged — not reverted. If a dependency bump breaks tests, **fix the tests and code to work with the new version**. Do not revert the bump or pin to an old version.
 - **Tests validate the current API, not a frozen snapshot.** The `test_pydantic_ai_compat.py` test dynamically detects the correct `AgentRunResult` attribute from the installed version. If pydantic-ai renames fields again, update the scripts to match — the test will tell you what the correct attribute is.
 - **Conflicting transitive deps get isolated.** If a heavy optional dependency (e.g. marker-pdf) pins a transitive dep (e.g. anthropic) to a range incompatible with core deps (e.g. pydantic-ai), use PEP 723 inline script metadata (`# /// script`) so the skill runs in its own isolated env via `uv run --script`. Do not hold back core dependency upgrades to accommodate optional extras.
@@ -39,7 +38,7 @@ Use README.md as the development memory for this repo. It contains the skill inv
 
 ## Pre-push Checklist
 
-**ALWAYS run `make check` before pushing any branch.** This runs lint, typecheck, and tests in one command. Do NOT skip this even for "trivial" changes — orchestrator changes have unit tests that mock specific function signatures.
+**ALWAYS run `make test` before pushing any branch.** This runs lint, typecheck, unit tests, and integration tests. Do NOT skip this even for "trivial" changes — orchestrator changes have unit tests that mock specific function signatures.
 
 ## Git Workflow
 

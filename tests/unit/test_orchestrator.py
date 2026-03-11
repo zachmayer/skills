@@ -214,22 +214,23 @@ def test_build_related_prs_context_with_prs():
     assert "gh pr view" in result
 
 
-def test_has_diff_with_commits():
-    """has_diff returns True when branch has commits beyond main."""
+def test_has_diff_with_changes():
+    """has_diff returns True when branch has file changes vs main."""
     with patch.object(orchestrator, "run") as mock_run:
-        mock_run.return_value.stdout = "3\n"
+        mock_run.return_value.stdout = " SKILL.md | 3 +++\n 1 file changed\n"
         mock_run.return_value.returncode = 0
         result = orchestrator.has_diff("/some/path")
         cmd = mock_run.call_args[0][0]
-        assert "rev-list" in cmd
+        assert "diff" in cmd
+        assert "--stat" in cmd
         assert "origin/main..HEAD" in cmd
         assert result is True
 
 
-def test_has_diff_no_commits():
-    """has_diff returns False when branch has no commits beyond main."""
+def test_has_diff_no_changes():
+    """has_diff returns False when branch has no file changes vs main."""
     with patch.object(orchestrator, "run") as mock_run:
-        mock_run.return_value.stdout = "0\n"
+        mock_run.return_value.stdout = ""
         mock_run.return_value.returncode = 0
         result = orchestrator.has_diff("/some/path")
         assert result is False

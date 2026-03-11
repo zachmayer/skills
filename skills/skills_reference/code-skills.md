@@ -168,6 +168,19 @@ Implications:
 - **Name files descriptively** — `form_validation_rules.md` not `doc2.md`
 - **Organize by domain** — `reference/finance.md`, `reference/sales.md` not `docs/file1.md`, `docs/file2.md`
 
+## Referencing Bundled Resources
+
+Make clear how Claude should use bundled resources:
+
+````markdown
+Before writing queries, consult `references/api-patterns.md` for:
+- Rate limiting guidance
+- Pagination patterns
+- Error codes and handling
+````
+
+Explicit references prevent Claude from missing important context files.
+
 ## MCP Tool References
 
 Always use fully qualified tool names: `ServerName:tool_name`

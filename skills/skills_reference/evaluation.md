@@ -3,11 +3,76 @@
 How to evaluate skill effectiveness and improve skills through iteration.
 
 ## Contents
+- Success criteria
+- Testing approach
 - Evaluation-driven development
 - Evaluation structure
 - Iterative development with Claude
+- Iteration based on feedback
 - Observing skill behavior
 - Team feedback
+
+## Success Criteria
+
+How will you know your skill is working? These are aspirational targets — rough benchmarks rather than precise thresholds.
+
+### Quantitative metrics
+
+- **Skill triggers on 90% of relevant queries** — *How to measure*: Run 10-20 test queries that should trigger your skill. Track how many times it loads automatically vs. requires explicit invocation
+- **Completes workflow in X tool calls** — *How to measure*: Compare the same task with and without the skill enabled. Count tool calls and total tokens consumed
+- **0 failed API calls per workflow** — *How to measure*: Monitor MCP server logs during test runs. Track retry rates and error codes
+
+### Qualitative metrics
+
+- **Users don't need to prompt Claude about next steps** — *How to assess*: During testing, note how often you need to redirect or clarify. Ask beta users for feedback
+- **Workflows complete without user correction** — *How to assess*: Run the same request 3-5 times. Compare outputs for structural consistency and quality
+- **Consistent results across sessions** — *How to assess*: Can a new user accomplish the task on first try with minimal guidance?
+
+## Testing Approach
+
+Effective skills testing covers three areas:
+
+### 1. Triggering tests
+
+Goal: Ensure your skill loads at the right times.
+
+```
+Should trigger:
+- "Help me set up a new ProjectHub workspace"
+- "I need to create a project in ProjectHub"
+- "Initialize a ProjectHub project for Q4 planning"
+
+Should NOT trigger:
+- "What's the weather in San Francisco?"
+- "Help me write Python code"
+- "Create a spreadsheet" (unless your skill handles sheets)
+```
+
+### 2. Functional tests
+
+Goal: Verify the skill produces correct outputs.
+
+Test cases: valid outputs generated, API calls succeed, error handling works, edge cases covered.
+
+### 3. Performance comparison
+
+Goal: Prove the skill improves results vs. baseline.
+
+```
+Without skill:
+- User provides instructions each time
+- 15 back-and-forth messages
+- 3 failed API calls requiring retry
+- 12,000 tokens consumed
+
+With skill:
+- Automatic workflow execution
+- 2 clarifying questions only
+- 0 failed API calls
+- 6,000 tokens consumed
+```
+
+**Pro tip**: Iterate on a single task before expanding. The most effective skill creators iterate on a single challenging task until Claude succeeds, then extract the winning approach into a skill. This leverages Claude's in-context learning and provides faster signal than broad testing.
 
 ## Evaluation-Driven Development
 
@@ -60,6 +125,31 @@ Work with two instances:
 4. **Apply changes**: Claude A suggests restructuring, stronger language, etc.
 5. **Test again**: Verify improvements with Claude B
 6. **Repeat**: Each iteration improves based on real behavior, not assumptions
+
+## Iteration Based on Feedback
+
+Skills are living documents. Plan to iterate based on:
+
+### Undertriggering signals
+- Skill doesn't load when it should
+- Users manually enabling it
+- Support questions about when to use it
+
+**Solution**: Add more detail and nuance to the description — include keywords, particularly for technical terms.
+
+### Overtriggering signals
+- Skill loads for irrelevant queries
+- Users disabling it
+- Confusion about purpose
+
+**Solution**: Add negative triggers (`Do NOT use for...`), be more specific about scope.
+
+### Execution issues
+- Inconsistent results
+- API call failures
+- User corrections needed
+
+**Solution**: Improve instructions, add error handling, use scripts for critical validation.
 
 ## Observing Skill Behavior
 

@@ -15,6 +15,7 @@ install: ## Install all dependencies, settings, and local skills
 	uv run pre-commit install
 	uv run playwright install chromium
 	$(MAKE) install-local
+	$(MAKE) install-heartbeat-agents
 .PHONY: install
 
 
@@ -48,9 +49,26 @@ test: ## Run tests
 .PHONY: test
 
 
+test-integration: ## Run integration tests (requires gh auth)
+	uv run pytest tests/integration -m integration -v
+.PHONY: test-integration
+
+
 build: ## Build package
 	uv build
 .PHONY: build
+
+
+install-heartbeat-agents: ## Install heartbeat agent files to ~/.claude/agents/
+	@mkdir -p $(HOME)/.claude/agents
+	@cp $(SKILLS_DIR)/heartbeat/agents/*.md $(HOME)/.claude/agents/
+	@if ! grep -q '^\* ' .github/CODEOWNERS 2>/dev/null; then \
+		echo "WARNING: .github/CODEOWNERS has no default owner (* rule)."; \
+		echo "  Heartbeat uses this for PR assignment. Add: * @yourname"; \
+	fi
+	@echo "Installed heartbeat agents to ~/.claude/agents/"
+.PHONY: install-heartbeat-agents
+
 
 
 install-local: ## Install settings, global CLAUDE.md, and symlink skills to ~/.claude/
@@ -89,6 +107,24 @@ install-local: ## Install settings, global CLAUDE.md, and symlink skills to ~/.c
 HEARTBEAT_LABEL := com.anthropic.claude-heartbeat
 HEARTBEAT_PLIST := $(HOME)/Library/LaunchAgents/$(HEARTBEAT_LABEL).plist
 HEARTBEAT_LOG_DIR := $(HOME)/.claude/logs
+
+setup-heartbeat-labels: ## Create ai:* labels on all heartbeat repos
+	@REPOS_FILE="$(HOME)/.claude/heartbeat-repos.conf"; \
+	if [ -f "$$REPOS_FILE" ]; then \
+		REPOS=$$(grep -v '^\s*#' "$$REPOS_FILE" | grep -v '^\s*$$'); \
+	else \
+		REPOS="zachmayer/skills"; \
+	fi; \
+	for repo in $$REPOS; do \
+		echo "Creating labels on $$repo..."; \
+		gh label create "ai:queued" --repo "$$repo" --color 0075CA --description "In the AI queue; heartbeat picks up next cycle" --force 2>/dev/null || true; \
+		gh label create "ai:coding" --repo "$$repo" --color FBCA04 --description "AI agent is actively coding; do not modify" --force 2>/dev/null || true; \
+		gh label create "ai:review" --repo "$$repo" --color 6F42C1 --description "PR needs review; AI or human can review" --force 2>/dev/null || true; \
+	done
+	@echo "Labels created. Note: gh label create is in the deny list — run from a regular terminal."
+	@echo "Manually delete old ai:human labels if present."
+.PHONY: setup-heartbeat-labels
+
 
 setup-heartbeat-token: ## Generate OAuth token for heartbeat (interactive, one-time)
 	@echo "=== Heartbeat Token Setup ==="

@@ -16,6 +16,7 @@ install: ## Install all dependencies, settings, and local skills
 	uv run playwright install chromium
 	$(MAKE) install-local
 	$(MAKE) install-heartbeat-agents
+	$(MAKE) install-jina-grep
 .PHONY: install
 
 

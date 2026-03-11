@@ -1,5 +1,7 @@
 """Validate all SKILL.md files follow the Agent Skills standard."""
 
+import shutil
+import subprocess
 from pathlib import Path
 
 import frontmatter
@@ -91,3 +93,21 @@ class TestJinaGrep:
         assert "Pipe mode" in text
         assert "Standalone mode" in text
         assert "Code search" in text
+
+    @pytest.mark.skipif(shutil.which("jina-grep") is None, reason="jina-grep not installed")
+    def test_pipe_mode(self) -> None:
+        """jina-grep reranks piped input by semantic similarity."""
+        lines = (
+            "This function handles error logging and reporting\n"
+            "The database connection pool is initialized here\n"
+            "User authentication checks happen in this module\n"
+        )
+        result = subprocess.run(
+            ["jina-grep", "error handling"],
+            input=lines,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        assert result.returncode == 0
+        assert "error" in result.stdout.lower()

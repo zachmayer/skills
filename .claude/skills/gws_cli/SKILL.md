@@ -7,7 +7,9 @@ description: >
 allowed-tools: Bash(gws *)
 ---
 
-Google Workspace CLI reference. Commands follow `gws <service> <resource> <method>`. The CLI dynamically discovers all API methods via Google's Discovery Service — if a Workspace API supports it, `gws` can call it.
+Google Workspace CLI reference. Source and docs: https://github.com/googleworkspace/cli
+
+Commands follow `gws <service> <resource> <method>`. The CLI dynamically discovers all API methods via Google's Discovery Service — if a Workspace API supports it, `gws` can call it.
 
 ## Safety
 

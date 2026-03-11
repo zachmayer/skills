@@ -49,6 +49,13 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 		echo "  Linking agent $$agent_name"; \
 		ln -sfn "$$(pwd)/$$agent" "$(AGENTS_INSTALL_DIR)/$$agent_name"; \
 	done
+	@# ── Prune stale symlinks (from renamed/deleted skills or agents) ──
+	@for link in $(INSTALL_DIR)/* $(AGENTS_INSTALL_DIR)/*; do \
+		if [ -L "$$link" ] && ! [ -e "$$link" ]; then \
+			echo "  Removing stale link $$link"; \
+			rm -f "$$link"; \
+		fi; \
+	done
 	@echo ""
 	@echo "Install complete. Skills available as /skill-name in Claude Code."
 	@echo ""

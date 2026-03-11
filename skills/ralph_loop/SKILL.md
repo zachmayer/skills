@@ -105,8 +105,8 @@ The user will read this report and decide what to do next.
 **Use worktrees** when the current branch is occupied. Another Claude instance or your own WIP may be on a different branch. Never clobber it.
 
 ```bash
-git worktree add /tmp/project-feature main
-cd /tmp/project-feature && git checkout -b ralph/feature-name
+git worktree add ~/claude/worktrees/project-feature main
+git -C ~/claude/worktrees/project-feature checkout -b ralph/feature-name
 ```
 
 **Always use PRs.** Never commit directly to main. Create a feature branch, push it, and open a PR via `gh pr create`. The human merges — not you.

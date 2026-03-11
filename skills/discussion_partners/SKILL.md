@@ -38,8 +38,14 @@ Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 in
 
 ## Usage
 
+For short questions, pass directly as an argument. **For long prompts (PR diffs, large code, etc.), always use `--file`** — long shell arguments break unpredictably.
+
 ```bash
-uv run --directory SKILL_DIR python scripts/ask_model.py -m <model> "Your detailed question with full context"
+# Short question — inline argument
+uv run --directory SKILL_DIR python scripts/ask_model.py -m <model> "Your question"
+
+# Long prompt — write to file first, then pass with --file
+uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/prompt.txt
 ```
 
 Where `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/) — the provider prefix determines which API key and thinking settings to use.
@@ -50,17 +56,17 @@ The default is `openai:gpt-5.2`. Thinking effort is automatically set to maximum
 
 ```bash
 # GPT-5.2 with xhigh reasoning (default — just omit -m)
-uv run --directory SKILL_DIR python scripts/ask_model.py "question"
+uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/prompt.txt
 
 # Claude Opus 4.6 with adaptive thinking at max effort
-uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opus-4-6 "question"
+uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opus-4-6 -f ~/claude/scratch/prompt.txt
 
 # Gemini 3.1 Pro with thinking enabled
-uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview "question"
+uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview -f ~/claude/scratch/prompt.txt
 
 # Codex models (via OpenAI Responses API)
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5-codex "question"
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:codex-mini-latest "question"
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5-codex -f ~/claude/scratch/prompt.txt
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:codex-mini-latest -f ~/claude/scratch/prompt.txt
 ```
 
 ## API Key Setup
@@ -82,6 +88,7 @@ variable to set. If the key exists but the call fails, common errors:
 
 - `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.2`)
 - `--system` / `-s`: Optional system prompt override
+- `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)
 - `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.
 
 ## Multiple Calls

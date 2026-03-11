@@ -5,7 +5,7 @@ description: >
   wants to read, extract, or save its content. Do NOT use when the URL is a
   GitHub repo (use gh CLI), a PDF (use pdf_to_markdown), or a skill to steal
   (use skill_stealer).
-allowed-tools: Bash(uv run *), Bash(curl *), Bash(wget *)
+allowed-tools: Bash(uv run *), Bash(curl *), Bash(wget *), Bash(yt-dlp *)
 ---
 
 # Web Grab
@@ -16,6 +16,7 @@ Fetch a URL's content and save what's useful to obsidian as an atomic note, foll
 
 Try these tiers in order. Stop at the first one that returns useful content:
 
+0. **YouTube URLs** — if the URL is a YouTube video (`youtube.com/watch` or `youtu.be`), skip straight to the YouTube content-type hint below. WebFetch cannot access youtube.com.
 1. **WebFetch tool** — built-in, works for most public pages
 2. **`curl -sL <url>`** — raw HTML, useful for simple pages
 3. **`wget -r -l 1 -np -A "*.html,*.htm" <url>`** — fetch a page and its immediate children (useful for multi-page content or site hierarchies)
@@ -61,4 +62,9 @@ These lines are non-negotiable. A web grab note without Source and Date metadata
 
 Special handling for specific content types. Add new entries as needed.
 
+- **YouTube videos** (youtube.com, youtu.be) — Use `yt-dlp` to extract metadata and transcript. Install if needed: `uv tool install yt-dlp`. Steps:
+  1. Get metadata: `yt-dlp --skip-download --print title --print channel --print upload_date --print description "<url>" 2>/dev/null`
+  2. Download auto-generated subtitles: `yt-dlp --write-auto-sub --sub-lang en --skip-download -o "$HOME/claude/scratch/yt-%(id)s" "<url>"`
+  3. Clean the VTT file into plain text by stripping timestamps, VTT headers, and duplicate lines (use a short Python script via `uv run python -c "..."`)
+  4. Use the transcript + metadata to write the note. Summarize key points; include chapter timestamps from the description if available. Do NOT include the raw transcript verbatim — distill it into structured content.
 - **Factorio blueprints** (factoriobin.com) — Always include the full blueprint string. Check the page HTML for a CDN link (`cdn.factoriobin.com`) and curl it to get the raw string. Save it in a collapsible `<details>` block.

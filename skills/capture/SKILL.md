@@ -94,7 +94,9 @@ Create or update an atomic note in the obsidian vault following the `obsidian` s
 4. Link to the nearest existing MOC hub.
 5. Commit and push:
    ```bash
-   git -C $CLAUDE_OBSIDIAN_DIR add -A && git -C $CLAUDE_OBSIDIAN_DIR commit -m "capture: <summary>" && git -C $CLAUDE_OBSIDIAN_DIR push
+   git -C $CLAUDE_OBSIDIAN_DIR add -A
+   git -C $CLAUDE_OBSIDIAN_DIR commit -m "capture: <summary>"
+   git -C $CLAUDE_OBSIDIAN_DIR push
    ```
 
 ### GitHub Issue (agent or human task)

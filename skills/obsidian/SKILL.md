@@ -120,5 +120,10 @@ Grep(pattern="search term", path="$CLAUDE_OBSIDIAN_DIR/")
 - Add `#topic` tags for graph discoverability
 - Add `[[wiki-links]]` to reference related notes (filename without `.md`)
 - Memory files in `memory/` are managed by `hierarchical_memory` — don't edit directly
-- After changes: `git -C $CLAUDE_OBSIDIAN_DIR add -A && git -C $CLAUDE_OBSIDIAN_DIR commit -m "note: description" && git -C $CLAUDE_OBSIDIAN_DIR push`
+- After changes, run these commands sequentially:
+  ```bash
+  git -C $CLAUDE_OBSIDIAN_DIR add -A
+  git -C $CLAUDE_OBSIDIAN_DIR commit -m "note: description"
+  git -C $CLAUDE_OBSIDIAN_DIR push
+  ```
 - If no remote is configured, use the `private_repo` skill to set one up

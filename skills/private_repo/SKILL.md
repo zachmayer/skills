@@ -37,7 +37,9 @@ gh repo create REPO_NAME --private --description "Private backup for DESCRIPTION
 Then set up the remote (use `git -C` to match the `Bash(git *)` permission):
 
 ```bash
-git -C TARGET_DIR init && git -C TARGET_DIR add -A && git -C TARGET_DIR commit -m "initial commit"
+git -C TARGET_DIR init
+git -C TARGET_DIR add -A
+git -C TARGET_DIR commit -m "initial commit"
 git -C TARGET_DIR remote add origin git@github.com:USERNAME/REPO_NAME.git
 git -C TARGET_DIR push -u origin main
 ```
@@ -47,9 +49,12 @@ Use `gh api user --jq '.login'` to get the username.
 ### 3b. Connect an existing repo
 
 ```bash
-git -C TARGET_DIR init && git -C TARGET_DIR remote add origin REPO_URL
+git -C TARGET_DIR init
+git -C TARGET_DIR remote add origin REPO_URL
 git -C TARGET_DIR pull origin main --allow-unrelated-histories
-git -C TARGET_DIR add -A && git -C TARGET_DIR commit -m "merge local state" && git -C TARGET_DIR push
+git -C TARGET_DIR add -A
+git -C TARGET_DIR commit -m "merge local state"
+git -C TARGET_DIR push
 ```
 
 ### 4. Confirm sync works

@@ -87,7 +87,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
 | [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
 | [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
-| [pr_review](skills/pr_review/) | Python | External AI code review: fetch PR context via gh, send to GPT-5.2 |
+| [pr_review](skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners |
 | [api_key_checker](skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
 | [modal](skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
@@ -155,9 +155,27 @@ npx skills add zachmayer/skills -g
 ```bash
 git clone https://github.com/zachmayer/skills.git
 cd skills
-make install        # Install deps, settings, and symlink skills
-make install-local  # Settings + symlink skills only (no deps)
+make install        # Install deps, settings, hooks, global CLAUDE.md, and symlink skills
+make install-local  # Settings, hooks, global CLAUDE.md, and symlink skills (no deps)
 ```
+
+### What install sets up
+
+`make install` creates a two-layer configuration:
+
+**Global config** (applies to all repos):
+- `~/.claude/settings.json` — Permissions: `Bash(*)` allow with targeted deny rules (destructive git, dangerous gh commands). Deny always wins over allow.
+- `~/.claude/hooks/reject-shell-operators.sh` — PreToolUse hook that blocks `&&`, `||`, backticks, and `$()` in Bash commands. Primary defense against shell injection.
+- `~/CLAUDE.md` — Global agent instructions: model preferences (Opus default, Sonnet floor), temp file conventions, git workflow (always PRs, use worktrees).
+
+**Agent workspace** (created by install):
+- `~/claude/scratch/` — Agent scratch pad for temp files (PR bodies, commit messages, review prompts, downloads). Used instead of `/tmp/` because Claude Code can't auto-approve `/tmp/` writes on macOS.
+- `~/claude/worktrees/` — Git worktrees for parallel development.
+- `~/claude/obsidian/` — Obsidian vault (hierarchical memory + knowledge graph). Set by `CLAUDE_OBSIDIAN_DIR`.
+
+**Per-project config** (this repo only):
+- `.claude/settings.json` — Adds `Edit(**)` and `Write(**)` so the agent can edit any file in the repo. All other permissions (Bash, deny rules, hooks) inherit from the global config.
+- `CLAUDE.md` — Repo-specific conventions. References `~/CLAUDE.md` for global defaults.
 
 ## Development
 
@@ -165,7 +183,7 @@ Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
 make help           # Show all available targets
-make install        # Install Python + deps + pre-commit hooks
+make install        # Install Python + deps + settings + hooks + global CLAUDE.md
 make lint           # Run ruff linting and formatting
 make typecheck      # Run ty type checker
 make test           # Run pytest

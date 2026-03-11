@@ -119,7 +119,7 @@ Supports multiple Google accounts (home, work, school, etc.) via `~/.claude/gws-
 
 **Rules:**
 - Bare `gws ...` uses the default account. No env var needed.
-- For non-default accounts, use the wrapper script: `.claude/skills/gws_cli/scripts/gws-as.sh <profile> <gws args...>`
+- For non-default accounts, use the wrapper script: `~/.claude/skills/gws_cli/scripts/gws-as.sh <profile> <gws args...>`
 - If the user names an account, email, or domain, use the matching profile.
 - If ambiguous and the action is a write/send/delete, ask which account.
 - If `gws-accounts.json` is missing, assume only the default account exists.
@@ -129,7 +129,7 @@ Supports multiple Google accounts (home, work, school, etc.) via `~/.claude/gws-
 gws gmail +triage
 
 # Non-default account
-.claude/skills/gws_cli/scripts/gws-as.sh work gmail +triage
+~/.claude/skills/gws_cli/scripts/gws-as.sh work gmail +triage
 ```
 
 ## Auth
@@ -167,7 +167,7 @@ Then add the profile to `~/.claude/gws-accounts.json`. Each entry needs `path` (
 }
 ```
 
-The `default` entry is the account used by bare `gws` commands. All other entries require `gws-as.sh <name>` to use.
+The `default` entry is the account used by bare `gws` commands. All other entries require `~/.claude/skills/gws_cli/scripts/gws-as.sh <name>` to use.
 
 ## Tips
 

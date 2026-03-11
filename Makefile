@@ -16,7 +16,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
 	brew update
 	brew upgrade
-	brew install uv gh pyright node google-cloud-sdk
+	brew install uv gh pyright node jq google-cloud-sdk
 	brew doctor || true
 	npm install -g @googleworkspace/cli
 	@# ── Python + UV dependencies ──

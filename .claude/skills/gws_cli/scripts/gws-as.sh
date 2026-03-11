@@ -20,6 +20,10 @@ if [ $# -lt 1 ]; then
 fi
 
 profile="$1"
+if ! echo "$profile" | grep -Eq '^[a-zA-Z0-9_-]+$'; then
+    echo "ERROR: Invalid profile name '$profile'. Use only letters, numbers, hyphens, underscores." >&2
+    exit 1
+fi
 shift
 
 # Resolve config dir from accounts.json, or fall back to convention

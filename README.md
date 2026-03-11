@@ -166,8 +166,9 @@ npx skills add zachmayer/skills -g
 ```bash
 git clone https://github.com/zachmayer/skills.git
 cd skills
-gws auth setup          # One-time: create GCP project + OAuth client (requires gcloud)
 make install            # Everything: system deps, UV deps, skills, agents, config, auth
+gws auth setup          # One-time: create GCP project + OAuth client (installed by make install)
+make auth               # Complete Google Workspace login after setup
 make install-heartbeat  # Heartbeat launchd daemon (opt-in, machine-specific)
 ```
 
@@ -195,7 +196,7 @@ Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
 make help           # Show all available targets
-make install        # Install system deps + UV deps + skills + agents + config
+make install        # Install system deps + UV deps + skills + agents + config + auth
 make ci             # CI checks: lint + typecheck + unit tests
 make test           # All checks: CI + integration tests
 make upgrade        # Upgrade all dependencies
@@ -293,6 +294,10 @@ Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `a
 - **Playwright browser automation** — Headless browser for JS-heavy pages in web_grab.
 - **Fix install-ci** — Heavy deps isolated: marker-pdf uses PEP 723 inline script metadata (`uv run --script`), playwright is an optional extra.
 - **Settings precedence** — Removed `gh pr create*` from project deny list (PR #43).
+
+### Known trade-offs
+
+- **`make install` runs `brew update/upgrade`** — This upgrades all Homebrew packages, not just ours. It's intentionally aggressive as a stopgap until a dedicated system maintenance solution (launchd job or similar) is set up. Long-term, brew maintenance should be separated from skill installation.
 
 ### Lessons Learned
 

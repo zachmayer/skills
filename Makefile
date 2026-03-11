@@ -46,8 +46,8 @@ lint: ## Run linters and formatters
 .PHONY: lint
 
 
-typecheck: ## Run type checker
-	uv run ty check .claude/skills/ main/
+typecheck: ## Run type checker (excludes optional-dep scripts: marker-pdf, playwright)
+	uv run ty check .claude/skills/ main/ --exclude '.claude/skills/pdf_to_markdown/' --exclude '.claude/skills/web_grab/scripts/browser.py' --exclude '.claude/skills/web_grab/scripts/fetch_page.py'
 .PHONY: typecheck
 
 
@@ -59,6 +59,11 @@ test: ## Run tests
 test-integration: ## Run integration tests (requires gh auth)
 	uv run pytest tests/integration -m integration -v
 .PHONY: test-integration
+
+
+check: lint typecheck test ## Run all checks (lint + typecheck + test)
+	@echo "All checks passed."
+.PHONY: check
 
 
 build: ## Build package

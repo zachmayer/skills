@@ -9,6 +9,7 @@ A shared, open-source collection of agent skills following the Agent Skills open
 - Lint: `make lint`
 - Typecheck: `make typecheck`
 - Test: `make test`
+- **All checks: `make check`** (lint + typecheck + test — run before every push)
 
 
 ## Architecture
@@ -35,6 +36,10 @@ Use README.md as the development memory for this repo. It contains the skill inv
 - **Don't trust training data for library APIs.** Your knowledge cutoff may reflect a beta, a different version, or simply be wrong. Inspect the actual installed code to determine data structures: `uv run python -c "from lib import Class; print(dir(Class()))"`. Packages like pydantic-ai change fast — what you "know" about the API may be stale. If you believe an API changed but can't reproduce the error, your training data is wrong. Trust the installed version, not your memory.
 - **Fix tests, don't revert dep bumps.** When a dependency update breaks tests, the tests need to be fixed — not the update reverted. Staying on old versions creates compounding tech debt. The compat test (`test_pydantic_ai_compat.py`) exists to detect pydantic-ai API changes; when it fires, update the code to match the new API.
 - **Don't give the user indented heredocs.** `<<'EOF'` requires the closing `EOF` at column 0 — any leading whitespace prevents termination and the shell hangs. When giving the user shell commands, pass strings directly with flags (`--body "..."`) instead of `$(cat <<'EOF' ... EOF)` patterns.
+
+## Pre-push Checklist
+
+**ALWAYS run `make check` before pushing any branch.** This runs lint, typecheck, and tests in one command. Do NOT skip this even for "trivial" changes — orchestrator changes have unit tests that mock specific function signatures.
 
 ## Git Workflow
 

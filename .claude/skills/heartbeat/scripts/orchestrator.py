@@ -430,10 +430,13 @@ def invoke_agent(agent_name, workdir, context, issue_number, repo, *, budget=8):
         "-p",
         context,
     ]
+    # Strip CLAUDECODE env var so child agents don't think they're nested
+    env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+
     # Append so queue→coding→review logs accumulate in one file
     with open(lf, "a") as f:
         f.write(f"\n{'=' * 60}\n[{agent_name}] agent invocation\n{'=' * 60}\n")
-        result = subprocess.run(cmd, cwd=workdir, stdout=f, stderr=subprocess.STDOUT)
+        result = subprocess.run(cmd, cwd=workdir, stdout=f, stderr=subprocess.STDOUT, env=env)
         f.write(f"\n[{agent_name}] exit code: {result.returncode}\n")
     return result.returncode
 

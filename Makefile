@@ -15,7 +15,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── System dependencies (requires Homebrew) ──
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
 	brew install uv gh pyright node
-	npm install -g @googleworkspace/cli || true
+	npm install -g @googleworkspace/cli
 	@# ── Python + UV dependencies ──
 	uv python install
 	uv sync --locked --all-extras --all-groups
@@ -57,11 +57,18 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 			rm -f "$$link"; \
 		fi; \
 	done
+	@# ── Auth (idempotent — skips if already logged in) ──
+	@echo ""
+	@echo "=== Auth ==="
+	@gh auth status 2>/dev/null; if [ $$? -ne 0 ]; then echo "  GitHub: logging in..."; gh auth login; else echo "  GitHub: already authenticated."; fi
+	@if [ -d "$(HOME)/.config/gws" ] && ls $(HOME)/.config/gws/credentials* >/dev/null 2>&1; then \
+		echo "  Google Workspace: already authenticated."; \
+	else \
+		echo "  Google Workspace: logging in..."; \
+		gws auth login; \
+	fi
 	@echo ""
 	@echo "Install complete. Skills available as /skill-name in Claude Code."
-	@echo ""
-	@echo "Next steps:"
-	@echo "  make auth    Log in to GitHub and Google Workspace"
 	@echo ""
 	@echo "Some skills need API keys. Add to ~/.zshrc:"
 	@echo '  export OPENAI_API_KEY="your-key"'
@@ -87,19 +94,12 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 	@echo "Done."
 .PHONY: uninstall
 
-auth: ## Log in to external services (GitHub, Google Workspace)
+auth: ## Re-login to GitHub and Google Workspace
 	@echo "=== GitHub ==="
-	@gh auth status 2>/dev/null; if [ $$? -ne 0 ]; then gh auth login; fi
+	gh auth login
 	@echo ""
 	@echo "=== Google Workspace ==="
-	@if ! command -v gws >/dev/null; then \
-		echo "  gws not installed. Run 'make install' first."; \
-	elif [ -d "$(HOME)/.config/gws" ] && ls $(HOME)/.config/gws/credentials* >/dev/null 2>&1; then \
-		echo "  Already authenticated."; \
-	else \
-		echo "  Run 'gws auth setup' first if this is a new machine."; \
-		gws auth login; \
-	fi
+	gws auth login
 .PHONY: auth
 
 # ── Development ──────────────────────────────────────────────────

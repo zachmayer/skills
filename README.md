@@ -198,7 +198,7 @@ make install        # Install system deps + UV deps + skills + agents + config
 make ci             # CI checks: lint + typecheck + unit tests
 make test           # All checks: CI + integration tests
 make upgrade        # Upgrade all dependencies
-make auth           # Log in to GitHub and Google Workspace
+make auth           # Re-login to GitHub and Google Workspace
 ```
 
 ### Heartbeat (opt-in)

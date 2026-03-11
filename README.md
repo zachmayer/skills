@@ -197,7 +197,21 @@ make install        # Install system deps + UV deps + skills + agents + config
 make ci             # CI checks: lint + typecheck + unit tests
 make test           # All checks: CI + integration tests
 make upgrade        # Upgrade all dependencies
+```
 
+### Heartbeat (opt-in)
+
+The heartbeat runs Claude Code on a schedule via launchd, picking up `ai:queued` issues automatically. Setup is a one-time process; after that, launchd runs it every 15 minutes.
+
+```bash
+# One-time setup
+make setup-heartbeat-token   # Get OAuth token (lasts ~1 year)
+make setup-heartbeat-labels  # Create ai:* labels on monitored repos
+
+# Daemon lifecycle
+make install-heartbeat       # Install/reinstall launchd daemon
+make uninstall-heartbeat     # Remove launchd daemon
+make test-heartbeat          # Run one cycle manually
 ```
 
 ## Creating a New Skill

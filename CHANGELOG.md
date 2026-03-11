@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependabot auto-merge workflow and grouped updates
 - CLAUDE.md and AGENTS.md for repo context
 - .claude-plugin/marketplace.json for Claude Code plugin registry
-- Makefile targets: install-local, install-ci, install-heartbeat, uninstall-local, sync-external
+- Makefile targets: install, install-ci, install-heartbeat, uninstall, upgrade, ci, test
 - settings.template.json with gh CLI permissions (read-only allow, mutating deny)
 - Heartbeat cron auth fix (sources ~/.claude/heartbeat.env)
 - Time-aware ralph_loop with deadline pacing

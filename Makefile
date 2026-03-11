@@ -19,7 +19,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	uv python install
 	uv sync --locked --all-extras --all-groups
 	@# ── Pre-commit hooks ──
-	@echo "Clearing core.hooksPath so pre-commit can manage .git/hooks"
+	@# Note: only unsets repo-local core.hooksPath. A global setting would still interfere.
 	git config --unset-all core.hooksPath || true
 	uv run pre-commit install
 	@# ── Browser for web_grab skill ──

@@ -86,17 +86,16 @@ typecheck: ## Run type checker
 	uv run ty check .claude/skills/ main/ --exclude '.claude/skills/pdf_to_markdown/' --exclude '.claude/skills/web_grab/scripts/browser.py' --exclude '.claude/skills/web_grab/scripts/fetch_page.py'
 .PHONY: typecheck
 
-test: ## Run tests
+ci: lint typecheck ## CI checks: lint + typecheck + unit tests
+	uv lock --check
 	uv run pytest
-.PHONY: test
+	@echo "CI checks passed."
+.PHONY: ci
 
-test-integration: ## Run integration tests (requires gh auth)
+test: ci ## All checks: CI + integration tests (requires gh auth)
 	uv run pytest tests/integration -m integration -v
-.PHONY: test-integration
-
-check: lint typecheck test ## Run all checks (lint + typecheck + test)
 	@echo "All checks passed."
-.PHONY: check
+.PHONY: test
 
 upgrade: ## Upgrade all dependencies
 	uv lock --upgrade

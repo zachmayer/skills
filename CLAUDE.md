@@ -6,10 +6,8 @@ A shared, open-source collection of agent skills following the Agent Skills open
 
 - Install: `make install` (system deps + UV deps + skills + agents + config)
 - Install heartbeat: `make install-heartbeat` (launchd daemon, opt-in)
-- Lint: `make lint`
-- Typecheck: `make typecheck`
-- Test: `make test`
-- **All checks: `make check`** (lint + typecheck + test — run before every push)
+- CI checks: `make ci` (lint + typecheck + unit tests — what GitHub Actions runs)
+- **All checks: `make test`** (CI + integration tests — run before every push)
 
 
 ## Architecture
@@ -39,7 +37,7 @@ Use README.md as the development memory for this repo. It contains the skill inv
 
 ## Pre-push Checklist
 
-**ALWAYS run `make check` before pushing any branch.** This runs lint, typecheck, and tests in one command. Do NOT skip this even for "trivial" changes — orchestrator changes have unit tests that mock specific function signatures.
+**ALWAYS run `make test` before pushing any branch.** This runs lint, typecheck, unit tests, and integration tests. Do NOT skip this even for "trivial" changes — orchestrator changes have unit tests that mock specific function signatures.
 
 ## Git Workflow
 

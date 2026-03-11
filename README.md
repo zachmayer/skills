@@ -193,10 +193,9 @@ Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
 make help           # Show all available targets
-make install        # Install Python + deps + settings + hooks + global CLAUDE.md
-make lint           # Run ruff linting and formatting
-make typecheck      # Run ty type checker
-make test           # Run pytest
+make install        # Install system deps + UV deps + skills + agents + config
+make ci             # CI checks: lint + typecheck + unit tests
+make test           # All checks: CI + integration tests
 make upgrade        # Upgrade all dependencies
 
 ```

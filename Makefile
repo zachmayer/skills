@@ -32,19 +32,19 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@chmod +x $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@# ── Settings and global CLAUDE.md (with timestamped backup) ──
-	@ts=$$(date +%Y%m%d%H%M%S); \
+	@set -e; ts=$$(date +%Y%m%d%H%M%S); \
 	if [ -f "$(HOME)/.claude/settings.json" ]; then cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; fi; \
 	if [ -f "$(HOME)/CLAUDE.md" ]; then cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.$$ts.bak"; fi
 	@cp settings.template.json $(HOME)/.claude/settings.json
 	@cp CLAUDE.template.md $(HOME)/CLAUDE.md
 	@# ── Symlink skills ──
-	@for skill_dir in $(SKILLS_DIR)/*/; do \
+	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \
 		skill_name=$$(basename "$$skill_dir"); \
 		echo "  Linking $$skill_name"; \
 		ln -sfn "$$(pwd)/$$skill_dir" "$(INSTALL_DIR)/$$skill_name"; \
 	done
 	@# ── Symlink agents ──
-	@for agent in $(AGENTS_DIR)/*.md; do \
+	@set -e; for agent in $(AGENTS_DIR)/*.md; do \
 		agent_name=$$(basename "$$agent"); \
 		echo "  Linking agent $$agent_name"; \
 		ln -sfn "$$(pwd)/$$agent" "$(AGENTS_INSTALL_DIR)/$$agent_name"; \
@@ -72,12 +72,12 @@ install-ci: ## Install for CI (no system deps, no heavy extras)
 
 uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 	@echo "Removing skills from $(INSTALL_DIR)..."
-	@for skill_dir in $(SKILLS_DIR)/*/; do \
+	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \
 		skill_name=$$(basename "$$skill_dir"); \
 		rm -f "$(INSTALL_DIR)/$$skill_name"; \
 	done
 	@rm -f $(HOME)/.claude/hooks/reject-shell-operators.sh
-	@for agent in $(AGENTS_DIR)/*.md; do \
+	@set -e; for agent in $(AGENTS_DIR)/*.md; do \
 		rm -f "$(AGENTS_INSTALL_DIR)/$$(basename "$$agent")"; \
 	done
 	@echo "Done."
@@ -155,7 +155,7 @@ test-heartbeat: ## Run heartbeat once manually
 .PHONY: test-heartbeat
 
 setup-heartbeat-labels: ## Create ai:* labels on heartbeat repos
-	@REPOS_FILE="$(HOME)/.claude/heartbeat-repos.conf"; \
+	@set -e; REPOS_FILE="$(HOME)/.claude/heartbeat-repos.conf"; \
 	if [ -f "$$REPOS_FILE" ]; then \
 		REPOS=$$(grep -Ev '^[[:space:]]*($$|#)' "$$REPOS_FILE"); \
 	else \

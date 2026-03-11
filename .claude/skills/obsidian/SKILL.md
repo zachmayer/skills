@@ -56,6 +56,8 @@ The Obsidian CLI (v1.12.4+) communicates with the running Obsidian app. It provi
 3. Restart terminal (macOS adds `/Applications/Obsidian.app/Contents/MacOS` to PATH via `~/.zprofile`)
 4. Obsidian must be **running** for commands to work
 
+If `obsidian` is not on PATH or returns a connection error, fall back to direct file ops (Read/Write/Glob/Grep). Do not retry CLI commands repeatedly.
+
 ### When to Use CLI vs Direct File Ops
 
 | Use CLI | Use direct file ops (Read/Write/Glob/Grep) |
@@ -119,12 +121,10 @@ obsidian tags sort=count                         # all tags by frequency
 obsidian tag name=factorio verbose               # files with a specific tag
 ```
 
-**Vault targeting** (when multiple vaults exist):
+**Vault targeting:** The CLI defaults to the vault open in Obsidian. If multiple vaults are open, specify explicitly:
 ```shell
 obsidian vault="My Vault" search query="test"
 ```
-
-All commands support `--copy` to copy output to clipboard.
 
 ## Note Patterns
 

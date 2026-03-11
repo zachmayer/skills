@@ -60,7 +60,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [daily_briefing](.claude/skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
 | [evergreen](.claude/skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
 | [heartbeat](.claude/skills/heartbeat/) | Infrastructure | Three-phase pipeline (queue → coding → review): scopes issues, writes code, reviews PRs |
-| [obsidian](.claude/skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
+| [obsidian](.claude/skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault (+ CLI support) |
 | [private_repo](.claude/skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
 | [reminders](.claude/skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
 | [session_planner](.claude/skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |

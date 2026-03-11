@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#   "click>=8.3.0",
+#   "pydantic-ai-slim[openai,anthropic,google]>=1.63.0",
+# ]
+# ///
 """Ask a question to another AI model using pydantic-ai with thinking enabled."""
 
 import os
@@ -12,7 +19,7 @@ from pydantic_ai import Agent
 from pydantic_ai.models import KnownModelName
 from pydantic_ai.settings import ModelSettings
 
-DEFAULT_MODEL = "openai:gpt-5.2"
+DEFAULT_MODEL = "openai:gpt-5.4"
 
 # Prefix → (env var name, thinking settings)
 PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {
@@ -90,7 +97,7 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
     "-m",
     default=DEFAULT_MODEL,
     show_default=True,
-    help="Full pydantic-ai model string (e.g. openai:gpt-5.2, anthropic:claude-opus-4-6)",
+    help="Full pydantic-ai model string (e.g. google-gla:gemini-3.1-pro-preview, openai:gpt-5.4)",
 )
 @click.option("--system", "-s", default=None, help="System prompt")
 @click.option(
@@ -103,12 +110,19 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
     type=click.Path(exists=True),
     help="Read question from file instead of argument",
 )
+@click.option(
+    "--thinking",
+    "-t",
+    default=None,
+    help="Override thinking level (OpenAI: low/medium/high/xhigh, Gemini: low/high)",
+)
 @click.argument("question", required=False)
 def main(
     model: str,
     system: str | None,
     list_models: str | None,
     file: str | None,
+    thinking: str | None,
     question: str | None,
 ) -> None:
     """Ask a question to another AI model with extended thinking."""
@@ -125,7 +139,17 @@ def main(
     if not question:
         raise click.UsageError("Provide either a QUESTION argument or --file.")
 
-    key_name, prefix, thinking = _parse_provider(model)
+    key_name, prefix, thinking_settings = _parse_provider(model)
+
+    # Override thinking level if requested
+    if thinking:
+        if "openai_reasoning_effort" in thinking_settings:
+            thinking_settings = {**thinking_settings, "openai_reasoning_effort": thinking}
+        elif "google_thinking_config" in thinking_settings:
+            thinking_settings = {
+                **thinking_settings,
+                "google_thinking_config": {"include_thoughts": True, "thinking_level": thinking},
+            }
 
     if not os.environ.get(key_name):
         shell = "~/.zshrc" if sys.platform == "darwin" else "~/.bashrc"
@@ -139,7 +163,7 @@ def main(
         system_prompt=system
         or "You are a discussion partner. Think carefully and help discover the truth.",
     )
-    settings = cast(ModelSettings, thinking)
+    settings = cast(ModelSettings, thinking_settings)
 
     try:
         result = agent.run_stream_sync(question, model_settings=settings)

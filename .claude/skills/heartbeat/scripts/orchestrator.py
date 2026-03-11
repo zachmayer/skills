@@ -355,8 +355,11 @@ def is_behind_main(workdir):
 
 
 def has_diff(workdir):
-    """Check if the branch has commits beyond origin/main."""
-    return _rev_list_count(workdir, "origin/main..HEAD") > 0
+    """Check if the branch has file changes that are unique to this branch (vs merge-base)."""
+    result = run(
+        ["git", "diff", "--stat", "origin/main...HEAD"], cwd=workdir, capture=True, check=False
+    )
+    return bool(result.stdout.strip())
 
 
 def run_verification(workdir):
@@ -423,6 +426,10 @@ def invoke_agent(agent_name, workdir, context, issue_number, repo, *, budget=8):
         "--agent",
         agent_name,
         "--print",
+        # Agents run non-interactively (--print) and can't get user approval
+        # for file writes. They operate in isolated worktrees with a limited
+        # OAuth token (no repo admin, no org access).
+        "--dangerously-skip-permissions",
         "--max-budget-usd",
         str(budget),
         "--add-dir",
@@ -430,10 +437,13 @@ def invoke_agent(agent_name, workdir, context, issue_number, repo, *, budget=8):
         "-p",
         context,
     ]
+    # Strip CLAUDECODE env var so child agents don't think they're nested
+    env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+
     # Append so queue→coding→review logs accumulate in one file
     with open(lf, "a") as f:
         f.write(f"\n{'=' * 60}\n[{agent_name}] agent invocation\n{'=' * 60}\n")
-        result = subprocess.run(cmd, cwd=workdir, stdout=f, stderr=subprocess.STDOUT)
+        result = subprocess.run(cmd, cwd=workdir, stdout=f, stderr=subprocess.STDOUT, env=env)
         f.write(f"\n[{agent_name}] exit code: {result.returncode}\n")
     return result.returncode
 
@@ -472,7 +482,7 @@ def process_queue(repo, repo_path, issue):
     # Run queue agent in the main repo dir — no worktree needed for scoping
     result_file = SCRATCH_DIR / f"queue-result-{num}.txt"
     result_file.unlink(missing_ok=True)
-    exit_code = invoke_agent("queue", repo_path, context, num, repo, budget=1)
+    exit_code = invoke_agent("queue", repo_path, context, num, repo, budget=10)
 
     if exit_code != 0:
         remove_ai_labels(repo, num)
@@ -533,7 +543,7 @@ def process_coding(repo, repo_path, issue):
         ),
     )
 
-    exit_code = invoke_agent("coding", wt, context, num, repo, budget=8)
+    exit_code = invoke_agent("coding", wt, context, num, repo, budget=25)
 
     if exit_code != 0:
         remove_ai_labels(repo, num)
@@ -609,7 +619,7 @@ def process_review(repo, repo_path, issue):
         pr_number=pr_number,
     )
 
-    exit_code = invoke_agent("review", wt, context, num, repo, budget=2)
+    exit_code = invoke_agent("review", wt, context, num, repo, budget=10)
 
     if exit_code != 0:
         remove_ai_labels(repo, num)

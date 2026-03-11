@@ -7,7 +7,7 @@ from pathlib import Path
 import frontmatter
 import pytest
 
-SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
+SKILLS_DIR = Path(__file__).resolve().parents[2] / ".claude" / "skills"
 SKILL_DIRS = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir() and d.name != "__pycache__")
 SKILL_DIRS_WITH_SCRIPTS = sorted(d for d in SKILL_DIRS if (d / "scripts").exists())
 

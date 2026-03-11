@@ -408,7 +408,7 @@ def status() -> None:
         if report.needs_update:
             click.echo("**UPDATE** — daily files newer than monthly summary:")
             for entry in report.needs_update:
-                names = ", ".join(entry["stale_files"])
+                names = ", ".join(str(f) for f in list(entry["stale_files"]))  # type: ignore[arg-type]
                 click.echo(f"  - {entry['month']} (stale: {names})")
         if report.ok:
             click.echo("**OK** — monthly summary is up to date:")

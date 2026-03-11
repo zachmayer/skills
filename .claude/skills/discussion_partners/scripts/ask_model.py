@@ -159,7 +159,7 @@ def main(
         raise SystemExit(1)
 
     agent = Agent(
-        cast(KnownModelName, model),
+        model,
         system_prompt=system
         or "You are a discussion partner. Think carefully and help discover the truth.",
     )

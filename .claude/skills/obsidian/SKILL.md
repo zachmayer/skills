@@ -47,16 +47,16 @@ $CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
 
 ## Obsidian CLI
 
-The Obsidian CLI (v1.12.4+) communicates with the running Obsidian app. It provides link-aware search, task management, properties, and template-based creation that direct file ops cannot replicate.
+The Obsidian CLI (v1.12.4+, installer v1.11.7+) is an IPC client to the running Obsidian app — the same binary serves as both GUI launcher and CLI. It provides link-aware search, task management, properties, and template-based creation that direct file ops cannot replicate.
 
 ### Prerequisites
 
-1. Obsidian v1.12+
+1. Obsidian v1.12+ with **installer** v1.11.7+ (check Settings → About; auto-update does NOT update the installer — must reinstall from obsidian.md/download)
 2. Manually enable: **Settings → General → Command line interface** (off by default)
 3. Restart terminal (macOS adds `/Applications/Obsidian.app/Contents/MacOS` to PATH via `~/.zprofile`)
-4. Obsidian must be **running** for commands to work
+4. Obsidian must be **running** — if the app is not open, CLI commands launch the GUI instead of executing
 
-If `obsidian` is not on PATH or returns a connection error, fall back to direct file ops (Read/Write/Glob/Grep). Do not retry CLI commands repeatedly.
+If Obsidian is not running, `obsidian` is not on PATH, or a command returns a connection error, fall back to direct file ops (Read/Write/Glob/Grep). Do not retry CLI commands repeatedly.
 
 ### When to Use CLI vs Direct File Ops
 
@@ -83,7 +83,7 @@ obsidian read file=NoteName                      # read by wikilink name
 obsidian create name=Title path=folder/ content="..." template=TemplateName
 obsidian append file=NoteName content="new text"
 obsidian move file=NoteName to=new/folder/
-obsidian files folder=knowledge_graph sort=modified limit=20
+obsidian files folder=knowledge_graph total         # count files in folder
 ```
 
 **Daily notes:**

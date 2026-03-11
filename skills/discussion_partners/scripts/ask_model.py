@@ -97,7 +97,7 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
     "-m",
     default=DEFAULT_MODEL,
     show_default=True,
-    help="Full pydantic-ai model string (e.g. openai:gpt-5.2, anthropic:claude-opus-4-6)",
+    help="Full pydantic-ai model string (e.g. google-gla:gemini-3.1-pro-preview, openai:gpt-5.4)",
 )
 @click.option("--system", "-s", default=None, help="System prompt")
 @click.option(

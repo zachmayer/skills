@@ -23,7 +23,7 @@ Query another AI model for an outside perspective on a difficult problem. One me
 | `openai:gpt-5.1-codex` | Coding specialist — code review, debugging, refactors | `OPENAI_API_KEY` |
 | `openai:codex-mini-latest` | Fast coding model — quick answers, lighter tasks | `OPENAI_API_KEY` |
 
-Before calling, verify the required API key is set: `echo $OPENAI_API_KEY | head -c 8` (should show `sk-...`).
+Before calling, verify the required API key is set: `echo $GOOGLE_API_KEY | head -c 8` (should show `AIza...`).
 
 ## Framing Your Question
 

@@ -223,7 +223,7 @@ def test_has_diff_with_changes():
         cmd = mock_run.call_args[0][0]
         assert "diff" in cmd
         assert "--stat" in cmd
-        assert "origin/main..HEAD" in cmd
+        assert "origin/main...HEAD" in cmd
         assert result is True
 
 

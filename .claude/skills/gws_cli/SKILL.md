@@ -7,9 +7,33 @@ description: >
 allowed-tools: Bash(gws *)
 ---
 
-Google Workspace CLI reference. Commands follow the pattern `gws <service> <resource> <method>`. The CLI dynamically discovers all API methods — if a Workspace API supports it, `gws` can call it.
+Google Workspace CLI reference. Commands follow `gws <service> <resource> <method>`. The CLI dynamically discovers all API methods via Google's Discovery Service — if a Workspace API supports it, `gws` can call it.
 
-## Common Commands
+## Safety
+
+- **Confirm with the user before write/delete commands.** Sending email, creating events, and deleting files are not reversible.
+- Prefer `--dry-run` for destructive operations to preview the request first.
+
+## Helper Commands (Preferred)
+
+Use helper commands (`+verb`) instead of raw API calls when available — they're simpler and handle encoding:
+
+```bash
+# Gmail
+gws gmail +send --to alice@example.com --subject 'Hello' --body 'Hi Alice!'
+gws gmail +triage --max 10          # unread inbox summary
+gws gmail +reply --id MSG_ID --body 'Thanks!'
+gws gmail +reply-all --id MSG_ID --body 'Acknowledged.'
+gws gmail +forward --id MSG_ID --to bob@example.com
+gws gmail +watch                    # stream new emails (NDJSON)
+
+# Calendar
+gws calendar +insert --summary 'Meeting' --attendees alice@example.com --start '2026-03-12T10:00' --duration 30
+```
+
+## Raw API Commands
+
+When helpers don't cover your use case, use the raw API:
 
 ### Drive
 
@@ -24,7 +48,6 @@ gws drive files export --params '{"fileId": "FILE_ID", "mimeType": "text/csv"}' 
 ### Sheets
 
 ```bash
-gws sheets spreadsheets get --params '{"spreadsheetId": "SHEET_ID"}'
 gws sheets spreadsheets values get --params '{"spreadsheetId": "SHEET_ID", "range": "Sheet1!A1:D10"}'
 gws sheets spreadsheets values append --params '{"spreadsheetId": "SHEET_ID", "range": "Sheet1", "valueInputOption": "USER_ENTERED"}' --json '{"values": [["a", "b", "c"]]}'
 gws sheets spreadsheets create --json '{"properties": {"title": "New Sheet"}}'
@@ -35,32 +58,38 @@ gws sheets spreadsheets create --json '{"properties": {"title": "New Sheet"}}'
 ```bash
 gws gmail users messages list --params '{"userId": "me", "q": "is:unread after:2026/03/01"}'
 gws gmail users messages get --params '{"userId": "me", "id": "MSG_ID"}'
-gws gmail users labels list --params '{"userId": "me"}'
 ```
 
 ### Calendar
 
 ```bash
 gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-03-11T00:00:00Z", "timeMax": "2026-03-12T00:00:00Z"}'
-gws calendar events insert --params '{"calendarId": "primary"}' --json '{"summary": "Meeting", "start": {"dateTime": "2026-03-11T10:00:00-05:00"}, "end": {"dateTime": "2026-03-11T11:00:00-05:00"}}'
+gws calendar freebusy query --json '{"timeMin": "...", "timeMax": "...", "items": [{"id": "alice@example.com"}, {"id": "bob@example.com"}]}'
 ```
 
 ## Key Flags
 
-- `--params '{"key": "val"}'` — query and path parameters
-- `--json '{...}'` — request body
-- `--page-all` — auto-paginate (NDJSON output, one object per line)
-- `--upload <file>` — multipart upload (Drive, Gmail attachments)
-- `--dry-run` — preview the HTTP request without sending
-- `--output-format json|yaml|table` — output format
+| Flag | Description |
+|------|-------------|
+| `--params '{"key": "val"}'` | Query and path parameters |
+| `--json '{...}'` | Request body |
+| `--page-all` | Auto-paginate (NDJSON output) |
+| `--page-limit <N>` | Max pages when using --page-all (default: 10) |
+| `--page-delay <MS>` | Delay between pages in ms (default: 100) |
+| `--upload <file>` | Multipart upload (Drive, Gmail attachments) |
+| `-o, --output <PATH>` | Save binary responses to file |
+| `--dry-run` | Preview request without sending |
+| `--format json\|yaml\|table\|csv` | Output format (default: json) |
 
 ## Schema Introspection
 
-When unsure about parameters for a method, inspect the schema:
+When unsure about parameters, inspect the schema:
 
 ```bash
-gws schema drive files list       # see available params for Drive files list
-gws schema sheets spreadsheets values get  # see params for Sheets read
+gws schema drive.files.list
+gws schema gmail.users.messages.send
+gws gmail --help            # list all gmail resources
+gws drive files --help      # list all file methods
 ```
 
 ## Auth
@@ -69,13 +98,12 @@ gws schema sheets spreadsheets values get  # see params for Sheets read
 gws auth setup     # one-time: creates GCP project, enables APIs (requires gcloud)
 gws auth login     # OAuth login, select scopes
 gws auth login -s drive,sheets,gmail  # login with specific scopes only
-gws auth export --unmasked > creds.json  # export for headless/CI use
 ```
 
 ## Tips
 
-- All output is JSON by default — pipe to `jq` for filtering
+- JSON output by default — pipe to `jq` for filtering
 - `--page-all` streams NDJSON; use `jq -s '.'` to collect into an array
-- Drive queries use the [Drive search syntax](https://developers.google.com/drive/api/guides/search-files) in the `q` parameter
+- Drive queries use [Drive search syntax](https://developers.google.com/drive/api/guides/search-files) in the `q` param
 - Gmail queries use the same syntax as the Gmail search box
 - File IDs are in Drive URLs: `https://docs.google.com/spreadsheets/d/SHEET_ID/edit`

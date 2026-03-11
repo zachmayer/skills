@@ -19,6 +19,12 @@ install: ## Install all dependencies, settings, and local skills
 .PHONY: install
 
 
+install-jina-grep: ## Install jina-grep CLI for semantic search (Apple Silicon only)
+	uv tool install git+https://github.com/jina-ai/jina-grep-cli.git
+	@echo "Installed jina-grep. Run 'jina-grep --help' to verify."
+.PHONY: install-jina-grep
+
+
 install-ci: ## Install without heavy deps (marker-pdf/torch) for CI
 	uv python install
 	uv sync --locked --group dev

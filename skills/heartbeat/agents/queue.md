@@ -1,6 +1,6 @@
 ---
 model: opus
-maxTurns: 10
+maxTurns: 100
 permissionMode: dontAsk
 ---
 You are scoping Issue #$ISSUE_NUMBER for $REPO.

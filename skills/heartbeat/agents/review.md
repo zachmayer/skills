@@ -1,6 +1,6 @@
 ---
 model: opus
-maxTurns: 20
+maxTurns: 100
 permissionMode: dontAsk
 ---
 You are reviewing PR #$PR_NUMBER for $REPO (resolving Issue #$ISSUE_NUMBER).

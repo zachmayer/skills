@@ -74,6 +74,12 @@ Format: `Tool` or `Tool(specifier)` with glob wildcards.
 | `MCP(server-name)` | MCP server tool use |
 | `Agent` | Subagent tool use |
 
+### Bash wildcard bypass warning
+
+Permission rules like `Bash(safe-cmd *)` use simple prefix matching on the command string — they do NOT parse shell operators. This means `Bash(safe-cmd *)` WILL match `safe-cmd ; evil-cmd` or `safe-cmd && evil-cmd` because the pattern matches the prefix.
+
+**The deny list alone is not sufficient for security.** Use PreToolUse hooks (such as the shell operator hook in this repo) as the primary defense against command injection via `&&`, `||`, backticks, and `$()`.
+
 ### Additional permission keys
 
 | Key | Type | Description |

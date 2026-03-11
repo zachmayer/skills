@@ -4,7 +4,7 @@ description: >
   Read, write, and search notes in an Obsidian vault stored as plain markdown files.
   Use when the user wants to create a note, find a note, list notes, or link notes together.
   Do NOT use for code-specific documentation (use CLAUDE.md or AGENTS.md instead).
-allowed-tools: Bash(git *), Read, Write, Glob, Grep
+allowed-tools: Bash(git *), Bash(obsidian *), Read, Write, Glob, Grep
 ---
 
 Manage notes in the Obsidian vault. The vault root is set by `CLAUDE_OBSIDIAN_DIR` (default: `~/claude/obsidian`). Follows a **nested MOC (Map of Content)** pattern: atomic notes linked through hub pages in a hub-and-spoke hierarchy.
@@ -44,6 +44,87 @@ $CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
 │   └── 2026-02-08.md            # Daily notes (append-only)
 └── knowledge_graph/             # Durable topic notes, personal knowledge
 ```
+
+## Obsidian CLI
+
+The Obsidian CLI (v1.12.4+) communicates with the running Obsidian app. It provides link-aware search, task management, properties, and template-based creation that direct file ops cannot replicate.
+
+### Prerequisites
+
+1. Obsidian v1.12+ with Catalyst license
+2. Enable: **Settings → General → Command line interface**
+3. Restart terminal (macOS adds `/Applications/Obsidian.app/Contents/MacOS` to PATH via `~/.zprofile`)
+4. Obsidian must be **running** for commands to work
+
+### When to Use CLI vs Direct File Ops
+
+| Use CLI | Use direct file ops (Read/Write/Glob/Grep) |
+|---------|---------------------------------------------|
+| Search (returns ranked results) | Simple file reads/writes |
+| Task queries across vault | Bulk text operations |
+| Property get/set (typed metadata) | Grep for exact strings |
+| Template-based note creation | Creating notes without templates |
+| Link graph queries (backlinks, orphans) | Known file paths |
+| Daily note append (respects daily note plugin config) | Memory files (managed by hierarchical_memory) |
+
+### Key Commands
+
+**Search:**
+```shell
+obsidian search query="..." limit=10 format=json
+obsidian search:context query="..."              # includes surrounding context
+```
+
+**Files:**
+```shell
+obsidian read file=NoteName                      # read by wikilink name
+obsidian create name=Title path=folder/ content="..." template=TemplateName
+obsidian append file=NoteName content="new text"
+obsidian move file=NoteName to=new/folder/
+obsidian files folder=knowledge_graph sort=modified limit=20
+```
+
+**Daily notes:**
+```shell
+obsidian daily                                   # open today's daily note
+obsidian daily:read                              # print today's note
+obsidian daily:append content="- new item"
+```
+
+**Tasks:**
+```shell
+obsidian tasks todo                              # incomplete tasks in active file
+obsidian tasks daily                             # tasks from daily note
+obsidian task file=NoteName line=8 toggle        # toggle a specific task
+```
+
+**Properties:**
+```shell
+obsidian properties file=NoteName
+obsidian property:set name=status value=done type=text file=NoteName
+obsidian property:read name=tags file=NoteName
+```
+
+**Links:**
+```shell
+obsidian backlinks file=NoteName                 # incoming links
+obsidian links file=NoteName                     # outgoing links
+obsidian orphans                                 # files with no incoming links
+obsidian unresolved                              # broken wikilinks
+```
+
+**Tags:**
+```shell
+obsidian tags sort=count                         # all tags by frequency
+obsidian tag name=factorio verbose               # files with a specific tag
+```
+
+**Vault targeting** (when multiple vaults exist):
+```shell
+obsidian vault="My Vault" search query="test"
+```
+
+All commands support `--copy` to copy output to clipboard.
 
 ## Note Patterns
 
@@ -109,7 +190,8 @@ Multiple search strategies, from fastest to deepest:
 1. **Tags and links** — follow `#tags` and `[[wiki-links]]` to navigate the hub-and-spoke graph. Start from a MOC hub and walk the links. Best when you know the topic area.
 2. **Glob** — find notes by filename pattern. Fast for known titles.
 3. **Grep** — exact text search. Best for specific terms, error messages, or names.
-4. **Semantic search** — if `jina-grep` is installed (`make install-jina-grep`), use it for natural language queries. Works standalone or as a reranker on grep output:
+4. **Obsidian CLI search** — `obsidian search query="..." format=json` returns ranked results using Obsidian's index. Best for natural language queries when Obsidian is running.
+5. **Semantic search** — if `jina-grep` is installed (`make install-jina-grep`), use it for natural language queries. Works standalone or as a reranker on grep output:
 
 ```bash
 # By filename

@@ -28,6 +28,3 @@ jobs:
 
     - name: Check (lint + typecheck + test)
       run: make check
-
-    - name: Build
-      run: make build

@@ -1,4 +1,4 @@
-SKILLS_DIR := skills
+SKILLS_DIR := .claude/skills
 INSTALL_DIR := $(HOME)/.claude/skills
 
 help: ## Show this help
@@ -47,7 +47,7 @@ lint: ## Run linters and formatters
 
 
 typecheck: ## Run type checker
-	uv run ty check skills/ main/
+	uv run ty check .claude/skills/ main/
 .PHONY: typecheck
 
 

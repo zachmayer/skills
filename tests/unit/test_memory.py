@@ -13,6 +13,7 @@ from click.testing import CliRunner
 _spec = importlib.util.spec_from_file_location(
     "memory",
     Path(__file__).resolve().parents[2]
+    / ".claude"
     / "skills"
     / "hierarchical_memory"
     / "scripts"

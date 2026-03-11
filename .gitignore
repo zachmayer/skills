@@ -201,3 +201,4 @@ cython_debug/
 .runtime/
 .claude/
 .logs/
+.beads/

@@ -50,6 +50,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
 | [remember_session](skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
 | [skill_stealer](skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
+| [slack_bridge](skills/slack_bridge/) | Prompt | Phone-to-Claude capture via official Slack MCP server |
 
 ### Organize
 

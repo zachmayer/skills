@@ -90,6 +90,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [api_key_checker](skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
 | [modal](skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
 | [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
+| [claude-code-config](skills/claude-code-config/) | Prompt | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
 
 ## Skill Graph
 
@@ -128,7 +129,7 @@ graph LR
     daily_briefing --> obsidian
 ```
 
-Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
+Standalone skills (no imports): `api_key_checker`, `claude-code-config`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
 
 ## Install
 

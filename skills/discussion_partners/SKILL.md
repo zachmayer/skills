@@ -1,10 +1,11 @@
 ---
 name: discussion_partners
 description: >
-  Ask a question to another AI model (OpenAI, Anthropic, or Google) with
-  extended thinking enabled. Use when you are stuck on a difficult problem,
-  suspect you are spinning your wheels, or sense there is an angle you have
-  not considered. Do NOT use for routine tasks you can handle directly.
+  Ask a question to another AI model (OpenAI, Anthropic, Google, or Codex)
+  with extended thinking enabled. Use when you are stuck on a difficult
+  problem, suspect you are spinning your wheels, or sense there is an angle
+  you have not considered. Do NOT use for routine tasks you can handle
+  directly.
 allowed-tools: Bash(uv run *)
 ---
 
@@ -19,6 +20,8 @@ Query another AI model for an outside perspective on a difficult problem. One me
 | `openai:gpt-5.4` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
 | `google-gla:gemini-3.1-pro-preview` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
+| `openai:gpt-5.1-codex` | Coding specialist — code review, debugging, refactors | `OPENAI_API_KEY` |
+| `openai:codex-mini-latest` | Fast coding model — quick answers, lighter tasks | `OPENAI_API_KEY` |
 
 Before calling, verify the required API key is set: `echo $GOOGLE_API_KEY | head -c 8` (should show `AIza...`).
 
@@ -66,16 +69,19 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -t low -f ~/claude/scra
 # Claude Opus 4.6 with adaptive thinking at max effort
 uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opus-4-6 -f ~/claude/scratch/prompt.txt
 
-# Codex models (via OpenAI Responses API)
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5-codex -f ~/claude/scratch/prompt.txt
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:codex-mini-latest -f ~/claude/scratch/prompt.txt
+# Gemini 3.1 Pro with thinking enabled
+uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview -f ~/claude/scratch/prompt.txt
+
+# Codex models (coding specialists)
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:gpt-5.1-codex -f ~/claude/scratch/prompt.txt
+uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:codex-mini-latest -f ~/claude/scratch/prompt.txt
 ```
 
 ## API Key Setup
 
 Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`):
 ```bash
-export OPENAI_API_KEY="your-key"      # Required for openai: and openai-responses: models
+export OPENAI_API_KEY="your-key"      # Required for openai: models (including Codex)
 export ANTHROPIC_API_KEY="your-key"   # Required for anthropic: models
 export GOOGLE_API_KEY="your-key"      # Required for google-gla: models
 ```
@@ -92,7 +98,7 @@ variable to set. If the key exists but the call fails, common errors:
 - `--thinking` / `-t`: Override thinking level. OpenAI: `low`/`medium`/`high`/`xhigh` (default: `xhigh`). Gemini: `low`/`high`. Use `low` for large prompts where speed matters more than depth.
 - `--system` / `-s`: Optional system prompt override
 - `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)
-- `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`). Codex models appear under `openai:` but must be called with `openai-responses:` prefix.
+- `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`).
 
 ## Multiple Calls
 

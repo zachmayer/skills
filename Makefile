@@ -15,7 +15,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── System dependencies (requires Homebrew) ──
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
 	brew install uv gh pyright node
-	npm install -g @googleworkspace/cli
+	npm install -g @googleworkspace/cli || true
 	@# ── Python + UV dependencies ──
 	uv python install
 	uv sync --locked --all-extras --all-groups
@@ -89,13 +89,16 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 
 auth: ## Log in to external services (GitHub, Google Workspace)
 	@echo "=== GitHub ==="
-	gh auth status || gh auth login
+	@gh auth status 2>/dev/null; if [ $$? -ne 0 ]; then gh auth login; fi
 	@echo ""
 	@echo "=== Google Workspace ==="
-	@if command -v gws >/dev/null; then \
-		gws auth login || echo "  Run 'gws auth setup' first if this is a new machine."; \
-	else \
+	@if ! command -v gws >/dev/null; then \
 		echo "  gws not installed. Run 'make install' first."; \
+	elif [ -d "$(HOME)/.config/gws" ] && ls $(HOME)/.config/gws/credentials* >/dev/null 2>&1; then \
+		echo "  Already authenticated."; \
+	else \
+		echo "  Run 'gws auth setup' first if this is a new machine."; \
+		gws auth login; \
 	fi
 .PHONY: auth
 

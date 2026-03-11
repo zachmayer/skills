@@ -121,19 +121,20 @@ install-heartbeat: ## Install heartbeat launchd daemon (every 15 min)
 		exit 1; \
 	fi
 	@mkdir -p $(HEARTBEAT_LOG_DIR) $(dir $(HEARTBEAT_PLIST))
-	@SCRIPT="$$(cd $(SKILLS_DIR)/heartbeat/scripts && pwd)/heartbeat.sh"; \
+	@set -e; \
+	SCRIPT="$$(cd $(SKILLS_DIR)/heartbeat/scripts && pwd)/heartbeat.sh"; \
 	chmod +x "$$SCRIPT"; \
 	launchctl bootout gui/$$(id -u)/$(HEARTBEAT_LABEL) 2>/dev/null || true; \
 	sed -e "s|HEARTBEAT_SCRIPT_PATH|$$SCRIPT|g" \
 		-e "s|HEARTBEAT_LOG_DIR|$(HEARTBEAT_LOG_DIR)|g" \
 		$(SKILLS_DIR)/heartbeat/$(HEARTBEAT_LABEL).plist \
 		> $(HEARTBEAT_PLIST); \
-	launchctl bootstrap gui/$$(id -u) $(HEARTBEAT_PLIST); \
-	echo ""; \
-	echo "Heartbeat installed (launchd, every 15 min)."; \
-	echo "  Verify:  launchctl list | grep claude-heartbeat"; \
-	echo "  Logs:    tail -20 $(HEARTBEAT_LOG_DIR)/heartbeat.log"; \
-	echo "  Stop:    make uninstall-heartbeat"
+	launchctl bootstrap gui/$$(id -u) $(HEARTBEAT_PLIST)
+	@echo ""
+	@echo "Heartbeat installed (launchd, every 15 min)."
+	@echo "  Verify:  launchctl list | grep claude-heartbeat"
+	@echo "  Logs:    tail -20 $(HEARTBEAT_LOG_DIR)/heartbeat.log"
+	@echo "  Stop:    make uninstall-heartbeat"
 .PHONY: install-heartbeat
 
 uninstall-heartbeat: ## Remove heartbeat launchd daemon

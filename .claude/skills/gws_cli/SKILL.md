@@ -96,8 +96,10 @@ gws drive files --help      # list all file methods
 
 ## Auth
 
+On a new machine, run `gws auth setup` first — it creates a GCP project, enables Workspace APIs, and generates an OAuth client. This is a one-time prerequisite before `gws auth login` will work. Requires `gcloud` CLI (`brew install google-cloud-sdk`).
+
 ```bash
-gws auth setup     # one-time: creates GCP project, enables APIs (requires gcloud)
+gws auth setup     # one-time per machine: GCP project + OAuth client
 gws auth login     # OAuth login, select scopes
 gws auth login -s drive,sheets,gmail  # login with specific scopes only
 ```

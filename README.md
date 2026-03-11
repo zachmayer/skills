@@ -166,7 +166,8 @@ npx skills add zachmayer/skills -g
 ```bash
 git clone https://github.com/zachmayer/skills.git
 cd skills
-make install            # Everything: system deps, UV deps, skills, agents, config
+gws auth setup          # One-time: create GCP project + OAuth client (requires gcloud)
+make install            # Everything: system deps, UV deps, skills, agents, config, auth
 make install-heartbeat  # Heartbeat launchd daemon (opt-in, machine-specific)
 ```
 

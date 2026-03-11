@@ -55,9 +55,6 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 install-ci: ## Install for CI (no system deps, no heavy extras)
 	uv python install
 	uv sync --locked --group dev
-	@echo "Clearing core.hooksPath so pre-commit can manage .git/hooks"
-	git config --unset-all core.hooksPath || true
-	uv run pre-commit install
 .PHONY: install-ci
 
 uninstall: ## Remove skills, agents, and hooks from ~/.claude/
@@ -65,6 +62,10 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 	@for skill_dir in $(SKILLS_DIR)/*/; do \
 		skill_name=$$(basename "$$skill_dir"); \
 		rm -f "$(INSTALL_DIR)/$$skill_name"; \
+	done
+	@rm -f $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@for agent in $(SKILLS_DIR)/heartbeat/agents/*.md; do \
+		rm -f "$(HOME)/.claude/agents/$$(basename "$$agent")"; \
 	done
 	@echo "Done."
 .PHONY: uninstall
@@ -98,7 +99,7 @@ upgrade: ## Upgrade all dependencies
 
 clean: ## Remove venv and re-sync
 	rm -rf .venv
-	uv sync --all-groups
+	uv sync --locked --all-extras --all-groups
 .PHONY: clean
 
 # ── Heartbeat (opt-in, machine-specific) ─────────────────────────
@@ -113,7 +114,7 @@ install-heartbeat: ## Install heartbeat launchd daemon (every 15 min)
 		echo "Run 'make setup-heartbeat-token' first."; \
 		exit 1; \
 	fi
-	@mkdir -p $(HEARTBEAT_LOG_DIR)
+	@mkdir -p $(HEARTBEAT_LOG_DIR) $(dir $(HEARTBEAT_PLIST))
 	@SCRIPT="$$(cd $(SKILLS_DIR)/heartbeat/scripts && pwd)/heartbeat.sh"; \
 	chmod +x "$$SCRIPT"; \
 	launchctl bootout gui/$$(id -u)/$(HEARTBEAT_LABEL) 2>/dev/null || true; \
@@ -143,15 +144,15 @@ test-heartbeat: ## Run heartbeat once manually
 setup-heartbeat-labels: ## Create ai:* labels on heartbeat repos
 	@REPOS_FILE="$(HOME)/.claude/heartbeat-repos.conf"; \
 	if [ -f "$$REPOS_FILE" ]; then \
-		REPOS=$$(grep -v '^\s*#' "$$REPOS_FILE" | grep -v '^\s*$$'); \
+		REPOS=$$(grep -Ev '^[[:space:]]*($$|#)' "$$REPOS_FILE"); \
 	else \
 		REPOS="zachmayer/skills"; \
 	fi; \
 	for repo in $$REPOS; do \
 		echo "Creating labels on $$repo..."; \
-		gh label create "ai:queued" --repo "$$repo" --color 0075CA --description "In the AI queue; heartbeat picks up next cycle" --force 2>/dev/null || true; \
-		gh label create "ai:coding" --repo "$$repo" --color FBCA04 --description "AI agent is actively coding; do not modify" --force 2>/dev/null || true; \
-		gh label create "ai:review" --repo "$$repo" --color 6F42C1 --description "PR needs review; AI or human can review" --force 2>/dev/null || true; \
+		gh label create "ai:queued" --repo "$$repo" --color 0075CA --description "In the AI queue; heartbeat picks up next cycle" --force; \
+		gh label create "ai:coding" --repo "$$repo" --color FBCA04 --description "AI agent is actively coding; do not modify" --force; \
+		gh label create "ai:review" --repo "$$repo" --color 6F42C1 --description "PR needs review; AI or human can review" --force; \
 	done
 	@echo "Labels created."
 .PHONY: setup-heartbeat-labels

@@ -104,14 +104,25 @@ Date: 2026-02-09
 
 ## Finding Notes
 
-Use Grep and Glob on the vault directory to find notes:
+Multiple search strategies, from fastest to deepest:
+
+1. **Tags and links** — follow `#tags` and `[[wiki-links]]` to navigate the hub-and-spoke graph. Start from a MOC hub and walk the links. Best when you know the topic area.
+2. **Glob** — find notes by filename pattern. Fast for known titles.
+3. **Grep** — exact text search. Best for specific terms, error messages, or names.
+4. **Semantic search** — if `jina-grep` is installed (`make install-jina-grep`), use it for natural language queries. Works standalone or as a reranker on grep output:
 
 ```bash
-# Find notes by filename
+# By filename
 Glob("$CLAUDE_OBSIDIAN_DIR/**/*.md")
 
-# Search note contents
+# Exact text search
 Grep(pattern="search term", path="$CLAUDE_OBSIDIAN_DIR/")
+
+# Semantic search (natural language)
+jina-grep -r --top-k 5 "your question in plain English" $CLAUDE_OBSIDIAN_DIR/
+
+# Semantic reranking of grep results
+grep -rn "token" $CLAUDE_OBSIDIAN_DIR/ | jina-grep "OAuth refresh race condition"
 ```
 
 ## Conventions

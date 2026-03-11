@@ -1,5 +1,7 @@
 """Validate all SKILL.md files follow the Agent Skills standard."""
 
+import shutil
+import subprocess
 from pathlib import Path
 
 import frontmatter
@@ -69,3 +71,43 @@ class TestSkillStructure:
         assert "allowed-tools" in post.metadata, (
             f"{skill_dir_with_scripts.name}: has scripts/ but no 'allowed-tools' in frontmatter"
         )
+
+
+class TestJinaGrep:
+    """Validate jina_grep skill content."""
+
+    def test_skill_exists(self) -> None:
+        assert (SKILLS_DIR / "jina_grep" / "SKILL.md").exists()
+
+    def test_allowed_tools_uses_jina_grep(self) -> None:
+        text = (SKILLS_DIR / "jina_grep" / "SKILL.md").read_text()
+        post = frontmatter.loads(text)
+        assert "jina-grep" in post.metadata.get("allowed-tools", "")
+
+    def test_documents_installation(self) -> None:
+        text = (SKILLS_DIR / "jina_grep" / "SKILL.md").read_text()
+        assert "uv tool install" in text, "Should document installation via uv tool install"
+
+    def test_documents_modes(self) -> None:
+        text = (SKILLS_DIR / "jina_grep" / "SKILL.md").read_text()
+        assert "Pipe mode" in text
+        assert "Standalone mode" in text
+        assert "Code search" in text
+
+    @pytest.mark.skipif(shutil.which("jina-grep") is None, reason="jina-grep not installed")
+    def test_pipe_mode(self) -> None:
+        """jina-grep reranks piped input by semantic similarity."""
+        lines = (
+            "This function handles error logging and reporting\n"
+            "The database connection pool is initialized here\n"
+            "User authentication checks happen in this module\n"
+        )
+        result = subprocess.run(
+            ["jina-grep", "error handling"],
+            input=lines,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        assert result.returncode == 0
+        assert "error" in result.stdout.lower()

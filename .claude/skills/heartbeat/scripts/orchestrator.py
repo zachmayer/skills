@@ -472,7 +472,7 @@ def process_queue(repo, repo_path, issue):
     # Run queue agent in the main repo dir — no worktree needed for scoping
     result_file = SCRATCH_DIR / f"queue-result-{num}.txt"
     result_file.unlink(missing_ok=True)
-    exit_code = invoke_agent("queue", repo_path, context, num, repo, budget=1)
+    exit_code = invoke_agent("queue", repo_path, context, num, repo, budget=10)
 
     if exit_code != 0:
         remove_ai_labels(repo, num)
@@ -533,7 +533,7 @@ def process_coding(repo, repo_path, issue):
         ),
     )
 
-    exit_code = invoke_agent("coding", wt, context, num, repo, budget=8)
+    exit_code = invoke_agent("coding", wt, context, num, repo, budget=25)
 
     if exit_code != 0:
         remove_ai_labels(repo, num)
@@ -609,7 +609,7 @@ def process_review(repo, repo_path, issue):
         pr_number=pr_number,
     )
 
-    exit_code = invoke_agent("review", wt, context, num, repo, budget=2)
+    exit_code = invoke_agent("review", wt, context, num, repo, budget=10)
 
     if exit_code != 0:
         remove_ai_labels(repo, num)

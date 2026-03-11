@@ -14,7 +14,11 @@ help: ## Show this help
 install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── System dependencies (requires Homebrew) ──
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
-	brew install uv gh pyright
+	brew update
+	brew upgrade
+	brew install uv gh pyright node jq google-cloud-sdk
+	brew doctor || true
+	npm install -g @googleworkspace/cli
 	@# ── Python + UV dependencies ──
 	uv python install
 	uv sync --locked --all-extras --all-groups
@@ -56,6 +60,20 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 			rm -f "$$link"; \
 		fi; \
 	done
+	@# ── Auth (idempotent — skips if already logged in) ──
+	@echo ""
+	@echo "=== Auth ==="
+	@gh auth status 2>/dev/null; if [ $$? -ne 0 ]; then echo "  GitHub: logging in..."; gh auth login; else echo "  GitHub: already authenticated."; fi
+	@if [ -d "$(HOME)/.config/gws" ] && ls $(HOME)/.config/gws/credentials* >/dev/null 2>&1; then \
+		echo "  Google Workspace: already authenticated."; \
+	elif [ -f "$(HOME)/.config/gws/client_secret.json" ]; then \
+		echo "  Google Workspace: logging in..."; \
+		gws auth login; \
+	else \
+		echo "  Google Workspace: not configured yet."; \
+		echo "    Run 'gws auth setup' to create a GCP project and OAuth client,"; \
+		echo "    then re-run 'make install' or 'make auth' to complete login."; \
+	fi
 	@echo ""
 	@echo "Install complete. Skills available as /skill-name in Claude Code."
 	@echo ""
@@ -82,6 +100,14 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 	done
 	@echo "Done."
 .PHONY: uninstall
+
+auth: ## Re-login to GitHub and Google Workspace
+	@echo "=== GitHub ==="
+	gh auth login
+	@echo ""
+	@echo "=== Google Workspace ==="
+	gws auth login
+.PHONY: auth
 
 # ── Development ──────────────────────────────────────────────────
 

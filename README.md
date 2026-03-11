@@ -130,9 +130,10 @@ graph LR
     session_planner --> obsidian
     daily_briefing --> hierarchical_memory
     daily_briefing --> obsidian
+    vector_search --> obsidian
 ```
 
-Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`, `vector_search`
+Standalone skills (no imports): `api_key_checker`, `concise_writing`, `data_science`, `forecast`, `gh_cli`, `modal`, `pdf_to_markdown`, `pr_review`, `skill_pruner`, `skill_stealer`
 
 ## Install
 

@@ -19,11 +19,14 @@ Embeds whole files (not chunks). Caches embeddings with timestamps so only chang
 
 ```bash
 uv run --script SKILL_DIR/scripts/vector_search.py index "$CLAUDE_OBSIDIAN_DIR"
+
+# Force full rebuild, ignoring mtime cache
+uv run --script SKILL_DIR/scripts/vector_search.py index --force "$CLAUDE_OBSIDIAN_DIR"
 ```
 
 Embeds every markdown file using `all-MiniLM-L6-v2` (runs locally, no API keys needed). Stores a FAISS index and embedding cache in `$CLAUDE_OBSIDIAN_DIR/.vector_index/`.
 
-Only re-embeds files that changed since last index. Re-indexing a vault where most files are cached is near-instant.
+Only re-embeds files that changed since last index. Re-indexing a vault where most files are cached is near-instant. Use `--force` to rebuild the entire index from scratch.
 
 ### Search
 
@@ -36,6 +39,7 @@ Returns matching filenames ranked by cosine similarity. Read the files yourself 
 Options:
 - `-k N` — number of results (default: 5)
 - `--scope PREFIX` — filter to files under a path prefix (e.g. `--scope memory/` or `--scope knowledge_graph/`)
+- `--threshold FLOAT` — minimum similarity score (default: 0.0), filter out results below this value
 
 ### Check index status
 

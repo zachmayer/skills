@@ -51,8 +51,8 @@ The Obsidian CLI (v1.12.4+) communicates with the running Obsidian app. It provi
 
 ### Prerequisites
 
-1. Obsidian v1.12+ with Catalyst license
-2. Enable: **Settings → General → Command line interface**
+1. Obsidian v1.12+
+2. Manually enable: **Settings → General → Command line interface** (off by default)
 3. Restart terminal (macOS adds `/Applications/Obsidian.app/Contents/MacOS` to PATH via `~/.zprofile`)
 4. Obsidian must be **running** for commands to work
 

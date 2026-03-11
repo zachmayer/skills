@@ -11,7 +11,6 @@ import ast
 import dataclasses
 from pathlib import Path
 
-import pytest
 from pydantic_ai.agent import AgentRunResult
 
 SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
@@ -45,15 +44,11 @@ class TestPydanticAiCompat:
             f"AgentRunResult fields changed — expected '{CORRECT_ATTR}' but got: {_RESULT_FIELDS}"
         )
 
-    @pytest.mark.parametrize(
-        "script",
-        [p for p in PYDANTIC_AI_SCRIPTS if _get_result_attrs(p)],
-        ids=lambda p: str(p.relative_to(SKILLS_DIR)),
-    )
-    def test_scripts_use_correct_attr(self, script: Path) -> None:
+    def test_scripts_use_correct_attr(self) -> None:
         """Scripts must use the attribute that actually exists on AgentRunResult."""
-        for lineno, attr in _get_result_attrs(script):
-            assert attr == CORRECT_ATTR, (
-                f"{script.relative_to(SKILLS_DIR)}:{lineno} uses result.{attr} "
-                f"but pydantic-ai expects result.{CORRECT_ATTR}"
-            )
+        for script in PYDANTIC_AI_SCRIPTS:
+            for lineno, attr in _get_result_attrs(script):
+                assert attr == CORRECT_ATTR, (
+                    f"{script.relative_to(SKILLS_DIR)}:{lineno} uses result.{attr} "
+                    f"but pydantic-ai expects result.{CORRECT_ATTR}"
+                )

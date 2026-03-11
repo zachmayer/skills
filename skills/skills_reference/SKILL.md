@@ -58,6 +58,16 @@ Skill effectiveness depends on the model. Test with all models you plan to use:
 
 What works for Opus may need more detail for Haiku.
 
+### Composability
+
+Claude loads multiple skills simultaneously. Your skill should work well alongside others — don't assume it's the only capability available. Avoid generic names or overly broad triggers that would conflict with other skills.
+
+### Skills undertrigger by default
+
+Claude will skip your skill on simple tasks — it thinks "I got this." Your skill only fires when the task is hard enough that Claude needs help. `Read this file` will never trigger a skill no matter what you put in the description. To compensate, make descriptions "pushy": instead of "Helps deploy to cloud" write "Use whenever user mentions deploy, hosting, servers, scaling — even if they don't say cloud."
+
+**Debug triggering**: Ask Claude "When would you use the [skill name] skill?" It will quote the description back. Whatever's missing in that answer is what you need to fix.
+
 ## Skill Structure
 
 ### Required File
@@ -95,6 +105,18 @@ description: What this does and when to use it
 | `argument-hint` | (none) | Shown during autocomplete, e.g. `[issue-number]` |
 | `hooks` | (none) | Hooks scoped to skill lifecycle |
 
+**Standard optional fields** (Agent Skills standard):
+
+| Field | Purpose |
+|:------|:--------|
+| `license` | Open source license (MIT, Apache-2.0, etc.) |
+| `compatibility` | Environment requirements (1-500 chars). E.g. intended product, required system packages, network access needs |
+| `metadata` | Custom key-value pairs. Suggested: `author`, `version`, `mcp-server` |
+
+**Security restrictions**: XML angle brackets (`<` `>`) are forbidden in frontmatter — it goes directly into Claude's system prompt. Code execution in YAML is blocked (safe parsing). Skills named with "claude" or "anthropic" prefix are reserved.
+
+**No README.md inside skill folders.** All documentation goes in SKILL.md or reference files. When distributing via GitHub, use a repo-level README for human visitors.
+
 ### Naming Conventions
 
 Prefer **gerund form** (verb + -ing): `processing-pdfs`, `analyzing-spreadsheets`, `testing-code`.
@@ -107,20 +129,32 @@ Avoid: vague names (`helper`, `utils`), overly generic (`documents`, `data`).
 
 Descriptions enable skill discovery. Claude uses them to select the right skill from 100+ candidates.
 
+**Description formula**: `[What it does] + [When to use it] + [Key capabilities]`
+
 Rules:
 - **Third person only.** "Processes Excel files" not "I can help you" or "You can use this"
-- **Include key terms** users would naturally say
+- **Include key terms** users would naturally say — specific tasks, file types, domain terms
 - **Include WHEN/WHEN NOT** triggers for clear invocation boundaries
+- **Be pushy.** Skills undertrigger by default. Include explicit trigger phrases users would say
 
 ```yaml
-# Good
+# Good - specific, includes trigger phrases
 description: >
-  Extract text and tables from PDF files, fill forms, merge documents.
-  Use when working with PDF files or when the user mentions PDFs, forms,
-  or document extraction.
+  Analyzes Figma design files and generates developer handoff documentation.
+  Use when user uploads .fig files, asks for "design specs", "component
+  documentation", or "design-to-code handoff".
 
-# Bad
+# Good - clear value proposition with WHEN NOT
+description: >
+  Advanced data analysis for CSV files. Use for statistical modeling,
+  regression, clustering. Do NOT use for simple data exploration
+  (use data-viz skill instead).
+
+# Bad - too vague, no triggers
 description: Helps with documents
+
+# Bad - too technical, no user triggers
+description: Implements the Project entity model with hierarchical relationships.
 ```
 
 ## Progressive Disclosure
@@ -182,7 +216,56 @@ For simple edits, modify the XML directly.
 
 Claude reads REDLINING.md only when the user needs that feature.
 
+## Planning Your Skill
+
+### Start with use cases
+
+Before writing any code, identify 2-3 concrete use cases your skill should enable:
+
+```
+Use Case: Project Sprint Planning
+Trigger: User says "help me plan this sprint" or "create sprint tasks"
+Steps:
+1. Fetch current project status from Linear (via MCP)
+2. Analyze team capacity
+3. Suggest task prioritization
+4. Create tasks in Linear with proper labels and estimates
+Result: Fully planned sprint with tasks created
+```
+
+Ask yourself: What does a user want to accomplish? What multi-step workflows does this require? Which tools are needed (built-in or MCP)? What domain knowledge or best practices should be embedded?
+
+### Common use case categories
+
+1. **Document & Asset Creation**: Consistent, high-quality output (documents, designs, code). Key techniques: embedded style guides, template structures, quality checklists
+2. **Workflow Automation**: Multi-step processes benefiting from consistent methodology. Key techniques: step-by-step workflows with validation gates, templates, iterative refinement loops
+3. **MCP Enhancement**: Workflow guidance on top of MCP tool access. Key techniques: coordinating multiple MCP calls, embedding domain expertise, providing context users would otherwise need to specify
+
+### Problem-first vs tool-first
+
+Think of it like a hardware store. You might walk in with a problem — "I need to fix a kitchen cabinet" — or with a tool — "I have Notion MCP connected."
+
+- **Problem-first**: "I need to set up a project workspace" — your skill orchestrates the right tools in the right sequence. Users describe outcomes; the skill handles the tools
+- **Tool-first**: "I have Notion MCP connected" — your skill teaches Claude optimal workflows and best practices. Users have access; the skill provides expertise
+
+Most skills lean one direction. Knowing which framing fits your use case helps you choose the right patterns.
+
 ## Common Patterns
+
+### Be specific and actionable
+
+Language is ambiguous, code isn't. For anything critical, bundle a script:
+
+```markdown
+# Bad - ambiguous
+Validate the data before proceeding.
+
+# Good - specific and actionable
+Run `python scripts/validate.py --input {filename}` to check data format.
+If validation fails, common issues include:
+- Missing required fields (add them to the CSV)
+- Invalid date formats (use YYYY-MM-DD)
+```
 
 ### Template Pattern
 
@@ -306,6 +389,18 @@ The `` !`command` `` syntax runs shell commands before skill content is sent to 
 - **Assuming tools installed**: Explicitly list required packages (see [code-skills.md](code-skills.md) Dependencies and Runtime)
 - **Magic numbers**: Document why constants have specific values
 
+## Troubleshooting
+
+Common issues and fixes. For detailed troubleshooting with examples, see [troubleshooting.md](troubleshooting.md).
+
+| Problem | Likely Cause | Fix |
+|:--------|:-------------|:----|
+| Skill won't upload | File not named exactly `SKILL.md` (case-sensitive) or invalid YAML | Verify filename with `ls -la`; use `---` delimiters |
+| Skill doesn't trigger | Description too vague or missing trigger phrases | Add specific keywords users would say; add negative triggers |
+| Skill triggers too often | Description too broad | Add `Do NOT use for...` clauses; be more specific about scope |
+| Instructions not followed | Too verbose, buried, or ambiguous | Put critical instructions first; use bullet points; use scripts for critical validation |
+| Large context / slow | SKILL.md too large or too many skills enabled | Move content to reference files; keep SKILL.md under 5,000 words |
+
 ## Evaluation
 
 Build evaluations BEFORE writing docs. Evaluation-driven development:
@@ -320,16 +415,24 @@ For detailed evaluation and iterative development guidance, see [evaluation.md](
 
 ## Checklist
 
+### Before you start
+- [ ] Identified 2-3 concrete use cases
+- [ ] Tools identified (built-in or MCP)
+- [ ] Planned folder structure
+
 ### Core quality
-- [ ] Description includes WHAT and WHEN/WHEN NOT with key terms
+- [ ] Description follows formula: [What it does] + [When to use it] + [Key capabilities]
+- [ ] Description includes trigger phrases users would actually say
+- [ ] Description includes WHEN NOT for clear boundaries
 - [ ] SKILL.md body under 500 lines
 - [ ] Details in separate files if needed
 - [ ] No time-sensitive information
 - [ ] Consistent terminology
-- [ ] Concrete examples
+- [ ] Instructions are specific and actionable (script commands > vague language)
 - [ ] File references one level deep
 - [ ] Progressive disclosure used appropriately
 - [ ] Workflows have clear steps
+- [ ] No README.md inside skill folder
 
 ### Code and scripts
 - [ ] Scripts validate inputs and fail with clear messages (don't silently swallow errors)
@@ -342,7 +445,15 @@ For detailed evaluation and iterative development guidance, see [evaluation.md](
 - [ ] Feedback loops for quality-critical tasks
 
 ### Testing
-- [ ] At least 3 evaluations created
+- [ ] Tested triggering on obvious tasks (should fire)
+- [ ] Tested triggering on paraphrased requests (should fire)
+- [ ] Verified doesn't trigger on unrelated topics (should not fire)
+- [ ] Functional tests pass (valid outputs, error handling)
 - [ ] Tested with target models (Haiku, Sonnet, Opus)
 - [ ] Tested with real usage scenarios
 - [ ] Team feedback incorporated (if applicable)
+
+### After deployment
+- [ ] Monitor for under/over-triggering
+- [ ] Collect user feedback
+- [ ] Iterate on description and instructions

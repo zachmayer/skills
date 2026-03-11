@@ -14,7 +14,7 @@ help: ## Show this help
 install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── System dependencies (requires Homebrew) ──
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
-	brew install uv gh
+	brew install uv gh pyright
 	@# ── Python + UV dependencies ──
 	uv python install
 	uv sync --locked --all-extras --all-groups

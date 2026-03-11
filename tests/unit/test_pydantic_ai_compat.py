@@ -13,7 +13,7 @@ from pathlib import Path
 
 from pydantic_ai.agent import AgentRunResult
 
-SKILLS_DIR = Path(__file__).resolve().parents[2] / "skills"
+SKILLS_DIR = Path(__file__).resolve().parents[2] / ".claude" / "skills"
 
 PYDANTIC_AI_SCRIPTS = sorted(SKILLS_DIR.rglob("*.py"))
 

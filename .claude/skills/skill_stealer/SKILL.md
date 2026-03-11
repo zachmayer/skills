@@ -45,7 +45,7 @@ description: >
 ---
 ```
 
-7. **Create the skill directory** - Write to `skills/<skill-name>/SKILL.md`. Scripts (if any) go in `skills/<skill-name>/scripts/`.
+7. **Create the skill directory** - Write to `.claude/skills/<skill-name>/SKILL.md`. Scripts (if any) go in `.claude/skills/<skill-name>/scripts/`.
 
 ## Quality Checks
 

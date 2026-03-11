@@ -5,7 +5,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 SCRIPT = (
-    Path(__file__).resolve().parents[2] / "skills" / "heartbeat" / "scripts" / "orchestrator.py"
+    Path(__file__).resolve().parents[2]
+    / ".claude"
+    / "skills"
+    / "heartbeat"
+    / "scripts"
+    / "orchestrator.py"
 )
 spec = importlib.util.spec_from_file_location("orchestrator", SCRIPT)
 orchestrator = importlib.util.module_from_spec(spec)

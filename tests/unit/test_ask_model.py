@@ -14,6 +14,7 @@ from click.testing import CliRunner
 _spec = importlib.util.spec_from_file_location(
     "ask_model",
     Path(__file__).resolve().parents[2]
+    / ".claude"
     / "skills"
     / "discussion_partners"
     / "scripts"

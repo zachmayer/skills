@@ -46,18 +46,18 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Starting orchestrator..."
 set +e
-# setsid makes the orchestrator a process group leader so the watchdog
-# can kill it AND all child processes (claude subprocesses) together
-setsid uv run --directory "$REPO_DIR" python "$SCRIPT_DIR/orchestrator.py" &
+# Run orchestrator in background with watchdog timeout.
+# Claude subprocesses handle their own SIGTERM cleanup;
+# flock in orchestrator.py prevents duplicate instances.
+uv run --directory "$REPO_DIR" python "$SCRIPT_DIR/orchestrator.py" &
 orch_pid=$!
 
-# Watchdog: kill orchestrator + all child processes after timeout
+# Watchdog: kill orchestrator after timeout
 (
     sleep "$TIMEOUT_SECONDS"
-    # Kill entire process group (orchestrator + claude subprocesses)
-    kill -- -"$orch_pid" 2>/dev/null
+    kill "$orch_pid" 2>/dev/null
     sleep 10
-    kill -9 -- -"$orch_pid" 2>/dev/null
+    kill -9 "$orch_pid" 2>/dev/null
 ) &
 watchdog_pid=$!
 

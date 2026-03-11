@@ -89,6 +89,7 @@ Skills are grouped by their role in the capture → organize → process pipelin
 | [concise_writing](.claude/skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
 | [constitution](.claude/skills/constitution/) | Prompt | User values and principles for ambiguous tradeoffs |
 | [gh_cli](.claude/skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
+| [gws_cli](.claude/skills/gws_cli/) | Prompt | Google Workspace CLI for Drive, Gmail, Sheets, Calendar |
 | [jina_grep](.claude/skills/jina_grep/) | Prompt | Semantic grep using Jina embedding models on Apple Silicon |
 | [llm_judge](.claude/skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
 | [modal](.claude/skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
@@ -143,7 +144,7 @@ graph LR
     daily_briefing --> obsidian
 ```
 
-Standalone skills (no cross-skill dependencies): `api_key_checker`, `check_odds`, `claude-code-config`, `concise_writing`, `constitution`, `data_science`, `forecast`, `gh_cli`, `jina_grep`, `mental_models`, `modal`, `pdf_to_markdown`, `prior_art_review`, `private_repo`, `rlm`, `skill_pruner`, `skill_stealer`, `skills_reference`, `slack_bridge`, `staff_engineer`
+Standalone skills (no cross-skill dependencies): `api_key_checker`, `check_odds`, `claude-code-config`, `concise_writing`, `constitution`, `data_science`, `forecast`, `gh_cli`, `gws_cli`, `jina_grep`, `mental_models`, `modal`, `pdf_to_markdown`, `prior_art_review`, `private_repo`, `rlm`, `skill_pruner`, `skill_stealer`, `skills_reference`, `slack_bridge`, `staff_engineer`
 
 ## Install
 
@@ -197,6 +198,7 @@ make install        # Install system deps + UV deps + skills + agents + config
 make ci             # CI checks: lint + typecheck + unit tests
 make test           # All checks: CI + integration tests
 make upgrade        # Upgrade all dependencies
+make auth           # Log in to GitHub and Google Workspace
 ```
 
 ### Heartbeat (opt-in)

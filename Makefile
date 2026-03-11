@@ -14,7 +14,8 @@ help: ## Show this help
 install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── System dependencies (requires Homebrew) ──
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
-	brew install uv gh pyright
+	brew install uv gh pyright node
+	npm install -g @googleworkspace/cli
 	@# ── Python + UV dependencies ──
 	uv python install
 	uv sync --locked --all-extras --all-groups
@@ -59,6 +60,9 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@echo ""
 	@echo "Install complete. Skills available as /skill-name in Claude Code."
 	@echo ""
+	@echo "Next steps:"
+	@echo "  make auth    Log in to GitHub and Google Workspace"
+	@echo ""
 	@echo "Some skills need API keys. Add to ~/.zshrc:"
 	@echo '  export OPENAI_API_KEY="your-key"'
 	@echo '  export ANTHROPIC_API_KEY="your-key"'
@@ -82,6 +86,18 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 	done
 	@echo "Done."
 .PHONY: uninstall
+
+auth: ## Log in to external services (GitHub, Google Workspace)
+	@echo "=== GitHub ==="
+	gh auth status || gh auth login
+	@echo ""
+	@echo "=== Google Workspace ==="
+	@if command -v gws >/dev/null; then \
+		gws auth login || echo "  Run 'gws auth setup' first if this is a new machine."; \
+	else \
+		echo "  gws not installed. Run 'make install' first."; \
+	fi
+.PHONY: auth
 
 # ── Development ──────────────────────────────────────────────────
 

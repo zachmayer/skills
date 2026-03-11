@@ -165,8 +165,8 @@ npx skills add zachmayer/skills -g
 ```bash
 git clone https://github.com/zachmayer/skills.git
 cd skills
-make install        # Install deps, settings, hooks, global CLAUDE.md, and symlink skills
-make install-local  # Settings, hooks, global CLAUDE.md, and symlink skills (no deps)
+make install            # Everything: system deps, UV deps, skills, agents, config
+make install-heartbeat  # Heartbeat launchd daemon (opt-in, machine-specific)
 ```
 
 ### What install sets up

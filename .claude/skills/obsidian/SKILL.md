@@ -191,7 +191,7 @@ Multiple search strategies, from fastest to deepest:
 2. **Glob** — find notes by filename pattern. Fast for known titles.
 3. **Grep** — exact text search. Best for specific terms, error messages, or names.
 4. **Obsidian CLI search** — `obsidian search query="..." format=json` returns ranked results using Obsidian's index. Best for natural language queries when Obsidian is running.
-5. **Semantic search** — if `jina-grep` is installed (`make install-jina-grep`), use it for natural language queries. Works standalone or as a reranker on grep output:
+5. **Semantic search** — if `jina-grep` is installed (`make install`), use it for natural language queries. Works standalone or as a reranker on grep output:
 
 ```bash
 # By filename

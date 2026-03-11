@@ -45,55 +45,55 @@ Skills are grouped by their role in the capture → organize → process pipelin
 
 | Skill | Type | Description |
 |-------|------|-------------|
-| [hierarchical_memory](skills/hierarchical_memory/) | Python | Quick notes aggregated into daily/monthly/overall summaries |
-| [web_grab](skills/web_grab/) | Python | Fetch URL content and save to obsidian — Playwright for JS SPAs |
-| [pdf_to_markdown](skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
-| [remember_session](skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
-| [skill_stealer](skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
-| [slack_bridge](skills/slack_bridge/) | Prompt | Phone-to-Claude capture via official Slack MCP server |
+| [hierarchical_memory](.claude/skills/hierarchical_memory/) | Python | Quick notes aggregated into daily/monthly/overall summaries |
+| [web_grab](.claude/skills/web_grab/) | Python | Fetch URL content and save to obsidian — Playwright for JS SPAs |
+| [pdf_to_markdown](.claude/skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
+| [remember_session](.claude/skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
+| [skill_stealer](.claude/skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
+| [slack_bridge](.claude/skills/slack_bridge/) | Prompt | Phone-to-Claude capture via official Slack MCP server |
 
 ### Organize
 
 | Skill | Type | Description |
 |-------|------|-------------|
-| [obsidian](skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
-| [heartbeat](skills/heartbeat/) | Infrastructure | Three-phase pipeline (queue → coding → review): scopes issues, writes code, reviews PRs |
-| [private_repo](skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
-| [daily_briefing](skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
-| [reminders](skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
-| [evergreen](skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
-| [session_planner](skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
+| [obsidian](.claude/skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault |
+| [heartbeat](.claude/skills/heartbeat/) | Infrastructure | Three-phase pipeline (queue → coding → review): scopes issues, writes code, reviews PRs |
+| [private_repo](.claude/skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
+| [daily_briefing](.claude/skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
+| [reminders](.claude/skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
+| [evergreen](.claude/skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
+| [session_planner](.claude/skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
 
 ### Process
 
 | Skill | Type | Description |
 |-------|------|-------------|
-| [ultra_think](skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
-| [mental_models](skills/mental_models/) | Prompt | 33 reasoning frameworks incl. critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
-| [ask_questions](skills/ask_questions/) | Prompt | Structured questioning: clarify before acting |
-| [discussion_partners](skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
-| [data_science](skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
-| [forecast](skills/forecast/) | R | Time series forecasting with auto.arima |
-| [lean_prover](skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
+| [ultra_think](.claude/skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
+| [mental_models](.claude/skills/mental_models/) | Prompt | 33 reasoning frameworks incl. critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
+| [ask_questions](.claude/skills/ask_questions/) | Prompt | Structured questioning: clarify before acting |
+| [discussion_partners](.claude/skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
+| [data_science](.claude/skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [forecast](.claude/skills/forecast/) | R | Time series forecasting with auto.arima |
+| [lean_prover](.claude/skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
 
 ### Build
 
 | Skill | Type | Description |
 |-------|------|-------------|
-| [orchestrate](skills/orchestrate/) | Prompt | Decompose tasks into a dependency DAG, route to specialized sub-agents, execute in parallel |
-| [ralph_loop](skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
-| [staff_engineer](skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
-| [concise_writing](skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
-| [gh_cli](skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
-| [jina_grep](skills/jina_grep/) | Prompt | Semantic grep using Jina embedding models on Apple Silicon |
-| [prompt_evolution](skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
-| [llm_judge](skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
-| [prior_art_review](skills/prior_art_review/) | Prompt | Search existing issues and PRs before acting — prevents duplicate work |
-| [pr_review](skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners |
-| [api_key_checker](skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
-| [modal](skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
-| [skill_pruner](skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
-| [claude-code-config](skills/claude-code-config/) | Prompt | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
+| [orchestrate](.claude/skills/orchestrate/) | Prompt | Decompose tasks into a dependency DAG, route to specialized sub-agents, execute in parallel |
+| [ralph_loop](.claude/skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
+| [staff_engineer](.claude/skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
+| [concise_writing](.claude/skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
+| [gh_cli](.claude/skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
+| [jina_grep](.claude/skills/jina_grep/) | Prompt | Semantic grep using Jina embedding models on Apple Silicon |
+| [prompt_evolution](.claude/skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
+| [llm_judge](.claude/skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
+| [prior_art_review](.claude/skills/prior_art_review/) | Prompt | Search existing issues and PRs before acting — prevents duplicate work |
+| [pr_review](.claude/skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners |
+| [api_key_checker](.claude/skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
+| [modal](.claude/skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
+| [skill_pruner](.claude/skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
+| [claude-code-config](.claude/skills/claude-code-config/) | Prompt | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
 
 ## Skill Graph
 
@@ -192,10 +192,10 @@ make upgrade        # Upgrade all dependencies
 
 ## Creating a New Skill
 
-Each skill is a directory under `skills/` with a `SKILL.md` file:
+Each skill is a directory under `.claude/skills/` with a `SKILL.md` file:
 
 ```
-skills/my_skill/
+.claude/skills/my_skill/
 ├── SKILL.md           # Required: instructions + YAML frontmatter
 └── scripts/           # Optional: bundled code
     └── my_script.py
@@ -234,7 +234,7 @@ Skills that bundle Python code use [Click](https://click.palletsprojects.com/) f
 
 | File | Default | Description |
 |------|---------|-------------|
-| `~/.claude/heartbeat-repos.conf` | `zachmayer/skills` | Repos for heartbeat to monitor. One `owner/repo` per line. See `skills/heartbeat/heartbeat-repos.conf.example`. |
+| `~/.claude/heartbeat-repos.conf` | `zachmayer/skills` | Repos for heartbeat to monitor. One `owner/repo` per line. See `.claude/skills/heartbeat/heartbeat-repos.conf.example`. |
 
 Rigid subdirectories (Claude creates these automatically):
 - `memory/` — hierarchical memory (daily logs, monthly summaries, `overall_memory.md`)

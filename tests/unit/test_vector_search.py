@@ -9,7 +9,8 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
 from click.testing import CliRunner
@@ -160,9 +161,7 @@ class TestIndexCommand:
         mock_ix = MagicMock()
 
         with (
-            patch.object(
-                vs, "_load_cache", return_value=(cached_vectors, cached_mtimes)
-            ),
+            patch.object(vs, "_load_cache", return_value=(cached_vectors, cached_mtimes)),
             patch.object(vs, "_embed", return_value=fake_new_vector) as embed_mock,
             patch.object(vs, "_build_faiss_index", return_value=mock_ix),
             patch.object(vs, "_write_faiss_index"),
@@ -210,9 +209,7 @@ class TestSearchCommand:
             patch.object(vs, "_encode_query", return_value=MagicMock()),
             patch.object(vs, "_search_index", return_value=(mock_scores, mock_indices)),
         ):
-            result = CliRunner().invoke(
-                vs.cli, ["search", str(vault), "machine learning"]
-            )
+            result = CliRunner().invoke(vs.cli, ["search", str(vault), "machine learning"])
             assert result.exit_code == 0
             assert "[0.950] note1.md" in result.output
             assert "[0.800] memory/note3.md" in result.output
@@ -286,9 +283,7 @@ class TestSearchCommand:
             patch.object(vs, "_encode_query", return_value=MagicMock()),
             patch.object(vs, "_search_index", return_value=(mock_scores, mock_indices)),
         ):
-            result = CliRunner().invoke(
-                vs.cli, ["search", str(vault), "query", "-k", "1"]
-            )
+            result = CliRunner().invoke(vs.cli, ["search", str(vault), "query", "-k", "1"])
             assert result.exit_code == 0
             assert result.output.count("[") == 1
 
@@ -307,8 +302,7 @@ class TestStatusCommand:
             "model": "all-MiniLM-L6-v2",
             "dim": 384,
             "files": {
-                p: {"mtime": m, "index": i}
-                for i, (p, m) in enumerate(current_files.items())
+                p: {"mtime": m, "index": i} for i, (p, m) in enumerate(current_files.items())
             },
         }
         (index_dir / "cache.json").write_text(json.dumps(cache))

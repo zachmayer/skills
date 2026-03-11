@@ -1,5 +1,7 @@
 SKILLS_DIR := .claude/skills
+AGENTS_DIR := .claude/agents
 INSTALL_DIR := $(HOME)/.claude/skills
+AGENTS_INSTALL_DIR := $(HOME)/.claude/agents
 
 # ── Help ─────────────────────────────────────────────────────────
 
@@ -25,7 +27,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── Semantic search CLI (Apple Silicon) ──
 	uv tool install git+https://github.com/jina-ai/jina-grep-cli.git || true
 	@# ── Directories ──
-	@mkdir -p $(INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(HOME)/.claude/hooks $(HOME)/.claude/agents
+	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(HOME)/.claude/hooks
 	@# ── Security hooks ──
 	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@chmod +x $(HOME)/.claude/hooks/reject-shell-operators.sh
@@ -41,8 +43,12 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 		echo "  Linking $$skill_name"; \
 		ln -sfn "$$(pwd)/$$skill_dir" "$(INSTALL_DIR)/$$skill_name"; \
 	done
-	@# ── Install agent files ──
-	@cp $(SKILLS_DIR)/heartbeat/agents/*.md $(HOME)/.claude/agents/
+	@# ── Symlink agents ──
+	@for agent in $(AGENTS_DIR)/*.md; do \
+		agent_name=$$(basename "$$agent"); \
+		echo "  Linking agent $$agent_name"; \
+		ln -sfn "$$(pwd)/$$agent" "$(AGENTS_INSTALL_DIR)/$$agent_name"; \
+	done
 	@echo ""
 	@echo "Install complete. Skills available as /skill-name in Claude Code."
 	@echo ""
@@ -64,8 +70,8 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 		rm -f "$(INSTALL_DIR)/$$skill_name"; \
 	done
 	@rm -f $(HOME)/.claude/hooks/reject-shell-operators.sh
-	@for agent in $(SKILLS_DIR)/heartbeat/agents/*.md; do \
-		rm -f "$(HOME)/.claude/agents/$$(basename "$$agent")"; \
+	@for agent in $(AGENTS_DIR)/*.md; do \
+		rm -f "$(AGENTS_INSTALL_DIR)/$$(basename "$$agent")"; \
 	done
 	@echo "Done."
 .PHONY: uninstall

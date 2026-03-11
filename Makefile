@@ -14,7 +14,10 @@ help: ## Show this help
 install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── System dependencies (requires Homebrew) ──
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
+	brew update
+	brew upgrade
 	brew install uv gh pyright node
+	brew doctor || true
 	npm install -g @googleworkspace/cli
 	@# ── Python + UV dependencies ──
 	uv python install
@@ -63,9 +66,13 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@gh auth status 2>/dev/null; if [ $$? -ne 0 ]; then echo "  GitHub: logging in..."; gh auth login; else echo "  GitHub: already authenticated."; fi
 	@if [ -d "$(HOME)/.config/gws" ] && ls $(HOME)/.config/gws/credentials* >/dev/null 2>&1; then \
 		echo "  Google Workspace: already authenticated."; \
-	else \
+	elif [ -f "$(HOME)/.config/gws/client_secret.json" ]; then \
 		echo "  Google Workspace: logging in..."; \
 		gws auth login; \
+	else \
+		echo "  Google Workspace: not configured yet."; \
+		echo "    Run 'gws auth setup' to create a GCP project and OAuth client,"; \
+		echo "    then re-run 'make install' or 'make auth' to complete login."; \
 	fi
 	@echo ""
 	@echo "Install complete. Skills available as /skill-name in Claude Code."

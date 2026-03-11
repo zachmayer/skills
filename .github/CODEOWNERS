@@ -3,6 +3,9 @@
 # a hard gate (GitHub can't enforce self-review). The real gate is
 # branch protection + manual merge.
 
+# Default owner — also used by heartbeat orchestrator for PR assignment
+*  @zachmayer
+
 # CI and deployment
 .github/workflows/  @zachmayer
 .github/CODEOWNERS  @zachmayer

@@ -39,7 +39,9 @@ $BRANCH_STATUS
 Before doing anything, determine where this PR stands:
 
 **Fresh issue, no code**: Branch has no meaningful changes vs main.
-The queue agent already scoped this issue — start coding.
+The queue agent already scoped this issue. Load the `prior_art_review`
+skill and review related PRs listed above — read their diffs and comments
+to learn what was tried and why it failed. Then start coding.
 
 **Code exists, needs changes**: Feedback or CI failures indicate
 specific fixes needed. Address the feedback.

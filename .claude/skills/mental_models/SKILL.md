@@ -126,6 +126,8 @@ These require recognition, not protocol. Knowing the name is usually enough to c
 
 **Scout Mindset** (Julia Galef) — Your goal is to see what's actually there, not to build a case for what you want to see. Treat being wrong as an update, not a failure. The measure of good reasoning is calibration, not confidence. See [scout-mindset.md](scout-mindset.md).
 
+**Hoare's Dictum** — Two ways to build software: so simple there are obviously no deficiencies, or so complicated there are no obvious deficiencies. The first is far harder — and far better. Prefer designs you can prove correct by inspection over designs too complex to find bugs in. See [hoares-dictum.md](hoares-dictum.md).
+
 ## Application
 
 Almost every non-trivial problem benefits from at least one mental model. When you encounter a decision, analysis, or debugging task, scan this index for a fit — there is usually one. Multiple models often apply simultaneously; use whichever combination illuminates the situation.

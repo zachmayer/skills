@@ -355,8 +355,9 @@ def is_behind_main(workdir):
 
 
 def has_diff(workdir):
-    """Check if the branch has commits beyond origin/main."""
-    return _rev_list_count(workdir, "origin/main..HEAD") > 0
+    """Check if the branch has actual file changes vs origin/main."""
+    result = run(["git", "diff", "--stat", "origin/main..HEAD"], cwd=workdir, capture=True)
+    return bool(result.stdout.strip())
 
 
 def run_verification(workdir):

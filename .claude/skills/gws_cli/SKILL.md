@@ -4,7 +4,7 @@ description: >
   Google Workspace CLI (gws) reference for Drive, Gmail, Sheets, Calendar, and
   other Workspace APIs. Use when interacting with Google Workspace services.
   Do NOT use for Google Cloud Platform (use gcloud directly).
-allowed-tools: Bash(gws *)
+allowed-tools: Bash(gws *), Bash(*/gws-as.sh *)
 ---
 
 Google Workspace CLI reference. Source and docs: https://github.com/googleworkspace/cli
@@ -16,6 +16,10 @@ Commands follow `gws <service> <resource> <method>`. The CLI dynamically discove
 - **Confirm with the user before write/delete commands.** Sending email, creating events, and deleting files are not reversible.
 - Prefer `--dry-run` for destructive operations to preview the request first.
 
+## Defaults
+
+- **Inbox = `is:inbox`.** When the user asks about their inbox, use `--query 'is:inbox'`. Use `in:anywhere` only when explicitly searching beyond the inbox.
+
 ## Helper Commands (Preferred)
 
 Use helper commands (`+verb`) instead of raw API calls when available — they're simpler and handle encoding:
@@ -23,7 +27,7 @@ Use helper commands (`+verb`) instead of raw API calls when available — they'r
 ```bash
 # Gmail
 gws gmail +send --to alice@example.com --subject 'Hello' --body 'Hi Alice!'
-gws gmail +triage --max 10          # unread inbox summary
+gws gmail +triage --max 10 --query 'is:inbox'  # inbox
 gws gmail +reply --id MSG_ID --body 'Thanks!'
 gws gmail +reply-all --id MSG_ID --body 'Acknowledged.'
 gws gmail +forward --id MSG_ID --to bob@example.com
@@ -94,6 +98,40 @@ gws gmail --help            # list all gmail resources
 gws drive files --help      # list all file methods
 ```
 
+## Multiple Accounts
+
+Supports multiple Google accounts (home, work, school, etc.) via `~/.claude/gws-accounts.json`:
+
+```json
+{
+  "default": {
+    "path": "~/.config/gws",
+    "email": "alice@gmail.com",
+    "description": "Personal account"
+  },
+  "work": {
+    "path": "~/.config/gws/profiles/work",
+    "email": "alice@company.com",
+    "description": "Work account"
+  }
+}
+```
+
+**Rules:**
+- Bare `gws ...` uses the default account. No env var needed.
+- For non-default accounts, use the wrapper script: `.claude/skills/gws_cli/scripts/gws-as.sh <profile> <gws args...>`
+- If the user names an account, email, or domain, use the matching profile.
+- If ambiguous and the action is a write/send/delete, ask which account.
+- If `gws-accounts.json` is missing, assume only the default account exists.
+
+```bash
+# Default account
+gws gmail +triage
+
+# Non-default account
+.claude/skills/gws_cli/scripts/gws-as.sh work gmail +triage
+```
+
 ## Auth
 
 On a new machine, run `gws auth setup` first — it creates a GCP project, enables Workspace APIs, and generates an OAuth client. This is a one-time prerequisite before `gws auth login` will work. Requires `gcloud` CLI (`brew install google-cloud-sdk`).
@@ -103,6 +141,33 @@ gws auth setup     # one-time per machine: GCP project + OAuth client
 gws auth login     # OAuth login, select scopes
 gws auth login -s drive,sheets,gmail  # login with specific scopes only
 ```
+
+### Adding an account
+
+```bash
+mkdir -p ~/.config/gws/profiles/<name>
+GOOGLE_WORKSPACE_CLI_CONFIG_DIR=~/.config/gws/profiles/<name> gws auth setup
+GOOGLE_WORKSPACE_CLI_CONFIG_DIR=~/.config/gws/profiles/<name> gws auth login
+```
+
+Then add the profile to `~/.claude/gws-accounts.json`. Each entry needs `path` (config dir) and `description`. `email` is optional but helps with disambiguation. If the file doesn't exist, create it:
+
+```json
+{
+  "default": {
+    "path": "~/.config/gws",
+    "email": "user@gmail.com",
+    "description": "Personal account"
+  },
+  "<name>": {
+    "path": "~/.config/gws/profiles/<name>",
+    "email": "user@company.com",
+    "description": "Work account"
+  }
+}
+```
+
+The `default` entry is the account used by bare `gws` commands. All other entries require `gws-as.sh <name>` to use.
 
 ## Tips
 

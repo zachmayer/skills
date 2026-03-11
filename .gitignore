@@ -186,8 +186,11 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# Claude Code local settings (personal overrides, not checked in)
+# Claude Code — track settings, hooks, and skills; ignore ephemeral/local state
 .claude/settings.local.json
+.claude/cache/
+.claude/credits/
+.claude/todos/
 
 # Cursor
 #  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
@@ -199,6 +202,5 @@ cython_debug/
 
 # Gas Town (added by gt)
 .runtime/
-.claude/
 .logs/
 .beads/

@@ -11,8 +11,8 @@
 .github/CODEOWNERS  @zachmayer
 
 # Agent infrastructure (prevent self-modification)
-skills/heartbeat/scripts/heartbeat.sh  @zachmayer
-skills/heartbeat/scripts/*.plist       @zachmayer
+.claude/skills/heartbeat/scripts/heartbeat.sh  @zachmayer
+.claude/skills/heartbeat/scripts/*.plist       @zachmayer
 Makefile                               @zachmayer
 
 # Dependency management

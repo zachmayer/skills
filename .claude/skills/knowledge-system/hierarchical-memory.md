@@ -129,7 +129,7 @@ Launch a sub-agent only if `status` shows overall needs CREATE or UPDATE:
 
 ### When to aggregate
 
-The `note` command reports staleness after each save. Finish all your notes first, then aggregate any stale months/overall in one pass. The `status` command still exists for manual inspection with full detail.
+The `note` command reports staleness after each save. Finish all your notes first, then aggregate any stale months/overall in one pass. **After aggregation, commit and push** (see Git Integration below). The `status` command still exists for manual inspection with full detail.
 
 ## Fact Freshness
 
@@ -143,7 +143,7 @@ If a fact's age exceeds its expected velocity, ask the user to confirm before re
 
 ## Git Integration
 
-After saving notes or aggregating, commit and push. Use `git -C` to avoid `cd` (matches the `Bash(git *)` permission):
+**Always commit and push after any vault write** — note saves, aggregation updates, or both. Without this step, changes exist only locally and won't sync to other devices or sessions. Use `git -C` to avoid `cd` (matches the `Bash(git *)` permission):
 
 ```bash
 git -C $CLAUDE_OBSIDIAN_DIR add -A

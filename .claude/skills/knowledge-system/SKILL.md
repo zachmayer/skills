@@ -42,6 +42,10 @@ Unified entry point for all knowledge management. Route to the right sub-skill.
 - **reminders** -- Time-aware reminders stored in the obsidian vault's memory directory.
 - **evergreen** -- Periodic housekeeping: orphan notes, broken links, missing metadata, stale aggregations, merged branches.
 
+## General rule
+
+**Always commit and push `$CLAUDE_OBSIDIAN_DIR` after any write operation** — note saves, aggregation updates, obsidian notes, reminders. Changes that aren't committed and pushed don't sync. See [hierarchical-memory.md](hierarchical-memory.md#git-integration) for the commands.
+
 ## Related skills (not managed here)
 
 - **session-lifecycle** -- Session start/plan/wrap-up (daily-briefing, session-planner, remember-session). Uses this skill's memory scripts.

@@ -60,6 +60,8 @@ uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py note "CAPTURED_
 
 Where `KNOWLEDGE_SYSTEM_DIR` is the directory containing the `knowledge-system` skill.
 
+After saving, check staleness output. If aggregation is needed, run it, then commit and push the vault (see [hierarchical-memory.md](hierarchical-memory.md#git-integration)).
+
 ### Obsidian knowledge_graph (durable knowledge)
 
 Create or update an atomic note in the obsidian vault following the obsidian conventions (see [obsidian.md](obsidian.md)):

@@ -10,7 +10,9 @@ description: >
 
 # Agent Skills Reference
 
-Comprehensive reference for writing effective SKILL.md files following the [Agent Skills](https://agentskills.io) open standard. Based on Anthropic's [Agent Skills Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) — fetch the latest version when creating or reviewing skills.
+Comprehensive reference for writing effective SKILL.md files following the [Agent Skills](https://agentskills.io) open standard.
+
+**Sources**: [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (web docs) and [The Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) (PDF guide). Fetch the latest versions when creating or reviewing skills.
 
 ## Core Principles
 
@@ -61,6 +63,10 @@ What works for Opus may need more detail for Haiku.
 ### Composability
 
 Claude loads multiple skills simultaneously. Your skill should work well alongside others — don't assume it's the only capability available. Avoid generic names or overly broad triggers that would conflict with other skills.
+
+### Portability
+
+Skills work identically across Claude.ai, Claude Code, and API. Create a skill once and it works across all surfaces without modification, provided the environment supports any dependencies the skill requires. Note this in the `compatibility` field when a skill targets a specific platform.
 
 ### Skills undertrigger by default
 
@@ -127,35 +133,80 @@ Avoid: vague names (`helper`, `utils`), overly generic (`documents`, `data`).
 
 ### Writing Descriptions
 
-Descriptions enable skill discovery. Claude uses them to select the right skill from 100+ candidates.
+The description is the **single most important field** in your skill. Each skill has exactly one description, and Claude uses it to choose the right skill from potentially 100+ available skills. Your description must provide enough detail for Claude to know **when to select** this skill, while the rest of SKILL.md provides the implementation details.
+
+> "This metadata...provides just enough information for Claude to know when each skill should be used without loading all of it into context." — [Anthropic Engineering Blog](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 
 **Description formula**: `[What it does] + [When to use it] + [Key capabilities]`
 
-Rules:
-- **Third person only.** "Processes Excel files" not "I can help you" or "You can use this"
-- **Include key terms** users would naturally say — specific tasks, file types, domain terms
-- **Include WHEN/WHEN NOT** triggers for clear invocation boundaries
-- **Be pushy.** Skills undertrigger by default. Include explicit trigger phrases users would say
+**Rules**:
+
+1. **Third person only.** The description is injected into the system prompt. Inconsistent point-of-view causes discovery problems.
+   - Good: "Processes Excel files and generates reports"
+   - Bad: "I can help you process Excel files"
+   - Bad: "You can use this to process Excel files"
+
+2. **Include key terms** users would naturally say — specific tasks, file types, domain terms, tool names.
+
+3. **Include WHEN/WHEN NOT** triggers for clear invocation boundaries. Negative triggers (`Do NOT use for...`) prevent over-triggering.
+
+4. **Be pushy.** Skills undertrigger by default (see above). Include explicit trigger phrases users would actually say. Instead of "Helps deploy to cloud" write "Use whenever user mentions deploy, hosting, servers, scaling — even if they don't say cloud."
+
+5. **Be specific, not vague.** Include both what the skill does and specific triggers/contexts for when to use it.
+
+6. **Mention file types** if your skill works with specific formats (.fig, .pdf, .xlsx, .csv, etc.).
+
+**Good descriptions**:
 
 ```yaml
-# Good - specific, includes trigger phrases
+# Specific, includes trigger phrases and file types
 description: >
   Analyzes Figma design files and generates developer handoff documentation.
   Use when user uploads .fig files, asks for "design specs", "component
   documentation", or "design-to-code handoff".
 
-# Good - clear value proposition with WHEN NOT
+# Clear value proposition with WHEN NOT
 description: >
   Advanced data analysis for CSV files. Use for statistical modeling,
   regression, clustering. Do NOT use for simple data exploration
   (use data-viz skill instead).
 
-# Bad - too vague, no triggers
+# Includes trigger phrases users would say (from PDF guide)
+description: >
+  Manages Linear project workflows including sprint planning, task creation,
+  and status tracking. Use when user mentions "sprint", "Linear tasks",
+  "project planning", or asks to "create tickets".
+
+# End-to-end workflow with multiple trigger phrases
+description: >
+  End-to-end customer onboarding workflow for PayFlow. Handles account
+  creation, payment setup, and subscription management. Use when user says
+  "onboard new customer", "set up subscription", or "create PayFlow account".
+
+# Extract and process with clear scope
+description: >
+  Extract text and tables from PDF files, fill forms, merge documents.
+  Use when working with PDF files or when the user mentions PDFs, forms,
+  or document extraction.
+```
+
+**Bad descriptions**:
+
+```yaml
+# Too vague — won't trigger on anything specific
 description: Helps with documents
 
-# Bad - too technical, no user triggers
+# Missing triggers — no "when to use" clause
+description: Creates sophisticated multi-page documentation systems.
+
+# Too technical, no user triggers
 description: Implements the Project entity model with hierarchical relationships.
+
+# Too generic — will either never trigger or trigger on everything
+description: Processes data
 ```
+
+**Debugging description quality**: Ask Claude "When would you use the [skill name] skill?" It will quote the description back. Whatever's missing in that answer is what you need to fix in the description.
 
 ## Progressive Disclosure
 
@@ -237,9 +288,11 @@ Ask yourself: What does a user want to accomplish? What multi-step workflows doe
 
 ### Common use case categories
 
-1. **Document & Asset Creation**: Consistent, high-quality output (documents, designs, code). Key techniques: embedded style guides, template structures, quality checklists
-2. **Workflow Automation**: Multi-step processes benefiting from consistent methodology. Key techniques: step-by-step workflows with validation gates, templates, iterative refinement loops
-3. **MCP Enhancement**: Workflow guidance on top of MCP tool access. Key techniques: coordinating multiple MCP calls, embedding domain expertise, providing context users would otherwise need to specify
+1. **Document & Asset Creation**: Consistent, high-quality output (documents, designs, code). Key techniques: embedded style guides, template structures, quality checklists. *Real examples*: [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design), [docx](https://github.com/anthropics/skills/tree/main/skills/docx), [pptx](https://github.com/anthropics/skills/tree/main/skills/pptx), [xlsx](https://github.com/anthropics/skills/tree/main/skills/xlsx)
+2. **Workflow Automation**: Multi-step processes benefiting from consistent methodology. Key techniques: step-by-step workflows with validation gates, templates, iterative refinement loops. *Real example*: [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
+3. **MCP Enhancement**: Workflow guidance on top of MCP tool access. Key techniques: coordinating multiple MCP calls, embedding domain expertise, providing context users would otherwise need to specify. *Real example*: [sentry-code-review](https://github.com/getsentry/sentry-for-claude/tree/main/skills)
+
+For detailed MCP integration patterns, see [mcp-integration.md](mcp-integration.md).
 
 ### Problem-first vs tool-first
 
@@ -250,7 +303,48 @@ Think of it like a hardware store. You might walk in with a problem — "I need 
 
 Most skills lean one direction. Knowing which framing fits your use case helps you choose the right patterns.
 
+### Writing the Main Instructions
+
+After the frontmatter, write the actual instructions in markdown. Recommended structure (adapt for your skill):
+
+````markdown
+---
+name: your-skill
+description: [...]
+---
+# Your Skill Name
+
+## Instructions
+
+### Step 1: [First Major Step]
+Clear explanation of what happens.
+
+```bash
+python scripts/fetch_data.py --project-id PROJECT_ID
+```
+Expected output: [describe what success looks like]
+
+### Step 2: [Next Step]
+...
+
+## Examples
+
+### Example 1: [Common scenario]
+User says: "Set up a new marketing campaign"
+Actions:
+1. Fetch existing campaigns via MCP
+2. Create new campaign with provided parameters
+Result: Campaign created with confirmation link
+
+## Troubleshooting
+Error: [Common error message]
+Cause: [Why it happens]
+Solution: [How to fix]
+````
+
 ## Common Patterns
+
+For advanced workflow patterns (sequential orchestration, multi-MCP coordination, iterative refinement, context-aware tool selection, domain-specific intelligence), see [patterns.md](patterns.md).
 
 ### Be specific and actionable
 
@@ -411,6 +505,8 @@ Build evaluations BEFORE writing docs. Evaluation-driven development:
 4. Write minimal instructions to address gaps
 5. Iterate: run evals, compare baseline, refine
 
+**Using the skill-creator skill**: The [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) skill (available in Claude.ai via plugin directory or for Claude Code) can generate skills from descriptions, review skills for common issues, and suggest test cases. Use: "Help me build a skill using skill-creator". Note: it helps design and refine skills but does not run automated test suites.
+
 For detailed evaluation and iterative development guidance, see [evaluation.md](evaluation.md).
 
 ## Checklist
@@ -457,3 +553,28 @@ For detailed evaluation and iterative development guidance, see [evaluation.md](
 - [ ] Monitor for under/over-triggering
 - [ ] Collect user feedback
 - [ ] Iterate on description and instructions
+
+## Distribution
+
+For guidance on sharing skills (GitHub hosting, API usage, organization deployment, positioning), see [distribution.md](distribution.md).
+
+## Resources
+
+**Official documentation**:
+- [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) — web docs on skill authoring
+- [Skills Overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) — how skills work, architecture
+- [Skills Quickstart](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/quickstart) — create your first skill
+- [Skills API](https://platform.claude.com/docs/en/api/overview) — programmatic skill management
+- [Agent SDK Skills](https://platform.claude.com/docs/en/agent-sdk/skills) — skills in TypeScript/Python SDK
+- [Agent Skills Standard](https://agentskills.io) — the open standard
+- [Complete Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) — comprehensive PDF guide
+
+**Blog posts**:
+- [Introducing Agent Skills](https://claude.com/blog/skills)
+- [Engineering: Equipping Agents for the Real World](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
+- [Skills Explained](https://www.claude.com/blog/skills-explained)
+- [How to Create Skills](https://www.claude.com/blog/how-to-create-skills-key-steps-limitations-and-examples)
+- [Building Skills for Claude Code](https://www.claude.com/blog/building-skills-for-claude-code)
+- [Improving Frontend Design through Skills](https://www.claude.com/blog/improving-frontend-design-through-skills)
+
+**Example skills**: [anthropics/skills](https://github.com/anthropics/skills) — Anthropic-created skills you can customize. [Partner Skills Directory](https://www.claude.com/connectors) — skills from Asana, Atlassian, Canva, Figma, Sentry, Zapier, and more.

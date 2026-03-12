@@ -6,6 +6,7 @@ Official documentation, blog posts, and example skills for building Agent Skills
 - Official documentation
 - Blog posts
 - Example skills
+- Annotated examples
 - Tools and utilities
 
 ## Official Documentation
@@ -36,6 +37,24 @@ Official documentation, blog posts, and example skills for building Agent Skills
   - [pdf](https://github.com/anthropics/skills/tree/main/skills/pdf), [docx](https://github.com/anthropics/skills/tree/main/skills/docx), [pptx](https://github.com/anthropics/skills/tree/main/skills/pptx), [xlsx](https://github.com/anthropics/skills/tree/main/skills/xlsx) — document creation
 - [Partner Skills Directory](https://www.claude.com/connectors) — skills from Asana, Atlassian, Canva, Figma, Sentry, Zapier, and more
 - [sentry-code-review](https://github.com/getsentry/sentry-for-claude/tree/main/skills) — MCP enhancement example from Sentry
+
+## Annotated Examples
+
+Real skills illustrating key patterns from this reference:
+
+| Skill | Key Pattern | What to Study |
+|:------|:------------|:--------------|
+| [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design) | Template + Feedback Loop | Embedded style guide, iterative refinement with visual validation, progressive disclosure of design system reference |
+| [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) | Workflow + Conditional | Interactive step-by-step flow with decision points, generates skills from descriptions |
+| [pdf](https://github.com/anthropics/skills/tree/main/skills/pdf) | Code Skill + Low Freedom | Bundled scripts with exact commands, specific output format, validation step |
+| [sentry-code-review](https://github.com/getsentry/sentry-for-claude/tree/main/skills) | MCP Enhancement | Coordinates multiple Sentry MCP calls in sequence, embeds domain expertise (error triage rules), provides context users would otherwise need to specify |
+| [docx](https://github.com/anthropics/skills/tree/main/skills/docx) / [pptx](https://github.com/anthropics/skills/tree/main/skills/pptx) / [xlsx](https://github.com/anthropics/skills/tree/main/skills/xlsx) | Document Creation | Strict output templates, format-specific validation, examples showing exact input→output |
+
+When studying these examples, look for:
+- How the description handles triggering (specific keywords, WHEN/WHEN NOT)
+- How much freedom the instructions give Claude (narrow bridge vs open field)
+- Where progressive disclosure is used vs inline content
+- How validation/feedback loops improve output quality
 
 ## Tools and Utilities
 

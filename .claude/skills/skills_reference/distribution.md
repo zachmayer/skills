@@ -8,6 +8,7 @@ How to distribute and share skills. From Anthropic's [Complete Guide to Building
 - Skills via API
 - The open standard
 - GitHub hosting
+- Release checklist
 - Positioning your skill
 
 ## Installation Methods
@@ -84,6 +85,44 @@ Recommended approach for sharing skills:
 4. **Test**:
    - Ask Claude: "Set up a new project in [Your Service]"
 ```
+
+## Release Checklist
+
+Before sharing your skill, verify:
+
+- [ ] `SKILL.md` has valid YAML frontmatter (`name`, `description`)
+- [ ] Description follows formula: [What] + [When] + [Key capabilities]
+- [ ] All referenced files exist and paths are correct
+- [ ] Scripts run successfully (`uv run python scripts/...`)
+- [ ] Tested triggering with 2-3 realistic prompts
+- [ ] No secrets, API keys, or personal paths in any file
+- [ ] README.md is at repo level (not inside skill folder)
+- [ ] License specified in frontmatter or repo
+
+### Recommended Repo Layout
+
+```
+your-skills-repo/
+├── README.md                    # Repo-level: installation, overview, screenshots
+├── LICENSE
+├── skills/
+│   ├── my-skill/
+│   │   ├── SKILL.md             # Entry point (required)
+│   │   ├── reference.md         # Progressive disclosure docs
+│   │   └── scripts/
+│   │       └── helper.py        # Bundled scripts
+│   └── another-skill/
+│       └── SKILL.md
+└── .github/
+    └── ISSUE_TEMPLATE/          # Optional: bug reports, feature requests
+```
+
+Key points:
+- Each skill is a self-contained directory
+- `SKILL.md` is the only required file (case-sensitive)
+- No `README.md` inside skill folders — all human-facing docs go in the repo root
+- Scripts live in `scripts/` subdirectory within the skill
+- Multiple skills can share a repo
 
 ## Positioning Your Skill
 

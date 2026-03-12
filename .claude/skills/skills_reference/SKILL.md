@@ -326,6 +326,10 @@ description: [...]
 ---
 # Your Skill Name
 
+## Prerequisites
+- Required tools: [MCP servers, CLI tools, packages]
+- Required access: [API keys, permissions, scopes]
+
 ## Instructions
 
 ### Step 1: [First Major Step]
@@ -336,8 +340,18 @@ python scripts/fetch_data.py --project-id PROJECT_ID
 ```
 Expected output: [describe what success looks like]
 
-### Step 2: [Next Step]
-...
+### Step 2: [Validate Before Proceeding]
+Run `python scripts/validate.py` to check results.
+If validation fails → fix → re-validate before continuing.
+
+### Step 3: [Destructive or External Action]
+Before executing, summarize what will change and WAIT for user confirmation.
+If user declines, skip to [fallback step].
+
+## Expected Inputs and Outputs
+- **Input**: [what the user provides or what the skill reads]
+- **Output**: [what gets created, modified, or returned]
+- **Success criteria**: [how to know it worked]
 
 ## Examples
 
@@ -348,11 +362,17 @@ Actions:
 2. Create new campaign with provided parameters
 Result: Campaign created with confirmation link
 
+## Reference Files
+- Detailed API docs: See [reference/api.md](reference/api.md)
+- Additional examples: See [examples.md](examples.md)
+
 ## Troubleshooting
 Error: [Common error message]
 Cause: [Why it happens]
 Solution: [How to fix]
 ````
+
+Not every skill needs every section. Omit Prerequisites if none exist, omit Reference Files if everything fits in SKILL.md, omit the confirmation gate if no actions are destructive. The template is a menu, not a mandate.
 
 ## Common Patterns
 

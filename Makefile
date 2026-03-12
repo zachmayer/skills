@@ -140,6 +140,57 @@ clean: ## Remove venv and re-sync
 	uv sync --locked --all-extras --all-groups
 .PHONY: clean
 
+# ── Claude.ai packaging ─────────────────────────────────────────
+# Skills excluded from web packaging (require auth: API keys, CLI login, or vault git push)
+SKILLS_WEB_EXCLUDE := \
+	api_key_checker \
+	capture \
+	daily_briefing \
+	discussion_partners \
+	evergreen \
+	gh_cli \
+	gws_cli \
+	heartbeat \
+	hierarchical_memory \
+	lean_prover \
+	llm_judge \
+	modal \
+	obsidian \
+	pr_review \
+	prior_art_review \
+	private_repo \
+	prompt_evolution \
+	ralph_loop \
+	remember_session \
+	reminders \
+	session_planner \
+	slack_bridge \
+	superforecaster \
+	web_grab
+
+BUILD_WEB := build/claude-ai
+
+build-web: ## Package web-compatible skills as .zip files for Claude.ai upload
+	@rm -rf $(BUILD_WEB)
+	@mkdir -p $(BUILD_WEB)
+	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \
+		skill_name=$$(basename "$$skill_dir"); \
+		skip=false; \
+		for excluded in $(SKILLS_WEB_EXCLUDE); do \
+			if [ "$$skill_name" = "$$excluded" ]; then skip=true; break; fi; \
+		done; \
+		if [ "$$skip" = "false" ]; then \
+			echo "  Packaging $$skill_name"; \
+			(cd "$$skill_dir" && zip -qr - . -x '__pycache__/*' '*.pyc' '.DS_Store') > "$(BUILD_WEB)/$$skill_name.zip"; \
+		fi; \
+	done
+	@echo ""
+	@included=$$(ls -1 $(BUILD_WEB) | wc -l | tr -d ' '); \
+	total=$$(ls -1d $(SKILLS_DIR)/*/ | wc -l | tr -d ' '); \
+	echo "Packaged $$included/$$total skills → $(BUILD_WEB)/"
+	@echo "Drag .zip files into a Claude.ai Project to install."
+.PHONY: build-web
+
 # ── Heartbeat (opt-in, machine-specific) ─────────────────────────
 
 HEARTBEAT_LABEL := com.anthropic.claude-heartbeat

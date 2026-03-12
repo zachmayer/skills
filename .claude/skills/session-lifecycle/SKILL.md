@@ -4,14 +4,14 @@ description: >
   Manages a work session: orient or re-orient, plan, and close out. Use when the
   user is starting the day, returning after a break, or ending a session. Triggers:
   "daily briefing", "morning summary", "what's going on", "catch me up", "start of
-  day", "what did I miss", "status update", "what should I work on", "plan my
+  day", "what did I miss", "session status", "what should I work on", "plan my
   session", "what's next", "what should I focus on", "let's get started",
   "remember this session", "save what we did", "wrap up", "end of session", or
   "I'm back, what happened". Covers three phases: orient (what happened?), plan
   (what to work on?), persist the session as a whole (save what we did). Do NOT use
-  for mid-session task execution, casual questions, single-note capture, or
-  reminders — those go to knowledge-system even if the user says "save" or
-  "remember".
+  for mid-session task execution, casual questions, the status of a single
+  task/PR/build, single-note capture, or reminders — those go to
+  knowledge-system even if the user says "save" or "remember".
 allowed-tools: Bash(uv run *), Bash(git *), Bash(gh *), Read, Write, Glob, Grep
 ---
 

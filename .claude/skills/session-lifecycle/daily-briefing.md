@@ -2,7 +2,7 @@
 
 Compile a morning summary so the user can start their day oriented.
 
-This is a **read-only overview** — it surfaces what matters, it does not plan or execute. Use `session-planner` after the briefing to decide what to work on.
+This is a **read-only overview** — it surfaces what matters, it does not plan or execute. Use [session-planner.md](session-planner.md) after the briefing to decide what to work on.
 
 ## Gather
 

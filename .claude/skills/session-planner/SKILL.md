@@ -4,9 +4,9 @@ description: >
   Plans a focused work session by reading memory, tasks, git state, and
   context, then proposing a prioritized task list. Use when the user says
   "what should I work on", "plan my session", "what's next", "let's get
-  started", or when resuming after a break. Also use at the start of any
-  new conversation where the user hasn't specified a task.
-  Do NOT use mid-session or for task execution.
+  started", or when resuming after a break. Also use at the start of a
+  work-oriented conversation where the user hasn't specified a task.
+  Do NOT use mid-session, for task execution, or for casual questions.
 ---
 
 # Session Planner

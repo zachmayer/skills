@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skills audit: net 12% reduction across all skills (gh-cli 246→44, ultra-think 169→50, obsidian 85→21)
 - 7 FUTURE_TOKENS techniques compiled into mental-models
 - All 10 FUTURE_TOKENS skills promoted to first-class
-- beast_mode and ultra-think consolidated into ultra-think (extended thinking prompt)
+- beast-mode and ultra-think consolidated into ultra-think (extended thinking prompt)
 - debug and staff-engineer consolidated into staff-engineer (engineering standards + debugging)
 - Heartbeat derives paths from CLAUDE_OBSIDIAN_DIR, uses # CLAUDE_HEARTBEAT cron marker
 - .expanduser() on CLAUDE_OBSIDIAN_DIR so ~/... env vars resolve

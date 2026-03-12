@@ -5,7 +5,7 @@ description: >
   the user shares a URL, says "grab this page", "save this link", "read
   this article", or wants to extract, capture, or archive web content.
   Handles HTML pages, YouTube videos, Factorio blueprints, and JS-heavy
-  SPAs. Do NOT use when the URL is a GitHub repo (use gh CLI), a PDF
+  SPAs. Do NOT use when the URL is a GitHub repo (use gh-cli skill), a PDF
   (use pdf-to-markdown), or a skill/workflow to steal (use skill-stealer).
 allowed-tools: Bash(uv run *), Bash(curl *), Bash(wget *), Bash(yt-dlp *)
 ---

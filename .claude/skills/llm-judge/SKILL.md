@@ -33,11 +33,11 @@ One narrow, specific failure mode:
 
 Use the `discussion-partners` skill to send the judge prompt to an external model:
 
-Write the judge prompt to a file, then pass with `--file`:
+Write the judge prompt to a file, then call via the `discussion-partners` skill:
 
 ```bash
-# Write judge prompt to scratch file, then call discussion-partners
-uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/judge-prompt.txt
+# SKILL_DIR = .claude/skills/discussion-partners (where ask_model.py lives)
+uv run --directory .claude/skills/discussion-partners python scripts/ask_model.py -f ~/claude/scratch/judge-prompt.txt
 ```
 
 ### 3. Calibrate with examples

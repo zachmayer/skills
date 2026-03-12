@@ -3,18 +3,21 @@ name: knowledge-system
 description: >
   Persistent knowledge management for discrete notes, memories, reminders, and
   vault maintenance. Use when the user wants to save or recall a specific fact,
-  decision, learning, note, or follow-up. Triggers: "capture this", "save this",
-  "inbox", "route this", "file this", "remember this for later", "log this",
-  "note this down", "save a note", "what do you know about X", "what do you
-  remember about X", "recall", "what did we discuss about X", "aggregate memories",
-  "check memory", "find my notes on", "create a note", "search my vault",
-  "add to my knowledge base", "remind me", "set a reminder", "don't let me forget",
-  "follow up on", "tidy up", "clean the vault", "prune branches", "run maintenance",
+  decision, learning, note, or follow-up from memory, notes, or the vault.
+  Triggers: "capture this", "save this", "inbox", "route this", "file this",
+  "remember this", "remember this for later", "log this", "note this down",
+  "save a note", "what do you know about X from our notes", "what do you
+  remember about X", "recall", "what did we discuss", "what do I have on",
+  "aggregate memories", "check memory", "find my notes on", "create a note",
+  "search my vault", "add to my knowledge base", "link notes", "organize
+  knowledge", "remind me", "set a reminder", "don't let me forget", "follow
+  up on", "tidy up", "clean the vault", "prune branches", "run maintenance",
   or mentions vault, wiki-links, MOC, or Obsidian. Do NOT use for code-specific
-  documentation (CLAUDE.md, AGENTS.md), live status questions, or session-wide
-  briefings and wrap-ups like "remember this session" or "save what we did today"
-  (use session-lifecycle for those).
-allowed-tools: Bash(uv run *), Bash(git *), Bash(obsidian *), Read, Write, Glob, Grep
+  documentation (CLAUDE.md, AGENTS.md), codebase questions about how code works
+  (use staff-engineer), live status questions, or session-wide briefings and
+  wrap-ups like "remember this session" or "save what we did today" (use
+  session-lifecycle for those).
+allowed-tools: Bash(uv run *), Bash(git *), Bash(gh *), Bash(obsidian *), Read, Write, Glob, Grep
 ---
 
 # Knowledge System

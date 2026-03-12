@@ -6,7 +6,8 @@ description: >
   "daily briefing", "morning summary", "what's going on", "catch me up", "start of
   day", "what did I miss", "session status", "what should I work on", "plan my
   session", "what's next", "what should I focus on", "let's get started",
-  "remember this session", "save what we did", "wrap up", "end of session", or
+  "remember this session", "take notes from this session", "save what we did",
+  "wrap up", "end of session", or
   "I'm back, what happened". Covers three phases: orient (what happened?), plan
   (what to work on?), persist the session as a whole (save what we did). Do NOT use
   for mid-session task execution, casual questions, the status of a single
@@ -23,7 +24,7 @@ Session lifecycle in three phases: orient, plan, persist.
 |--------|------|-----------|
 | Start of session | Morning summary, "catch me up", "what's going on" | [daily-briefing.md](daily-briefing.md) |
 | After orientation | "What should I work on", "plan my session" | [session-planner.md](session-planner.md) |
-| End of session | "Wrap up", "remember this session", "save what we did" | [remember-session.md](remember-session.md) |
+| End of session | "Wrap up", "remember this session", "take notes", "save what we did" | [remember-session.md](remember-session.md) |
 
 ## Typical Flow
 

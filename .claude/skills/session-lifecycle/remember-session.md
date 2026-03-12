@@ -20,7 +20,7 @@ Before writing anything, read today's daily file to see what's already been save
 uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-day
 ```
 
-Where `KNOWLEDGE_SYSTEM_DIR` is `.claude/skills/knowledge-system`.
+Where `KNOWLEDGE_SYSTEM_DIR` is the directory containing the `knowledge-system` skill.
 
 Only write notes for topics NOT already captured. Skip duplicates.
 

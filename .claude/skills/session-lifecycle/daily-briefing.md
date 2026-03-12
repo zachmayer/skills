@@ -16,7 +16,7 @@ Read current memory state:
 uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-current
 ```
 
-Where `KNOWLEDGE_SYSTEM_DIR` is `.claude/skills/knowledge-system`.
+Where `KNOWLEDGE_SYSTEM_DIR` is the directory containing the `knowledge-system` skill.
 
 Extract from overall memory:
 - Active projects and their status

@@ -58,7 +58,7 @@ Use the `knowledge-system` memory CLI to append a timestamped note:
 uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py note "CAPTURED_TEXT"
 ```
 
-Where `KNOWLEDGE_SYSTEM_DIR` is the `knowledge-system` skill directory (`.claude/skills/knowledge-system`).
+Where `KNOWLEDGE_SYSTEM_DIR` is the directory containing the `knowledge-system` skill.
 
 ### Obsidian knowledge_graph (durable knowledge)
 

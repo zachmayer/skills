@@ -12,7 +12,7 @@ Check `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/` for:
 
 Check `$CLAUDE_OBSIDIAN_DIR/memory/` for:
 
-- **Aggregation staleness**: Run `uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py status` (where `KNOWLEDGE_SYSTEM_DIR` is `.claude/skills/knowledge-system`). Aggregate any stale months.
+- **Aggregation staleness**: Run `uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py status` (where `KNOWLEDGE_SYSTEM_DIR` is the directory containing the `knowledge-system` skill). Aggregate any stale months.
 - **Fact drift**: Scan `overall_memory.md` for facts whose velocity suggests they may be stale (see [hierarchical-memory.md](hierarchical-memory.md) Fact Freshness section). Flag for user confirmation.
 
 ## Repo Health

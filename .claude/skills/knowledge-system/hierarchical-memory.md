@@ -23,7 +23,7 @@ All commands:
 uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py <command> [args]
 ```
 
-Where `KNOWLEDGE_SYSTEM_DIR` is the directory containing this skill (`.claude/skills/knowledge-system`).
+Where `KNOWLEDGE_SYSTEM_DIR` is the directory containing the `knowledge-system` skill.
 
 ### Save a note
 ```bash

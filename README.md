@@ -118,6 +118,10 @@ Packages 17 web-compatible skills (no auth required) as `.zip` files in `build/c
 - `~/claude/worktrees/` — Git worktrees for parallel development
 - `~/claude/obsidian/` — Obsidian vault for knowledge management (optional)
 
+**Per-project config** (this repo only):
+- `.claude/settings.json` — Adds `Edit(**)` and `Write(**)` for full file access. Other permissions inherit from global config.
+- `CLAUDE.md` — Repo-specific conventions, anti-patterns, and build commands.
+
 ## Development
 
 Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).

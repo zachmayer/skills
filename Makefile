@@ -170,7 +170,7 @@ SKILLS_WEB_EXCLUDE := \
 
 BUILD_WEB := build/claude-ai
 
-build-web: ## Package web-compatible skills for Claude.ai upload
+build-web: ## Package web-compatible skills as .zip files for Claude.ai upload
 	@rm -rf $(BUILD_WEB)
 	@mkdir -p $(BUILD_WEB)
 	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \
@@ -181,14 +181,14 @@ build-web: ## Package web-compatible skills for Claude.ai upload
 		done; \
 		if [ "$$skip" = "false" ]; then \
 			echo "  Packaging $$skill_name"; \
-			rsync -a --exclude='__pycache__' --exclude='*.pyc' --exclude='.DS_Store' "$$skill_dir" "$(BUILD_WEB)/$$skill_name/"; \
+			(cd "$$skill_dir" && zip -qr - . -x '__pycache__/*' '*.pyc' '.DS_Store') > "$(BUILD_WEB)/$$skill_name.zip"; \
 		fi; \
 	done
 	@echo ""
 	@included=$$(ls -1 $(BUILD_WEB) | wc -l | tr -d ' '); \
 	total=$$(ls -1d $(SKILLS_DIR)/*/ | wc -l | tr -d ' '); \
 	echo "Packaged $$included/$$total skills → $(BUILD_WEB)/"
-	@echo "Upload each folder to a Claude.ai Project as knowledge files."
+	@echo "Drag .zip files into a Claude.ai Project to install."
 .PHONY: build-web
 
 # ── Heartbeat (opt-in, machine-specific) ─────────────────────────

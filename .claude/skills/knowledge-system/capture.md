@@ -1,8 +1,8 @@
 Smart inbox that routes any input to the right destination. One entry point, five exits.
 
-## When the user invokes this skill
+## Input
 
-They provide raw input — a thought, a finding, a task, a preference, a decision. Your job: classify it, route it, confirm.
+The user provides raw input — a thought, a finding, a task, a preference, a decision. Your job: classify it, route it, confirm.
 
 ## Routing Decision
 

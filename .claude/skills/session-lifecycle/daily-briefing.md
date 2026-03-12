@@ -30,7 +30,7 @@ Extract from today's/yesterday's daily notes:
 
 ### 2. Git State
 
-For each repo the user works in (check recent memory for active repos):
+For the current working directory and any other repos mentioned in memory:
 
 ```bash
 git status

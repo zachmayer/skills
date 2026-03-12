@@ -7,7 +7,7 @@ Read available context, then propose a focused work plan for this session.
 Gather these (skip any that don't exist):
 
 1. **Hierarchical memory** — `read-overall` for current priorities and context
-2. **Task queue** — heartbeat `tasks.md` (Open and In Progress items)
+2. **Task queue** — `gh issue list --label ai:queued,ai:coding --state open` (heartbeat pipeline items)
 3. **Git state** — `git status`, recent commits, open PRs/branches
 4. **TodoWrite** — any existing todo list from a prior session
 5. **Time budget** — ask if not stated (15min / 1hr / half-day / open-ended)

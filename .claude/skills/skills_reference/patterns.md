@@ -9,6 +9,9 @@ Patterns from Anthropic's [Complete Guide to Building Skills](https://resources.
 - Context-aware tool selection
 - Domain-specific intelligence
 - Research synthesis (no-code workflow)
+- Style guide compliance (no-code feedback loop)
+
+See also: [evaluation.md](evaluation.md), [code-skills.md](code-skills.md)
 
 ## Pattern 1: Sequential Workflow Orchestration
 

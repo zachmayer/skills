@@ -14,6 +14,18 @@ Comprehensive reference for writing effective SKILL.md files following the [Agen
 
 **Sources**: [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) (web docs) and [The Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) (PDF guide). Fetch the latest versions when creating or reviewing skills.
 
+### Reference files
+
+This skill uses progressive disclosure. Detailed guidance lives in reference files:
+
+- [code-skills.md](code-skills.md) — scripts, dependencies, runtime environments
+- [patterns.md](patterns.md) — advanced multi-step workflow patterns
+- [mcp-integration.md](mcp-integration.md) — Skills + MCP design and troubleshooting
+- [evaluation.md](evaluation.md) — eval-driven development, iterative improvement
+- [troubleshooting.md](troubleshooting.md) — debugging trigger/load/execution issues
+- [distribution.md](distribution.md) — packaging, sharing, API deployment
+- [resources.md](resources.md) — official docs, blog posts, example repos
+
 ## Core Principles
 
 ### Concise is key
@@ -66,7 +78,7 @@ Claude loads multiple skills simultaneously. Your skill should work well alongsi
 
 ### Portability
 
-Skills work identically across Claude.ai, Claude Code, and API. Create a skill once and it works across all surfaces without modification, provided the environment supports any dependencies the skill requires. Note this in the `compatibility` field when a skill targets a specific platform.
+Skills use the same packaging format across Claude.ai, Claude Code, and API — portable by default, subject to environment and tool availability. Runtime behavior depends on available tools, MCP servers, file system access, code execution support, and permissions. Note platform-specific requirements in the `compatibility` field.
 
 ### Skills undertrigger by default
 
@@ -505,7 +517,7 @@ Build evaluations BEFORE writing docs. Evaluation-driven development:
 4. Write minimal instructions to address gaps
 5. Iterate: run evals, compare baseline, refine
 
-**Using the skill-creator skill**: The [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) skill (available in Claude.ai via plugin directory or for Claude Code) can generate skills from descriptions, review skills for common issues, and suggest test cases. Use: "Help me build a skill using skill-creator". Note: it helps design and refine skills but does not run automated test suites.
+**Using the skill-creator skill**: The [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) skill (available in the [anthropics/skills](https://github.com/anthropics/skills) repository for use in Claude.ai or Claude Code) can generate skills from descriptions, review skills for common issues, and suggest test cases. Use: "Help me build a skill using skill-creator". Note: it helps design and refine skills but does not run automated test suites.
 
 For detailed evaluation and iterative development guidance, see [evaluation.md](evaluation.md).
 
@@ -560,21 +572,4 @@ For guidance on sharing skills (GitHub hosting, API usage, organization deployme
 
 ## Resources
 
-**Official documentation**:
-- [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) — web docs on skill authoring
-- [Skills Overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) — how skills work, architecture
-- [Skills Quickstart](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/quickstart) — create your first skill
-- [Skills API](https://platform.claude.com/docs/en/api/overview) — programmatic skill management
-- [Agent SDK Skills](https://platform.claude.com/docs/en/agent-sdk/skills) — skills in TypeScript/Python SDK
-- [Agent Skills Standard](https://agentskills.io) — the open standard
-- [Complete Guide PDF](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) — comprehensive PDF guide
-
-**Blog posts**:
-- [Introducing Agent Skills](https://claude.com/blog/skills)
-- [Engineering: Equipping Agents for the Real World](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
-- [Skills Explained](https://www.claude.com/blog/skills-explained)
-- [How to Create Skills](https://www.claude.com/blog/how-to-create-skills-key-steps-limitations-and-examples)
-- [Building Skills for Claude Code](https://www.claude.com/blog/building-skills-for-claude-code)
-- [Improving Frontend Design through Skills](https://www.claude.com/blog/improving-frontend-design-through-skills)
-
-**Example skills**: [anthropics/skills](https://github.com/anthropics/skills) — Anthropic-created skills you can customize. [Partner Skills Directory](https://www.claude.com/connectors) — skills from Asana, Atlassian, Canva, Figma, Sentry, Zapier, and more.
+For official documentation, blog posts, and example skills, see [resources.md](resources.md).

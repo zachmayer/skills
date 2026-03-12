@@ -6,8 +6,12 @@ How skills enhance MCP (Model Context Protocol) integrations. From Anthropic's [
 - The kitchen analogy
 - Why MCP users need skills
 - MCP vs skills responsibilities
+- Tool vs skill boundary
+- Safety for write actions
 - Building skills for your MCP server
 - Common MCP patterns
+
+See also: [patterns.md](patterns.md), [troubleshooting.md](troubleshooting.md), [distribution.md](distribution.md)
 
 ## The Kitchen Analogy
 
@@ -35,6 +39,42 @@ MCP provides the professional kitchen: access to tools, ingredients, and equipme
 - Consistent, reliable tool usage
 - Best practices embedded in every interaction
 - Lower learning curve for your integration
+
+## Tool vs Skill Boundary
+
+When designing an MCP + skill system, put logic in the right place:
+
+| Belongs in the **MCP tool** | Belongs in the **skill** |
+|:---|:---|
+| Raw API calls and data access | Workflow sequencing and orchestration |
+| Authentication and connection management | Domain expertise and best practices |
+| Data transformation and formatting | Decision logic (when to use which tool) |
+| Error codes and retry logic | User-facing guidance and explanations |
+| Rate limiting and pagination | Validation rules and quality checks |
+
+**Rule of thumb**: If it's deterministic infrastructure, it's a tool. If it requires judgment, context, or workflow knowledge, it's a skill. Don't put business logic into MCP tools, and don't replicate data-access code in skills.
+
+## Safety for Write Actions
+
+Skills that create, edit, delete, publish, charge, or send should follow these principles:
+
+- **Read before write**: Always fetch current state before modifying it
+- **Summarize before acting**: Show the user what will change before executing
+- **Confirm before irreversible actions**: Ask for explicit confirmation before deletes, publishes, sends, or charges
+- **Define rollback behavior**: Document how to undo or recover from each write action
+- **Log and audit**: Record what was done, when, and why — especially for compliance-sensitive workflows
+
+```markdown
+# Good — confirmation gate before destructive action
+### Step 3: Delete Old Records
+Before deleting, show the user:
+- Number of records to delete
+- Date range affected
+- Estimated impact
+
+WAIT for user confirmation before proceeding.
+If user declines, skip to Step 5.
+```
 
 ## Building Skills for Your MCP Server
 
@@ -88,15 +128,4 @@ Key techniques:
 
 ### Positioning Your MCP + Skills Story
 
-When documenting or marketing your integration:
-
-```markdown
-# Good — focus on outcomes
-"Our MCP server gives Claude access to your Linear projects.
-Our skills teach Claude your team's sprint planning workflow.
-Together, they enable AI-powered project management."
-
-# Bad — focus on implementation details
-"The skill is a folder containing YAML frontmatter and Markdown
-instructions that calls our MCP server tools."
-```
+When marketing your integration, focus on outcomes rather than implementation details. See [distribution.md](distribution.md) for positioning templates and guidance.

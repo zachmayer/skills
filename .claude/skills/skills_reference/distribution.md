@@ -6,6 +6,7 @@ How to distribute and share skills. From Anthropic's [Complete Guide to Building
 - Installation methods
 - Organization deployment
 - Skills via API
+- The open standard
 - GitHub hosting
 - Positioning your skill
 

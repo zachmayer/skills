@@ -8,7 +8,7 @@ description: >
   "allow this tool", "deny this command", "env vars", "sandbox", or asks
   how Claude Code settings work. Covers managed policies, permission
   precedence, hook lifecycle events, and all top-level settings keys.
-  Do NOT use for writing SKILL.md files (use skills-reference instead).
+  Do NOT use for writing SKILL.md files (use skillcraft instead).
 ---
 
 # Claude Code Configuration Reference

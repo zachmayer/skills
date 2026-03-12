@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - 25 agent skills following the Agent Skills open standard
-- **Capture skills** (5): hierarchical-memory, web-grab, pdf-to-markdown, remember-session, skill-stealer
+- **Capture skills** (4): hierarchical-memory, web-grab, pdf-to-markdown, remember-session
 - **Organize skills** (4): obsidian, heartbeat, private-repo, session-planner
 - **Process skills** (7): ultra-think, mental-models, ask-questions, discussion-partners, data-science, forecast, lean-prover
-- **Build skills** (9): ralph-loop, staff-engineer, concise-writing, gh-cli, prompt-evolution, llm-judge, pr-review, api-key-checker, skill-pruner
+- **Build skills** (8): ralph-loop, staff-engineer, concise-writing, gh-cli, prompt-evolution, llm-judge, pr-review, api-key-checker
+- **Meta skills** (1): skillcraft (consolidates skills-reference, skill-stealer, skill-pruner)
 - `status` command for memory aggregation staleness detection
 - External skills sync from FUTURE_TOKENS via `make sync-external`
 - Dependabot auto-merge workflow and grouped updates

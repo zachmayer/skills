@@ -9,7 +9,7 @@ description: >
   another model", "discussion partner". Sends one message, gets one
   response — no multi-turn. Do NOT use for routine tasks, simple questions
   Claude can answer directly, or when no external API key is configured.
-allowed-tools: Bash(uv run *)
+allowed-tools: Bash(uv run *), Bash(codex exec *)
 ---
 
 Query another AI model for an outside perspective on a difficult problem. One message out, one message back — make it count.
@@ -18,13 +18,26 @@ Query another AI model for an outside perspective on a difficult problem. One me
 
 **Always use the script default** (`openai:gpt-5.4`) unless you have a specific reason to change. Do NOT override with older models like o3 or gpt-5.2 — they are superseded.
 
+There are two invocation methods: the **pydantic-ai script** (for API models) and the **Codex CLI** (for Codex-surface models). See usage sections below for each.
+
+### API Models (via `ask_model.py`)
+
 | Model | When to use | API key needed |
 |-------|-------------|----------------|
 | `openai:gpt-5.4` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
 | `google-gla:gemini-3.1-pro-preview` | Second opinion, brilliantly intelligent reasoning | `GOOGLE_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
-| `openai:gpt-5.1-codex` | Coding specialist — code review, debugging, refactors | `OPENAI_API_KEY` |
-| `openai:codex-mini-latest` | Fast coding model — quick answers, lighter tasks | `OPENAI_API_KEY` |
+
+### Codex CLI Models (via `codex exec`)
+
+Codex models are **only available through the Codex CLI** — they are not accessible via the standard OpenAI API. The Codex CLI uses credits from an OpenAI paid subscription (no per-token billing), making it a cost-effective way to get strong coding opinions.
+
+| Model | When to use | Notes |
+|-------|-------------|-------|
+| `gpt-5.3-codex` **(recommended)** | Code review, debugging, refactors. Strong coding specialist | Default in `~/.codex/config.toml` |
+| `gpt-5.4` | Full GPT-5.4 reasoning through Codex harness. xhigh thinking | Good for deep architectural questions |
+
+Set reasoning effort via `-c model_reasoning_effort="xhigh"` (values: `low`, `medium`, `high`, `xhigh`). Default from config is `xhigh`.
 
 Before calling, verify the required API key is set: `echo $GOOGLE_API_KEY | head -c 8` (should show `AIza...`).
 
@@ -42,7 +55,7 @@ You get **one message out and one message back**. There is no follow-up. Your pa
 Bad: "How do I fix this auth bug?"
 Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 instead of 401. I have verified the token validation logic is correct and the error handler is registered. The 500 comes from [stack trace]. What could cause the error handler to be bypassed?"
 
-## Usage
+## Usage: API Models (ask_model.py)
 
 For short questions, pass directly as an argument. **For long prompts (PR diffs, large code, etc.), always use `--file`** — long shell arguments break unpredictably.
 
@@ -56,11 +69,7 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/pro
 
 Where `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/) — the provider prefix determines which API key and thinking settings to use.
 
-## Models
-
-The default is `openai:gpt-5.4`. Thinking effort is automatically set to maximum for each provider.
-
-Use `--thinking low` for fast responses on large prompts (~1.5 min vs ~7 min for xhigh on ~1000-line reviews). Low catches the same high-level findings; xhigh is better at call-graph tracing and deep dead-code analysis.
+The default is `openai:gpt-5.4`. Thinking effort is automatically set to maximum for each provider. Use `--thinking low` for fast responses on large prompts (~1.5 min vs ~7 min for xhigh on ~1000-line reviews).
 
 ```bash
 # GPT-5.4 with xhigh reasoning (default — just omit -m)
@@ -74,34 +83,71 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opu
 
 # Gemini 3.1 Pro with thinking enabled
 uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview -f ~/claude/scratch/prompt.txt
-
-# Codex models (coding specialists)
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:gpt-5.1-codex -f ~/claude/scratch/prompt.txt
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:codex-mini-latest -f ~/claude/scratch/prompt.txt
 ```
 
-## API Key Setup
-
-Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`):
-```bash
-export OPENAI_API_KEY="your-key"      # Required for openai: models (including Codex)
-export ANTHROPIC_API_KEY="your-key"   # Required for anthropic: models
-export GOOGLE_API_KEY="your-key"      # Required for google-gla: models
-```
-
-The script checks for the key before calling the API. If missing, it tells you which
-variable to set. If the key exists but the call fails, common errors:
-- **insufficient_quota (429)**: Billing issue — add credits at the provider's dashboard.
-- **invalid_api_key (401)**: Wrong key — check you exported the correct one and ran `source ~/.zshrc`.
-- **rate_limit (429)**: Too many requests — wait and retry.
-
-## Options
+### ask_model.py Options
 
 - `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.4`)
 - `--thinking` / `-t`: Override thinking level. OpenAI: `low`/`medium`/`high`/`xhigh` (default: `xhigh`). Gemini: `low`/`high`. Use `low` for large prompts where speed matters more than depth.
 - `--system` / `-s`: Optional system prompt override
 - `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)
 - `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`).
+
+## Usage: Codex CLI
+
+Codex models are only available through the `codex` CLI (not the standard OpenAI API). Uses credits from an OpenAI paid subscription — no per-token billing.
+
+**For short questions**, pass inline. **For long prompts, write to a file and pipe via stdin** — this avoids shell escaping issues with backticks and special characters.
+
+```bash
+# Short question — gpt-5.3-codex (default from ~/.codex/config.toml)
+codex exec --full-auto "Your question" -o ~/claude/scratch/codex_output.txt
+
+# Long prompt — write to file, pipe via stdin
+codex exec --full-auto -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+
+# GPT-5.4 through Codex harness with xhigh reasoning
+codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+
+# Override reasoning effort (values: low, medium, high, xhigh)
+codex exec --full-auto -c model_reasoning_effort="low" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+```
+
+The `-o` flag writes the final agent message to a file for easy consumption. Use `--full-auto` for non-interactive execution with workspace-write sandboxing.
+
+### Codex CLI Setup
+
+Install: `npm install -g @openai/codex` (requires Node.js). Configure `~/.codex/config.toml`:
+
+```toml
+model = "gpt-5.3-codex"
+model_reasoning_effort = "xhigh"
+```
+
+Auth: `codex login` (uses your OpenAI account). No `OPENAI_API_KEY` needed — Codex CLI authenticates separately.
+
+### When to Use Codex CLI vs ask_model.py
+
+- **Codex CLI**: Coding tasks (reviews, debugging, refactors). Uses subscription credits. Codex models (`gpt-5.3-codex`) are only available here.
+- **ask_model.py**: Multi-provider support (GPT, Gemini, Claude). Pay-per-token API. Better for non-coding questions.
+- **Both support `gpt-5.4`**: Use Codex CLI to leverage subscription credits, or ask_model.py for pay-per-token.
+
+## API Key Setup
+
+Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`):
+```bash
+export OPENAI_API_KEY="your-key"      # Required for openai: models via ask_model.py
+export ANTHROPIC_API_KEY="your-key"   # Required for anthropic: models
+export GOOGLE_API_KEY="your-key"      # Required for google-gla: models
+```
+
+Codex CLI authenticates via `codex login` — no env var needed.
+
+The script checks for the key before calling the API. If missing, it tells you which
+variable to set. If the key exists but the call fails, common errors:
+- **insufficient_quota (429)**: Billing issue — add credits at the provider's dashboard.
+- **invalid_api_key (401)**: Wrong key — check you exported the correct one and ran `source ~/.zshrc`.
+- **rate_limit (429)**: Too many requests — wait and retry.
 
 ## Multiple Calls
 

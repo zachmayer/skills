@@ -181,7 +181,7 @@ build-web: ## Package web-compatible skills for Claude.ai upload
 		done; \
 		if [ "$$skip" = "false" ]; then \
 			echo "  Packaging $$skill_name"; \
-			rsync -a --exclude='__pycache__' --exclude='*.pyc' "$$skill_dir" "$(BUILD_WEB)/$$skill_name/"; \
+			rsync -a --exclude='__pycache__' --exclude='*.pyc' --exclude='.DS_Store' "$$skill_dir" "$(BUILD_WEB)/$$skill_name/"; \
 		fi; \
 	done
 	@echo ""

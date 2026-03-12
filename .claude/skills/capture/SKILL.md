@@ -1,13 +1,14 @@
 ---
 name: capture
 description: >
-  Smart routing for any input. Routes by scope + audience to the right
-  destination: memory daily log (ephemeral), GitHub Issues with agent-task
-  label (agent work), obsidian knowledge_graph (durable knowledge),
-  CLAUDE.md (repo-specific agent guidance), or README.md (repo dev memory).
-  Use when the user says "capture this", "save this", "inbox", "route this",
-  or provides raw input that needs to be filed somewhere.
-  Do NOT use when the user specifies an exact destination (use that skill directly).
+  Routes any input to the right destination by classifying scope and audience:
+  memory daily log (ephemeral), GitHub Issues (agent or human tasks),
+  obsidian knowledge_graph (durable knowledge), CLAUDE.md (agent guidance),
+  or README.md (dev memory). Use when the user says "capture this", "save
+  this", "inbox", "route this", "file this", "remember this", "log this",
+  "note this down", or provides raw input that needs to be filed somewhere
+  but hasn't specified where. Do NOT use when the user names a specific
+  destination — use that skill directly (e.g. obsidian, hierarchical-memory).
 ---
 
 Smart inbox that routes any input to the right destination. One entry point, five exits.
@@ -64,13 +65,13 @@ When the classification is ambiguous, ask the user. When multiple destinations a
 
 ### Memory daily log (ephemeral)
 
-Use `hierarchical_memory` to append a timestamped note:
+Use `hierarchical-memory` to append a timestamped note:
 
 ```bash
 uv run --directory MEMORY_SKILL_DIR python scripts/memory.py note "CAPTURED_TEXT"
 ```
 
-Where `MEMORY_SKILL_DIR` is the `hierarchical_memory` skill directory.
+Where `MEMORY_SKILL_DIR` is the `hierarchical-memory` skill directory.
 
 ### Obsidian knowledge_graph (durable knowledge)
 

@@ -1,9 +1,12 @@
 ---
 name: obsidian
 description: >
-  Read, write, and search notes in an Obsidian vault stored as plain markdown files.
-  Use when the user wants to create a note, find a note, list notes, or link notes together.
-  Do NOT use for code-specific documentation (use CLAUDE.md or AGENTS.md instead).
+  Reads, writes, and searches notes in an Obsidian vault stored as plain markdown
+  files. Use when the user says "save a note", "find my notes on", "create a note",
+  "search my vault", "add to my knowledge base", "what do I have on", or mentions
+  Obsidian, vault, wiki-links, or MOC. Also use for linking notes, managing tags,
+  or organizing knowledge. Do NOT use for code documentation (use CLAUDE.md or
+  AGENTS.md) or for memory/session recall (use hierarchical-memory).
 allowed-tools: Bash(git *), Bash(obsidian *), Read, Write, Glob, Grep
 ---
 
@@ -29,8 +32,8 @@ Date: <YYYY-MM-DD — when was this note created?>
 
 When reading notes, consider whether the content may have drifted since the `Date:` field. Use judgment based on **information velocity** — how fast that kind of information typically changes:
 
-- **Notes with a URL `Source:`** — if the topic moves fast (library docs, API references, news), offer to re-fetch via `web_grab`. A 3-month-old note about a Python library is probably stale; a note about a historical event is not.
-- **Notes with personal facts** — if a note records something that could have changed (current project, team structure, tool preferences), ask the user to confirm rather than assuming. See the `hierarchical_memory` skill's Fact Freshness section for velocity guidance.
+- **Notes with a URL `Source:`** — if the topic moves fast (library docs, API references, news), offer to re-fetch via `web-grab`. A 3-month-old note about a Python library is probably stale; a note about a historical event is not.
+- **Notes with personal facts** — if a note records something that could have changed (current project, team structure, tool preferences), ask the user to confirm rather than assuming. See the `hierarchical-memory` skill's Fact Freshness section for velocity guidance.
 
 Don't over-flag — most notes age fine. Focus on notes you're actively relying on for decisions.
 
@@ -38,7 +41,7 @@ Don't over-flag — most notes age fine. Focus on notes you're actively relying 
 
 ```
 $CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
-├── memory/                      # Hierarchical memory (managed by hierarchical_memory skill)
+├── memory/                      # Hierarchical memory (managed by hierarchical-memory skill)
 │   ├── overall_memory.md        # Overall working memory
 │   ├── 2026-02.md               # Monthly summaries
 │   └── 2026-02-08.md            # Daily notes (append-only)
@@ -67,7 +70,7 @@ If Obsidian is not running, `obsidian` is not on PATH, or a command returns a co
 | Property get/set (typed metadata) | Grep for exact strings |
 | Template-based note creation | Creating notes without templates |
 | Link graph queries (backlinks, orphans) | Known file paths |
-| Daily note append (respects daily note plugin config) | Memory files (managed by hierarchical_memory) |
+| Daily note append (respects daily note plugin config) | Memory files (managed by hierarchical-memory) |
 
 ### Key Commands
 
@@ -212,11 +215,11 @@ grep -rn "token" $CLAUDE_OBSIDIAN_DIR/ | jina-grep "OAuth refresh race condition
 - Use descriptive filenames as note titles (spaces are fine: `Factorio Base Designs.md`)
 - Add `#topic` tags for graph discoverability
 - Add `[[wiki-links]]` to reference related notes (filename without `.md`)
-- Memory files in `memory/` are managed by `hierarchical_memory` — don't edit directly
+- Memory files in `memory/` are managed by `hierarchical-memory` — don't edit directly
 - After changes, run these commands sequentially:
   ```bash
   git -C $CLAUDE_OBSIDIAN_DIR add -A
   git -C $CLAUDE_OBSIDIAN_DIR commit -m "note: description"
   git -C $CLAUDE_OBSIDIAN_DIR push
   ```
-- If no remote is configured, use the `private_repo` skill to set one up
+- If no remote is configured, use the `private-repo` skill to set one up

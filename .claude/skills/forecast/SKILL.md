@@ -1,14 +1,16 @@
 ---
 name: forecast
 description: >
-  Forecast time series data using R's forecast::auto.arima. Use when the user
-  wants to forecast numeric time series, predict future values, or fit ARIMA models.
-  Do NOT use for classification, non-time-series regression, or when the user
-  explicitly requests a different forecasting method.
+  Forecasts numeric time series data using R's forecast::auto.arima with
+  confidence intervals, simulation, and CSV/PNG output. Use when the user says
+  "forecast", "predict future values", "time series", "ARIMA", "seasonal
+  model", or asks to project trends from CSV data. Do NOT use for
+  classification, non-time-series regression, or when the user requests a
+  specific different method (e.g. Prophet, LSTM).
 allowed-tools: Bash(Rscript *)
 ---
 
-Forecast time series using R's `forecast::auto.arima`.
+Forecasts time series using R's `forecast::auto.arima`.
 
 ## Quick Forecast
 

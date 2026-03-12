@@ -1,10 +1,12 @@
 ---
 name: heartbeat
 description: >
-  Autonomous heartbeat agent infrastructure. Managed by scripts/orchestrator.py
-  and invoked periodically by launchd. Use when the user asks about autonomous
-  periodic task processing or running Claude on a schedule. Do NOT use for
-  one-time tasks or interactive work.
+  Autonomous heartbeat agent that processes GitHub issues on a schedule via
+  launchd. Three-phase pipeline: queue (scope issues), coding (write code +
+  tests), review (approve or request changes). Use when the user says
+  "heartbeat", "autonomous agent", "scheduled tasks", "run Claude on a cron",
+  or asks how issues get auto-processed. Do NOT use for one-time tasks,
+  interactive work, or manual issue triage.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git *), Bash(gh *), Bash(uv run python *), Bash(make *), Bash(ls *), Bash(mkdir *), Bash(date *)
 ---
 

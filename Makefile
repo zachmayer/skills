@@ -26,7 +26,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# Note: only unsets repo-local core.hooksPath. A global setting would still interfere.
 	git config --unset-all core.hooksPath || true
 	uv run pre-commit install
-	@# ── Browser for web_grab skill ──
+	@# ── Browser for web-grab skill ──
 	uv run playwright install chromium
 	@# ── Semantic search CLI (Apple Silicon) ──
 	uv tool install git+https://github.com/jina-ai/jina-grep-cli.git || true
@@ -116,7 +116,7 @@ lint: ## Run linters and formatters
 .PHONY: lint
 
 typecheck: ## Run type checker
-	uv run ty check .claude/skills/ main/ --exclude '.claude/skills/pdf_to_markdown/' --exclude '.claude/skills/web_grab/scripts/browser.py' --exclude '.claude/skills/web_grab/scripts/fetch_page.py'
+	uv run ty check .claude/skills/ main/ --exclude '.claude/skills/pdf-to-markdown/' --exclude '.claude/skills/web-grab/scripts/browser.py' --exclude '.claude/skills/web-grab/scripts/fetch_page.py'
 .PHONY: typecheck
 
 ci: lint typecheck ## CI checks: lint + typecheck + unit tests
@@ -143,30 +143,30 @@ clean: ## Remove venv and re-sync
 # ── Claude.ai packaging ─────────────────────────────────────────
 # Skills excluded from web packaging (require auth: API keys, CLI login, or vault git push)
 SKILLS_WEB_EXCLUDE := \
-	api_key_checker \
+	api-key-checker \
 	capture \
-	daily_briefing \
-	discussion_partners \
+	daily-briefing \
+	discussion-partners \
 	evergreen \
-	gh_cli \
-	gws_cli \
+	gh-cli \
+	gws-cli \
 	heartbeat \
-	hierarchical_memory \
-	lean_prover \
-	llm_judge \
+	hierarchical-memory \
+	lean-prover \
+	llm-judge \
 	modal \
 	obsidian \
-	pr_review \
-	prior_art_review \
-	private_repo \
-	prompt_evolution \
-	ralph_loop \
-	remember_session \
+	pr-review \
+	prior-art-review \
+	private-repo \
+	prompt-evolution \
+	ralph-loop \
+	remember-session \
 	reminders \
-	session_planner \
-	slack_bridge \
+	session-planner \
+	slack-bridge \
 	superforecaster \
-	web_grab
+	web-grab
 
 BUILD_WEB := build/claude-ai
 

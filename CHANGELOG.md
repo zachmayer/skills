@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - 25 agent skills following the Agent Skills open standard
-- **Capture skills** (5): hierarchical_memory, web_grab, pdf_to_markdown, remember_session, skill_stealer
-- **Organize skills** (4): obsidian, heartbeat, private_repo, session_planner
-- **Process skills** (7): ultra_think, mental_models, ask_questions, discussion_partners, data_science, forecast, lean_prover
-- **Build skills** (9): ralph_loop, staff_engineer, concise_writing, gh_cli, prompt_evolution, llm_judge, pr_review, api_key_checker, skill_pruner
+- **Capture skills** (5): hierarchical-memory, web-grab, pdf-to-markdown, remember-session, skill-stealer
+- **Organize skills** (4): obsidian, heartbeat, private-repo, session-planner
+- **Process skills** (7): ultra-think, mental-models, ask-questions, discussion-partners, data-science, forecast, lean-prover
+- **Build skills** (9): ralph-loop, staff-engineer, concise-writing, gh-cli, prompt-evolution, llm-judge, pr-review, api-key-checker, skill-pruner
 - `status` command for memory aggregation staleness detection
 - External skills sync from FUTURE_TOKENS via `make sync-external`
 - Dependabot auto-merge workflow and grouped updates
@@ -20,14 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Makefile targets: install, install-ci, install-heartbeat, uninstall, upgrade, ci, test
 - settings.template.json with gh CLI permissions (read-only allow, mutating deny)
 - Heartbeat cron auth fix (sources ~/.claude/heartbeat.env)
-- Time-aware ralph_loop with deadline pacing
+- Time-aware ralph-loop with deadline pacing
 - Hostname in daily memory notes for multi-machine disambiguation
 - Pre-flight API key check and error disambiguation in ask_model.py
 - Security deny list in settings.json for destructive operations
 - Path traversal validation on user-supplied filenames in memory.py
 - python-frontmatter library for robust YAML parsing
 - yaml.safe_load + timeout in sync_external.py
-- `--list-models` flag for discussion_partners
+- `--list-models` flag for discussion-partners
 
 ### Changed
 
@@ -38,11 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidated all env vars to single `CLAUDE_OBSIDIAN_DIR` (replaces CLAUDE_MEMORY_DIR, OBSIDIAN_ROOT, VAULT_DIR, CLAUDE_HEARTBEAT_TASKS)
 - memory.py CLI simplified: removed search/today/show, added read-day/read-month/read-overall/read-current/list
 - marker-pdf moved from optional dependency group to main dependencies
-- Skills audit: net 12% reduction across all skills (gh_cli 246→44, ultra_think 169→50, obsidian 85→21)
-- 7 FUTURE_TOKENS techniques compiled into mental_models
+- Skills audit: net 12% reduction across all skills (gh-cli 246→44, ultra-think 169→50, obsidian 85→21)
+- 7 FUTURE_TOKENS techniques compiled into mental-models
 - All 10 FUTURE_TOKENS skills promoted to first-class
-- beast_mode and ultra_think consolidated into ultra_think (extended thinking prompt)
-- debug and staff_engineer consolidated into staff_engineer (engineering standards + debugging)
+- beast_mode and ultra-think consolidated into ultra-think (extended thinking prompt)
+- debug and staff-engineer consolidated into staff-engineer (engineering standards + debugging)
 - Heartbeat derives paths from CLAUDE_OBSIDIAN_DIR, uses # CLAUDE_HEARTBEAT cron marker
 - .expanduser() on CLAUDE_OBSIDIAN_DIR so ~/... env vars resolve
 - Staleness detection refactored to pure Python dicts (replaced Polars)

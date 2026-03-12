@@ -1,11 +1,14 @@
 ---
 name: claude-code-config
 description: >
-  Comprehensive reference for Claude Code configuration: settings files,
-  permissions, hooks, env vars, MCP, CLAUDE.md, sandbox, and plugins.
-  Use when configuring Claude Code settings, writing permission rules,
-  setting up hooks, or needing config reference.
-  Do NOT use for writing SKILL.md files (use skills_reference instead).
+  Reference for Claude Code configuration: settings.json, permissions,
+  hooks, environment variables, MCP servers, CLAUDE.md, sandbox, and
+  plugins. Use when the user says "configure Claude Code", "add a
+  permission", "set up hooks", "MCP server config", "settings.json",
+  "allow this tool", "deny this command", "env vars", "sandbox", or asks
+  how Claude Code settings work. Covers managed policies, permission
+  precedence, hook lifecycle events, and all top-level settings keys.
+  Do NOT use for writing SKILL.md files (use skills-reference instead).
 ---
 
 # Claude Code Configuration Reference

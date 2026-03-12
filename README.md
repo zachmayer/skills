@@ -14,77 +14,77 @@ There's also an optional personal knowledge management layer built on Obsidian a
 
 | Skill | Description |
 |-------|-------------|
-| [mental_models](.claude/skills/mental_models/) | 33 reasoning frameworks: inversion, first principles, Occam's razor, plus critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
-| [ultra_think](.claude/skills/ultra_think/) | Activate deep extended thinking for complex decisions |
-| [ask_questions](.claude/skills/ask_questions/) | Structured questioning — clarify before acting |
+| [mental-models](.claude/skills/mental-models/) | 33 reasoning frameworks: inversion, first principles, Occam's razor, plus critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
+| [ultra-think](.claude/skills/ultra-think/) | Activate deep extended thinking for complex decisions |
+| [ask-questions](.claude/skills/ask-questions/) | Structured questioning — clarify before acting |
 | [rlm](.claude/skills/rlm/) | Phased reasoning for large context (100K+ tokens) |
 
 ### Code Quality & Development
 
 | Skill | Description |
 |-------|-------------|
-| [staff_engineer](.claude/skills/staff_engineer/) | Performance-first engineering principles, coding standards, and debugging |
-| [ralph_loop](.claude/skills/ralph_loop/) | Autonomous development loop: decompose, implement, validate, repeat |
-| [pr_review](.claude/skills/pr_review/) | Multi-model PR review: subagent + external models |
-| [prior_art_review](.claude/skills/prior_art_review/) | Search existing issues and PRs before acting |
+| [staff-engineer](.claude/skills/staff-engineer/) | Performance-first engineering principles, coding standards, and debugging |
+| [ralph-loop](.claude/skills/ralph-loop/) | Autonomous development loop: decompose, implement, validate, repeat |
+| [pr-review](.claude/skills/pr-review/) | Multi-model PR review: subagent + external models |
+| [prior-art-review](.claude/skills/prior-art-review/) | Search existing issues and PRs before acting |
 | [orchestrate](.claude/skills/orchestrate/) | Decompose tasks into a dependency DAG, route to specialized sub-agents |
-| [concise_writing](.claude/skills/concise_writing/) | Writing principles for tight, scannable prose |
+| [concise-writing](.claude/skills/concise-writing/) | Writing principles for tight, scannable prose |
 | [constitution](.claude/skills/constitution/) | User values and principles for ambiguous tradeoffs |
 
 ### Multi-Model & Evaluation
 
 | Skill | Description |
 |-------|-------------|
-| [discussion_partners](.claude/skills/discussion_partners/) | Query OpenAI, Anthropic, or Google models for second opinions |
-| [llm_judge](.claude/skills/llm_judge/) | LLM-as-judge evaluation for comparing outputs |
-| [prompt_evolution](.claude/skills/prompt_evolution/) | Evolve prompts through mutation and crossover |
+| [discussion-partners](.claude/skills/discussion-partners/) | Query OpenAI, Anthropic, or Google models for second opinions |
+| [llm-judge](.claude/skills/llm-judge/) | LLM-as-judge evaluation for comparing outputs |
+| [prompt-evolution](.claude/skills/prompt-evolution/) | Evolve prompts through mutation and crossover |
 
 ### Forecasting & Analysis
 
 | Skill | Description |
 |-------|-------------|
 | [superforecaster](.claude/skills/superforecaster/) | Calibrated probabilistic forecasts with multi-model aggregation |
-| [check_odds](.claude/skills/check_odds/) | Check prediction market odds (Metaculus, Manifold, PredictIt, etc.) |
+| [check-odds](.claude/skills/check-odds/) | Check prediction market odds (Metaculus, Manifold, PredictIt, etc.) |
 | [forecast](.claude/skills/forecast/) | Time series forecasting with R's auto.arima |
-| [data_science](.claude/skills/data_science/) | Opinionated DS defaults: XGBoost, nested CV, no shap |
-| [lean_prover](.claude/skills/lean_prover/) | Multi-agent Lean 4 theorem proving with search and repair |
+| [data-science](.claude/skills/data-science/) | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [lean-prover](.claude/skills/lean-prover/) | Multi-agent Lean 4 theorem proving with search and repair |
 
 ### Knowledge Management
 
 | Skill | Description |
 |-------|-------------|
 | [obsidian](.claude/skills/obsidian/) | Read, write, search, and link notes in a git-backed Obsidian vault (+ CLI) |
-| [hierarchical_memory](.claude/skills/hierarchical_memory/) | Quick notes aggregated into daily/monthly/overall summaries |
+| [hierarchical-memory](.claude/skills/hierarchical-memory/) | Quick notes aggregated into daily/monthly/overall summaries |
 | [capture](.claude/skills/capture/) | Smart routing: memory, GitHub Issues, obsidian, CLAUDE.md, or README |
-| [web_grab](.claude/skills/web_grab/) | Fetch URL content and save to obsidian (Playwright for JS SPAs) |
-| [pdf_to_markdown](.claude/skills/pdf_to_markdown/) | Convert PDFs to clean markdown |
-| [skill_stealer](.claude/skills/skill_stealer/) | Extract reusable skills from URLs into SKILL.md |
-| [remember_session](.claude/skills/remember_session/) | Save session learnings to memory and obsidian |
+| [web-grab](.claude/skills/web-grab/) | Fetch URL content and save to obsidian (Playwright for JS SPAs) |
+| [pdf-to-markdown](.claude/skills/pdf-to-markdown/) | Convert PDFs to clean markdown |
+| [skill-stealer](.claude/skills/skill-stealer/) | Extract reusable skills from URLs into SKILL.md |
+| [remember-session](.claude/skills/remember-session/) | Save session learnings to memory and obsidian |
 | [reminders](.claude/skills/reminders/) | Time-aware reminders stored in obsidian |
 
 ### Workflow & Session
 
 | Skill | Description |
 |-------|-------------|
-| [session_planner](.claude/skills/session_planner/) | Plan a focused work session from memory, tasks, and context |
-| [daily_briefing](.claude/skills/daily_briefing/) | Morning summary from memory, tasks, and vault |
+| [session-planner](.claude/skills/session-planner/) | Plan a focused work session from memory, tasks, and context |
+| [daily-briefing](.claude/skills/daily-briefing/) | Morning summary from memory, tasks, and vault |
 | [evergreen](.claude/skills/evergreen/) | Periodic vault and repo housekeeping |
 | [heartbeat](.claude/skills/heartbeat/) | Autonomous agent on a schedule: picks up `ai:queued` issues, codes, reviews, ships |
-| [slack_bridge](.claude/skills/slack_bridge/) | Phone-to-Claude capture via Slack MCP |
+| [slack-bridge](.claude/skills/slack-bridge/) | Phone-to-Claude capture via Slack MCP |
 
 ### Tools & Reference
 
 | Skill | Description |
 |-------|-------------|
 | [claude-code-config](.claude/skills/claude-code-config/) | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
-| [skills_reference](.claude/skills/skills_reference/) | Comprehensive reference for authoring SKILL.md files |
-| [gh_cli](.claude/skills/gh_cli/) | GitHub CLI usage patterns and permissions |
-| [gws_cli](.claude/skills/gws_cli/) | Google Workspace CLI for Drive, Gmail, Sheets, Calendar |
+| [skills-reference](.claude/skills/skills-reference/) | Comprehensive reference for authoring SKILL.md files |
+| [gh-cli](.claude/skills/gh-cli/) | GitHub CLI usage patterns and permissions |
+| [gws-cli](.claude/skills/gws-cli/) | Google Workspace CLI for Drive, Gmail, Sheets, Calendar |
 | [modal](.claude/skills/modal/) | Run GPU compute on Modal |
-| [jina_grep](.claude/skills/jina_grep/) | Semantic grep using Jina embedding models on Apple Silicon |
-| [api_key_checker](.claude/skills/api_key_checker/) | Verify AI provider API keys are configured and valid |
-| [skill_pruner](.claude/skills/skill_pruner/) | Audit skills for overlap, bloat, and quality |
-| [private_repo](.claude/skills/private_repo/) | Create or connect private GitHub repos for git-backed storage |
+| [jina-grep](.claude/skills/jina-grep/) | Semantic grep using Jina embedding models on Apple Silicon |
+| [api-key-checker](.claude/skills/api-key-checker/) | Verify AI provider API keys are configured and valid |
+| [skill-pruner](.claude/skills/skill-pruner/) | Audit skills for overlap, bloat, and quality |
+| [private-repo](.claude/skills/private-repo/) | Create or connect private GitHub repos for git-backed storage |
 
 ## Install
 
@@ -149,7 +149,7 @@ make install-heartbeat       # Install launchd daemon (every 15 min)
 Each skill is a directory under `.claude/skills/` with a `SKILL.md` file:
 
 ```
-.claude/skills/my_skill/
+.claude/skills/my-skill/
 ├── SKILL.md           # Required: instructions + YAML frontmatter
 └── scripts/           # Optional: bundled code
     └── my_script.py
@@ -157,7 +157,7 @@ Each skill is a directory under `.claude/skills/` with a `SKILL.md` file:
 
 ```yaml
 ---
-name: my_skill
+name: my-skill
 description: >
   WHEN to use: <specific triggers>.
   WHEN NOT to use: <boundaries>.
@@ -168,16 +168,16 @@ Your instructions here. For skills with code, reference scripts:
 uv run --directory SKILL_DIR python scripts/my_script.py $ARGUMENTS
 ```
 
-Python skills use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Use `/skill_stealer` to extract skills from URLs automatically.
+Python skills use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Use `/skill-stealer` to extract skills from URLs automatically.
 
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
 | `CLAUDE_OBSIDIAN_DIR` | Vault root (default: `~/claude/obsidian`) |
-| `OPENAI_API_KEY` | For `discussion_partners` (OpenAI models) |
-| `ANTHROPIC_API_KEY` | For `discussion_partners` (Anthropic models) |
-| `GOOGLE_API_KEY` | For `discussion_partners` (Google models) |
+| `OPENAI_API_KEY` | For `discussion-partners` (OpenAI models) |
+| `ANTHROPIC_API_KEY` | For `discussion-partners` (Anthropic models) |
+| `GOOGLE_API_KEY` | For `discussion-partners` (Google models) |
 
 Add keys to `~/.zshrc` or `~/.bashrc`. Claude Code sources your shell profile at startup.
 

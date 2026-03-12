@@ -74,22 +74,22 @@ class TestSkillStructure:
 
 
 class TestJinaGrep:
-    """Validate jina_grep skill content."""
+    """Validate jina-grep skill content."""
 
     def test_skill_exists(self) -> None:
-        assert (SKILLS_DIR / "jina_grep" / "SKILL.md").exists()
+        assert (SKILLS_DIR / "jina-grep" / "SKILL.md").exists()
 
     def test_allowed_tools_uses_jina_grep(self) -> None:
-        text = (SKILLS_DIR / "jina_grep" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "jina-grep" / "SKILL.md").read_text()
         post = frontmatter.loads(text)
         assert "jina-grep" in post.metadata.get("allowed-tools", "")
 
     def test_documents_installation(self) -> None:
-        text = (SKILLS_DIR / "jina_grep" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "jina-grep" / "SKILL.md").read_text()
         assert "uv tool install" in text, "Should document installation via uv tool install"
 
     def test_documents_modes(self) -> None:
-        text = (SKILLS_DIR / "jina_grep" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "jina-grep" / "SKILL.md").read_text()
         assert "Pipe mode" in text
         assert "Standalone mode" in text
         assert "Code search" in text

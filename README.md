@@ -1,194 +1,126 @@
 # Agent Skills
 
-An open-source collection of AI agent skills for organizing your personal information automatically. Built on the [Agent Skills](https://agentskills.io) open standard. Works with Claude Code, Cursor, Codex, Gemini CLI, and 30+ other AI coding agents.
+A collection of 41 AI agent skills for Claude Code. Built on the [Agent Skills](https://agentskills.io) open standard.
 
-## Why This Exists
+## What's Here
 
-You have too many open tabs. You have ideas you don't want to forget. You have notes scattered across apps. You read things you'll never find again. The information is there — it's just not organized, and you don't have time to organize it yourself.
+Skills that make AI coding agents more capable: reasoning frameworks, multi-model review, code quality standards, autonomous development loops, prediction markets, theorem proving, forecasting, and more. Some are pure prompt instructions, some bundle Python/R scripts, some compose into larger workflows.
 
-This is a system that lets AI agents do that organizing for you. The core loop is **capture, organize, process**:
-
-1. **Capture** — Get information into the system with minimal effort. Dump your open tabs with `web_grab`. Dictate a random idea into `hierarchical_memory`. Save a PDF. The bar for capture is intentionally low.
-
-2. **Organize** — The system structures information automatically over time. Daily notes aggregate into monthly summaries, then into an overall working memory. Web grabs land as atomic notes in an Obsidian vault with topic tags and wiki-links. A periodic heartbeat maintains the whole thing in the background.
-
-3. **Process** — Once information is organized, thinking tools help you work with it. Mental models, deep thinking modes, and structured analysis skills operate on your accumulated knowledge rather than starting from scratch every session.
-
-The two core storage layers complement each other:
-- **Hierarchical memory** — A stream of consciousness that compresses over time. Daily notes are raw and noisy. Monthly summaries keep what mattered. The overall memory is a living profile of your current world: preferences, context, key facts, active projects. What you'd want a new assistant to know about you on day one.
-- **Obsidian vault** — Durable topic notes organized as a knowledge graph. Web grabs, curated knowledge, reference material. Things that don't expire the way daily notes do. Connected by wiki-links and topic tags so related ideas find each other.
-
-## Information Hierarchy
-
-Four tiers of persistent information, each with a different purpose and lifetime:
-
-| Tier | Location | Purpose | Lifetime |
-|------|----------|---------|----------|
-| **CLAUDE.md** | Per-repo | Agent config — how Claude behaves here | Permanent per repo |
-| **README.md** | Per-repo | Dev memory — roadmap, decisions, lessons | Permanent per repo |
-| **Hierarchical memory** | `memory/` | Personal working memory — daily notes, monthly summaries, overall | Compresses over time |
-| **Knowledge graph** | `knowledge_graph/` | Durable topic notes, reference, web grabs | Permanent |
-
-**CLAUDE.md** is read by every agent session. It defines conventions, anti-patterns, and build commands for a specific repo. Think of it as the repo's operating manual for AI agents.
-
-**README.md** (this file, in the skills repo) serves as dev memory — the roadmap, architectural decisions, and lessons learned that persist across sessions. Updated as the project evolves.
-
-**Hierarchical memory** is a stream of consciousness that compresses over time. Daily notes are raw and noisy. Monthly summaries keep what mattered. The overall memory is a living profile: preferences, context, key facts, active projects. The `note` command reports aggregation staleness automatically — finish your notes, then aggregate stale months.
-
-**Knowledge graph** holds durable topic notes in an Obsidian vault. Web grabs, curated knowledge, reference material — things that don't expire the way daily notes do. Connected by wiki-links and topic tags.
+There's also an optional personal knowledge management layer built on Obsidian and hierarchical memory — capture information, organize it automatically over time, and process it with thinking tools. This is useful but not required; most skills work independently.
 
 ## Skills
 
-Skills are grouped by their role in the capture → organize → process pipeline.
+### Thinking & Reasoning
 
-### Capture
+| Skill | Description |
+|-------|-------------|
+| [mental_models](.claude/skills/mental_models/) | 33 reasoning frameworks: inversion, first principles, Occam's razor, plus critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
+| [ultra_think](.claude/skills/ultra_think/) | Activate deep extended thinking for complex decisions |
+| [ask_questions](.claude/skills/ask_questions/) | Structured questioning — clarify before acting |
+| [rlm](.claude/skills/rlm/) | Phased reasoning for large context (100K+ tokens) |
 
-| Skill | Type | Description |
-|-------|------|-------------|
-| [capture](.claude/skills/capture/) | Prompt | Smart routing: memory, GitHub Issues, obsidian, CLAUDE.md, or README |
-| [hierarchical_memory](.claude/skills/hierarchical_memory/) | Python | Quick notes aggregated into daily/monthly/overall summaries |
-| [pdf_to_markdown](.claude/skills/pdf_to_markdown/) | Python | Convert PDFs to clean markdown for vault storage |
-| [remember_session](.claude/skills/remember_session/) | Prompt | Save session learnings to memory and obsidian |
-| [skill_stealer](.claude/skills/skill_stealer/) | Prompt | Extract reusable skills from URLs into SKILL.md |
-| [slack_bridge](.claude/skills/slack_bridge/) | Prompt | Phone-to-Claude capture via official Slack MCP server |
-| [web_grab](.claude/skills/web_grab/) | Python | Fetch URL content and save to obsidian — Playwright for JS SPAs |
+### Code Quality & Development
 
-### Organize
+| Skill | Description |
+|-------|-------------|
+| [staff_engineer](.claude/skills/staff_engineer/) | Performance-first engineering principles, coding standards, and debugging |
+| [ralph_loop](.claude/skills/ralph_loop/) | Autonomous development loop: decompose, implement, validate, repeat |
+| [pr_review](.claude/skills/pr_review/) | Multi-model PR review: subagent + external models |
+| [prior_art_review](.claude/skills/prior_art_review/) | Search existing issues and PRs before acting |
+| [orchestrate](.claude/skills/orchestrate/) | Decompose tasks into a dependency DAG, route to specialized sub-agents |
+| [concise_writing](.claude/skills/concise_writing/) | Writing principles for tight, scannable prose |
+| [constitution](.claude/skills/constitution/) | User values and principles for ambiguous tradeoffs |
 
-| Skill | Type | Description |
-|-------|------|-------------|
-| [daily_briefing](.claude/skills/daily_briefing/) | Prompt | Morning summary from memory, tasks, and vault |
-| [evergreen](.claude/skills/evergreen/) | Prompt | Periodic vault and repo housekeeping: orphan notes, broken links, stale branches |
-| [heartbeat](.claude/skills/heartbeat/) | Infrastructure | Three-phase pipeline (queue → coding → review): scopes issues, writes code, reviews PRs |
-| [obsidian](.claude/skills/obsidian/) | Prompt | Read, write, search, and link notes in a git-backed Obsidian vault (+ CLI support) |
-| [private_repo](.claude/skills/private_repo/) | Prompt | Create or connect private GitHub repos for git-backed storage |
-| [reminders](.claude/skills/reminders/) | Prompt | Time-aware reminders stored as markdown checklist in obsidian |
-| [session_planner](.claude/skills/session_planner/) | Prompt | Plan a focused work session from memory, tasks, and context |
+### Multi-Model & Evaluation
 
-### Process
+| Skill | Description |
+|-------|-------------|
+| [discussion_partners](.claude/skills/discussion_partners/) | Query OpenAI, Anthropic, or Google models for second opinions |
+| [llm_judge](.claude/skills/llm_judge/) | LLM-as-judge evaluation for comparing outputs |
+| [prompt_evolution](.claude/skills/prompt_evolution/) | Evolve prompts through mutation and crossover |
 
-| Skill | Type | Description |
-|-------|------|-------------|
-| [ask_questions](.claude/skills/ask_questions/) | Prompt | Structured questioning: clarify before acting |
-| [check_odds](.claude/skills/check_odds/) | Prompt | Check prediction market and forecasting platform odds |
-| [data_science](.claude/skills/data_science/) | Prompt | Opinionated DS defaults: XGBoost, nested CV, no shap |
-| [discussion_partners](.claude/skills/discussion_partners/) | Python | Query OpenAI, Anthropic, or Google models for second opinions |
-| [forecast](.claude/skills/forecast/) | R | Time series forecasting with auto.arima |
-| [lean_prover](.claude/skills/lean_prover/) | Prompt | Multi-agent Lean 4 theorem proving with search and repair |
-| [mental_models](.claude/skills/mental_models/) | Prompt | 33 reasoning frameworks incl. critical analysis protocols (antithesize, excavate, negspace, rhetoricize, etc.) |
-| [rlm](.claude/skills/rlm/) | Prompt | Phased reasoning for large context (100K+ tokens) |
-| [superforecaster](.claude/skills/superforecaster/) | Prompt | Calibrated probabilistic forecasts with multi-model aggregation |
-| [ultra_think](.claude/skills/ultra_think/) | Prompt | Activate deep extended thinking for complex decisions |
+### Forecasting & Analysis
 
-### Build
+| Skill | Description |
+|-------|-------------|
+| [superforecaster](.claude/skills/superforecaster/) | Calibrated probabilistic forecasts with multi-model aggregation |
+| [check_odds](.claude/skills/check_odds/) | Check prediction market odds (Metaculus, Manifold, PredictIt, etc.) |
+| [forecast](.claude/skills/forecast/) | Time series forecasting with R's auto.arima |
+| [data_science](.claude/skills/data_science/) | Opinionated DS defaults: XGBoost, nested CV, no shap |
+| [lean_prover](.claude/skills/lean_prover/) | Multi-agent Lean 4 theorem proving with search and repair |
 
-| Skill | Type | Description |
-|-------|------|-------------|
-| [api_key_checker](.claude/skills/api_key_checker/) | Python | Verify AI provider API keys are configured and valid |
-| [claude-code-config](.claude/skills/claude-code-config/) | Prompt | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
-| [concise_writing](.claude/skills/concise_writing/) | Prompt | Writing principles for tight, scannable prose |
-| [constitution](.claude/skills/constitution/) | Prompt | User values and principles for ambiguous tradeoffs |
-| [gh_cli](.claude/skills/gh_cli/) | Prompt | GitHub CLI usage patterns and permissions |
-| [gws_cli](.claude/skills/gws_cli/) | Prompt | Google Workspace CLI for Drive, Gmail, Sheets, Calendar |
-| [jina_grep](.claude/skills/jina_grep/) | Prompt | Semantic grep using Jina embedding models on Apple Silicon |
-| [llm_judge](.claude/skills/llm_judge/) | Prompt | LLM-as-judge evaluation for comparing outputs |
-| [modal](.claude/skills/modal/) | Python | Run GPU compute on Modal — spawn containers, run scripts, manage volumes |
-| [orchestrate](.claude/skills/orchestrate/) | Prompt | Decompose tasks into a dependency DAG, route to specialized sub-agents, execute in parallel |
-| [pr_review](.claude/skills/pr_review/) | Prompt | Multi-model PR review: subagent + discussion_partners |
-| [prior_art_review](.claude/skills/prior_art_review/) | Prompt | Search existing issues and PRs before acting — prevents duplicate work |
-| [prompt_evolution](.claude/skills/prompt_evolution/) | Prompt | Evolve prompts through mutation and crossover |
-| [ralph_loop](.claude/skills/ralph_loop/) | Prompt | Autonomous development loop: decompose, implement, validate, repeat |
-| [skill_pruner](.claude/skills/skill_pruner/) | Prompt | Audit skills for overlap, bloat, and quality |
-| [skills_reference](.claude/skills/skills_reference/) | Prompt | Comprehensive reference for authoring SKILL.md files |
-| [staff_engineer](.claude/skills/staff_engineer/) | Prompt | Performance-first engineering principles, coding standards, and debugging |
+### Knowledge Management
 
-## Skill Graph
+| Skill | Description |
+|-------|-------------|
+| [obsidian](.claude/skills/obsidian/) | Read, write, search, and link notes in a git-backed Obsidian vault (+ CLI) |
+| [hierarchical_memory](.claude/skills/hierarchical_memory/) | Quick notes aggregated into daily/monthly/overall summaries |
+| [capture](.claude/skills/capture/) | Smart routing: memory, GitHub Issues, obsidian, CLAUDE.md, or README |
+| [web_grab](.claude/skills/web_grab/) | Fetch URL content and save to obsidian (Playwright for JS SPAs) |
+| [pdf_to_markdown](.claude/skills/pdf_to_markdown/) | Convert PDFs to clean markdown |
+| [skill_stealer](.claude/skills/skill_stealer/) | Extract reusable skills from URLs into SKILL.md |
+| [remember_session](.claude/skills/remember_session/) | Save session learnings to memory and obsidian |
+| [reminders](.claude/skills/reminders/) | Time-aware reminders stored in obsidian |
 
-Skills reference each other to compose larger workflows:
+### Workflow & Session
 
-```mermaid
-graph LR
-    orchestrate --> ultra_think
-    orchestrate --> staff_engineer
-    orchestrate --> ask_questions
-    ralph_loop --> ultra_think
-    ralph_loop --> staff_engineer
-    ralph_loop --> ask_questions
-    ralph_loop --> mental_models
-    ralph_loop --> hierarchical_memory
-    ralph_loop --> obsidian
-    ultra_think --> mental_models
-    ultra_think --> ask_questions
-    ask_questions --> hierarchical_memory
-    prompt_evolution --> discussion_partners
-    prompt_evolution --> llm_judge
-    llm_judge --> discussion_partners
-    discussion_partners --> mental_models
-    remember_session --> hierarchical_memory
-    remember_session --> obsidian
-    heartbeat --> staff_engineer
-    heartbeat --> discussion_partners
-    obsidian --> hierarchical_memory
-    obsidian --> private_repo
-    hierarchical_memory --> private_repo
-    web_grab --> obsidian
-    lean_prover --> discussion_partners
-    superforecaster --> discussion_partners
-    superforecaster --> check_odds
-    pr_review --> discussion_partners
-    capture --> hierarchical_memory
-    capture --> obsidian
-    session_planner --> hierarchical_memory
-    session_planner --> obsidian
-    daily_briefing --> hierarchical_memory
-    daily_briefing --> obsidian
-```
+| Skill | Description |
+|-------|-------------|
+| [session_planner](.claude/skills/session_planner/) | Plan a focused work session from memory, tasks, and context |
+| [daily_briefing](.claude/skills/daily_briefing/) | Morning summary from memory, tasks, and vault |
+| [evergreen](.claude/skills/evergreen/) | Periodic vault and repo housekeeping |
+| [heartbeat](.claude/skills/heartbeat/) | Autonomous agent on a schedule: picks up `ai:queued` issues, codes, reviews, ships |
+| [slack_bridge](.claude/skills/slack_bridge/) | Phone-to-Claude capture via Slack MCP |
 
-Standalone skills (no cross-skill dependencies): `api_key_checker`, `check_odds`, `claude-code-config`, `concise_writing`, `constitution`, `data_science`, `forecast`, `gh_cli`, `gws_cli`, `jina_grep`, `mental_models`, `modal`, `pdf_to_markdown`, `prior_art_review`, `private_repo`, `rlm`, `skill_pruner`, `skill_stealer`, `skills_reference`, `slack_bridge`, `staff_engineer`
+### Tools & Reference
+
+| Skill | Description |
+|-------|-------------|
+| [claude-code-config](.claude/skills/claude-code-config/) | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
+| [skills_reference](.claude/skills/skills_reference/) | Comprehensive reference for authoring SKILL.md files |
+| [gh_cli](.claude/skills/gh_cli/) | GitHub CLI usage patterns and permissions |
+| [gws_cli](.claude/skills/gws_cli/) | Google Workspace CLI for Drive, Gmail, Sheets, Calendar |
+| [modal](.claude/skills/modal/) | Run GPU compute on Modal |
+| [jina_grep](.claude/skills/jina_grep/) | Semantic grep using Jina embedding models on Apple Silicon |
+| [api_key_checker](.claude/skills/api_key_checker/) | Verify AI provider API keys are configured and valid |
+| [skill_pruner](.claude/skills/skill_pruner/) | Audit skills for overlap, bloat, and quality |
+| [private_repo](.claude/skills/private_repo/) | Create or connect private GitHub repos for git-backed storage |
 
 ## Install
 
-### Via npx (recommended, works with all agents)
-
-```bash
-# Install all skills
-npx skills add zachmayer/skills
-
-# Install a specific skill
-npx skills add zachmayer/skills -s pdf_to_markdown
-
-# Install globally (available in all projects)
-npx skills add zachmayer/skills -g
-```
-
-### Via Makefile (Claude Code, symlinks)
+### Claude Code (full install)
 
 ```bash
 git clone https://github.com/zachmayer/skills.git
 cd skills
-make install            # Everything: system deps, UV deps, skills, agents, config, auth
-gws auth setup          # One-time: create GCP project + OAuth client (installed by make install)
-make auth               # Complete Google Workspace login after setup
-make install-heartbeat  # Heartbeat launchd daemon (opt-in, machine-specific)
+make install
 ```
+
+This installs system deps (via Homebrew), Python deps (via UV), symlinks all skills into `~/.claude/skills/`, sets up global config (`settings.json`, `CLAUDE.md`, security hooks), and runs auth for GitHub and Google Workspace.
+
+### Claude.ai (web)
+
+```bash
+make build-web
+```
+
+Packages 17 web-compatible skills (no auth required) as `.zip` files in `build/claude-ai/`. Drag them into a Claude.ai Project to install.
 
 ### What install sets up
 
-`make install` creates a two-layer configuration:
-
 **Global config** (applies to all repos):
-- `~/.claude/settings.json` — Permissions: `Bash(*)` allow with targeted deny rules (destructive git, dangerous gh commands). Deny always wins over allow.
-- `~/.claude/hooks/reject-shell-operators.sh` — PreToolUse hook that blocks `&&`, `||`, backticks, and `$()` in Bash commands. Primary defense against shell injection.
-- `~/CLAUDE.md` — Global agent instructions: model preferences (Opus default, Sonnet floor), temp file conventions, git workflow (always PRs, use worktrees).
+- `~/.claude/settings.json` — Permissions with targeted deny rules for destructive operations
+- `~/.claude/hooks/reject-shell-operators.sh` — Blocks shell injection (`&&`, `||`, backticks, `$()`)
+- `~/CLAUDE.md` — Global agent instructions: model preferences, git workflow, conventions
 
-**Agent workspace** (created by install):
-- `~/claude/scratch/` — Agent scratch pad for temp files (PR bodies, commit messages, review prompts, downloads). Used instead of `/tmp/` because Claude Code can't auto-approve `/tmp/` writes on macOS.
-- `~/claude/worktrees/` — Git worktrees for parallel development.
-- `~/claude/obsidian/` — Obsidian vault (hierarchical memory + knowledge graph). Set by `CLAUDE_OBSIDIAN_DIR`.
+**Agent workspace**:
+- `~/claude/scratch/` — Temp files (PR bodies, commit messages, downloads)
+- `~/claude/worktrees/` — Git worktrees for parallel development
+- `~/claude/obsidian/` — Obsidian vault for knowledge management (optional)
 
 **Per-project config** (this repo only):
-- `.claude/settings.json` — Adds `Edit(**)` and `Write(**)` so the agent can edit any file in the repo. All other permissions (Bash, deny rules, hooks) inherit from the global config.
-- `CLAUDE.md` — Repo-specific conventions. References `~/CLAUDE.md` for global defaults.
+- `.claude/settings.json` — Adds `Edit(**)` and `Write(**)` for full file access. Other permissions inherit from global config.
+- `CLAUDE.md` — Repo-specific conventions, anti-patterns, and build commands.
 
 ## Development
 
@@ -196,26 +128,20 @@ Requires [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
 make help           # Show all available targets
-make install        # Install system deps + UV deps + skills + agents + config + auth
 make ci             # CI checks: lint + typecheck + unit tests
 make test           # All checks: CI + integration tests
 make upgrade        # Upgrade all dependencies
-make auth           # Re-login to GitHub and Google Workspace
+make build-web      # Package skills for Claude.ai
 ```
 
 ### Heartbeat (opt-in)
 
-The heartbeat runs Claude Code on a schedule via launchd, picking up `ai:queued` issues automatically. Setup is a one-time process; after that, launchd runs it every 15 minutes.
+Runs Claude Code on a schedule via launchd, picking up `ai:queued` issues automatically.
 
 ```bash
-# One-time setup
 make setup-heartbeat-token   # Get OAuth token (lasts ~1 year)
 make setup-heartbeat-labels  # Create ai:* labels on monitored repos
-
-# Daemon lifecycle
-make install-heartbeat       # Install/reinstall launchd daemon
-make uninstall-heartbeat     # Remove launchd daemon
-make test-heartbeat          # Run one cycle manually
+make install-heartbeat       # Install launchd daemon (every 15 min)
 ```
 
 ## Creating a New Skill
@@ -228,8 +154,6 @@ Each skill is a directory under `.claude/skills/` with a `SKILL.md` file:
 └── scripts/           # Optional: bundled code
     └── my_script.py
 ```
-
-The `SKILL.md` format:
 
 ```yaml
 ---
@@ -244,68 +168,18 @@ Your instructions here. For skills with code, reference scripts:
 uv run --directory SKILL_DIR python scripts/my_script.py $ARGUMENTS
 ```
 
-Use the `/skill_stealer` skill to extract skills from URLs automatically.
-
-## Python Skills
-
-Skills that bundle Python code use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Dependencies are managed in the root `pyproject.toml`.
+Python skills use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Use `/skill_stealer` to extract skills from URLs automatically.
 
 ## Environment Variables
 
-### Storage
+| Variable | Description |
+|----------|-------------|
+| `CLAUDE_OBSIDIAN_DIR` | Vault root (default: `~/claude/obsidian`) |
+| `OPENAI_API_KEY` | For `discussion_partners` (OpenAI models) |
+| `ANTHROPIC_API_KEY` | For `discussion_partners` (Anthropic models) |
+| `GOOGLE_API_KEY` | For `discussion_partners` (Google models) |
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CLAUDE_OBSIDIAN_DIR` | `~/claude/obsidian` | Vault root. All paths derive from it. |
-
-### Config Files
-
-| File | Default | Description |
-|------|---------|-------------|
-| `~/.claude/heartbeat-repos.conf` | `zachmayer/skills` | Repos for heartbeat to monitor. One `owner/repo` per line. See `.claude/skills/heartbeat/heartbeat-repos.conf.example`. |
-
-Rigid subdirectories (Claude creates these automatically):
-- `memory/` — hierarchical memory (daily logs, monthly summaries, `overall_memory.md`)
-- `knowledge_graph/` — durable topic notes, personal knowledge
-
-### API Keys
-
-| Variable | Used by |
-|----------|---------|
-| `OPENAI_API_KEY` | `discussion_partners` (`openai:` and `openai-responses:` models) |
-| `ANTHROPIC_API_KEY` | `discussion_partners` (`anthropic:` models) |
-| `GOOGLE_API_KEY` | `discussion_partners` (`google-gla:` models) |
-| `MODAL_TOKEN_ID` | `modal` (Modal compute) |
-| `MODAL_TOKEN_SECRET` | `modal` (Modal compute) |
-
-Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`). Claude Code sources your shell profile at startup — no extra configuration needed.
-
-## Roadmap
-
-Tracked in [GitHub Issues](https://github.com/zachmayer/skills/issues). Label `ai:queued` for heartbeat to pick up, `enhancement` for roadmap items.
-
-### Completed
-
-- **Consolidate beast_mode + ultra_think** — persistence directives folded into ultra_think.
-- **Consolidate staff_engineer + debug** — debug's 9-step process folded into staff_engineer.
-- **Heartbeat v6** — Python orchestrator (`.claude/skills/heartbeat/scripts/orchestrator.py`) + three agent files (queue, coding, review). Labels: `ai:queued` → `ai:coding` → `ai:review` → human. Branch naming: `ai/issue-N`. flock prevents concurrent runs. Discussion partner review before ship. Orchestrator handles worktree/PR lifecycle and label transitions; agents handle code/test/review.
-- **Session planner** — Read memory + tasks + todos, propose work plan.
-- **API key checker** — Verify which API keys are configured and valid.
-- **Playwright browser automation** — Headless browser for JS-heavy pages in web_grab.
-- **Fix install-ci** — Heavy deps isolated: marker-pdf uses PEP 723 inline script metadata (`uv run --script`), playwright is an optional extra.
-- **Settings precedence** — Removed `gh pr create*` from project deny list (PR #43).
-
-### Known trade-offs
-
-- **`make install` runs `brew update/upgrade`** — This upgrades all Homebrew packages, not just ours. It's intentionally aggressive as a stopgap until a dedicated system maintenance solution (launchd job or similar) is set up. Long-term, brew maintenance should be separated from skill installation.
-
-### Lessons Learned
-
-- **Root-cause before you build** (2026-02): Misread `insufficient_quota` (billing) as "keys not found" (config). Built an entire .env/UV_ENV_FILE infrastructure to solve a problem that didn't exist. The actual fix: swap one API key. Diagnosis: 30 seconds. Unnecessary infrastructure: 1 hour.
-- **Use scripts, not context, for bulk operations** (2026-02): Crawling 23 Confluence wiki pages with subagents blew context on all 5 agents. Next time: write a Python script that fetches and writes notes directly (Playwright → file), then run it in a loop. The agent's context window is for orchestration, not data transport. Also wrote one-off `audit_notes.py` and `fix_tags.py` scripts for vault maintenance — much better than manual inspection.
-- **launchd over cron on macOS** (2026-02): Heartbeat cron job failed with "Not logged in" — cron has minimal env, no user security session, no Keychain access. launchd user agents run in the user session, survive sleep/wake, and are Apple-supported. `claude setup-token` provides 1-year OAuth tokens for headless use. `CLAUDE_CODE_OAUTH_TOKEN` is auth priority 2 (after `ANTHROPIC_API_KEY`), so unset API key explicitly to force subscription billing.
-- **Optional extras for heavy deps** (2026-02): `marker-pdf` pulled in torch + CUDA (~3.8GB) on every CI run. Tests never imported it. Initially moved to `[project.optional-dependencies]`. Later, marker-pdf pinned `anthropic<0.47.0` which conflicted with pydantic-ai's `anthropic>=0.80.0`. Final fix: removed marker-pdf from pyproject.toml entirely and added PEP 723 inline script metadata to `convert.py`, so it runs in its own isolated env via `uv run --script`. Skills with heavy/conflicting deps should manage their own dependencies this way.
-- **Don't trust training data for library APIs** (2026-02): PR #24 changed `result.output` to `result.data` because the agent "knew" pydantic-ai 1.57.0 had renamed the attribute. It hadn't — `.data` only existed in 0.0.31, renamed to `.output` in 0.1.0 and stable ever since (verified by installing 18 versions). The false fix was bundled into an unrelated PR (violating atomic PRs), persisted in project memory as fact, and wasn't caught until GPT-5.2 red-teaming triggered the error. Fix: always inspect installed code (`dir()`, `dataclasses.fields()`) before changing API usage. Added `test_pydantic_ai_compat.py` to catch future regressions automatically.
+Add keys to `~/.zshrc` or `~/.bashrc`. Claude Code sources your shell profile at startup.
 
 ## License
 

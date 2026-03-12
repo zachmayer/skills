@@ -7,14 +7,26 @@ description: >
   "how likely is Y?", wants a forecast, prediction, or calibrated
   probability estimate on a future event. Also triggers on "forecast
   this", "predict whether", or any question about future likelihoods.
-  Do NOT use for sports betting odds (use check-odds) or for questions
-  with known answers.
+  Also searches prediction markets (Metaculus, Manifold, PredictIt,
+  Polymarket, Kalshi, Betfair, Smarkets) for current market odds when
+  the user says "what are the odds", "check prediction markets", "what
+  do markets say about", "probability of X happening", "forecast odds".
+  Do NOT use for sports betting odds, stock prices, time series
+  forecasting (use forecast skill), non-prediction-market lookups, or
+  questions with known answers.
 allowed-tools: WebSearch, WebFetch, Bash(curl *), Task
 ---
 
 # Superforecaster
 
 Generate calibrated probabilistic forecasts on binary questions. Based on Halawi et al. (NeurIPS 2024) and the Metaculus forecasting-tools framework.
+
+## Quick Lookup
+
+| Need | Action |
+|------|--------|
+| Full calibrated forecast on a binary question | Follow the Pipeline below |
+| Just check current prediction market odds | See [check-odds.md](check-odds.md) |
 
 ## Pipeline
 
@@ -33,7 +45,7 @@ If the user's question is vague, clarify before forecasting.
 
 **Run in parallel:**
 
-a) **Market prior** — Use `check-odds` to get prediction market consensus. This is your initial anchor. If no markets exist, note that explicitly.
+a) **Market prior** — See [check-odds.md](check-odds.md) to get prediction market consensus. This is your initial anchor. If no markets exist, note that explicitly.
 
 b) **Web research** — Use WebSearch for 3-5 targeted queries:
    - The question itself
@@ -63,7 +75,7 @@ SCENARIO FOR YES:
 
 BASE RATE: [X% — historical frequency of similar events]
 
-MARKET CONSENSUS: [X% from check-odds, or "no markets"]
+MARKET CONSENSUS: [X% from check-odds.md, or "no markets"]
 
 KEY EVIDENCE:
 - [evidence point 1 — for/against, strength]

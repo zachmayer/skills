@@ -1,18 +1,3 @@
----
-name: check-odds
-description: >
-  Searches prediction markets (Metaculus, Manifold, PredictIt, Polymarket,
-  Kalshi, Betfair, Smarkets) for forecasts on a topic, then synthesizes
-  cross-platform odds weighted by calibration quality. Use when the user
-  says "what are the odds", "check prediction markets", "what do markets
-  say about", "probability of X happening", "forecast odds", or asks about
-  any future event where prediction markets might have data. Covers
-  politics, geopolitics, tech, science, economics, and world events.
-  Do NOT use for sports betting odds, stock prices, or non-prediction-market
-  lookups. Do NOT use for calibrated personal forecasts (use superforecaster).
-allowed-tools: Bash(curl *), WebSearch, WebFetch
----
-
 # Check Odds
 
 Search prediction markets for forecasts on a topic. **Launch all platform searches in parallel via subagents** — each platform is independent, so search them concurrently using the Task tool.

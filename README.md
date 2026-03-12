@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of 41 AI agent skills for Claude Code. Built on the [Agent Skills](https://agentskills.io) open standard.
+A collection of 40 AI agent skills for Claude Code. Built on the [Agent Skills](https://agentskills.io) open standard.
 
 ## What's Here
 
@@ -43,8 +43,7 @@ There's also an optional personal knowledge management layer built on Obsidian a
 
 | Skill | Description |
 |-------|-------------|
-| [superforecaster](.claude/skills/superforecaster/) | Calibrated probabilistic forecasts with multi-model aggregation |
-| [check-odds](.claude/skills/check-odds/) | Check prediction market odds (Metaculus, Manifold, PredictIt, etc.) |
+| [superforecaster](.claude/skills/superforecaster/) | Calibrated probabilistic forecasts with multi-model aggregation; also checks prediction market odds (Metaculus, Manifold, PredictIt, etc.) |
 | [forecast](.claude/skills/forecast/) | Time series forecasting with R's auto.arima |
 | [data-science](.claude/skills/data-science/) | Opinionated DS defaults: XGBoost, nested CV, no shap |
 | [lean-prover](.claude/skills/lean-prover/) | Multi-agent Lean 4 theorem proving with search and repair |
@@ -56,7 +55,6 @@ There's also an optional personal knowledge management layer built on Obsidian a
 | [knowledge-system](.claude/skills/knowledge-system/) | Unified knowledge management: memory, obsidian vault, capture routing, reminders, maintenance |
 | [web-grab](.claude/skills/web-grab/) | Fetch URL content and save to obsidian (Playwright for JS SPAs) |
 | [pdf-to-markdown](.claude/skills/pdf-to-markdown/) | Convert PDFs to clean markdown |
-| [skill-stealer](.claude/skills/skill-stealer/) | Extract reusable skills from URLs into SKILL.md |
 | [remember-session](.claude/skills/remember-session/) | Save session learnings to memory and obsidian |
 
 ### Workflow & Session
@@ -73,13 +71,12 @@ There's also an optional personal knowledge management layer built on Obsidian a
 | Skill | Description |
 |-------|-------------|
 | [claude-code-config](.claude/skills/claude-code-config/) | Claude Code config reference: settings, permissions, hooks, env vars, MCP |
-| [skills-reference](.claude/skills/skills-reference/) | Comprehensive reference for authoring SKILL.md files |
+| [skillcraft](.claude/skills/skillcraft/) | Author, extract, and maintain Agent Skills (reference + stealer + pruner) |
 | [gh-cli](.claude/skills/gh-cli/) | GitHub CLI usage patterns and permissions |
 | [gws-cli](.claude/skills/gws-cli/) | Google Workspace CLI for Drive, Gmail, Sheets, Calendar |
 | [modal](.claude/skills/modal/) | Run GPU compute on Modal |
 | [jina-grep](.claude/skills/jina-grep/) | Semantic grep using Jina embedding models on Apple Silicon |
 | [api-key-checker](.claude/skills/api-key-checker/) | Verify AI provider API keys are configured and valid |
-| [skill-pruner](.claude/skills/skill-pruner/) | Audit skills for overlap, bloat, and quality |
 | [private-repo](.claude/skills/private-repo/) | Create or connect private GitHub repos for git-backed storage |
 
 ## Install
@@ -164,7 +161,7 @@ Your instructions here. For skills with code, reference scripts:
 uv run --directory SKILL_DIR python scripts/my_script.py $ARGUMENTS
 ```
 
-Python skills use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Use `/skill-stealer` to extract skills from URLs automatically.
+Python skills use [Click](https://click.palletsprojects.com/) for CLIs and [UV](https://docs.astral.sh/uv/) for execution. Use `/skillcraft` to extract skills from URLs automatically.
 
 ## Environment Variables
 

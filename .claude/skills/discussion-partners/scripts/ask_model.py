@@ -19,7 +19,7 @@ from pydantic_ai import Agent
 from pydantic_ai.models import KnownModelName
 from pydantic_ai.settings import ModelSettings
 
-DEFAULT_MODEL = "openai:gpt-5.4"
+DEFAULT_MODEL = "google-gla:gemini-3.1-pro-preview"
 
 # Prefix → (env var name, thinking settings)
 PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {

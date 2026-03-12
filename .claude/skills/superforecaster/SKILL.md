@@ -1,20 +1,31 @@
 ---
 name: superforecaster
 description: >
-  Makes calibrated probabilistic forecasts on binary questions using
-  structured reasoning, web research, and multi-model aggregation. Use
-  when the user asks "what's the probability of X?", "will X happen?",
-  "how likely is Y?", wants a forecast, prediction, or calibrated
-  probability estimate on a future event. Also triggers on "forecast
-  this", "predict whether", or any question about future likelihoods.
-  Do NOT use for sports betting odds (use check-odds) or for questions
-  with known answers.
+  Calibrated forecasting for real-world future events, plus prediction
+  market checks. Use when the user wants the probability of a future
+  outcome in politics, economics, technology, policy, or world events.
+  Triggers: "what's the probability of X?", "will X happen?", "how likely
+  is Y?", "what are the odds of X?", "check prediction markets", "what
+  do Metaculus/Manifold/Polymarket say about", "give me calibrated odds".
+  Best for binary or date-bounded questions about external events. Also
+  searches Metaculus, Manifold, PredictIt, Polymarket, Kalshi, Betfair,
+  and Smarkets for current market-implied probabilities. Do NOT use for
+  sports betting odds, current asset prices, numeric time-series
+  forecasting from CSV data (use forecast skill), or internal predictions
+  like whether code, tests, or builds will pass.
 allowed-tools: WebSearch, WebFetch, Bash(curl *), Task
 ---
 
 # Superforecaster
 
 Generate calibrated probabilistic forecasts on binary questions. Based on Halawi et al. (NeurIPS 2024) and the Metaculus forecasting-tools framework.
+
+## Quick Lookup
+
+| Need | Action |
+|------|--------|
+| Full calibrated forecast on a binary question | Follow the Pipeline below |
+| Just check current prediction market odds | See [check-odds.md](check-odds.md) |
 
 ## Pipeline
 
@@ -33,7 +44,7 @@ If the user's question is vague, clarify before forecasting.
 
 **Run in parallel:**
 
-a) **Market prior** — Use `check-odds` to get prediction market consensus. This is your initial anchor. If no markets exist, note that explicitly.
+a) **Market prior** — See [check-odds.md](check-odds.md) to get prediction market consensus. This is your initial anchor. If no markets exist, note that explicitly.
 
 b) **Web research** — Use WebSearch for 3-5 targeted queries:
    - The question itself
@@ -63,7 +74,7 @@ SCENARIO FOR YES:
 
 BASE RATE: [X% — historical frequency of similar events]
 
-MARKET CONSENSUS: [X% from check-odds, or "no markets"]
+MARKET CONSENSUS: [X% from check-odds.md, or "no markets"]
 
 KEY EVIDENCE:
 - [evidence point 1 — for/against, strength]

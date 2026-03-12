@@ -1,21 +1,8 @@
----
-name: capture
-description: >
-  Routes any input to the right destination by classifying scope and audience:
-  memory daily log (ephemeral), GitHub Issues (agent or human tasks),
-  obsidian knowledge_graph (durable knowledge), CLAUDE.md (agent guidance),
-  or README.md (dev memory). Use when the user says "capture this", "save
-  this", "inbox", "route this", "file this", "remember this", "log this",
-  "note this down", or provides raw input that needs to be filed somewhere
-  but hasn't specified where. Do NOT use when the user names a specific
-  destination — use that skill directly (e.g. obsidian, hierarchical-memory).
----
-
 Smart inbox that routes any input to the right destination. One entry point, five exits.
 
-## When the user invokes this skill
+## Input
 
-They provide raw input — a thought, a finding, a task, a preference, a decision. Your job: classify it, route it, confirm.
+The user provides raw input — a thought, a finding, a task, a preference, a decision. Your job: classify it, route it, confirm.
 
 ## Routing Decision
 
@@ -65,17 +52,19 @@ When the classification is ambiguous, ask the user. When multiple destinations a
 
 ### Memory daily log (ephemeral)
 
-Use `hierarchical-memory` to append a timestamped note:
+Use the `knowledge-system` memory CLI to append a timestamped note:
 
 ```bash
-uv run --directory MEMORY_SKILL_DIR python scripts/memory.py note "CAPTURED_TEXT"
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py note "CAPTURED_TEXT"
 ```
 
-Where `MEMORY_SKILL_DIR` is the `hierarchical-memory` skill directory.
+Where `KNOWLEDGE_SYSTEM_DIR` is the directory containing the `knowledge-system` skill.
+
+After saving, check staleness output. If aggregation is needed, run it, then commit and push the vault (see [hierarchical-memory.md](hierarchical-memory.md#git-integration)).
 
 ### Obsidian knowledge_graph (durable knowledge)
 
-Create or update an atomic note in the obsidian vault following the `obsidian` skill conventions:
+Create or update an atomic note in the obsidian vault following the obsidian conventions (see [obsidian.md](obsidian.md)):
 
 1. Search for existing notes on the topic: `Grep(pattern="keyword", path="$CLAUDE_OBSIDIAN_DIR/knowledge_graph/")`
 2. If a related note exists, update it. Otherwise create a new atomic note.

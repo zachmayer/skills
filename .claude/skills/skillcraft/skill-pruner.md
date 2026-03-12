@@ -1,14 +1,3 @@
----
-name: skill-pruner
-description: >
-  Audits all installed skills for quality, redundancy, and overlap against
-  the Agent Skills standard. Surfaces candidates for merging, trimming,
-  compression, or deletion. Use when the user says "review my skills",
-  "audit skills", "clean up skills", "too many skills", or after adding
-  new skills. Also use periodically to keep the skill collection lean.
-  Do NOT use for creating new skills (use skill-stealer).
----
-
 Audit all installed skills and produce a quality report with actionable recommendations.
 
 ## Audit Process
@@ -84,11 +73,11 @@ When a skill is too long (>150 lines) or contains verbose upstream content, comp
 - **Process steps** (numbered sequences that define what to DO) — the procedural skeleton is the single highest-value component
 - **Output schema/format** (structural requirements for the output)
 - **Key distinctions** (e.g., b1=strict-facts-only vs b2=flagged-implicatures — analytical innovations a model won't invent on its own)
-- **Scoring formulas** (e.g., surprise = affect_shift × meaning_overlap × fluency)
+- **Scoring formulas** (e.g., surprise = affect_shift x meaning_overlap x fluency)
 - **Taxonomies/classification systems** (e.g., omission classes: vulnerability / upside / bedrock / blind spot / optionality)
 - **Quality criteria** (1-2 lines each, not paragraphs)
 - **Opinionated defaults and prohibitions** ("never add new predicates in b1", "allow null output")
-- **Decision tables** mapping inputs to which variant/type to use (e.g., purpose → antithesis type)
+- **Decision tables** mapping inputs to which variant/type to use (e.g., purpose -> antithesis type)
 
 ### What to cut (low value per token)
 
@@ -131,7 +120,7 @@ Tested with GPT 5.2 (xhigh thinking) on three conditions — full skill (~300 li
 
 ## References
 
-Use `skills-reference` for the canonical quality checklist, frontmatter conventions, and structural patterns that skills should follow — applies to both auditing existing skills and creating new ones.
+Use [skills-reference.md](skills-reference.md) for the canonical quality checklist, frontmatter conventions, and structural patterns that skills should follow — applies to both auditing existing skills and creating new ones.
 
 ## Principles
 

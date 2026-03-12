@@ -1,13 +1,3 @@
----
-name: skills-reference
-description: >
-  Comprehensive reference for authoring Agent Skills (SKILL.md files).
-  Covers structure, frontmatter, naming, descriptions, progressive disclosure,
-  patterns, anti-patterns, and evaluation. Use when creating new skills,
-  reviewing skill quality, or needing best practices for SKILL.md authoring.
-  Do NOT use for general Claude Code configuration (use config reference instead).
----
-
 # Agent Skills Reference
 
 Comprehensive reference for writing effective SKILL.md files following the [Agent Skills](https://agentskills.io) open standard.

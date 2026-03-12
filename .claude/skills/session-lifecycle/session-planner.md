@@ -1,14 +1,3 @@
----
-name: session-planner
-description: >
-  Plans a focused work session by reading memory, tasks, git state, and
-  context, then proposing a prioritized task list. Use when the user says
-  "what should I work on", "plan my session", "what's next", "let's get
-  started", or when resuming after a break. Also use at the start of a
-  work-oriented conversation where the user hasn't specified a task.
-  Do NOT use mid-session, for task execution, or for casual questions.
----
-
 # Session Planner
 
 Read available context, then propose a focused work plan for this session.
@@ -18,7 +7,7 @@ Read available context, then propose a focused work plan for this session.
 Gather these (skip any that don't exist):
 
 1. **Hierarchical memory** — `read-overall` for current priorities and context
-2. **Task queue** — heartbeat `tasks.md` (Open and In Progress items)
+2. **Task queue** — `gh issue list --label ai:queued,ai:coding --state open` (heartbeat pipeline items)
 3. **Git state** — `git status`, recent commits, open PRs/branches
 4. **TodoWrite** — any existing todo list from a prior session
 5. **Time budget** — ask if not stated (15min / 1hr / half-day / open-ended)

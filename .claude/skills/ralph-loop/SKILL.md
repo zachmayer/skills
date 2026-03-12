@@ -19,8 +19,7 @@ Also apply these skills throughout the loop:
 - `staff-engineer` for engineering standards, anti-sycophancy, and line-by-line debugging
 - `mental-models` for structured reasoning — OODA loop drives the iteration, post-mortem and Five Whys for failure diagnosis
 - `ask-questions` if requirements are unclear — clarify before building
-- `hierarchical-memory` to read past context and save learnings
-- `obsidian` to record durable knowledge and architectural decisions
+- `knowledge-system` to read past context, save learnings, and record durable knowledge
 
 ## Phase 0: Bootstrap (do this fast)
 
@@ -31,7 +30,7 @@ The goal is to gather everything you need from the user and the environment **up
 
 **In parallel, while waiting for the answer:**
 - Check the current time: `date`
-- Read working memory (`hierarchical-memory`) for project context
+- Read working memory (`knowledge-system`) for project context
 - Note which tool permissions are available — this determines what you can do without prompting the user mid-loop
 
 Compute a **deadline** from the user's answer + current time. This drives pacing for the rest of the loop.
@@ -73,7 +72,7 @@ For each iteration: **observe, orient, decide, act** (the [OODA Loop](ooda-loop.
 2. **Orient** — Select the highest-priority incomplete story that fits the remaining time. Re-read relevant code.
 3. **Decide** — Plan the implementation. Follow existing patterns. Stay in scope.
 4. **Act** — Implement, then validate with the project's quality checks (typecheck, lint, test). Fix failures before proceeding.
-5. **Mark complete**, save learnings to `hierarchical-memory`, and commit.
+5. **Mark complete**, save learnings to `knowledge-system`, and commit.
 6. **Repeat** from step 1 — speed of the loop matters more than perfection of any step.
 
 ### Time-aware pacing
@@ -96,7 +95,7 @@ You can keep working past the deadline — the user may or may not interrupt. Bu
    - What's in progress or remaining
    - What you'd tackle next
    - Any decisions or blockers that need the user's input
-4. **Save learnings** to `hierarchical-memory`
+4. **Save learnings** to `knowledge-system`
 5. **Aggregate memory** if enough notes accumulated — run `status` to check
 
 The user will read this report and decide what to do next.

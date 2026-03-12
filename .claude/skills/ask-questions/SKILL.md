@@ -12,7 +12,7 @@ description: >
 
 # Ask Questions If Underspecified
 
-Also apply `hierarchical-memory`: read working memory before formulating questions — past context often resolves ambiguity. After getting answers, save key decisions as memory notes.
+Also apply `knowledge-system`: read working memory before formulating questions — past context often resolves ambiguity. After getting answers, save key decisions as memory notes.
 
 ## Goal
 

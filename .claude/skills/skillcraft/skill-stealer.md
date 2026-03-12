@@ -1,16 +1,3 @@
----
-name: skill-stealer
-description: >
-  Extracts a reusable agent skill from a URL (GitHub repo, blog post, tweet,
-  or any source describing an AI workflow or prompt). Distills the core idea
-  into a clean SKILL.md following the Agent Skills standard. Can also steal
-  code, rewriting scripts to Python with Click CLIs run via uv. Use when the
-  user says "steal this skill", "convert this to a skill", "make a skill from
-  this", shares a link to a prompt or workflow, or wants to capture a
-  technique as a reusable skill. Do NOT use for general web browsing or
-  reading URLs without skill extraction intent.
----
-
 Given $ARGUMENTS (a URL or description of a skill idea), extract and create a new skill.
 
 ## Process
@@ -25,7 +12,7 @@ Given $ARGUMENTS (a URL or description of a skill idea), extract and create a ne
 
 3. **Extract the core** - What does this tell the AI to do differently? Reduce to the minimum effective prompt. Only keep what Claude doesn't already know.
 
-4. **Choose the right degree of freedom** for each part of the skill (see `skills-reference` Core Principles for the full framework):
+4. **Choose the right degree of freedom** for each part of the skill (see [skills-reference.md](skills-reference.md) Core Principles for the full framework):
    - **High** (default): "Validate with the project's quality checks" — most content
    - **Medium**: Suggested JSON schema with "adapt as needed"
    - **Low**: Exact validation script, no modifications — only for fragile operations
@@ -51,14 +38,14 @@ description: >
 
 ## Quality Checks
 
-Apply the `skills-reference` checklist. The two most common mistakes when stealing skills:
+Apply the [skills-reference.md](skills-reference.md) checklist. The two most common mistakes when stealing skills:
 
 - **Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both WHEN to use and WHEN NOT to use.
 - **Provide defaults, not options**: Don't present multiple approaches unless necessary. Pick the best default, mention alternatives only as escape hatches.
 
 ## Post-Creation: Compress if Needed
 
-After creating a skill, evaluate its length. If it exceeds 150 lines, run it through the `skill-pruner` skill (Skill Compression section) for compression.
+After creating a skill, evaluate its length. If it exceeds 150 lines, run it through the [skill-pruner.md](skill-pruner.md) (Skill Compression section) for compression.
 
 ## Output
 

@@ -15,7 +15,7 @@ _spec = importlib.util.spec_from_file_location(
     Path(__file__).resolve().parents[2]
     / ".claude"
     / "skills"
-    / "hierarchical-memory"
+    / "knowledge-system"
     / "scripts"
     / "memory.py",
 )

@@ -1,14 +1,3 @@
----
-name: reminders
-description: >
-  Creates, tracks, and surfaces time-based reminders stored in Obsidian.
-  Use when the user says "remind me", "set a reminder", "don't let me forget",
-  "follow up on", or mentions needing to do something at a specific future
-  date or time. Also triggers on heartbeat cycles to surface overdue items.
-  Do NOT use for immediate tasks (use TodoWrite) or persistent notes
-  (use hierarchical-memory).
----
-
 Store reminders in `$CLAUDE_OBSIDIAN_DIR/memory/reminders.md`.
 
 ## Format

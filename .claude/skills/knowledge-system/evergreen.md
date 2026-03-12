@@ -1,15 +1,3 @@
----
-name: evergreen
-description: >
-  Runs periodic housekeeping on the Obsidian vault and git repos: finds orphan
-  notes, broken wikilinks, missing metadata, stale memory aggregations, merged
-  branches, and dangling worktrees. Use when the user says "tidy up", "clean
-  the vault", "prune branches", "run maintenance", or when the heartbeat has
-  spare cycles. Do NOT use for one-time cleanup of a specific file or note
-  (just edit it directly).
-allowed-tools: Bash(git *), Read, Write, Glob, Grep
----
-
 Periodic maintenance for the Obsidian vault and git repos.
 
 ## Knowledge Graph Health
@@ -18,14 +6,14 @@ Check `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/` for:
 
 - **Orphan notes**: Notes not linked from any hub or other note. Use Grep to find all `[[wikilinks]]` across the vault, then Glob to list all note files. Notes whose title appears in no other file's wikilinks are orphans. Link them to an appropriate hub or create one.
 - **Broken wikilinks**: `[[targets]]` that don't resolve to any `.md` file in the vault. Rename the link or create the missing note.
-- **Missing metadata**: Notes without `Source:` or `Date:` lines. Every knowledge graph note needs both (see obsidian skill). Add them.
+- **Missing metadata**: Notes without `Source:` or `Date:` lines. Every knowledge graph note needs both (see [obsidian.md](obsidian.md)). Add them.
 
 ## Memory Health
 
 Check `$CLAUDE_OBSIDIAN_DIR/memory/` for:
 
-- **Aggregation staleness**: Run `uv run --directory SKILL_DIR python scripts/memory.py status` (hierarchical-memory skill). Aggregate any stale months.
-- **Fact drift**: Scan `overall_memory.md` for facts whose velocity suggests they may be stale (see hierarchical-memory Fact Freshness section). Flag for user confirmation.
+- **Aggregation staleness**: Run `uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py status` (where `KNOWLEDGE_SYSTEM_DIR` is `.claude/skills/knowledge-system`). Aggregate any stale months.
+- **Fact drift**: Scan `overall_memory.md` for facts whose velocity suggests they may be stale (see [hierarchical-memory.md](hierarchical-memory.md) Fact Freshness section). Flag for user confirmation.
 
 ## Repo Health
 

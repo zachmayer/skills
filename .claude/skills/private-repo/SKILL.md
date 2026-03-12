@@ -67,8 +67,7 @@ git -C TARGET_DIR push
 
 This skill is called by other skills that need private remote storage:
 
-- **hierarchical-memory**: backs up `$CLAUDE_OBSIDIAN_DIR/memory/` (via the obsidian vault)
-- **obsidian**: backs up `$CLAUDE_OBSIDIAN_DIR/` — suggest repo name `obsidian-vault-private`
+- **knowledge-system**: backs up `$CLAUDE_OBSIDIAN_DIR/` (memory + knowledge_graph) — suggest repo name `obsidian-vault-private`
 
 ## Important
 

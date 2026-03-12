@@ -6,7 +6,7 @@ description: >
   notes, then aggregates into monthly and overall summaries. Use at the end of
   a work session, when the user says "remember this session", "take notes",
   "save what we did", "wrap up", or "end of session". Do NOT use mid-session
-  or for saving a single note (use hierarchical-memory directly).
+  or for saving a single note (use knowledge-system directly).
 allowed-tools: Bash(uv run *), Bash(git *), Read, Write, Glob, Grep
 ---
 
@@ -27,17 +27,17 @@ Scan the full conversation. Identify:
 Before writing anything, read today's daily file to see what's already been saved:
 
 ```bash
-uv run --directory MEMORY_SKILL_DIR python scripts/memory.py read-day
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-day
 ```
 
 Only write notes for topics NOT already captured. Skip duplicates.
 
 ### 3. Save new daily notes
 
-Use the `hierarchical-memory` skill to save timestamped notes to today's daily file:
+Use the `knowledge-system` memory CLI to save timestamped notes to today's daily file:
 
 ```bash
-uv run --directory MEMORY_SKILL_DIR python scripts/memory.py note "NOTE_TEXT"
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py note "NOTE_TEXT"
 ```
 
 Save one note per distinct topic that isn't already in today's file. Include:
@@ -53,9 +53,9 @@ Use `[[wiki-links]]` to connect related notes. Link to existing obsidian notes b
 
 ### 4. Save big-picture items to obsidian notes
 
-If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in the obsidian vault using the `obsidian` skill.
+If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in the obsidian vault using the `knowledge-system` obsidian conventions.
 
-Daily work goes to `memory/` subdirectory via hierarchical-memory. Durable knowledge goes to `knowledge_graph/` topic notes in the vault.
+Daily work goes to `memory/` subdirectory via knowledge-system. Durable knowledge goes to `knowledge_graph/` topic notes in the vault.
 
 ### 5. Aggregate memory
 

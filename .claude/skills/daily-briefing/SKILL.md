@@ -25,7 +25,7 @@ Collect these in parallel (skip any that don't exist or error):
 Read current memory state:
 
 ```bash
-uv run --directory MEMORY_SKILL_DIR python scripts/memory.py read-current
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-current
 ```
 
 Extract from overall memory:

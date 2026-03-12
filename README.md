@@ -53,14 +53,11 @@ There's also an optional personal knowledge management layer built on Obsidian a
 
 | Skill | Description |
 |-------|-------------|
-| [obsidian](.claude/skills/obsidian/) | Read, write, search, and link notes in a git-backed Obsidian vault (+ CLI) |
-| [hierarchical-memory](.claude/skills/hierarchical-memory/) | Quick notes aggregated into daily/monthly/overall summaries |
-| [capture](.claude/skills/capture/) | Smart routing: memory, GitHub Issues, obsidian, CLAUDE.md, or README |
+| [knowledge-system](.claude/skills/knowledge-system/) | Unified knowledge management: memory, obsidian vault, capture routing, reminders, maintenance |
 | [web-grab](.claude/skills/web-grab/) | Fetch URL content and save to obsidian (Playwright for JS SPAs) |
 | [pdf-to-markdown](.claude/skills/pdf-to-markdown/) | Convert PDFs to clean markdown |
 | [skill-stealer](.claude/skills/skill-stealer/) | Extract reusable skills from URLs into SKILL.md |
 | [remember-session](.claude/skills/remember-session/) | Save session learnings to memory and obsidian |
-| [reminders](.claude/skills/reminders/) | Time-aware reminders stored in obsidian |
 
 ### Workflow & Session
 
@@ -68,7 +65,6 @@ There's also an optional personal knowledge management layer built on Obsidian a
 |-------|-------------|
 | [session-planner](.claude/skills/session-planner/) | Plan a focused work session from memory, tasks, and context |
 | [daily-briefing](.claude/skills/daily-briefing/) | Morning summary from memory, tasks, and vault |
-| [evergreen](.claude/skills/evergreen/) | Periodic vault and repo housekeeping |
 | [heartbeat](.claude/skills/heartbeat/) | Autonomous agent on a schedule: picks up `ai:queued` issues, codes, reviews, ships |
 | [slack-bridge](.claude/skills/slack-bridge/) | Phone-to-Claude capture via Slack MCP |
 

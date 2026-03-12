@@ -1,16 +1,3 @@
----
-name: hierarchical-memory
-description: >
-  Manages a hierarchical memory system stored as markdown files with daily,
-  monthly, and overall layers. Use when the user says "remember this",
-  "save a note", "what do you know about me", "recall", "what did we discuss",
-  "aggregate memories", "check memory", or wants to persist context across
-  sessions. Also use when the user references past conversations or wants
-  to review previous learnings.
-  Do NOT use for code-specific documentation (use CLAUDE.md or AGENTS.md instead).
-allowed-tools: Bash(uv run *), Bash(git *), Read, Write, Glob
----
-
 Manage notes in hierarchical memory at `$CLAUDE_OBSIDIAN_DIR/memory/` (default: `~/claude/obsidian/memory/`).
 
 Set `CLAUDE_OBSIDIAN_DIR` to change the vault root. All paths derive from it.
@@ -33,14 +20,14 @@ Set `CLAUDE_OBSIDIAN_DIR` to change the vault root. All paths derive from it.
 
 All commands:
 ```bash
-uv run --directory SKILL_DIR python scripts/memory.py <command> [args]
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py <command> [args]
 ```
 
-Where `SKILL_DIR` is the directory containing this skill.
+Where `KNOWLEDGE_SYSTEM_DIR` is the directory containing this skill (`.claude/skills/knowledge-system`).
 
 ### Save a note
 ```bash
-uv run --directory SKILL_DIR python scripts/memory.py note "Your note text here"
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py note "Your note text here"
 ```
 Appends: `- **TIMESTAMP** [hostname:reponame]: TEXT` to today's daily file. Prints a staleness one-liner after saving — e.g. `Aggregation stale: 2026-02 CREATE, overall UPDATE` or `Aggregation: up to date`.
 
@@ -50,39 +37,39 @@ Three focused readers, two multi-readers, and one convenience shortcut:
 
 ```bash
 # Read a specific day (default: today)
-uv run --directory SKILL_DIR python scripts/memory.py read-day 2026-02-10
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-day 2026-02-10
 
 # Read multiple days (range)
-uv run --directory SKILL_DIR python scripts/memory.py read-days 2026-02-10 2026-02-14
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-days 2026-02-10 2026-02-14
 
 # Read last 7 days
-uv run --directory SKILL_DIR python scripts/memory.py read-days --last 7
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-days --last 7
 
 # Read a monthly summary (default: current month)
-uv run --directory SKILL_DIR python scripts/memory.py read-month 2026-02
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-month 2026-02
 
 # Read multiple months (range)
-uv run --directory SKILL_DIR python scripts/memory.py read-months 2026-01 2026-02
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-months 2026-01 2026-02
 
 # Read last 3 months
-uv run --directory SKILL_DIR python scripts/memory.py read-months --last 3
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-months --last 3
 
 # Read overall memory
-uv run --directory SKILL_DIR python scripts/memory.py read-overall
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-overall
 
 # Read everything current (overall + month + today) in one call
-uv run --directory SKILL_DIR python scripts/memory.py read-current
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-current
 ```
 
 ### List files
 ```bash
-uv run --directory SKILL_DIR python scripts/memory.py list
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py list
 ```
 Shows all memory files with type (daily/monthly/overall/unknown) and modification date. Warns on unknown files.
 
 ### Check aggregation status
 ```bash
-uv run --directory SKILL_DIR python scripts/memory.py status
+uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py status
 ```
 Shows which monthly summaries need creating or updating, overall memory staleness, and knowledge graph contents.
 

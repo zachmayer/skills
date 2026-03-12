@@ -1,19 +1,18 @@
 ---
 name: superforecaster
 description: >
-  Makes calibrated probabilistic forecasts on binary questions using
-  structured reasoning, web research, and multi-model aggregation. Use
-  when the user asks "what's the probability of X?", "will X happen?",
-  "how likely is Y?", wants a forecast, prediction, or calibrated
-  probability estimate on a future event. Also triggers on "forecast
-  this", "predict whether", or any question about future likelihoods.
-  Also searches prediction markets (Metaculus, Manifold, PredictIt,
-  Polymarket, Kalshi, Betfair, Smarkets) for current market odds when
-  the user says "what are the odds", "check prediction markets", "what
-  do markets say about", "probability of X happening", "forecast odds".
-  Do NOT use for sports betting odds, stock prices, time series
-  forecasting (use forecast skill), non-prediction-market lookups, or
-  questions with known answers.
+  Calibrated forecasting for real-world future events, plus prediction
+  market checks. Use when the user wants the probability of a future
+  outcome in politics, economics, technology, policy, or world events.
+  Triggers: "what's the probability of X?", "will X happen?", "how likely
+  is Y?", "what are the odds of X?", "check prediction markets", "what
+  do Metaculus/Manifold/Polymarket say about", "give me calibrated odds".
+  Best for binary or date-bounded questions about external events. Also
+  searches Metaculus, Manifold, PredictIt, Polymarket, Kalshi, Betfair,
+  and Smarkets for current market-implied probabilities. Do NOT use for
+  sports betting odds, current asset prices, numeric time-series
+  forecasting from CSV data (use forecast skill), or internal predictions
+  like whether code, tests, or builds will pass.
 allowed-tools: WebSearch, WebFetch, Bash(curl *), Task
 ---
 

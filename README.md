@@ -55,14 +55,12 @@ There's also an optional personal knowledge management layer built on Obsidian a
 | [knowledge-system](.claude/skills/knowledge-system/) | Unified knowledge management: memory, obsidian vault, capture routing, reminders, maintenance |
 | [web-grab](.claude/skills/web-grab/) | Fetch URL content and save to obsidian (Playwright for JS SPAs) |
 | [pdf-to-markdown](.claude/skills/pdf-to-markdown/) | Convert PDFs to clean markdown |
-| [remember-session](.claude/skills/remember-session/) | Save session learnings to memory and obsidian |
 
 ### Workflow & Session
 
 | Skill | Description |
 |-------|-------------|
-| [session-planner](.claude/skills/session-planner/) | Plan a focused work session from memory, tasks, and context |
-| [daily-briefing](.claude/skills/daily-briefing/) | Morning summary from memory, tasks, and vault |
+| [session-lifecycle](.claude/skills/session-lifecycle/) | Session lifecycle: daily briefing, session planning, end-of-session persistence |
 | [heartbeat](.claude/skills/heartbeat/) | Autonomous agent on a schedule: picks up `ai:queued` issues, codes, reviews, ships |
 | [slack-bridge](.claude/skills/slack-bridge/) | Phone-to-Claude capture via Slack MCP |
 

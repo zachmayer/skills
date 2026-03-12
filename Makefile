@@ -144,7 +144,6 @@ clean: ## Remove venv and re-sync
 # Skills excluded from web packaging (require auth: API keys, CLI login, or vault git push)
 SKILLS_WEB_EXCLUDE := \
 	api-key-checker \
-	daily-briefing \
 	discussion-partners \
 	gh-cli \
 	gws-cli \
@@ -158,8 +157,7 @@ SKILLS_WEB_EXCLUDE := \
 	private-repo \
 	prompt-evolution \
 	ralph-loop \
-	remember-session \
-	session-planner \
+	session-lifecycle \
 	slack-bridge \
 	superforecaster \
 	web-grab

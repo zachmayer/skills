@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 25 agent skills following the Agent Skills open standard
 - **Knowledge system** (1): knowledge-system (consolidates capture, hierarchical-memory, obsidian, reminders, evergreen)
-- **Capture skills** (3): web-grab, pdf-to-markdown, remember-session
-- **Organize skills** (3): heartbeat, private-repo, session-planner
+- **Capture skills** (2): web-grab, pdf-to-markdown
+- **Session lifecycle** (1): session-lifecycle (consolidates daily-briefing, session-planner, remember-session)
+- **Organize skills** (2): heartbeat, private-repo
 - **Process skills** (7): ultra-think, mental-models, ask-questions, discussion-partners, data-science, forecast, lean-prover
 - **Build skills** (8): ralph-loop, staff-engineer, concise-writing, gh-cli, prompt-evolution, llm-judge, pr-review, api-key-checker
 - **Meta skills** (1): skillcraft (consolidates skills-reference, skill-stealer, skill-pruner)

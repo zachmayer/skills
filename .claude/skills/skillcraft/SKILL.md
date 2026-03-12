@@ -1,14 +1,16 @@
 ---
 name: skillcraft
 description: >
-  Unified skill for authoring, extracting, and maintaining Agent Skills.
-  Covers creating new skills, reviewing skill quality, best practices for
-  SKILL.md authoring, the Agent Skills standard, progressive disclosure,
-  and evaluation. Use when the user says "creating new skills", "review my
-  skills", "audit skills", "clean up skills", "too many skills", "steal
-  this skill", "convert this to a skill", "make a skill from this", shares
-  a link to a prompt or workflow, or needs best practices for SKILL.md.
-  Do NOT use for general Claude Code configuration (use config reference).
+  Agent Skill authoring and maintenance. Use when the user wants to create
+  a new skill, convert a prompt or workflow into a skill, refactor, compress,
+  split, or merge an existing skill, review SKILL.md quality or frontmatter,
+  audit skills for overlap, or learn Agent Skills standards, progressive
+  disclosure, and evaluation. Triggers: "make this a skill", "steal this skill",
+  "convert this to a skill", "review my skills", "audit skills", "clean up
+  skills", "too many skills", "compress this skill", "how do I write a SKILL.md",
+  "skill frontmatter", or shares a link to a prompt or workflow. Do NOT use for
+  general Claude Code configuration (use claude-code-config), normal code review
+  or security audit, or merely listing installed skills.
 ---
 
 # Skillcraft

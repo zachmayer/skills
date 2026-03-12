@@ -1,14 +1,4 @@
----
-name: remember-session
-description: >
-  Reviews the current session and persists what matters to the obsidian vault.
-  Captures completed work, decisions, learnings, and TODOs as timestamped daily
-  notes, then aggregates into monthly and overall summaries. Use at the end of
-  a work session, when the user says "remember this session", "take notes",
-  "save what we did", "wrap up", or "end of session". Do NOT use mid-session
-  or for saving a single note (use knowledge-system directly).
-allowed-tools: Bash(uv run *), Bash(git *), Read, Write, Glob, Grep
----
+# Remember Session
 
 End-of-session ritual. Review what happened, persist what matters, aggregate.
 
@@ -30,11 +20,13 @@ Before writing anything, read today's daily file to see what's already been save
 uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-day
 ```
 
+Where `KNOWLEDGE_SYSTEM_DIR` is `.claude/skills/knowledge-system`.
+
 Only write notes for topics NOT already captured. Skip duplicates.
 
 ### 3. Save new daily notes
 
-Use the `knowledge-system` memory CLI to save timestamped notes to today's daily file:
+Use the knowledge-system memory CLI to save timestamped notes to today's daily file:
 
 ```bash
 uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py note "NOTE_TEXT"
@@ -53,7 +45,7 @@ Use `[[wiki-links]]` to connect related notes. Link to existing obsidian notes b
 
 ### 4. Save big-picture items to obsidian notes
 
-If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in the obsidian vault using the `knowledge-system` obsidian conventions.
+If the session produced anything worth finding later — a new project, an architectural decision, a research finding, a personal milestone — create or update a note in the obsidian vault using the knowledge-system obsidian conventions.
 
 Daily work goes to `memory/` subdirectory via knowledge-system. Durable knowledge goes to `knowledge_graph/` topic notes in the vault.
 

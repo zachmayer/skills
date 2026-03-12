@@ -1,20 +1,8 @@
----
-name: daily-briefing
-description: >
-  Compiles a morning summary from memory, git state, GitHub PRs/issues,
-  and obsidian vault TODOs. Use when the user says "daily briefing",
-  "morning summary", "what's going on", "catch me up", "start of day",
-  "what did I miss", or begins a new work session. Gathers urgent items,
-  yesterday's work, open PRs, upcoming deadlines, and outstanding TODOs
-  into a single scannable briefing. Do NOT use for mid-session status checks,
-  planning what to work on (use session-planner), or executing tasks.
----
-
 # Daily Briefing
 
 Compile a morning summary so the user can start their day oriented.
 
-This skill is a **read-only overview** — it surfaces what matters, it does not plan or execute. Use `session-planner` after the briefing to decide what to work on.
+This is a **read-only overview** — it surfaces what matters, it does not plan or execute. Use `session-planner` after the briefing to decide what to work on.
 
 ## Gather
 
@@ -27,6 +15,8 @@ Read current memory state:
 ```bash
 uv run --directory KNOWLEDGE_SYSTEM_DIR python scripts/memory.py read-current
 ```
+
+Where `KNOWLEDGE_SYSTEM_DIR` is `.claude/skills/knowledge-system`.
 
 Extract from overall memory:
 - Active projects and their status

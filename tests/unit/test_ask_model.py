@@ -1,4 +1,4 @@
-"""Tests for the discussion_partners ask_model.py CLI."""
+"""Tests for the discussion-partners ask_model.py CLI."""
 
 import importlib.util
 import sys
@@ -16,7 +16,7 @@ _spec = importlib.util.spec_from_file_location(
     Path(__file__).resolve().parents[2]
     / ".claude"
     / "skills"
-    / "discussion_partners"
+    / "discussion-partners"
     / "scripts"
     / "ask_model.py",
 )

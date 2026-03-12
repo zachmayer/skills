@@ -1,11 +1,14 @@
 ---
 name: superforecaster
 description: >
-  Make calibrated probabilistic forecasts on binary questions using structured
-  reasoning, web research, and multi-model aggregation. Use when the user asks
-  "what's the probability of X?", wants a forecast, or needs a calibrated
-  prediction on a future event. Do NOT use for sports betting odds (use
-  check_odds) or for questions with known answers.
+  Makes calibrated probabilistic forecasts on binary questions using
+  structured reasoning, web research, and multi-model aggregation. Use
+  when the user asks "what's the probability of X?", "will X happen?",
+  "how likely is Y?", wants a forecast, prediction, or calibrated
+  probability estimate on a future event. Also triggers on "forecast
+  this", "predict whether", or any question about future likelihoods.
+  Do NOT use for sports betting odds (use check-odds) or for questions
+  with known answers.
 allowed-tools: WebSearch, WebFetch, Bash(curl *), Task
 ---
 
@@ -30,7 +33,7 @@ If the user's question is vague, clarify before forecasting.
 
 **Run in parallel:**
 
-a) **Market prior** — Use `check_odds` to get prediction market consensus. This is your initial anchor. If no markets exist, note that explicitly.
+a) **Market prior** — Use `check-odds` to get prediction market consensus. This is your initial anchor. If no markets exist, note that explicitly.
 
 b) **Web research** — Use WebSearch for 3-5 targeted queries:
    - The question itself
@@ -60,7 +63,7 @@ SCENARIO FOR YES:
 
 BASE RATE: [X% — historical frequency of similar events]
 
-MARKET CONSENSUS: [X% from check_odds, or "no markets"]
+MARKET CONSENSUS: [X% from check-odds, or "no markets"]
 
 KEY EVIDENCE:
 - [evidence point 1 — for/against, strength]
@@ -90,7 +93,7 @@ Adjust if warranted. State what changed and why.
 
 ### 5. Multi-Model Aggregation (Optional, for high-stakes questions)
 
-For important forecasts, get independent predictions from other models using `discussion_partners`:
+For important forecasts, get independent predictions from other models using `discussion-partners`:
 
 Frame the question with ALL context (the partner has zero context). Include:
 - The exact binary question and resolution criteria

@@ -1,10 +1,12 @@
 ---
 name: modal
 description: >
-  Run compute on Modal — GPUs, CPU swarms, web endpoints, scheduled jobs.
-  Use when the user needs cloud compute, GPU inference, training, batch
-  processing, or parallel workloads. Do NOT use for local-only tasks or
-  when the user has not set up a Modal account.
+  Runs compute on Modal — GPUs, CPU swarms, web endpoints, scheduled jobs.
+  Use when the user says "run on GPU", "deploy to cloud", "run on Modal",
+  "scale this up", "train a model", "serve a model", "batch process", or
+  needs serverless containers, GPU inference, parallel workloads, or
+  scheduled cloud jobs. Do NOT use for local-only tasks or when the user
+  has not set up a Modal account.
 allowed-tools: Bash(uv run *), Read, Write, Glob
 ---
 

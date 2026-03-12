@@ -1,20 +1,21 @@
 ---
 name: orchestrate
 description: >
-  Orchestration: decompose a task into a dependency graph of sub-tasks, spawn
-  specialized sub-agents in parallel where possible, and aggregate results.
-  Use when a task has 3+ independent or dependent sub-tasks that benefit from
-  parallel execution or specialized agent routing. Do NOT use for simple
-  sequential tasks, single-agent work, or when ralph_loop is a better fit
-  (iterative development with commits).
+  Decomposes a task into a dependency graph of sub-tasks, spawns specialized
+  sub-agents in parallel, and aggregates results. Use when the user says
+  "do all of these", "research X and implement Y at the same time", or gives
+  a task with 3+ independent parts that benefit from parallel execution.
+  Also use for multi-step workflows needing different agent types (explore,
+  plan, code, test). Do NOT use for simple sequential tasks, single-agent
+  work, or iterative development with commits (use ralph-loop instead).
 ---
 
 You are a coordinator agent. Your job is to decompose $ARGUMENTS into a directed acyclic graph (DAG) of sub-tasks, route each to the right sub-agent type, execute them respecting dependencies, and aggregate the results.
 
 Also apply these skills as needed:
-- `ultra_think` for complex decomposition decisions
-- `staff_engineer` for engineering rigor
-- `ask_questions` if the task is ambiguous — clarify before decomposing
+- `ultra-think` for complex decomposition decisions
+- `staff-engineer` for engineering rigor
+- `ask-questions` if the task is ambiguous — clarify before decomposing
 
 ## Agent Routing Guide
 
@@ -124,7 +125,7 @@ Once all tasks complete:
 Not every multi-step task needs a coordinator. Skip this skill when:
 
 - **Tasks are purely sequential** with no parallelism opportunity → just do them in order
-- **It's iterative development** → use `ralph_loop` instead
+- **It's iterative development** → use `ralph-loop` instead
 - **There are fewer than 3 sub-tasks** → overhead of coordination exceeds benefit
 - **All tasks need the same agent type** → batch them or do them sequentially
 - **The task requires tight feedback loops** between steps → coordination adds latency

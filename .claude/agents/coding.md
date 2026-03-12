@@ -39,7 +39,7 @@ $BRANCH_STATUS
 Before doing anything, determine where this PR stands:
 
 **Fresh issue, no code**: Branch has no meaningful changes vs main.
-The queue agent already scoped this issue. Load the `prior_art_review`
+The queue agent already scoped this issue. Load the `prior-art-review`
 skill and review related PRs listed above — read their diffs and comments
 to learn what was tried and why it failed. Then start coding.
 
@@ -61,7 +61,7 @@ Skip steps that are already complete.
 
 Implement the minimal necessary changes.
 - If branch is behind main, merge main first and resolve conflicts.
-- Load the staff_engineer skill — it prevents over-engineering.
+- Load the staff-engineer skill — it prevents over-engineering.
 - Run `make test`. Fix failures. Repeat until green.
 - Commit with clear messages referencing #$ISSUE_NUMBER.
 
@@ -69,7 +69,7 @@ Implement the minimal necessary changes.
 
 Once tests pass, get external review before shipping.
 - Run `git diff origin/main` to see your full changeset.
-- Load the `discussion_partners` skill and review with all three
+- Load the `discussion-partners` skill and review with all three
   recommended models (see the skill's model table). Run them in parallel.
   Ask each: "Is this PR minimal, correct, and ready for a human to review
   and merge in under 5 minutes? Be specific about any concerns."

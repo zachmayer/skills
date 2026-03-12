@@ -1,13 +1,16 @@
 ---
 name: evergreen
 description: >
-  Periodic vault and repo housekeeping. Use when the heartbeat has spare time,
-  the user asks to tidy up, or things feel cluttered. Do NOT use for one-time
-  cleanup of a specific file.
+  Runs periodic housekeeping on the Obsidian vault and git repos: finds orphan
+  notes, broken wikilinks, missing metadata, stale memory aggregations, merged
+  branches, and dangling worktrees. Use when the user says "tidy up", "clean
+  the vault", "prune branches", "run maintenance", or when the heartbeat has
+  spare cycles. Do NOT use for one-time cleanup of a specific file or note
+  (just edit it directly).
 allowed-tools: Bash(git *), Read, Write, Glob, Grep
 ---
 
-Periodic maintenance for the obsidian vault and repos. All checks use Glob, Grep, and Read — no scripts needed.
+Periodic maintenance for the Obsidian vault and git repos.
 
 ## Knowledge Graph Health
 
@@ -21,8 +24,8 @@ Check `$CLAUDE_OBSIDIAN_DIR/knowledge_graph/` for:
 
 Check `$CLAUDE_OBSIDIAN_DIR/memory/` for:
 
-- **Aggregation staleness**: Run `uv run --directory SKILL_DIR python scripts/memory.py status` (hierarchical_memory skill). Aggregate any stale months.
-- **Fact drift**: Scan `overall_memory.md` for facts whose velocity suggests they may be stale (see hierarchical_memory Fact Freshness section). Flag for user confirmation.
+- **Aggregation staleness**: Run `uv run --directory SKILL_DIR python scripts/memory.py status` (hierarchical-memory skill). Aggregate any stale months.
+- **Fact drift**: Scan `overall_memory.md` for facts whose velocity suggests they may be stale (see hierarchical-memory Fact Freshness section). Flag for user confirmation.
 
 ## Repo Health
 

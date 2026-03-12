@@ -1,11 +1,13 @@
 ---
 name: rlm
 description: >
-  Analyze large context (100K+ tokens) using phased reasoning with tool-based
+  Analyzes large context (100K+ tokens) using phased reasoning with tool-based
   filtering and sub-agent delegation. Based on the RLM paper (arXiv:2512.24601).
-  Use when working with large files, long transcripts, massive codebases, or any
-  context too large to reason about in a single pass. Do NOT use for small files,
-  simple lookups, or tasks where the full context fits comfortably in working memory.
+  Use when working with large files, long transcripts, massive codebases,
+  full repo analysis, or any context too large to reason about in a single pass.
+  Triggers on "analyze this codebase", "summarize this transcript", "review all
+  files", or any task involving more data than fits in working memory.
+  Do NOT use for small files, simple lookups, or single-file tasks.
 ---
 
 # RLM: Recursive Language Model Protocol

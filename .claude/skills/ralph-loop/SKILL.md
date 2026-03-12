@@ -19,8 +19,7 @@ Also apply these skills throughout the loop:
 - `staff-engineer` for engineering standards, anti-sycophancy, and line-by-line debugging
 - `mental-models` for structured reasoning — OODA loop drives the iteration, post-mortem and Five Whys for failure diagnosis
 - `ask-questions` if requirements are unclear — clarify before building
-- `knowledge-system` to read past context and save learnings
-- `knowledge-system` to record durable knowledge and architectural decisions
+- `knowledge-system` to read past context, save learnings, and record durable knowledge
 
 ## Phase 0: Bootstrap (do this fast)
 

@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of 40 AI agent skills for Claude Code. Built on the [Agent Skills](https://agentskills.io) open standard.
+A collection of 32 AI agent skills for Claude Code. Built on the [Agent Skills](https://agentskills.io) open standard.
 
 ## What's Here
 

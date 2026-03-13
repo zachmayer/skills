@@ -24,8 +24,8 @@ There are two invocation methods: the **pydantic-ai script** (for API models) an
 
 | Model | When to use | API key needed |
 |-------|-------------|----------------|
-| `google-gla:gemini-3.1-pro-preview` **(default)** | Primary partner. Brilliantly intelligent reasoning, fast | `GOOGLE_API_KEY` |
-| `openai:gpt-5.4` | Deep detail, xhigh thinking | `OPENAI_API_KEY` |
+| `openai:gpt-5.4` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
+| `google-gla:gemini-3.1-pro-preview` | Brilliantly intelligent reasoning, fast | `GOOGLE_API_KEY` |
 | `openai-responses:gpt-5.4-pro` | Maximum depth. Slow (~10-15 min) but extraordinary detail-oriented analysis. Use when you're willing to wait for the strongest intelligence available | `OPENAI_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
 
@@ -75,11 +75,8 @@ Where `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a 
 Thinking effort is automatically set to maximum for each provider. Use `--thinking low` for fast responses on large prompts (~1.5 min vs ~7 min for xhigh on ~1000-line reviews).
 
 ```bash
-# Gemini 3.1 Pro (default — just omit -m)
+# GPT-5.4 with xhigh reasoning (default — just omit -m)
 uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/prompt.txt
-
-# GPT-5.4 with xhigh reasoning
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai:gpt-5.4 -f ~/claude/scratch/prompt.txt
 
 # GPT-5.4 Pro — maximum depth, slow (~10-15 min), extraordinary analysis
 uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5.4-pro -f ~/claude/scratch/prompt.txt
@@ -90,7 +87,7 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opu
 
 ### ask_model.py Options
 
-- `--model` / `-m`: Full pydantic-ai model string (default: `google-gla:gemini-3.1-pro-preview`)
+- `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.4`)
 - `--thinking` / `-t`: Override thinking level. OpenAI: `low`/`medium`/`high`/`xhigh` (default: `xhigh`). Gemini: `low`/`high`. Use `low` for large prompts where speed matters more than depth.
 - `--system` / `-s`: Optional system prompt override
 - `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)

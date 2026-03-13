@@ -11,13 +11,17 @@ allowed-tools: Bash(kaggle *)
 
 Kaggle CLI reference. Docs: https://github.com/Kaggle/kaggle-api
 
+## Safety
+
+- **Confirm with the user before any write/publish command.** This includes `competitions submit`, `datasets create`, `datasets version`, and `kernels push`. These actions are irreversible or rate-limited.
+
 ## Install
 
 ```bash
-pip install kaggle
+pipx install kaggle
 ```
 
-Global install — the `kaggle` binary must be on `$PATH`.
+Global install via pipx — the `kaggle` binary must be on `$PATH`. Verify with `kaggle --version`.
 
 ## Auth
 
@@ -45,6 +49,7 @@ kaggle competitions list --category featured      # categories: all, featured, r
 ### Download data
 
 ```bash
+kaggle competitions files -c <competition>                       # list available files
 kaggle competitions download -c <competition>                    # download all files
 kaggle competitions download -c <competition> -f train.csv       # single file
 kaggle competitions download -c <competition> -p ./data/         # to specific path
@@ -66,7 +71,7 @@ kaggle competitions submit -c <competition> -f submission.csv -m "first attempt"
 kaggle competitions submissions -c <competition>                 # list past submissions
 ```
 
-**Always confirm with the user before submitting** — submissions may be limited.
+Submissions are often rate-limited (e.g. 5/day). See Safety section above.
 
 ## Datasets
 

@@ -35,7 +35,7 @@ There's also an optional personal knowledge management layer built on Obsidian a
 
 | Skill | Description |
 |-------|-------------|
-| [discussion-partners](.claude/skills/discussion-partners/) | Query OpenAI, Anthropic, or Google models for second opinions |
+| [discussion-partners](.claude/skills/discussion-partners/) | Query OpenAI, Anthropic, or Google models for second opinions (Codex CLI, Gemini CLI, or pydantic-ai API) |
 | [llm-judge](.claude/skills/llm-judge/) | LLM-as-judge evaluation for comparing outputs |
 | [prompt-evolution](.claude/skills/prompt-evolution/) | Evolve prompts through mutation and crossover |
 
@@ -168,9 +168,11 @@ Python skills use [Click](https://click.palletsprojects.com/) for CLIs and [UV](
 | `CLAUDE_OBSIDIAN_DIR` | Vault root (default: `~/claude/obsidian`) |
 | `OPENAI_API_KEY` | For `discussion-partners` (OpenAI models) |
 | `ANTHROPIC_API_KEY` | For `discussion-partners` (Anthropic models) |
-| `GOOGLE_API_KEY` | For `discussion-partners` (Google models) |
+| `GOOGLE_API_KEY` | For `discussion-partners` (Google models via API) |
+| `GEMINI_API_KEY` | For `discussion-partners` (Gemini CLI, alternative to Google OAuth) |
 
 Add keys to `~/.zshrc` or `~/.bashrc`. Claude Code sources your shell profile at startup.
+Codex CLI authenticates via `codex login`. Gemini CLI authenticates via Google OAuth (run `gemini` once) or `GEMINI_API_KEY`.
 
 ## License
 

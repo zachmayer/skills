@@ -602,8 +602,17 @@ def process_review(repo, repo_path, issue):
     # Determine working branch for worktree
     working_branch = resolve_working_branch(all_prs, most_recent_open, branch_name(num))
 
-    # Ensure worktree exists on the correct branch and run verification
+    # Ensure worktree exists on the correct branch
     ensure_worktree(repo_path, working_branch, wt)
+
+    # Bounce back to coding if branch is behind main (needs merge)
+    run(["git", "fetch", "origin"], cwd=wt, check=False)
+    if is_behind_main(wt):
+        log.info(f"[review] {repo}#{num}: behind main, bouncing to coding for merge")
+        set_label(repo, num, "ai:coding", remove="ai:review")
+        return
+
+    # Run verification before review
     failures = run_verification(wt)
     if failures:
         log.info(f"[review] {repo}#{num}: pre-review verification failed ({', '.join(failures)})")

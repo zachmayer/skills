@@ -108,7 +108,7 @@ Auth: `codex login` (uses your OpenAI account). No `OPENAI_API_KEY` needed — C
 
 ## Usage: Gemini CLI
 
-Uses Google account free tier (60 req/min, 1000 req/day) or a `GEMINI_API_KEY`. No per-token billing on the free tier. **For short questions**, pass inline with `-p`. **For long prompts, write to a file and pipe via stdin** — same pattern as Codex.
+Uses Google account free tier (60 req/min, 1000 req/day) or a `GEMINI_API_KEY`. No per-token billing on the free tier. Pass prompts with `-p`. Unlike Codex, Gemini CLI does not support stdin piping — use `-p` with the prompt text directly.
 
 ```bash
 # Default model (gemini-2.5-pro) — short question
@@ -117,7 +117,7 @@ gemini -p "Your question"
 # Specific model — short question
 gemini -m gemini-2.5-flash -p "Your question"
 
-# Long prompt from file
+# Long prompt from file (note: subject to OS ARG_MAX limits for very large prompts)
 gemini -p "$(cat ~/claude/scratch/prompt.txt)"
 
 # JSON output (structured, easy to parse)

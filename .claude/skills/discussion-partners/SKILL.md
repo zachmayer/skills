@@ -81,6 +81,8 @@ codex exec --full-auto --search -m gpt-5.4 -c model_reasoning_effort="xhigh" -o 
 
 The `-o` flag writes the final agent message to a file for easy consumption. Use `--full-auto` for non-interactive execution with workspace-write sandboxing.
 
+**Timeouts**: Deep thinking models can take 5-30+ minutes on complex prompts. The Bash tool's max timeout is 600,000ms (10 min) — not enough. **Always use `run_in_background: true`** for discussion partner calls. This has no timeout limit; you get notified when it finishes. Never use a foreground Bash call for these — it will SIGKILL the process mid-thought.
+
 **Additional capabilities**: `--search` enables live web search (native Responses `web_search` tool, no per-call approval). Codex also supports MCP servers for additional tools (`codex mcp add`), and has a built-in `codex review` command for code review. Run `codex --help` and `codex exec --help` to see all available options.
 
 ### Codex CLI Setup

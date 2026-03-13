@@ -162,6 +162,25 @@ Watch for these patterns in how Claude uses skills:
 
 The `name` and `description` fields are particularly critical — they determine whether Claude triggers the skill at all.
 
+## Stolen Skill Evaluation
+
+When evaluating a skill created via [skill-stealer.md](skill-stealer.md), focus on completeness — the biggest risk is losing key ideas during extraction.
+
+### Checklist
+
+1. **Enumerate source ideas** — List every major idea, procedure, and distinction from the original source. This is your completeness baseline.
+2. **Map to stolen skill** — For each source idea, confirm it appears in the stolen skill (possibly reworded or converted from code to prose). Flag anything missing.
+3. **Justify cuts** — Any source idea NOT in the stolen skill needs an explicit reason: "Claude already knows this", "framework-specific boilerplate", or "not applicable to our architecture". If you can't justify the cut, restore the idea.
+4. **Trigger coverage** — 5+ positive queries, 5+ negative queries. Does the `description` field surface the skill for the right requests?
+5. **Functional scenarios** — 3+ realistic use cases. Walk through the skill mentally: would it produce correct output?
+6. **Freedom levels** — Are the right parts locked down (low freedom) vs. flexible (high freedom)?
+
+### Common Failure Modes
+
+- **Over-compression**: "Minimum effective prompt" strips procedural distinctions that the model won't reinvent (e.g., b1 vs b2 classification, specific scoring formulas, taxonomies)
+- **Lost code logic**: Converting scripts to prose is fine, but the prose must capture the same decision logic — not just "handle errors appropriately"
+- **Trigger blindness**: The stolen skill works but never activates because the description lacks the keywords users actually type
+
 ## Team Feedback
 
 1. Share skills with teammates and observe usage

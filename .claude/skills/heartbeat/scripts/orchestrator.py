@@ -426,6 +426,10 @@ def invoke_agent(agent_name, workdir, context, issue_number, repo, *, budget=8):
         "--agent",
         agent_name,
         "--print",
+        "--model",
+        "opus",
+        "--effort",
+        "max",
         # Agents run non-interactively (--print) and can't get user approval
         # for file writes. They operate in isolated worktrees with a limited
         # OAuth token (no repo admin, no org access).

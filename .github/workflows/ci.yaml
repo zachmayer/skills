@@ -2,8 +2,10 @@ name: Lint and Test
 on:
   push:
     branches: [ "main" ]
+    paths-ignore: ['**.md', 'docs/**', 'LICENSE']
   pull_request:
     types: ["opened", "reopened", "synchronize"]
+    paths-ignore: ['**.md', 'docs/**', 'LICENSE']
 
 jobs:
   basic-ci:
@@ -22,6 +24,14 @@ jobs:
         version: ${{ steps.uv-version.outputs.uv_version }}
         enable-cache: true
         cache-dependency-glob: "uv.lock"
+
+    - name: Cache pre-commit environments
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+        restore-keys: |
+          pre-commit-${{ runner.os }}-
 
     - name: Install Dependencies
       run: make install-ci

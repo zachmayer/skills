@@ -64,10 +64,10 @@ Uses OpenAI subscription credits — no per-token billing. **For short questions
 
 ```bash
 # GPT-5.4 xhigh (default recommendation) — short question
-codex exec --full-auto -m gpt-5.4 "Your question" -o ~/claude/scratch/codex_output.txt
+codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" "Your question" -o ~/claude/scratch/codex_output.txt
 
 # GPT-5.4 xhigh — long prompt from file
-codex exec --full-auto -m gpt-5.4 -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
 
 # gpt-5.3-codex — coding specialist (default model in ~/.codex/config.toml)
 codex exec --full-auto -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt

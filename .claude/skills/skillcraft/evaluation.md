@@ -171,7 +171,7 @@ When evaluating a skill created via [skill-stealer.md](skill-stealer.md), focus 
 1. **Enumerate source ideas** — List every major idea, procedure, and distinction from the original source. This is your completeness baseline.
 2. **Map to stolen skill** — For each source idea, confirm it appears in the stolen skill (possibly reworded or converted from code to prose). Flag anything missing.
 3. **Justify cuts** — Any source idea NOT in the stolen skill needs an explicit reason: "Claude already knows this", "framework-specific boilerplate", or "not applicable to our architecture". If you can't justify the cut, restore the idea.
-4. **Trigger coverage** — 5+ positive queries, 5+ negative queries. Does the `description` field surface the skill for the right requests?
+4. **Trigger coverage** — 5+ positive queries, 5+ negative queries. Do the `name` and `description` fields surface the skill for the right requests?
 5. **Functional scenarios** — 3+ realistic use cases. Walk through the skill mentally: would it produce correct output?
 6. **Freedom levels** — Are the right parts locked down (low freedom) vs. flexible (high freedom)?
 

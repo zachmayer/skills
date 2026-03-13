@@ -43,9 +43,9 @@ Apply the [skills-reference.md](skills-reference.md) checklist. The two most com
 - **Description drives discovery**: Write in third person with specific trigger terms. Claude uses descriptions to choose from 100+ skills. Include both WHEN to use and WHEN NOT to use.
 - **Provide defaults, not options**: Don't present multiple approaches unless necessary. Pick the best default, mention alternatives only as escape hatches.
 
-8. **Evaluate the stolen skill** — Before declaring done, validate completeness and quality:
+8. **Evaluate the stolen skill** — Before declaring done, apply the Stolen Skill Evaluation checklist in [evaluation.md](evaluation.md):
 
-   **a. Trigger testing** — Draft 5+ queries that SHOULD trigger the skill and 5+ that should NOT. Review the `description` field against these. Fix undertriggering (missing keywords) or overtriggering (scope too broad).
+   **a. Trigger testing** — Draft 5+ queries that SHOULD trigger the skill and 5+ that should NOT. Review the `name` and `description` fields against these. Fix undertriggering (missing keywords) or overtriggering (scope too broad).
 
    **b. Functional testing** — Draft 3+ realistic test scenarios with expected behaviors. Mentally walk through the skill: would Claude produce the right output for each scenario? Fix gaps.
 
@@ -55,7 +55,7 @@ Apply the [skills-reference.md](skills-reference.md) checklist. The two most com
 
 ## Post-Creation: Compress if Needed
 
-After evaluation passes, if the skill exceeds 150 lines, run it through the [skill-pruner.md](skill-pruner.md) (Skill Compression section) for compression.
+After evaluation passes, if the skill exceeds 150 lines, run it through the [skill-pruner.md](skill-pruner.md) (Skill Compression section) for compression. If pruning was applied, rerun the completeness audit to ensure compression didn't strip key ideas.
 
 ## Output
 

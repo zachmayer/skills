@@ -72,6 +72,7 @@ There's also an optional personal knowledge management layer built on Obsidian a
 | [skillcraft](.claude/skills/skillcraft/) | Author, extract, and maintain Agent Skills (reference + stealer + pruner) |
 | [gh-cli](.claude/skills/gh-cli/) | GitHub CLI usage patterns and permissions |
 | [gws-cli](.claude/skills/gws-cli/) | Google Workspace CLI for Drive, Gmail, Sheets, Calendar |
+| [kaggle-cli](.claude/skills/kaggle-cli/) | Kaggle CLI for competitions, datasets, submissions, and notebooks |
 | [modal](.claude/skills/modal/) | Run GPU compute on Modal |
 | [jina-grep](.claude/skills/jina-grep/) | Semantic grep using Jina embedding models on Apple Silicon |
 | [api-key-checker](.claude/skills/api-key-checker/) | Verify AI provider API keys are configured and valid |

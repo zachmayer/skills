@@ -69,14 +69,19 @@ codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" "Your questi
 # GPT-5.4 xhigh — long prompt from file
 codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
 
-# gpt-5.3-codex — coding specialist (default model in ~/.codex/config.toml)
-codex exec --full-auto -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+# gpt-5.3-codex coding specialist — xhigh reasoning
+codex exec --full-auto -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
 
 # GPT-5.4 with low reasoning (faster, good for large prompts)
 codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="low" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+
+# Enable web search (--search gives the model a web_search tool)
+codex exec --full-auto --search -m gpt-5.4 -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
 ```
 
 The `-o` flag writes the final agent message to a file for easy consumption. Use `--full-auto` for non-interactive execution with workspace-write sandboxing.
+
+**Additional capabilities**: `--search` enables live web search (native Responses `web_search` tool, no per-call approval). Codex also supports MCP servers for additional tools (`codex mcp add`), and has a built-in `codex review` command for code review. Run `codex --help` and `codex exec --help` to see all available options.
 
 ### Codex CLI Setup
 

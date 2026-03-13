@@ -1,15 +1,16 @@
 ---
 name: discussion-partners
 description: >
-  Queries another AI model (GPT-5.4, Gemini 3.1 Pro, Claude Opus, Codex)
-  with extended thinking for an outside perspective. Use when stuck on a
-  hard problem, spinning wheels, want a second opinion, need a code review
-  from another model, or sense a blind spot. Trigger phrases: "ask GPT",
-  "get another opinion", "second opinion", "what would GPT say", "ask
-  another model", "discussion partner". Sends one message, gets one
-  response — no multi-turn. Do NOT use for routine tasks, simple questions
-  Claude can answer directly, or when no external API key is configured.
-allowed-tools: Bash(uv run *), Bash(codex exec *)
+  Queries another AI model (GPT-5.4, Gemini 3.1 Pro, Claude Opus, Codex,
+  Gemini CLI) with extended thinking for an outside perspective. Use when
+  stuck on a hard problem, spinning wheels, want a second opinion, need a
+  code review from another model, or sense a blind spot. Trigger phrases:
+  "ask GPT", "get another opinion", "second opinion", "what would GPT say",
+  "ask another model", "discussion partner", "ask Gemini". Sends one
+  message, gets one response — no multi-turn. Do NOT use for routine tasks,
+  simple questions Claude can answer directly, or when no external API key
+  is configured.
+allowed-tools: Bash(uv run *), Bash(codex exec *), Bash(gemini *)
 ---
 
 Query another AI model for an outside perspective on a difficult problem. One message out, one message back — make it count.
@@ -18,7 +19,7 @@ Query another AI model for an outside perspective on a difficult problem. One me
 
 **Default: GPT-5.4 xhigh via Codex CLI** — uses OpenAI subscription credits (no per-token billing), cheapest option. Do NOT use older models like o3 or gpt-5.2 — they are superseded.
 
-There are two invocation methods: the **Codex CLI** (preferred, uses subscription credits) and the **pydantic-ai script** (for non-OpenAI models and gpt-5.4-pro).
+There are three invocation methods: the **Codex CLI** (preferred for OpenAI, uses subscription credits), the **Gemini CLI** (preferred for Google, uses free tier or API key), and the **pydantic-ai script** (for multi-provider diversity and gpt-5.4-pro).
 
 ### Codex CLI Models (via `codex exec`) — preferred
 
@@ -30,6 +31,17 @@ Uses credits from an OpenAI paid subscription (no per-token billing). Codex-only
 | `gpt-5.3-codex` | Coding specialist — code review, debugging, refactors | Default in `~/.codex/config.toml`, Codex-only |
 
 Set reasoning effort via `-c model_reasoning_effort="xhigh"` (values: `low`, `medium`, `high`, `xhigh`). Default from config is `xhigh`.
+
+### Gemini CLI Models (via `gemini -p`) — preferred for Google models
+
+Uses Google account free tier (60 req/min, 1000 req/day) or `GEMINI_API_KEY`. No per-token billing on the free tier.
+
+| Model | When to use | Notes |
+|-------|-------------|-------|
+| `gemini-2.5-pro` **(default)** | Deep reasoning, code review, complex analysis | Default model, strongest reasoning |
+| `gemini-2.5-flash` | Fast responses, large context, quick checks | Faster, still very capable |
+
+Select model via `-m` flag. Output format via `--output-format` (`json` or `stream-json`).
 
 ### API Models (via `ask_model.py`)
 
@@ -94,6 +106,37 @@ model_reasoning_effort = "xhigh"
 
 Auth: `codex login` (uses your OpenAI account). No `OPENAI_API_KEY` needed — Codex CLI authenticates separately.
 
+## Usage: Gemini CLI
+
+Uses Google account free tier (60 req/min, 1000 req/day) or a `GEMINI_API_KEY`. No per-token billing on the free tier. **For short questions**, pass inline with `-p`. **For long prompts, write to a file and pipe via stdin** — same pattern as Codex.
+
+```bash
+# Default model (gemini-2.5-pro) — short question
+gemini -p "Your question"
+
+# Specific model — short question
+gemini -m gemini-2.5-flash -p "Your question"
+
+# Long prompt from file
+gemini -p "$(cat ~/claude/scratch/prompt.txt)"
+
+# JSON output (structured, easy to parse)
+gemini -p "Your question" --output-format json
+```
+
+### Gemini CLI Setup
+
+Install: `npm install -g @google/gemini-cli` (requires Node.js).
+
+Auth (choose one):
+- **Google OAuth (free tier)**: Run `gemini` interactively once, choose "Sign in with Google". Free tier: 60 req/min, 1000 req/day.
+- **API key**: `export GEMINI_API_KEY="your-key"` in `~/.zshrc`.
+
+### When to Use Gemini CLI vs ask_model.py for Google Models
+
+- **Gemini CLI** (preferred): Free tier with Google OAuth, no per-token billing. Latest Gemini models.
+- **ask_model.py**: For `google-gla:gemini-3.1-pro-preview` via pydantic-ai. Pay-per-token with `GOOGLE_API_KEY`.
+
 ## Usage: API Models (ask_model.py)
 
 Pay-per-token. Use for Gemini, Claude, gpt-5.4-pro, or when you need multi-provider diversity. For short questions, pass directly as an argument. **For long prompts, always use `--file`** — long shell arguments break unpredictably.
@@ -125,10 +168,11 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opu
 - `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)
 - `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`).
 
-### When to Use Codex CLI vs ask_model.py
+### When to Use Which Method
 
-- **Codex CLI** (preferred): Uses subscription credits. GPT-5.4 xhigh is the default recommendation. Codex-only models (`gpt-5.3-codex`) are only available here.
-- **ask_model.py**: For Gemini, Claude, gpt-5.4-pro, or when you need multi-provider opinions. Pay-per-token.
+- **Codex CLI** (preferred for OpenAI): Uses subscription credits. GPT-5.4 xhigh is the default recommendation. Codex-only models (`gpt-5.3-codex`) are only available here.
+- **Gemini CLI** (preferred for Google): Free tier with Google OAuth. Latest Gemini models directly.
+- **ask_model.py**: For Claude, gpt-5.4-pro, or when you need multi-provider diversity via pydantic-ai. Pay-per-token.
 
 ## API Key Setup
 
@@ -140,6 +184,7 @@ export GOOGLE_API_KEY="your-key"      # Required for google-gla: models
 ```
 
 Codex CLI authenticates via `codex login` — no env var needed.
+Gemini CLI authenticates via Google OAuth (run `gemini` once) or `GEMINI_API_KEY` env var.
 
 The script checks for the key before calling the API. If missing, it tells you which
 variable to set. If the key exists but the call fails, common errors:

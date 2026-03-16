@@ -63,6 +63,6 @@ kaggle competitions submissions <competition>  # list past submissions
 ## Config
 
 ```bash
-kaggle config set competition <slug>  # set default competition (omit -c flag)
+kaggle config set -n competition -v <slug>  # set default competition
 kaggle config view                    # show current config
 ```

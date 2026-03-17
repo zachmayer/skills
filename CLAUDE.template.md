@@ -22,7 +22,11 @@ Do NOT write to `/tmp/` — on macOS, `/tmp` is a symlink and Claude Code cannot
 
 ## Package Management
 
-**UV is the only package manager.** Use `uv run python` for scripts, `uv tool install` for global CLIs, `uv sync` for project deps. Never use pip, pipx, conda, poetry, or raw `python`/`python3`.
+**UV is the only package manager.** No pip, pipx, conda, or poetry anywhere on this machine.
+
+- **Use `uv tool install <cli>` to install CLI tools globally** — never `pipx install`.
+- **Use `uv run python`** for scripts — never raw `python` or `python3`.
+- **Use `uv sync`** for project deps.
 
 ## Code Quality
 

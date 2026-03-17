@@ -30,6 +30,8 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	uv run playwright install chromium
 	@# ── Semantic search CLI (Apple Silicon) ──
 	uv tool install git+https://github.com/jina-ai/jina-grep-cli.git || true
+	@# ── Kaggle CLI ──
+	uv tool install kaggle || true
 	@# ── Directories ──
 	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(HOME)/.claude/hooks
 	@# ── Security hooks ──
@@ -148,6 +150,7 @@ SKILLS_WEB_EXCLUDE := \
 	gh-cli \
 	gws-cli \
 	heartbeat \
+	kaggle \
 	knowledge-system \
 	lean-prover \
 	llm-judge \

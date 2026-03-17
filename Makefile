@@ -11,9 +11,11 @@ help: ## Show this help
 
 # ── Install ──────────────────────────────────────────────────────
 
-install-ci: ## Install for CI (UV deps only, no system deps)
+install-ci: ## Install for CI (UV deps + pre-commit, no system deps)
 	uv python install
 	uv sync --locked --group dev
+	git config --unset-all core.hooksPath || true
+	uv run pre-commit install
 .PHONY: install-ci
 
 install: ## Install everything: system deps, UV deps, skills, agents, config
@@ -28,10 +30,6 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	$(MAKE) install-ci
 	@# ── All extras (browser, etc.) ──
 	uv sync --locked --all-extras --all-groups
-	@# ── Pre-commit hooks ──
-	@# Note: only unsets repo-local core.hooksPath. A global setting would still interfere.
-	git config --unset-all core.hooksPath || true
-	uv run pre-commit install
 	@# ── Browser for web-grab skill ──
 	uv run playwright install chromium
 	@# ── Semantic search CLI (Apple Silicon) ──

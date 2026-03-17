@@ -28,9 +28,6 @@ jobs:
     - name: Install Dependencies
       run: make install-ci
 
-    - name: Install pre-commit hooks
-      run: uv run pre-commit install
-
     - name: Run Upgrades
       run: make upgrade
 

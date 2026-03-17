@@ -11,6 +11,13 @@ help: ## Show this help
 
 # ── Install ──────────────────────────────────────────────────────
 
+install-ci: ## Install for CI (UV deps + pre-commit, no system deps)
+	uv python install
+	uv sync --locked --group dev
+	git config --unset-all core.hooksPath || true
+	uv run pre-commit install
+.PHONY: install-ci
+
 install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── System dependencies (requires Homebrew) ──
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
@@ -19,13 +26,10 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	brew install uv gh pyright node jq google-cloud-sdk
 	brew doctor || true
 	npm install -g @googleworkspace/cli
-	@# ── Python + UV dependencies ──
-	uv python install
+	@# ── Python + UV dependencies (via install-ci) ──
+	$(MAKE) install-ci
+	@# ── All extras (browser, etc.) ──
 	uv sync --locked --all-extras --all-groups
-	@# ── Pre-commit hooks ──
-	@# Note: only unsets repo-local core.hooksPath. A global setting would still interfere.
-	git config --unset-all core.hooksPath || true
-	uv run pre-commit install
 	@# ── Browser for web-grab skill ──
 	uv run playwright install chromium
 	@# ── Semantic search CLI (Apple Silicon) ──
@@ -84,11 +88,6 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@echo '  export ANTHROPIC_API_KEY="your-key"'
 	@echo '  export GOOGLE_API_KEY="your-key"'
 .PHONY: install
-
-install-ci: ## Install for CI (no system deps, no heavy extras)
-	uv python install
-	uv sync --locked --group dev
-.PHONY: install-ci
 
 uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 	@echo "Removing skills from $(INSTALL_DIR)..."
@@ -194,7 +193,7 @@ HEARTBEAT_LABEL := com.anthropic.claude-heartbeat
 HEARTBEAT_PLIST := $(HOME)/Library/LaunchAgents/$(HEARTBEAT_LABEL).plist
 HEARTBEAT_LOG_DIR := $(HOME)/.claude/logs
 
-install-heartbeat: ## Install heartbeat launchd daemon (every 15 min)
+install-heartbeat: install ## Install everything + heartbeat launchd daemon (every 15 min)
 	@if [ ! -f "$(HOME)/.claude/heartbeat.env" ]; then \
 		echo "ERROR: ~/.claude/heartbeat.env not found."; \
 		echo "Run 'make setup-heartbeat-token' first."; \

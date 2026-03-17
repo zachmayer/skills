@@ -17,16 +17,14 @@ The Kaggle CLI is installed via `uv tool install kaggle` (included in `make inst
 uv tool install kaggle
 ```
 
-**Authentication** — requires a Kaggle API token:
-
-1. Go to kaggle.com → Account → "Create New Token"
-2. This downloads `kaggle.json` — move it:
+**Authentication** — add to `~/.zshrc`:
 
 ```bash
-mkdir -p ~/.kaggle
-mv ~/Downloads/kaggle.json ~/.kaggle/kaggle.json
-chmod 600 ~/.kaggle/kaggle.json
+export KAGGLE_USERNAME="your-username"
+export KAGGLE_KEY="your-api-key"
 ```
+
+Get your API key from kaggle.com → Account → "Create New Token". The downloaded `kaggle.json` contains both values.
 
 Verify: `kaggle competitions list` should return results without error.
 

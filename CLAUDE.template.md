@@ -20,6 +20,10 @@ Do NOT write to `/tmp/` — on macOS, `/tmp` is a symlink and Claude Code cannot
 - **Atomic PRs.** Each PR should be independently mergeable. Don't bundle unrelated changes.
 - **Keep PR title and description current.** When the scope of a PR evolves, update the title and body to reflect what the PR actually does now — not what it started as.
 
+## Package Management
+
+**UV is the only package manager.** Use `uv run python` for scripts, `uv tool install` for global CLIs, `uv sync` for project deps. Never use pip, pipx, conda, poetry, or raw `python`/`python3`.
+
 ## Code Quality
 
 - **Never band-aid broken code with try/except.** If an API doesn't exist, a feature doesn't work, or a code path is dead — remove it. Don't wrap known-broken calls in error handlers to "keep the script running." That hides bugs and makes the codebase harder to reason about. The correct fix is always: remove the broken thing, or fix it properly.

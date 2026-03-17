@@ -20,11 +20,10 @@ uv tool install kaggle
 **Authentication** — add to `~/.zshrc`:
 
 ```bash
-export KAGGLE_USERNAME="your-username"
-export KAGGLE_KEY="your-api-key"
+export KAGGLE_API_TOKEN="your-token"
 ```
 
-Get your API key from kaggle.com → Account → "Create New Token". The downloaded `kaggle.json` contains both values.
+Get your token from kaggle.com → Account → "Create New Token".
 
 Verify: `kaggle competitions list` should return results without error.
 

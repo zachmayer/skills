@@ -24,8 +24,13 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	brew update
 	brew upgrade
 	brew install uv gh pyright node jq google-cloud-sdk
+	brew install --cask codex
 	brew doctor || true
 	npm install -g @googleworkspace/cli
+	@# ── Claude Code (native app, not npm) ──
+	@command -v claude >/dev/null || { echo "  Installing Claude Code..."; curl -fsSL https://claude.ai/install.sh | bash; }
+	@# ── Claude Code plugins ──
+	claude plugin install ralph-loop@claude-plugins-official
 	@# ── Python + UV dependencies (via install-ci) ──
 	$(MAKE) install-ci
 	@# ── All extras (browser, etc.) ──
@@ -79,6 +84,18 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 		echo "  Google Workspace: not configured yet."; \
 		echo "    Run 'gws auth setup' to create a GCP project and OAuth client,"; \
 		echo "    then re-run 'make install' or 'make auth' to complete login."; \
+	fi
+	@# ── Claude Code auth check ──
+	@if claude auth status 2>/dev/null | grep -q '"loggedIn": true'; then \
+		echo "  Claude Code: authenticated."; \
+	else \
+		echo "  WARNING: Claude Code is not logged in. Run 'claude login' to authenticate."; \
+	fi
+	@# ── Codex auth check ──
+	@if codex auth whoami 2>/dev/null | grep -q "Logged in"; then \
+		echo "  Codex: authenticated."; \
+	else \
+		echo "  WARNING: Codex is not logged in. Run 'codex login' to authenticate."; \
 	fi
 	@echo ""
 	@echo "Install complete. Skills available as /skill-name in Claude Code."

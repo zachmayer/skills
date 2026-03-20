@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of 32 AI agent skills for Claude Code. Built on the [Agent Skills](https://agentskills.io) open standard.
+A collection of 33 AI agent skills for Claude Code. Built on the [Agent Skills](https://agentskills.io) open standard.
 
 ## What's Here
 
@@ -75,6 +75,7 @@ There's also an optional personal knowledge management layer built on Obsidian a
 | [modal](.claude/skills/modal/) | Run GPU compute on Modal |
 | [jina-grep](.claude/skills/jina-grep/) | Semantic grep using Jina embedding models on Apple Silicon |
 | [kaggle](.claude/skills/kaggle/) | Kaggle CLI for competitions, datasets, and submissions |
+| [trufflehog](.claude/skills/trufflehog/) | Scan for leaked secrets and credentials using TruffleHog |
 | [api-key-checker](.claude/skills/api-key-checker/) | Verify AI provider API keys are configured and valid |
 | [private-repo](.claude/skills/private-repo/) | Create or connect private GitHub repos for git-backed storage |
 

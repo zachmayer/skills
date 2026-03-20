@@ -208,9 +208,21 @@ build-web: ## Package web-compatible skills as .zip files for Claude.ai upload
 # ── Chrome MCP (opt-in) ──────────────────────────────────────────
 
 install-chrome-mcp: ## Install Chrome DevTools MCP server for Claude Code
+	@claude mcp remove chrome-devtools --scope user 2>/dev/null; true
 	claude mcp add chrome-devtools --scope user -- npx @anthropic-ai/chrome-devtools-mcp@latest --autoConnect
 	@echo ""
-	@echo "Chrome DevTools MCP installed. Restart Claude Code and run /mcp to verify."
+	@echo "=== Chrome DevTools MCP installed ==="
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Enable Chrome remote debugging:"
+	@echo "     Open Chrome -> chrome://flags/#debugging-pipe-api"
+	@echo "     Set 'Debugging Pipe API' to Enabled"
+	@echo "     Relaunch Chrome when prompted"
+	@echo ""
+	@echo "  2. Restart Claude Code"
+	@echo "  3. Run /mcp to verify the server connects"
+	@echo ""
+	@echo "If /mcp shows 'failed', make sure Chrome is running and the flag is enabled."
 .PHONY: install-chrome-mcp
 
 # ── Heartbeat (opt-in, machine-specific) ─────────────────────────

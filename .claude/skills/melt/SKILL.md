@@ -23,7 +23,13 @@ Also apply these skills throughout execution:
 - `mental-models` for structured reasoning -- OODA loop drives each phase
 - `ask-questions` only if truly blocked -- prefer action over clarification
 
-## 1. Triage
+Print the current step as you work through each phase.
+
+## 1. Activate
+
+Ground yourself before touching anything: check `git status`, read the nearest relevant docs (README, CLAUDE.md), and identify whether the task ends in a PR or is local-only.
+
+## 2. Triage
 
 Classify the task before planning.
 
@@ -42,7 +48,7 @@ State it explicitly:
 TRIAGE: STANDARD -> direct implementation + test sub-agent
 ```
 
-## 2. Plan
+## 3. Plan
 
 For anything beyond Trivial, state the plan before executing:
 
@@ -60,7 +66,15 @@ For Complex/Deep tasks, use the **Agent tool** to delegate bounded sub-tasks in 
 - Good: test writing while implementing, README update while refactoring, parallel edits in non-overlapping files
 - Bad: handing off the immediate blocker and waiting, multiple agents editing the same files
 
-## 3. Verify Real Behavior
+## 4. Implement
+
+Keep changes focused on the task. Follow existing patterns in the codebase.
+
+## 5. Run Quality Gates
+
+Run the repo's existing checks before declaring done. Do not claim validation you did not perform.
+
+## 6. Verify Real Behavior
 
 At least one check must be behavior-based, not just "exit code 0":
 
@@ -75,7 +89,7 @@ At least one check must be behavior-based, not just "exit code 0":
 
 If verification is impossible in the current environment (e.g., no staging server), say so explicitly. Do not pretend you verified something you could not.
 
-## 4. Deliver
+## 7. Deliver
 
 Create a feature branch (never commit to main). Push and open a PR via `gh pr create`.
 

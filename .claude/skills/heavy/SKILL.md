@@ -24,6 +24,8 @@ Also apply these skills as needed:
 - `discussion-partners` to bring in an external model perspective on unresolved cruxes
 - `ask-questions` if the question itself is ambiguous — clarify before spawning agents
 
+Print the current step as you work through each phase.
+
 ## 1. Triage
 
 Classify the question before spawning agents.

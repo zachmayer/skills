@@ -57,3 +57,5 @@ Global defaults (PRs always, worktrees, atomic PRs) are in `~/CLAUDE.md`. Skills
 - Python scripts use type hints and minimal dependencies
 - Keep SKILL.md under 500 lines; it is the single source of truth for each skill
 - **NEVER use `python` or `python3` directly** — always use `uv run python`. This ensures the correct virtualenv and dependencies are available.
+- **Use `uv tool install <cli>` to install CLI tools globally** — never `pipx install`. UV is the only package manager. No pip, pipx, conda, or poetry anywhere on this machine.
+- **Keep `settings.template.json` skill list current.** When adding a new skill, add a `Skill(<name>)` entry to the `permissions.allow` array so it's auto-approved after `make install`.

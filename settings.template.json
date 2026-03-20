@@ -19,6 +19,7 @@
       "Write(~/claude/obsidian/**)",
       "Skill(api-key-checker)",
       "Skill(ask-questions)",
+      "Skill(chrome-mcp)",
       "Skill(claude-code-config)",
       "Skill(concise-writing)",
       "Skill(constitution)",

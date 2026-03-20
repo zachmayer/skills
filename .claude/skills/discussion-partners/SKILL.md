@@ -16,20 +16,21 @@ Query another AI model for an outside perspective on a difficult problem. One me
 
 ## Recommended Models
 
-**Default: GPT-5.4 xhigh via Codex CLI** — uses OpenAI subscription credits (no per-token billing), cheapest option. Do NOT use older models like o3 or gpt-5.2 — they are superseded.
+**Default: GPT-5.4 xhigh fast via Codex CLI** — uses OpenAI subscription credits (no per-token billing), cheapest option.
 
 There are two invocation methods: the **Codex CLI** (preferred, uses subscription credits) and the **pydantic-ai script** (for non-OpenAI models and gpt-5.4-pro).
 
 ### Codex CLI Models (via `codex exec`) — preferred
 
-Uses credits from an OpenAI paid subscription (no per-token billing). Codex-only models are not accessible via the standard OpenAI API.
+Uses credits from an OpenAI paid subscription (no per-token billing).
 
 | Model | When to use | Notes |
 |-------|-------------|-------|
 | `gpt-5.4` **(default)** | Primary partner. Full GPT-5.4 with xhigh thinking | Subscription credits, cheapest option |
-| `gpt-5.3-codex` | Coding specialist — code review, debugging, refactors | Default in `~/.codex/config.toml`, Codex-only |
 
 Set reasoning effort via `-c model_reasoning_effort="xhigh"` (values: `low`, `medium`, `high`, `xhigh`). Default from config is `xhigh`.
+
+**Fast mode**: Always use `-c service_tier="fast"` (or set `service_tier = "fast"` in config). Uses 2x credits but halves latency — a clear win since Codex can be slow at xhigh reasoning.
 
 ### API Models (via `ask_model.py`)
 
@@ -63,23 +64,22 @@ Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 in
 Uses OpenAI subscription credits — no per-token billing. **For short questions**, pass inline. **For long prompts, write to a file and pipe via stdin** — this avoids shell escaping issues with backticks and special characters.
 
 ```bash
-# GPT-5.4 xhigh (default recommendation) — short question
-codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" "Your question" -o ~/claude/scratch/codex_output.txt
+# GPT-5.4 xhigh fast (default recommendation) — short question
+codex exec --full-auto -m gpt-5.4 -c service_tier="fast" -c model_reasoning_effort="xhigh" "Your question" -o ~/claude/scratch/codex_output.txt
 
-# GPT-5.4 xhigh — long prompt from file
-codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+# GPT-5.4 xhigh fast — long prompt from file
+codex exec --full-auto -m gpt-5.4 -c service_tier="fast" -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
 
-# gpt-5.3-codex coding specialist — xhigh reasoning
-codex exec --full-auto -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
-
-# GPT-5.4 with low reasoning (faster, good for large prompts)
-codex exec --full-auto -m gpt-5.4 -c model_reasoning_effort="low" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+# GPT-5.4 with low reasoning fast (faster still, good for large prompts)
+codex exec --full-auto -m gpt-5.4 -c service_tier="fast" -c model_reasoning_effort="low" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
 
 # Enable web search (--search gives the model a web_search tool)
-codex exec --full-auto --search -m gpt-5.4 -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
+codex exec --full-auto --search -m gpt-5.4 -c service_tier="fast" -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
 ```
 
 The `-o` flag writes the final agent message to a file for easy consumption. Use `--full-auto` for non-interactive execution with workspace-write sandboxing.
+
+**Timeouts**: Deep thinking models can take 5-30+ minutes on complex prompts. The Bash tool's max timeout is 600,000ms (10 min) — not enough. **Always use `run_in_background: true`** for discussion partner calls. This has no timeout limit; you get notified when it finishes. Never use a foreground Bash call for these — it will SIGKILL the process mid-thought.
 
 **Additional capabilities**: `--search` enables live web search (native Responses `web_search` tool, no per-call approval). Codex also supports MCP servers for additional tools (`codex mcp add`), and has a built-in `codex review` command for code review. Run `codex --help` and `codex exec --help` to see all available options.
 
@@ -88,8 +88,9 @@ The `-o` flag writes the final agent message to a file for easy consumption. Use
 Install: `npm install -g @openai/codex` (requires Node.js). Configure `~/.codex/config.toml`:
 
 ```toml
-model = "gpt-5.3-codex"
+model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
+service_tier = "fast"
 ```
 
 Auth: `codex login` (uses your OpenAI account). No `OPENAI_API_KEY` needed — Codex CLI authenticates separately.
@@ -127,7 +128,7 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opu
 
 ### When to Use Codex CLI vs ask_model.py
 
-- **Codex CLI** (preferred): Uses subscription credits. GPT-5.4 xhigh is the default recommendation. Codex-only models (`gpt-5.3-codex`) are only available here.
+- **Codex CLI** (preferred): Uses subscription credits. GPT-5.4 xhigh fast is the default recommendation.
 - **ask_model.py**: For Gemini, Claude, gpt-5.4-pro, or when you need multi-provider opinions. Pay-per-token.
 
 ## API Key Setup

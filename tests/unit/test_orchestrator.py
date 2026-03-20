@@ -427,3 +427,52 @@ def test_process_queue_no_result_file(tmp_path, monkeypatch):
 
     # Default is actionable — move to coding
     assert labels_set == [("ai:coding", "ai:queued")]
+
+
+# --- process_review ---
+
+
+def test_process_review_behind_main_bounces_to_coding(tmp_path, monkeypatch):
+    """process_review bounces to ai:coding when branch is behind main."""
+    fake_pr = {"number": 100, "state": "OPEN", "headRefName": "ai/issue-42"}
+    monkeypatch.setattr(orchestrator, "find_related_prs", lambda *a: ([fake_pr], 100))
+    monkeypatch.setattr(orchestrator, "resolve_working_branch", lambda *a: "ai/issue-42")
+    monkeypatch.setattr(orchestrator, "ensure_worktree", lambda *a: None)
+    monkeypatch.setattr(orchestrator, "run", lambda *a, **kw: None)
+    monkeypatch.setattr(orchestrator, "is_behind_main", lambda wt: True)
+
+    labels_set = []
+    monkeypatch.setattr(
+        orchestrator,
+        "set_label",
+        lambda repo, num, add=None, remove=None: labels_set.append((add, remove)),
+    )
+
+    orchestrator.process_review("owner/repo", tmp_path, FAKE_ISSUE)
+
+    assert labels_set == [("ai:coding", "ai:review")]
+
+
+def test_process_review_up_to_date_proceeds(tmp_path, monkeypatch):
+    """process_review proceeds to review when branch is up to date."""
+    fake_pr = {"number": 100, "state": "OPEN", "headRefName": "ai/issue-42"}
+    monkeypatch.setattr(orchestrator, "find_related_prs", lambda *a: ([fake_pr], 100))
+    monkeypatch.setattr(orchestrator, "resolve_working_branch", lambda *a: "ai/issue-42")
+    monkeypatch.setattr(orchestrator, "ensure_worktree", lambda *a: None)
+    monkeypatch.setattr(orchestrator, "run", lambda *a, **kw: None)
+    monkeypatch.setattr(orchestrator, "is_behind_main", lambda wt: False)
+    monkeypatch.setattr(orchestrator, "run_verification", lambda wt: [])
+    monkeypatch.setattr(orchestrator, "invoke_agent", lambda *a, **kw: 0)
+    monkeypatch.setattr(orchestrator, "get_default_owner", lambda repo: "alice")
+
+    labels_removed = []
+    monkeypatch.setattr(
+        orchestrator,
+        "set_label",
+        lambda repo, num, add=None, remove=None: labels_removed.append((add, remove)),
+    )
+
+    orchestrator.process_review("owner/repo", tmp_path, FAKE_ISSUE)
+
+    # Should have removed all ai: labels (via remove_ai_labels at end)
+    assert labels_removed == [(None, "ai:coding,ai:queued,ai:review")]

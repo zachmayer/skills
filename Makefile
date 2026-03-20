@@ -31,6 +31,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@command -v claude >/dev/null || { echo "  Installing Claude Code..."; curl -fsSL https://claude.ai/install.sh | bash; }
 	@# ── Claude Code plugins ──
 	claude plugin install ralph-loop@claude-plugins-official
+	claude plugin install chrome-devtools-mcp@claude-plugins-official
 	@# ── Python + UV dependencies (via install-ci) ──
 	$(MAKE) install-ci
 	@# ── All extras (browser, etc.) ──
@@ -162,7 +163,6 @@ clean: ## Remove venv and re-sync
 # Skills excluded from web packaging (require auth: API keys, CLI login, or vault git push)
 SKILLS_WEB_EXCLUDE := \
 	api-key-checker \
-	chrome-mcp \
 	discussion-partners \
 	gh-cli \
 	gws-cli \
@@ -204,26 +204,6 @@ build-web: ## Package web-compatible skills as .zip files for Claude.ai upload
 	echo "Packaged $$included/$$total skills → $(BUILD_WEB)/"
 	@echo "Drag .zip files into a Claude.ai Project to install."
 .PHONY: build-web
-
-# ── Chrome MCP (opt-in) ──────────────────────────────────────────
-
-install-chrome-mcp: ## Install Chrome DevTools MCP server for Claude Code
-	@claude mcp remove chrome-devtools --scope user 2>/dev/null; true
-	claude mcp add chrome-devtools --scope user -- npx @anthropic-ai/chrome-devtools-mcp@latest --autoConnect
-	@echo ""
-	@echo "=== Chrome DevTools MCP installed ==="
-	@echo ""
-	@echo "Next steps:"
-	@echo "  1. Enable Chrome remote debugging:"
-	@echo "     Open Chrome -> chrome://flags/#debugging-pipe-api"
-	@echo "     Set 'Debugging Pipe API' to Enabled"
-	@echo "     Relaunch Chrome when prompted"
-	@echo ""
-	@echo "  2. Restart Claude Code"
-	@echo "  3. Run /mcp to verify the server connects"
-	@echo ""
-	@echo "If /mcp shows 'failed', make sure Chrome is running and the flag is enabled."
-.PHONY: install-chrome-mcp
 
 # ── Heartbeat (opt-in, machine-specific) ─────────────────────────
 

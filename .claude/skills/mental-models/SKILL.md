@@ -45,6 +45,8 @@ Select and apply the most relevant mental models from this toolkit. For models w
 
 **Recursive Self-Improvement** — When a system improves itself, distinguish grind (80%, systematic iteration within current paradigm) from paradigm shift (20%, entirely new approaches). Small improvements compound multiplicatively (multiplier effect), but hit diminishing returns ("adding nines"). Agents excel at grind; paradigm decisions need human judgment. See [recursive-self-improvement.md](recursive-self-improvement.md).
 
+**Compounding Change Over Time** — Small persistent changes accumulate nonlinearly. A 1% daily improvement compounds to 37x over a year; a 1% daily decline compounds to near zero. Applies beyond finance: technology adoption, skill development, institutional drift, technical debt. People systematically underestimate slow change because each increment is invisible. Cross-references the multiplier math in [recursive-self-improvement.md](recursive-self-improvement.md). Source: Tyler Cowen / Marginal Revolution. See [compounding-change.md](compounding-change.md).
+
 ## Problem Solving
 
 **First Principles** — Decompose to fundamental truths. Reason up from there instead of reasoning by analogy. Breaks through "we've always done it this way." See [first-principles.md](first-principles.md).
@@ -99,6 +101,8 @@ These require recognition, not protocol. Knowing the name is usually enough to c
 
 **Goodhart's Law** — When a measure becomes a target, it ceases to be a good measure. People optimize the metric, not the underlying goal. Every KPI eventually gets gamed. Counter: use counter-metrics and measure what you refuse to sacrifice. See [goodharts-law.md](goodharts-law.md).
 
+**Never Reason from a Price Change** — A price change is an outcome, not a cause. "Oil prices rose, so consumers will spend less" skips the crucial question: *why* did the price change? A supply shock and a demand surge produce the same price movement but opposite downstream effects. Always identify the cause first, then reason from the cause. Source: Scott Sumner, *The Money Illusion*. See [never-reason-from-price-change.md](never-reason-from-price-change.md).
+
 ## Strategic Thinking
 
 **Chesterton's Fence** — Before removing something, understand why it was put there. If you don't understand its purpose, you don't understand the consequences of removing it. Applies to code, processes, and institutions. See [chestertons-fence.md](chestertons-fence.md).
@@ -140,6 +144,8 @@ A model almost always fits non-trivial problems — scan for one. Multiple model
 - **Debugging?** → Five Whys, Post-Mortem, Bottleneck Analysis
 - **Something failed?** → Post-Mortem (diagnose before retrying)
 - **Deciding?** → Second-Order Thinking, Reversibility, Opportunity Cost
+- **Slow trend?** → Compounding Change, Recursive Self-Improvement
+- **Price moved?** → Never Reason from a Price Change
 - **Known vs new approach?** → Exploit-Explore, Reversibility
 - **Analyzing an argument?** → Excavate, Negspace, Rhetoricize
 - **Comparing options?** → Dimensionalize

@@ -245,6 +245,51 @@ def test_get_default_owner_from_codeowners(tmp_path, monkeypatch):
     assert orchestrator.get_default_owner("org/repo") == "alice"
 
 
+def test_get_default_owner_multi_owner(tmp_path, monkeypatch):
+    """get_default_owner returns the first owner, not the last."""
+    codeowners_dir = tmp_path / ".github"
+    codeowners_dir.mkdir()
+    (codeowners_dir / "CODEOWNERS").write_text("* @alice @bob\n")
+    monkeypatch.setattr(orchestrator, "repo_dir", lambda repo: tmp_path)
+    assert orchestrator.get_default_owner("org/repo") == "alice"
+
+
+def test_get_default_owner_skips_team_handles(tmp_path, monkeypatch):
+    """get_default_owner skips @org/team handles (can't be used with --add-assignee)."""
+    codeowners_dir = tmp_path / ".github"
+    codeowners_dir.mkdir()
+    (codeowners_dir / "CODEOWNERS").write_text("* @org/team @alice\n")
+    monkeypatch.setattr(orchestrator, "repo_dir", lambda repo: tmp_path)
+    assert orchestrator.get_default_owner("org/repo") == "alice"
+
+
+def test_get_default_owner_team_only_fallback(tmp_path, monkeypatch):
+    """get_default_owner falls back to repo owner when only team handles exist."""
+    codeowners_dir = tmp_path / ".github"
+    codeowners_dir.mkdir()
+    (codeowners_dir / "CODEOWNERS").write_text("* @org/team\n")
+    monkeypatch.setattr(orchestrator, "repo_dir", lambda repo: tmp_path)
+    assert orchestrator.get_default_owner("org/repo") == "org"
+
+
+def test_get_default_owner_skips_comments(tmp_path, monkeypatch):
+    """get_default_owner skips comment lines."""
+    codeowners_dir = tmp_path / ".github"
+    codeowners_dir.mkdir()
+    (codeowners_dir / "CODEOWNERS").write_text("# * @wrong\n* @right\n")
+    monkeypatch.setattr(orchestrator, "repo_dir", lambda repo: tmp_path)
+    assert orchestrator.get_default_owner("org/repo") == "right"
+
+
+def test_get_default_owner_empty_codeowners(tmp_path, monkeypatch):
+    """get_default_owner falls back to repo owner when CODEOWNERS has no * rule."""
+    codeowners_dir = tmp_path / ".github"
+    codeowners_dir.mkdir()
+    (codeowners_dir / "CODEOWNERS").write_text(".github/ @bob\n")
+    monkeypatch.setattr(orchestrator, "repo_dir", lambda repo: tmp_path)
+    assert orchestrator.get_default_owner("org/repo") == "org"
+
+
 def test_get_default_owner_fallback():
     """get_default_owner falls back to repo owner when no CODEOWNERS."""
     assert orchestrator.get_default_owner("zachmayer/skills") == "zachmayer"

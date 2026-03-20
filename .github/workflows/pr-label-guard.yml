@@ -1,0 +1,25 @@
+name: PR Label Guard
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  remove-status-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Remove status labels from PRs
+        if: |
+          startsWith(github.event.label.name, 'status:') ||
+          startsWith(github.event.label.name, 'ai:')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LABEL: ${{ github.event.label.name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh pr edit "$PR_NUMBER" --repo "$REPO" --remove-label "$LABEL"
+          gh pr comment "$PR_NUMBER" --repo "$REPO" \
+            --body "Removed \`$LABEL\` — status labels belong on issues, not PRs. Label the linked issue instead."

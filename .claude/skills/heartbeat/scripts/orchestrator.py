@@ -10,6 +10,7 @@ import subprocess
 from pathlib import Path
 
 import click
+from codeowners import CodeOwners
 
 MAX_ISSUES = 10
 LOCK_FILE = Path.home() / ".claude" / "heartbeat.lock"
@@ -98,13 +99,18 @@ def log_path(repo, issue_number):
 
 
 def get_default_owner(repo):
-    """Get the default CODEOWNERS owner (* rule) for a repo."""
-    codeowners = repo_dir(repo) / ".github" / "CODEOWNERS"
-    if codeowners.exists():
-        for line in codeowners.read_text().splitlines():
-            stripped = line.strip()
-            if stripped.startswith("* ") and "@" in stripped:
-                return stripped.split("@")[-1].strip()
+    """Get the default CODEOWNERS owner for a repo.
+
+    Uses the codeowners library to parse the file, then finds the first
+    individual user (not a team) from the catch-all rule matching any file.
+    """
+    codeowners_path = repo_dir(repo) / ".github" / "CODEOWNERS"
+    if codeowners_path.exists():
+        co = CodeOwners(codeowners_path.read_text())
+        owners = co.of("ANY_FILE")  # matches the * catch-all rule
+        for kind, handle in owners:
+            if kind == "USERNAME":
+                return handle.lstrip("@")
     # Fallback: repo owner from org/repo format
     return repo.split("/")[0]
 

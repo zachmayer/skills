@@ -1,16 +1,15 @@
 ---
 name: heavy
 description: >
-  Multi-perspective analysis using 3-5 parallel sub-agents with separate research
-  territories. The insight comes from information diversity — each agent greps
-  different parts of the codebase — not opinion diversity. Use WHEN the user says
-  "/heavy", "analyze this from multiple angles", "debate this decision", "think
-  about this deeply from different perspectives", or when a question benefits from
-  parallel evidence gathering across different parts of a codebase or domain.
-  Do NOT use for simple questions, single-file analysis, quick lookups, or tasks
-  that need execution rather than analysis (use melt or ralph-loop instead).
-  Do NOT use when a single discussion-partners call suffices — heavy is for
-  internal parallel research, not external model queries.
+  Parallel multi-territory analysis using 3-5 sub-agents that inspect different
+  evidence and return a synthesized recommendation. Use WHEN the user says
+  "/heavy", "research this in parallel across different code areas", or when
+  the answer improves by splitting research across code paths, tests, docs,
+  history, or external sources — multi-subsystem root-cause analysis,
+  architecture review, cross-cutting investigations. Do NOT use for
+  single-thread reasoning (use ultra-think), one external second opinion
+  (use discussion-partners), simple lookups, or execution tasks (use melt
+  or ralph-loop).
 ---
 
 # Heavy Multi-Perspective Analysis
@@ -24,28 +23,6 @@ Also apply these skills as needed:
 - `staff-engineer` for engineering rigor in code-related analysis
 - `discussion-partners` to bring in an external model perspective on unresolved cruxes
 - `ask-questions` if the question itself is ambiguous — clarify before spawning agents
-
-## Quick Start
-
-```text
-/heavy should we move this service to Go?
-/heavy debate this architecture decision
-/heavy why does this queue keep collapsing under load?
-/heavy what are the tradeoffs of splitting this monolith?
-```
-
-## Workflow
-
-Print these labels as you go:
-
-```text
-[1/6] Triaging question
-[2/6] Designing the agent roster
-[3/6] Launching parallel discovery
-[4/6] Synthesizing findings
-[5/6] Resolving open cruxes
-[6/6] Delivering the final answer
-```
 
 ## 1. Triage
 
@@ -104,7 +81,7 @@ AGENT ROSTER:
 
 ## 3. Launch Parallel Discovery
 
-Use the **Task tool** to launch sub-agents in parallel. Each sub-agent prompt must be completely self-contained -- sub-agents have zero context from this conversation.
+Use the **Agent tool** to launch sub-agents in parallel. Each sub-agent prompt must be completely self-contained -- sub-agents have zero context from this conversation.
 
 Each prompt should include:
 
@@ -168,26 +145,10 @@ Apply `ultra-think` for the synthesis when findings are complex or contradictory
 
 If one or two unresolved cruxes determine the answer, spawn targeted follow-up agents only for those cruxes. Do not rerun the entire analysis.
 
-Good follow-ups:
-- "Check whether the bottleneck is actually Redis saturation or app-side serialization"
-- "Verify whether this API limit changed recently"
-- "Count the actual call sites for this interface to confirm migration scope"
-
 If a crux requires external knowledge, use `discussion-partners` to query another model.
 
 ## 6. Rules
 
 - **Different evidence over different opinions.** The value is in what each agent finds, not what they believe.
-- **When freshness matters, use WebFetch or WebSearch** in sub-agent prompts for current sources.
-- **When the question is about code, cite files and symbols.** Every claim should trace back to a file path and line range.
-- **When the question is strategic, include at least one downside-focused agent** whose job is to find reasons the popular answer is wrong.
-- **Stop when the answer is materially better than a single-agent response**, not when every possible angle is exhausted.
-
-## Relationship to Other Skills
-
-| Skill | When to use instead |
-|---|---|
-| `orchestrate` | When the task needs parallel *execution* (writing code, running tests), not parallel *analysis* |
-| `discussion-partners` | When you want one external model's opinion, not internal multi-territory research |
-| `ultra-think` | When the question needs deep single-thread reasoning, not broad evidence gathering |
-| `ralph-loop` | When the task needs iterative implementation over time, not analysis |
+- **Include a downside-focused agent** for strategic or architectural questions.
+- **Stop when the answer is materially better** than a single-agent response, not when every angle is exhausted.

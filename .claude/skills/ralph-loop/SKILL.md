@@ -18,6 +18,8 @@ Also apply these skills throughout the loop:
 - `ultra-think` for deep thinking, complex debugging, and maximum persistence
 - `staff-engineer` for engineering standards, anti-sycophancy, and line-by-line debugging
 - `mental-models` for structured reasoning — OODA loop drives the iteration, post-mortem and Five Whys for failure diagnosis
+- `heavy` for multi-territory analysis when a story requires parallel evidence gathering before implementation
+- `melt` for single-shot autonomous execution of individual stories within the loop
 - `ask-questions` if requirements are unclear — clarify before building
 - `knowledge-system` to read past context, save learnings, and record durable knowledge
 

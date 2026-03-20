@@ -74,6 +74,7 @@ There's also an optional personal knowledge management layer built on Obsidian a
 | [gws-cli](.claude/skills/gws-cli/) | Google Workspace CLI for Drive, Gmail, Sheets, Calendar |
 | [modal](.claude/skills/modal/) | Run GPU compute on Modal |
 | [jina-grep](.claude/skills/jina-grep/) | Semantic grep using Jina embedding models on Apple Silicon |
+| [kaggle](.claude/skills/kaggle/) | Kaggle CLI for competitions, datasets, and submissions |
 | [api-key-checker](.claude/skills/api-key-checker/) | Verify AI provider API keys are configured and valid |
 | [private-repo](.claude/skills/private-repo/) | Create or connect private GitHub repos for git-backed storage |
 

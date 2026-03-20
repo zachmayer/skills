@@ -10,6 +10,7 @@ import subprocess
 from pathlib import Path
 
 import click
+from codeowners import CodeOwners
 
 MAX_ISSUES = 10
 LOCK_FILE = Path.home() / ".claude" / "heartbeat.lock"
@@ -103,8 +104,6 @@ def get_default_owner(repo):
     Uses the codeowners library to parse the file, then finds the first
     individual user (not a team) from the catch-all rule matching any file.
     """
-    from codeowners import CodeOwners
-
     codeowners_path = repo_dir(repo) / ".github" / "CODEOWNERS"
     if codeowners_path.exists():
         co = CodeOwners(codeowners_path.read_text())

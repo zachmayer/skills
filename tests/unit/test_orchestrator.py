@@ -281,6 +281,15 @@ def test_get_default_owner_skips_comments(tmp_path, monkeypatch):
     assert orchestrator.get_default_owner("org/repo") == "right"
 
 
+def test_get_default_owner_empty_codeowners(tmp_path, monkeypatch):
+    """get_default_owner falls back to repo owner when CODEOWNERS has no * rule."""
+    codeowners_dir = tmp_path / ".github"
+    codeowners_dir.mkdir()
+    (codeowners_dir / "CODEOWNERS").write_text(".github/ @bob\n")
+    monkeypatch.setattr(orchestrator, "repo_dir", lambda repo: tmp_path)
+    assert orchestrator.get_default_owner("org/repo") == "org"
+
+
 def test_get_default_owner_fallback():
     """get_default_owner falls back to repo owner when no CODEOWNERS."""
     assert orchestrator.get_default_owner("zachmayer/skills") == "zachmayer"

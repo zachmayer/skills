@@ -162,6 +162,7 @@ clean: ## Remove venv and re-sync
 # Skills excluded from web packaging (require auth: API keys, CLI login, or vault git push)
 SKILLS_WEB_EXCLUDE := \
 	api-key-checker \
+	chrome-mcp \
 	discussion-partners \
 	gh-cli \
 	gws-cli \
@@ -203,6 +204,14 @@ build-web: ## Package web-compatible skills as .zip files for Claude.ai upload
 	echo "Packaged $$included/$$total skills → $(BUILD_WEB)/"
 	@echo "Drag .zip files into a Claude.ai Project to install."
 .PHONY: build-web
+
+# ── Chrome MCP (opt-in) ──────────────────────────────────────────
+
+install-chrome-mcp: ## Install Chrome DevTools MCP server for Claude Code
+	claude mcp add chrome-devtools --scope user -- npx @anthropic-ai/chrome-devtools-mcp@latest --autoConnect
+	@echo ""
+	@echo "Chrome DevTools MCP installed. Restart Claude Code and run /mcp to verify."
+.PHONY: install-chrome-mcp
 
 # ── Heartbeat (opt-in, machine-specific) ─────────────────────────
 

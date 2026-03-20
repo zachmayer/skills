@@ -98,22 +98,20 @@ def log_path(repo, issue_number):
 
 
 def get_default_owner(repo):
-    """Get the default CODEOWNERS owner (* rule) for a repo.
+    """Get the default CODEOWNERS owner for a repo.
 
-    Returns the first individual user handle from the * rule.
-    Skips team handles (@org/team) since they can't be used with --add-assignee.
+    Uses the codeowners library to parse the file, then finds the first
+    individual user (not a team) from the catch-all rule matching any file.
     """
-    codeowners = repo_dir(repo) / ".github" / "CODEOWNERS"
-    if codeowners.exists():
-        for line in codeowners.read_text().splitlines():
-            stripped = line.strip()
-            if stripped.startswith("* ") and "@" in stripped:
-                # Extract all @-handles after the glob pattern
-                tokens = stripped.split()[1:]  # skip the "* " glob
-                for token in tokens:
-                    handle = token.lstrip("@")
-                    if "/" not in handle:  # skip team handles like @org/team
-                        return handle
+    from codeowners import CodeOwners
+
+    codeowners_path = repo_dir(repo) / ".github" / "CODEOWNERS"
+    if codeowners_path.exists():
+        co = CodeOwners(codeowners_path.read_text())
+        owners = co.of("ANY_FILE")  # matches the * catch-all rule
+        for kind, handle in owners:
+            if kind == "USERNAME":
+                return handle.lstrip("@")
     # Fallback: repo owner from org/repo format
     return repo.split("/")[0]
 

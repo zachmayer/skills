@@ -24,6 +24,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
+    { name = "codeowners" },
     { name = "modal" },
     { name = "pydantic-ai" },
     { name = "python-frontmatter" },
@@ -46,6 +47,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.3.0" },
+    { name = "codeowners", specifier = ">=0.8.0" },
     { name = "modal", specifier = ">=1.3.3" },
     { name = "playwright", marker = "extra == 'browser'", specifier = ">=1.58.0" },
     { name = "pydantic-ai", specifier = ">=1.67.0" },
@@ -451,6 +453,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3d/fa/656b739db8587d7b5dfa22e22ed02566950fbfbcdc20311993483657a5c0/click-8.3.1.tar.gz", hash = "sha256:12ff4785d337a1bb490bb7e9c2b1ee5da3112e94a8622f26a6c77f5d2fc6842a", size = 295065, upload-time = "2025-11-15T20:45:42.706Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/98/78/01c019cdb5d6498122777c1a43056ebb3ebfeef2076d9d026bfe15583b2b/click-8.3.1-py3-none-any.whl", hash = "sha256:981153a64e25f12d547d3426c367a4857371575ee7ad18df2a6183ab0545b2a6", size = 108274, upload-time = "2025-11-15T20:45:41.139Z" },
+]
+
+[[package]]
+name = "codeowners"
+version = "0.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/80/98/590929c83f921a75a3153bff3328e143ae900f757dffc722656b58003ba1/codeowners-0.8.0.tar.gz", hash = "sha256:6505727574b67db4832a3d0d5e41c0f7eb80f8858ee27996e85b1e046f9266f8", size = 7749, upload-time = "2025-04-26T02:20:37.743Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/75/e5/ae08304853f5c6184292e9c679458623c937a2e33d98730ce30fa8f4a8b5/codeowners-0.8.0-py3-none-any.whl", hash = "sha256:b92ce6f6c36dd9de5295c4dc285b2a3b14c81cae8b5eb3b05f0cfdbc4d93995a", size = 8786, upload-time = "2025-04-26T02:20:36.214Z" },
 ]
 
 [[package]]

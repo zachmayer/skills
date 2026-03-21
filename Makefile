@@ -31,6 +31,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@command -v claude >/dev/null || { echo "  Installing Claude Code..."; curl -fsSL https://claude.ai/install.sh | bash; }
 	@# ── Claude Code plugins ──
 	claude plugin install ralph-loop@claude-plugins-official
+	claude plugin install chrome-devtools-mcp@claude-plugins-official
 	@# ── Python + UV dependencies (via install-ci) ──
 	$(MAKE) install-ci
 	@# ── All extras (browser, etc.) ──

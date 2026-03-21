@@ -23,7 +23,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@command -v brew >/dev/null || { echo "ERROR: Homebrew required. Install from https://brew.sh"; exit 1; }
 	brew update
 	brew upgrade
-	brew install uv gh pyright node jq google-cloud-sdk
+	brew install uv gh pyright node jq google-cloud-sdk trufflehog
 	brew install --cask codex
 	brew doctor || true
 	npm install -g @googleworkspace/cli
@@ -31,6 +31,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@command -v claude >/dev/null || { echo "  Installing Claude Code..."; curl -fsSL https://claude.ai/install.sh | bash; }
 	@# ── Claude Code plugins ──
 	claude plugin install ralph-loop@claude-plugins-official
+	claude plugin install chrome-devtools-mcp@claude-plugins-official
 	@# ── Python + UV dependencies (via install-ci) ──
 	$(MAKE) install-ci
 	@# ── All extras (browser, etc.) ──
@@ -179,6 +180,7 @@ SKILLS_WEB_EXCLUDE := \
 	session-lifecycle \
 	slack-bridge \
 	superforecaster \
+	trufflehog \
 	web-grab
 
 BUILD_WEB := build/claude-ai

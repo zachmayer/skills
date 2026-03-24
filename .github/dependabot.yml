@@ -14,3 +14,14 @@ updates:
       all-dependencies:
         patterns:
           - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "zachmayer"
+    groups:
+      all-actions:
+        patterns:
+          - "*"

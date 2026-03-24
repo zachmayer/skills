@@ -43,7 +43,7 @@ jobs:
       id: create-pr
       uses: peter-evans/create-pull-request@v8
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.UPDATER_PAT }}
         commit-message: "Weekly: update pre-commit hooks, UV, and lockfile"
         title: "Weekly: update pre-commit hooks, UV, and lockfile"
         branch: update-dependencies

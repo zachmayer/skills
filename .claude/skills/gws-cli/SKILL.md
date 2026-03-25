@@ -145,6 +145,18 @@ gws auth login     # OAuth login, select scopes
 gws auth login -s drive,sheets,gmail  # login with specific scopes only
 ```
 
+### Scope selection and RAPT
+
+Request only the Workspace scopes you need:
+
+```bash
+gws auth login -s gmail,calendar,drive,docs,sheets,slides,tasks
+```
+
+Do NOT include `cloud-platform` scope unless you need GCP resource management. The `cloud-platform` scope triggers Google Workspace RAPT (Re-Authentication Proof Token) session control, which forces re-authentication every 1-24 hours depending on admin policy. Workspace-specific scopes (gmail, drive, docs, etc.) are NOT subject to RAPT and produce long-lived tokens.
+
+The `--full` flag includes `cloud-platform` -- avoid it unless you specifically need GCP access. If you are being prompted to re-authenticate frequently, re-login with only Workspace scopes to fix it.
+
 ### Adding an account
 
 ```bash

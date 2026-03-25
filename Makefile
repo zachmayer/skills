@@ -32,6 +32,10 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── Claude Code plugins ──
 	claude plugin install ralph-loop@claude-plugins-official
 	claude plugin install chrome-devtools-mcp@claude-plugins-official
+	@# ── Fix plugin hook permissions ──
+	@# `claude plugin install` drops execute bits on .sh files when the plugin
+	@# has no version tag, leaving hooks at 0644 → "Permission denied" at runtime.
+	@find $(HOME)/.claude/plugins/cache -name "*.sh" -exec chmod +x {} \;
 	@# ── Python + UV dependencies (via install-ci) ──
 	$(MAKE) install-ci
 	@# ── All extras (browser, etc.) ──

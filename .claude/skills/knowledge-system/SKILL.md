@@ -31,10 +31,23 @@ Unified entry point for all knowledge management. Route to the right sub-skill.
 
 ## Vault Location
 
-**The Obsidian vault is at `/Users/zach/claude/obsidian/`** (also `$CLAUDE_OBSIDIAN_DIR`). Do not search for it -- use this path directly.
+The vault path comes from `$CLAUDE_OBSIDIAN_DIR`. **Do not search for it** -- use this env var directly.
+
+**If `$CLAUDE_OBSIDIAN_DIR` is empty or unset, STOP.** Tell the user:
+
+> `CLAUDE_OBSIDIAN_DIR` is not configured. Add it to your Claude Code settings:
+>
+> In `~/.claude/settings.json`, add to the `"env"` block:
+> ```json
+> "CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"
+> ```
+>
+> Then restart Claude Code.
+
+### Vault structure
 
 ```
-/Users/zach/claude/obsidian/
+$CLAUDE_OBSIDIAN_DIR/
 ├── memory/                      # Hierarchical memory (daily/monthly/overall notes)
 │   ├── overall_memory.md        # Synthesized working memory -- current state of the world
 │   ├── YYYY-MM.md               # Monthly summaries (e.g. 2026-02.md)
@@ -46,9 +59,7 @@ Unified entry point for all knowledge management. Route to the right sub-skill.
 │   ├── Personal/                # Personal notes and preferences
 │   ├── Work/                    # Work and consulting notes
 │   ├── Articles/                # Saved articles and web grabs
-│   ├── Briefings/               # Research briefings
-│   ├── March_Madness/           # March Madness analysis
-│   └── Prompts.md               # Prompt engineering notes
+│   └── Briefings/               # Research briefings
 ├── heartbeat/                   # Heartbeat agent workspace
 └── research/                    # Research outputs
 ```

@@ -15,9 +15,14 @@ from pathlib import Path
 
 import click
 
-OBSIDIAN_DIR = Path(
-    os.environ.get("CLAUDE_OBSIDIAN_DIR", str(Path.home() / "claude" / "obsidian"))
-).expanduser()
+_vault = os.environ.get("CLAUDE_OBSIDIAN_DIR", "")
+if not _vault:
+    raise SystemExit(
+        "CLAUDE_OBSIDIAN_DIR is not set. "
+        'Add it to ~/.claude/settings.json under "env": '
+        '{"CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"}'
+    )
+OBSIDIAN_DIR = Path(_vault).expanduser()
 MEMORY_DIR = OBSIDIAN_DIR / "memory"
 KNOWLEDGE_DIR = OBSIDIAN_DIR / "knowledge_graph"
 

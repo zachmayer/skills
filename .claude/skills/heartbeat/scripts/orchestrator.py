@@ -15,7 +15,14 @@ from codeowners import CodeOwners
 MAX_ISSUES = 10
 LOCK_FILE = Path.home() / ".claude" / "heartbeat.lock"
 REPOS_FILE = Path.home() / ".claude" / "heartbeat-repos.conf"
-OBSIDIAN_DIR = Path(os.environ.get("CLAUDE_OBSIDIAN_DIR", "~/claude/obsidian")).expanduser()
+_vault = os.environ.get("CLAUDE_OBSIDIAN_DIR", "")
+if not _vault:
+    raise SystemExit(
+        "CLAUDE_OBSIDIAN_DIR is not set. "
+        'Add it to ~/.claude/settings.json under "env": '
+        '{"CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"}'
+    )
+OBSIDIAN_DIR = Path(_vault).expanduser()
 WORKTREE_BASE = Path.home() / "claude" / "worktrees"
 SCRATCH_DIR = Path.home() / "claude" / "scratch"
 LOG_DIR = Path.home() / ".claude"

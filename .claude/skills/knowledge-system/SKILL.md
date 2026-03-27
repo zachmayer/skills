@@ -42,6 +42,12 @@ The vault path comes from `$CLAUDE_OBSIDIAN_DIR`. **Do not search for it** -- us
 > "CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"
 > ```
 >
+> Also update the `Edit` and `Write` permission patterns to match your vault path:
+> ```json
+> "Edit(~/your/vault/path/**)",
+> "Write(~/your/vault/path/**)"
+> ```
+>
 > Then restart Claude Code.
 
 ### Vault structure

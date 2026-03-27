@@ -29,12 +29,22 @@ Don't over-flag — most notes age fine. Focus on notes you're actively relying 
 
 ```
 $CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
+├── README.md                    # Vault overview, KEY HUBS, and URGENT TODO LIST
 ├── memory/                      # Hierarchical memory (managed by knowledge-system/hierarchical-memory)
 │   ├── overall_memory.md        # Overall working memory
 │   ├── 2026-02.md               # Monthly summaries
 │   └── 2026-02-08.md            # Daily notes (append-only)
 └── knowledge_graph/             # Durable topic notes, personal knowledge
 ```
+
+## Urgent Action Items → README.md
+
+**`README.md` at the vault root is the canonical todo list.** When creating or discovering urgent action items (deadlines, time-sensitive tasks), add them to the `## Todo` section in `README.md`. This is checked at the start of every session via the daily briefing.
+
+- Keep the list short and curated -- delete items when done
+- Include deadlines in bold: `**Apr 2, 2026**`
+- Link to detail notes: `[DDG Stock Options](knowledge_graph/Work/DDG%20Stock%20Options.md)`
+- Non-urgent open questions go in the relevant hub note, not README
 
 ## Obsidian CLI
 

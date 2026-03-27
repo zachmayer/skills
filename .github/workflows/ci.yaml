@@ -27,4 +27,6 @@ jobs:
       run: make install-ci
 
     - name: CI checks (lint + typecheck + unit tests)
+      env:
+        CLAUDE_OBSIDIAN_DIR: /tmp/test-vault
       run: make ci

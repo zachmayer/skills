@@ -1,4 +1,4 @@
-Manage notes in the Obsidian vault. The vault root is set by `CLAUDE_OBSIDIAN_DIR` (default: `~/claude/obsidian`). Follows a **nested MOC (Map of Content)** pattern: atomic notes linked through hub pages in a hub-and-spoke hierarchy.
+Manage notes in the Obsidian vault. The vault root is set by `CLAUDE_OBSIDIAN_DIR` (required -- scripts error if unset). Follows a **nested MOC (Map of Content)** pattern: atomic notes linked through hub pages in a hub-and-spoke hierarchy.
 
 ## MANDATORY: Source and Date Metadata
 
@@ -28,7 +28,7 @@ Don't over-flag — most notes age fine. Focus on notes you're actively relying 
 ## Vault Structure
 
 ```
-$CLAUDE_OBSIDIAN_DIR/            # default: ~/claude/obsidian
+$CLAUDE_OBSIDIAN_DIR/            # required -- set in ~/.claude/settings.json env
 ├── README.md                    # Vault overview, KEY HUBS, and URGENT TODO LIST
 ├── memory/                      # Hierarchical memory (managed by knowledge-system/hierarchical-memory)
 │   ├── overall_memory.md        # Overall working memory

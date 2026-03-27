@@ -7,8 +7,8 @@
 set -euo pipefail
 
 # --- Configuration ---
-OBSIDIAN_DIR="${CLAUDE_OBSIDIAN_DIR:-$HOME/claude/obsidian}"
-OBSIDIAN_DIR="${OBSIDIAN_DIR/#\~/$HOME}"
+export CLAUDE_OBSIDIAN_DIR="${CLAUDE_OBSIDIAN_DIR:-$HOME/claude/obsidian}"
+OBSIDIAN_DIR="${CLAUDE_OBSIDIAN_DIR/#\~/$HOME}"
 STATUS_FILE="$HOME/.claude/heartbeat.status"
 TIMEOUT_SECONDS=14400  # 4 hour hard kill
 

@@ -3,7 +3,8 @@
   "env": {
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-sonnet-4-6",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6",
-    "CLAUDE_CODE_EFFORT_LEVEL": "max"
+    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "CLAUDE_OBSIDIAN_DIR": ""
   },
   "permissions": {
     "allow": [
@@ -125,6 +126,18 @@
           {
             "type": "command",
             "command": "~/.claude/hooks/reject-shell-operators.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "find ~/.claude/plugins -name '*.sh' -type f ! -perm -u+x -exec chmod +x {} +",
+            "timeout": 10,
+            "statusMessage": "Fixing plugin hook permissions..."
           }
         ]
       }

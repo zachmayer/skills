@@ -33,8 +33,10 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	claude plugin install ralph-loop@claude-plugins-official
 	claude plugin install chrome-devtools-mcp@claude-plugins-official
 	@# ── Fix plugin hook permissions ──
-	@# `claude plugin install` drops execute bits on .sh files when the plugin
-	@# has no version tag, leaving hooks at 0644 → "Permission denied" at runtime.
+	@# claude-plugins-official marketplace re-extracts from GCS on every Claude
+	@# startup, losing execute bits on all .sh files (anthropics/claude-code#38705).
+	@# This chmod only helps until the next restart; the upstream fix is pending.
+	@find $(HOME)/.claude/plugins/marketplaces -name "*.sh" -exec chmod +x {} \;
 	@find $(HOME)/.claude/plugins/cache -name "*.sh" -exec chmod +x {} \;
 	@# ── Python + UV dependencies (via install-ci) ──
 	$(MAKE) install-ci

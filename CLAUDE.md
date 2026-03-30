@@ -20,6 +20,10 @@ All Python scripts use Click for CLIs and are run via `uv run python <script>`. 
 
 Use README.md as the development memory for this repo. It contains the skill inventory, architecture notes, roadmap, and TODOs. Update it as you work.
 
+## Obsidian Vault Conventions
+
+- **To-do items go in the vault's `README.md`**, not in individual notes. The vault README `## Todo` section is the single source of truth for action items. To-dos scattered across individual notes get lost. Strong bias against creating to-do lists in hub pages or topic notes -- they won't be tracked.
+
 ## Dependency Updates
 
 - **Run `make upgrade` periodically.** It updates the UV lockfile and pre-commit hooks. Include lockfile bumps in feature PRs — keeping deps current as you work prevents drift.

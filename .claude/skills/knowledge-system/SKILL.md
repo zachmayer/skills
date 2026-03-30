@@ -88,9 +88,11 @@ $CLAUDE_OBSIDIAN_DIR/
 - **reminders** -- Time-aware reminders stored in the obsidian vault's memory directory.
 - **evergreen** -- Periodic housekeeping: orphan notes, broken links, missing metadata, stale aggregations, merged branches.
 
-## General rule
+## General rules
 
 **Always commit and push `$CLAUDE_OBSIDIAN_DIR` after any write operation** -- note saves, aggregation updates, obsidian notes, reminders. Changes that aren't committed and pushed don't sync. See [hierarchical-memory.md](hierarchical-memory.md#git-integration) for the commands.
+
+**To-do items go in the vault's `README.md`, not in individual notes.** The vault README has a `## Todo` section that is the single source of truth for action items. To-dos scattered across individual Obsidian notes get lost -- they're invisible unless you happen to open that specific note. Individual notes may have note-specific follow-ups (e.g. "after Sept 15, decide whether to sell"), but anything that needs to be tracked and acted on should be in the README todo list. When creating or updating notes, move any actionable to-dos to the README and link back to the note for context.
 
 ## Related skills (not managed here)
 

@@ -39,6 +39,30 @@ jobs:
       run: make lint
       continue-on-error: true
 
+    - name: Validate UPDATER_PAT permissions
+      env:
+        GH_TOKEN: ${{ secrets.UPDATER_PAT }}
+      run: |
+        echo "Testing UPDATER_PAT can write to this repo..."
+        REPO="${{ github.repository }}"
+        SHA=$(gh api "repos/$REPO/git/ref/heads/main" --jq '.object.sha')
+        HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+          -X POST \
+          -H "Authorization: Bearer ${{ secrets.UPDATER_PAT }}" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/$REPO/git/refs" \
+          -d "{\"ref\":\"refs/heads/_updater-pat-test\",\"sha\":\"$SHA\"}")
+        if [ "$HTTP" = "201" ]; then
+          curl -s -X DELETE \
+            -H "Authorization: Bearer ${{ secrets.UPDATER_PAT }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/git/refs/heads/_updater-pat-test" > /dev/null
+          echo "UPDATER_PAT validated: Contents write confirmed."
+        else
+          echo "::error::UPDATER_PAT cannot push (HTTP $HTTP). Go to GitHub Settings > Developer settings > Fine-grained tokens > skills-updater > set Contents to 'Read and write'."
+          exit 1
+        fi
+
     - name: Create Pull Request
       id: create-pr
       uses: peter-evans/create-pull-request@v8

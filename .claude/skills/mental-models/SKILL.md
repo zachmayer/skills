@@ -87,6 +87,10 @@ These protocols integrate or transfer knowledge across domains. **Read the linke
 
 **Metaphorize** — Build explicit, high-coverage mapping from source domain to target domain. Heavier than rhyme, lighter than formal proof. When source has math, carry the math with units and dimensional analysis. Produces mapping table, formula shelf, invariant assertions, and metric plan. **Read [metaphorize.md](metaphorize.md) for full protocol.**
 
+## Action & Rigor
+
+**Countermeasure, Not Caveat** — When you identify a weakness in your approach, convert it into an action, not a footnote. A caveat in the report acknowledges a gap exists. A countermeasure in the methodology closes the gap. These feel the same — both demonstrate understanding — but only one changes the outcome. Inspired by the Swiss Cheese Model (James Reason): every defense layer has holes; when you find one, add another layer, don't label the hole. **Read [countermeasure-not-caveat.md](countermeasure-not-caveat.md) for full protocol — this has a specific checkpoint process.**
+
 ## Cognitive Biases & Traps
 
 These require recognition, not protocol. Knowing the name is usually enough to catch yourself.
@@ -147,6 +151,7 @@ A model almost always fits non-trivial problems — scan for one. Multiple model
 - **Slow trend?** → Compounding Change, Recursive Self-Improvement
 - **Price moved?** → Never Reason from a Price Change
 - **Known vs new approach?** → Exploit-Explore, Reversibility
+- **Writing a limitation?** → Countermeasure, Not Caveat
 - **Analyzing an argument?** → Excavate, Negspace, Rhetoricize
 - **Comparing options?** → Dimensionalize
 - **Conflicting views?** → Synthesize, Antithesize

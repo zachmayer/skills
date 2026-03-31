@@ -87,6 +87,12 @@ These protocols integrate or transfer knowledge across domains. **Read the linke
 
 **Metaphorize** — Build explicit, high-coverage mapping from source domain to target domain. Heavier than rhyme, lighter than formal proof. When source has math, carry the math with units and dimensional analysis. Produces mapping table, formula shelf, invariant assertions, and metric plan. **Read [metaphorize.md](metaphorize.md) for full protocol.**
 
+## Action & Rigor
+
+**Swiss Cheese Model** (James Reason) — Every defense layer has holes. Disasters happen when holes in multiple layers align, allowing a hazard to pass through every defense. Safety comes from layering imperfect defenses so their holes don't overlap. When you find a hole, add another slice of cheese — don't just label the hole. See [swiss-cheese-model.md](swiss-cheese-model.md).
+
+**Countermeasure, Not Caveat** — When you identify a weakness in your approach, convert it into an action, not a footnote. A caveat in the report acknowledges a gap exists. A countermeasure in the methodology closes the gap. These feel the same — both demonstrate understanding — but only one changes the outcome. Extends the Swiss Cheese Model: finding a hole is the observation; adding a layer is the countermeasure; documenting the hole without adding a layer is the caveat trap. **Read [countermeasure-not-caveat.md](countermeasure-not-caveat.md) for full protocol — this has a specific checkpoint process.**
+
 ## Cognitive Biases & Traps
 
 These require recognition, not protocol. Knowing the name is usually enough to catch yourself.
@@ -147,6 +153,8 @@ A model almost always fits non-trivial problems — scan for one. Multiple model
 - **Slow trend?** → Compounding Change, Recursive Self-Improvement
 - **Price moved?** → Never Reason from a Price Change
 - **Known vs new approach?** → Exploit-Explore, Reversibility
+- **Writing a limitation?** → Countermeasure, Not Caveat, Swiss Cheese Model
+- **Checking robustness?** → Swiss Cheese Model
 - **Analyzing an argument?** → Excavate, Negspace, Rhetoricize
 - **Comparing options?** → Dimensionalize
 - **Conflicting views?** → Synthesize, Antithesize

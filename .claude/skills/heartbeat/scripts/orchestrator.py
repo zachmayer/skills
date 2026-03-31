@@ -16,13 +16,7 @@ MAX_ISSUES = 10
 LOCK_FILE = Path.home() / ".claude" / "heartbeat.lock"
 REPOS_FILE = Path.home() / ".claude" / "heartbeat-repos.conf"
 _vault = os.environ.get("CLAUDE_OBSIDIAN_DIR", "")
-if not _vault:
-    raise SystemExit(
-        "CLAUDE_OBSIDIAN_DIR is not set. "
-        'Add it to ~/.claude/settings.json under "env": '
-        '{"CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"}'
-    )
-OBSIDIAN_DIR = Path(_vault).expanduser()
+OBSIDIAN_DIR = Path(_vault).expanduser() if _vault else Path()
 WORKTREE_BASE = Path.home() / "claude" / "worktrees"
 SCRATCH_DIR = Path.home() / "claude" / "scratch"
 LOG_DIR = Path.home() / ".claude"
@@ -715,6 +709,12 @@ def main(dry_run):
     Issues flow: ai:queued → ai:coding → ai:review → human.
     Each phase can progress in a single heartbeat cycle.
     """
+    if not os.environ.get("CLAUDE_OBSIDIAN_DIR"):
+        raise click.UsageError(
+            "CLAUDE_OBSIDIAN_DIR is not set. "
+            'Add it to ~/.claude/settings.json under "env": '
+            '{"CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"}'
+        )
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [heartbeat] %(message)s",

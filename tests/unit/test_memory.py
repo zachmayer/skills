@@ -28,6 +28,7 @@ _spec.loader.exec_module(memory)
 @pytest.fixture()
 def mem_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Redirect MEMORY_DIR to a temp directory."""
+    monkeypatch.setenv("CLAUDE_OBSIDIAN_DIR", str(tmp_path))
     monkeypatch.setattr(memory, "MEMORY_DIR", tmp_path)
     return tmp_path
 

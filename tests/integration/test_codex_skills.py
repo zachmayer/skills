@@ -67,12 +67,12 @@ def test_codex_skills_match_claude_skills():
 
 
 @pytest.mark.local
-def test_codex_skill_symlinks_resolve_through_claude():
-    """Codex skill symlinks should chain through ~/.claude/skills/ to the repo."""
-    skill_link = CODEX_SKILLS_DIR / "mental-models"
-    # First hop: ~/.agents/skills/mental-models → ~/.claude/skills/mental-models
-    assert skill_link.is_symlink()
-    first_target = Path(skill_link.parent / skill_link.readlink()).resolve()
-    assert "/.claude/skills/" in str(first_target), (
-        f"Expected Codex link to point through ~/.claude/skills/, got {first_target}"
+def test_codex_skill_resolves_to_repo():
+    """Codex skill symlink should resolve to the same SKILL.md as Claude's."""
+    codex_path = CODEX_SKILLS_DIR / "mental-models" / "SKILL.md"
+    claude_path = CLAUDE_SKILLS_DIR / "mental-models" / "SKILL.md"
+    if not claude_path.exists():
+        pytest.skip("~/.claude/skills/mental-models not found")
+    assert codex_path.resolve() == claude_path.resolve(), (
+        "Codex and Claude skill paths should resolve to the same file"
     )

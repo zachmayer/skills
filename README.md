@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of 33 AI agent skills for Claude Code. Built on the [Agent Skills](https://agentskills.io) open standard.
+A collection of 33 AI agent skills for Claude Code and OpenAI Codex. Built on the [Agent Skills](https://agentskills.io) open standard.
 
 ## What's Here
 
@@ -81,7 +81,7 @@ There's also an optional personal knowledge management layer built on Obsidian a
 
 ## Install
 
-### Claude Code (full install)
+### Claude Code + Codex (full install)
 
 ```bash
 git clone https://github.com/zachmayer/skills.git
@@ -89,7 +89,7 @@ cd skills
 make install
 ```
 
-This installs system deps (via Homebrew), Python deps (via UV), symlinks all skills into `~/.claude/skills/`, sets up global config (`settings.json`, `CLAUDE.md`, security hooks), and runs auth for GitHub and Google Workspace.
+This installs system deps (via Homebrew), Python deps (via UV), symlinks all skills into `~/.claude/skills/` and `~/.agents/skills/` (for Codex), sets up global config (`settings.json`, `CLAUDE.md`/`AGENTS.md`, security hooks), and runs auth for GitHub and Google Workspace.
 
 ### Claude.ai (web)
 
@@ -105,6 +105,8 @@ Packages 17 web-compatible skills (no auth required) as `.zip` files in `build/c
 - `~/.claude/settings.json` — Permissions with targeted deny rules for destructive operations
 - `~/.claude/hooks/reject-shell-operators.sh` — Blocks shell injection (`&&`, `||`, backticks, `$()`)
 - `~/CLAUDE.md` — Global agent instructions: model preferences, git workflow, conventions
+- `~/.codex/AGENTS.md` — Symlink to `~/CLAUDE.md` so Codex reads the same global instructions
+- `~/.agents/skills/` — Symlinks to each skill so Codex discovers them globally
 
 **Agent workspace**:
 - `~/claude/scratch/` — Temp files (PR bodies, commit messages, downloads)

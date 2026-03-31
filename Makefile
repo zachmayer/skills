@@ -83,10 +83,10 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── Codex: symlink global AGENTS.md → CLAUDE.md ──
 	@ln -sfn $(HOME)/CLAUDE.md $(CODEX_CONFIG_DIR)/AGENTS.md
 	@echo "  Linked ~/.codex/AGENTS.md → ~/CLAUDE.md"
-	@# ── Codex: symlink skills into ~/.agents/skills/ ──
+	@# ── Codex: symlink skills into ~/.agents/skills/ (direct to repo) ──
 	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \
 		skill_name=$$(basename "$$skill_dir"); \
-		ln -sfn "$(INSTALL_DIR)/$$skill_name" "$(CODEX_SKILLS_DIR)/$$skill_name"; \
+		ln -sfn "$$(pwd)/$$skill_dir" "$(CODEX_SKILLS_DIR)/$$skill_name"; \
 	done
 	@echo "  Linked skills into ~/.agents/skills/ for Codex"
 	@# ── Codex: prune stale symlinks ──

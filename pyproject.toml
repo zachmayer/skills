@@ -46,5 +46,6 @@ force-single-line = true
 testpaths = ["tests"]
 markers = [
     "integration: tests that hit real GitHub APIs (deselect with -m 'not integration')",
+    "local: tests that verify local install state (deselect with -m 'not local')",
 ]
-addopts = "-m 'not integration'"
+addopts = "-m 'not integration and not local'"

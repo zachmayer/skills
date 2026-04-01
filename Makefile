@@ -2,6 +2,8 @@ SKILLS_DIR := .claude/skills
 AGENTS_DIR := .claude/agents
 INSTALL_DIR := $(HOME)/.claude/skills
 AGENTS_INSTALL_DIR := $(HOME)/.claude/agents
+CODEX_SKILLS_DIR := $(HOME)/.agents/skills
+CODEX_CONFIG_DIR := $(HOME)/.codex
 
 # ── Help ─────────────────────────────────────────────────────────
 
@@ -49,7 +51,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── Kaggle CLI ──
 	uv tool install kaggle || true
 	@# ── Directories ──
-	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(HOME)/.claude/hooks
+	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(HOME)/.claude/hooks $(CODEX_SKILLS_DIR) $(CODEX_CONFIG_DIR)
 	@# ── Security hooks ──
 	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@chmod +x $(HOME)/.claude/hooks/reject-shell-operators.sh
@@ -75,6 +77,22 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@for link in $(INSTALL_DIR)/* $(AGENTS_INSTALL_DIR)/*; do \
 		if [ -L "$$link" ] && ! [ -e "$$link" ]; then \
 			echo "  Removing stale link $$link"; \
+			rm -f "$$link"; \
+		fi; \
+	done
+	@# ── Codex: symlink global AGENTS.md → CLAUDE.md ──
+	@ln -sfn $(HOME)/CLAUDE.md $(CODEX_CONFIG_DIR)/AGENTS.md
+	@echo "  Linked ~/.codex/AGENTS.md → ~/CLAUDE.md"
+	@# ── Codex: symlink skills into ~/.agents/skills/ (direct to repo) ──
+	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \
+		skill_name=$$(basename "$$skill_dir"); \
+		ln -sfn "$$(pwd)/$$skill_dir" "$(CODEX_SKILLS_DIR)/$$skill_name"; \
+	done
+	@echo "  Linked skills into ~/.agents/skills/ for Codex"
+	@# ── Codex: prune stale symlinks ──
+	@for link in $(CODEX_SKILLS_DIR)/*; do \
+		if [ -L "$$link" ] && ! [ -e "$$link" ]; then \
+			echo "  Removing stale Codex link $$link"; \
 			rm -f "$$link"; \
 		fi; \
 	done
@@ -105,7 +123,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 		echo "  WARNING: Codex is not logged in. Run 'codex login' to authenticate."; \
 	fi
 	@echo ""
-	@echo "Install complete. Skills available as /skill-name in Claude Code."
+	@echo "Install complete. Skills available as /skill-name in Claude Code and Codex."
 	@echo ""
 	@echo "Some skills need API keys. Add to ~/.zshrc:"
 	@echo '  export OPENAI_API_KEY="your-key"'
@@ -113,7 +131,7 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@echo '  export GOOGLE_API_KEY="your-key"'
 .PHONY: install
 
-uninstall: ## Remove skills, agents, and hooks from ~/.claude/
+uninstall: ## Remove skills, agents, and hooks from ~/.claude/ and ~/.agents/
 	@echo "Removing skills from $(INSTALL_DIR)..."
 	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \
 		skill_name=$$(basename "$$skill_dir"); \
@@ -123,6 +141,11 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/
 	@set -e; for agent in $(AGENTS_DIR)/*.md; do \
 		rm -f "$(AGENTS_INSTALL_DIR)/$$(basename "$$agent")"; \
 	done
+	@echo "Removing Codex symlinks..."
+	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \
+		rm -f "$(CODEX_SKILLS_DIR)/$$(basename "$$skill_dir")"; \
+	done
+	@rm -f $(CODEX_CONFIG_DIR)/AGENTS.md
 	@echo "Done."
 .PHONY: uninstall
 
@@ -150,8 +173,9 @@ ci: lint typecheck ## CI checks: lint + typecheck + unit tests
 	@echo "CI checks passed."
 .PHONY: ci
 
-test: ci ## All checks: CI + integration tests (requires gh auth)
+test: ci ## All checks: CI + integration + local tests
 	uv run pytest tests/integration -m integration -v
+	uv run pytest tests/integration -m local -v
 	@echo "All checks passed."
 .PHONY: test
 

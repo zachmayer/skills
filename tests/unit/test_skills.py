@@ -73,6 +73,25 @@ class TestSkillStructure:
         )
 
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+class TestCodexRepoSymlink:
+    """Validate .agents/skills symlink for Codex discovery."""
+
+    def test_agents_skills_symlink_exists(self) -> None:
+        link = REPO_ROOT / ".agents" / "skills"
+        assert link.is_symlink(), ".agents/skills should be a symlink"
+
+    def test_agents_skills_resolves_to_claude_skills(self) -> None:
+        link = REPO_ROOT / ".agents" / "skills"
+        assert link.resolve() == (REPO_ROOT / ".claude" / "skills").resolve()
+
+    def test_agents_skills_contains_skill_md(self) -> None:
+        skill_md = REPO_ROOT / ".agents" / "skills" / "mental-models" / "SKILL.md"
+        assert skill_md.exists(), "mental-models SKILL.md not reachable via .agents/skills"
+
+
 class TestJinaGrep:
     """Validate jina-grep skill content."""
 

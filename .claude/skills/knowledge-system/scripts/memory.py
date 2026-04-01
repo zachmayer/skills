@@ -16,13 +16,7 @@ from pathlib import Path
 import click
 
 _vault = os.environ.get("CLAUDE_OBSIDIAN_DIR", "")
-if not _vault:
-    raise SystemExit(
-        "CLAUDE_OBSIDIAN_DIR is not set. "
-        'Add it to ~/.claude/settings.json under "env": '
-        '{"CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"}'
-    )
-OBSIDIAN_DIR = Path(_vault).expanduser()
+OBSIDIAN_DIR = Path(_vault).expanduser() if _vault else Path()
 MEMORY_DIR = OBSIDIAN_DIR / "memory"
 KNOWLEDGE_DIR = OBSIDIAN_DIR / "knowledge_graph"
 
@@ -152,6 +146,12 @@ def _compute_staleness() -> StalenessReport | None:
 @click.group()
 def cli() -> None:
     """Hierarchical memory: daily notes, monthly summaries, overall memory."""
+    if not os.environ.get("CLAUDE_OBSIDIAN_DIR"):
+        raise click.UsageError(
+            "CLAUDE_OBSIDIAN_DIR is not set. "
+            'Add it to ~/.claude/settings.json under "env": '
+            '{"CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"}'
+        )
     MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
 

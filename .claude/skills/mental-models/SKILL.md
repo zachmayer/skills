@@ -141,6 +141,8 @@ These require recognition, not protocol. Knowing the name is usually enough to c
 
 **Hoare's Dictum** — Two ways to build software: so simple there are obviously no deficiencies, or so complicated there are no obvious deficiencies. The first is far harder — and far better. Prefer designs you can prove correct by inspection over designs too complex to find bugs in. See [hoares-dictum.md](hoares-dictum.md).
 
+**Kirby Frame** (Anthony Moser) — Instead of negating a bad-faith argument (which reinforces it), absorb it into a larger frame that explains what the speaker is actually doing. Named after Kirby, who inhales enemies. Don't rebut the claim — expose the rhetorical move. See [kirby-frame.md](kirby-frame.md).
+
 ## Quick Lookup
 
 A model almost always fits non-trivial problems — scan for one. Multiple models often apply simultaneously; combine as needed.
@@ -158,6 +160,7 @@ A model almost always fits non-trivial problems — scan for one. Multiple model
 - **Analyzing an argument?** → Excavate, Negspace, Rhetoricize
 - **Comparing options?** → Dimensionalize
 - **Conflicting views?** → Synthesize, Antithesize
+- **Bad-faith argument?** → Kirby Frame, Rhetoricize
 - **New domain?** → Rhyme, Metaphorize
 
 When applying: name the model, read the linked file if it has a protocol, walk through the reasoning, and note where the model might mislead.

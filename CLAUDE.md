@@ -48,6 +48,7 @@ Use README.md as the development memory for this repo. It contains the skill inv
 
 Global defaults (PRs always, worktrees, atomic PRs) are in `~/CLAUDE.md`. Skills-repo specifics:
 
+- **Always branch from fresh `origin/main`**: `git fetch origin` then `git checkout -b branch-name origin/main`. Never branch from a stale local `main` -- stale bases cause merge conflicts and test failures against current deps.
 - **Worktree naming**: use `git worktree add ~/claude/worktrees/skills-<name> main` (prefix `skills-` to identify this repo's worktrees).
 - **When superseding a PR**, close the old PR directly: `gh pr close <number> --comment "Superseded by #<new>"`. Then open the new PR. You have permission to do this; the human can reopen if needed.
 

@@ -31,24 +31,21 @@ Unified entry point for all knowledge management. Route to the right sub-skill.
 
 ## Vault Location
 
-The vault path comes from `$CLAUDE_OBSIDIAN_DIR`. **Do not search for it** -- use this env var directly.
+The vault path comes from `$CLAUDE_OBSIDIAN_DIR`. **Do not search for it** -- use this env var directly. Do NOT fall back to `mdfind`, `find`, `Glob`, or any other discovery method.
 
-**If `$CLAUDE_OBSIDIAN_DIR` is empty or unset, STOP.** Tell the user:
+**If `$CLAUDE_OBSIDIAN_DIR` is empty or unset, HARD FAIL.** Do not proceed with any vault operation. Tell the user verbatim:
 
-> `CLAUDE_OBSIDIAN_DIR` is not configured. Add it to your Claude Code settings:
+> `CLAUDE_OBSIDIAN_DIR` is not set. Add this to your `~/.zshrc`:
 >
-> In `~/.claude/settings.json`, add to the `"env"` block:
-> ```json
-> "CLAUDE_OBSIDIAN_DIR": "/path/to/your/obsidian/vault"
+> ```
+> export CLAUDE_OBSIDIAN_DIR="$HOME/path/to/your/obsidian/vault"
 > ```
 >
-> Also update the `Edit` and `Write` permission patterns to match your vault path:
-> ```json
-> "Edit(~/your/vault/path/**)",
-> "Write(~/your/vault/path/**)"
-> ```
+> Then restart your shell and Claude Code.
 >
-> Then restart Claude Code.
+> Note: `settings.json` env values do NOT expand `$HOME` or `~` (see anthropics/claude-code#21551, closed Not Planned). Use shell profile instead.
+
+Then stop. Do not guess a path, do not search the filesystem, do not proceed.
 
 ### Vault structure
 

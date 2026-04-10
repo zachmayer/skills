@@ -2,12 +2,42 @@
 name: mental-models
 description: >
   Applies mental models and structured thinking frameworks to reason about
-  problems, decisions, and systems. Use when the user says "think through",
-  "trade-offs", "should I", "pros and cons", "analyze this decision",
-  "why did this fail", "debug this", "what am I missing", "steel man",
-  "devil's advocate", or asks for a structured way to think about something.
-  Covers decision making, systems thinking, critical analysis, cognitive biases,
-  and strategic reasoning. Do NOT use for straightforward implementation tasks
+  problems, decisions, and systems.
+
+  Use when the user says or implies:
+  "think through", "trade-offs", "should I", "pros and cons",
+  "analyze this decision", "what am I missing", "steel man",
+  "devil's advocate", "structured way to think about this",
+  "why did this fail", "what went wrong", "root cause", "debug this",
+  "five whys", "post-mortem", "pre-mortem", "what could go wrong",
+  "too complex", "over-engineering", "keep it simple", "KISS", "simplify",
+  "complexity", "complexity demon", "grug brain", "premature abstraction",
+  "clever code", "too many layers", "spaghetti code", "worse is better",
+  "obviously correct", "Hoare",
+  "one-way door", "two-way door", "reversible", "can we undo this",
+  "opportunity cost", "exploit vs explore", "diminishing returns",
+  "decision paralysis", "analysis paralysis", "overthinking",
+  "bottleneck", "feedback loop", "leverage point", "emergent",
+  "compounding", "technical debt", "slow drift", "accumulation",
+  "bias", "am I biased", "cognitive bias", "sunk cost", "anchoring",
+  "Dunning-Kruger", "confirmation bias", "impostor syndrome",
+  "incentives", "principal-agent", "Goodhart", "gaming the metric",
+  "Chesterton's fence", "why does this exist", "before removing",
+  "antifragile", "Lindy", "margin of safety",
+  "hidden assumptions", "what's not being said", "framing", "rhetoric",
+  "bad faith", "reframe", "Kirby frame",
+  "first principles", "80/20", "Pareto", "Occam", "OODA",
+  "defense in depth", "Swiss cheese",
+  "limits of rationality", "get out of the car", "cactus person",
+  "wrong framework", "not quantifiable", "beyond analysis",
+  "circle of competence", "out of my depth", "new domain",
+  "pattern language", "scout mindset", "make this actionable",
+  "countermeasure not caveat", "second order effects",
+  "unintended consequences", "downstream effects".
+
+  Covers decision making, systems thinking, problem solving, critical analysis,
+  cognitive biases, strategic reasoning, complexity management, epistemology,
+  and software philosophy. Do NOT use for straightforward implementation tasks
   with clear requirements.
 ---
 
@@ -109,6 +139,8 @@ These require recognition, not protocol. Knowing the name is usually enough to c
 
 **Never Reason from a Price Change** — A price change is an outcome, not a cause. "Oil prices rose, so consumers will spend less" skips the crucial question: *why* did the price change? A supply shock and a demand surge produce the same price movement but opposite downstream effects. Always identify the cause first, then reason from the cause. Source: Scott Sumner, *The Money Illusion*. See [never-reason-from-price-change.md](never-reason-from-price-change.md).
 
+**Universal Love, Said the Cactus Person** (Scott Alexander) — Some problems can't be solved from within the framework that generated them. When you keep pressing different dashboard buttons and nothing works, the answer may be "get out of the car." The demand for instrumental proof, the need to optimize and measure — sometimes these ARE the obstacle, not the path to the solution. The Car Test: if every new attempt is a variation on the same method, you may need to step outside the framework entirely. See [cactus-person.md](cactus-person.md).
+
 ## Strategic Thinking
 
 **Chesterton's Fence** — Before removing something, understand why it was put there. If you don't understand its purpose, you don't understand the consequences of removing it. Applies to code, processes, and institutions. See [chestertons-fence.md](chestertons-fence.md).
@@ -141,6 +173,8 @@ These require recognition, not protocol. Knowing the name is usually enough to c
 
 **Hoare's Dictum** — Two ways to build software: so simple there are obviously no deficiencies, or so complicated there are no obvious deficiencies. The first is far harder — and far better. Prefer designs you can prove correct by inspection over designs too complex to find bugs in. See [hoares-dictum.md](hoares-dictum.md).
 
+**The Grug Brained Developer** (Carson Gross) — Complexity is the eternal enemy — a "spirit demon" that invades codebases through well-meaning developers. Fight it by saying no, delaying abstractions until natural cut points emerge, preferring integration tests, keeping refactors small, logging generously, and openly admitting when something is too complex (FOLD). Apply 80/20 to features and architecture. When "big brain" solutions are proposed, ask whether the simpler version would actually work. See [grug-brain.md](grug-brain.md).
+
 **Kirby Frame** (Anthony Moser) — Instead of negating a bad-faith argument (which reinforces it), absorb it into a larger frame that explains what the speaker is actually doing. Named after Kirby, who inhales enemies. Don't rebut the claim — expose the rhetorical move. See [kirby-frame.md](kirby-frame.md).
 
 ## Quick Lookup
@@ -161,6 +195,11 @@ A model almost always fits non-trivial problems — scan for one. Multiple model
 - **Comparing options?** → Dimensionalize
 - **Conflicting views?** → Synthesize, Antithesize
 - **Bad-faith argument?** → Kirby Frame, Rhetoricize
+- **Too complex?** → Grug Brain, Hoare's Dictum, Occam's Razor
+- **Over-engineering?** → Grug Brain, First Principles, Pareto
+- **Analysis paralysis?** → Cactus Person, Reversibility, Exploit-Explore
+- **Wrong framework?** → Cactus Person, Map vs. Territory, Circle of Competence
+- **Impostor syndrome?** → Grug Brain (FOLD), Dunning-Kruger, Circle of Competence
 - **New domain?** → Rhyme, Metaphorize
 
 When applying: name the model, read the linked file if it has a protocol, walk through the reasoning, and note where the model might mislead.

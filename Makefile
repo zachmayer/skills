@@ -55,6 +55,9 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── Security hooks ──
 	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@chmod +x $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@# ── Status line ──
+	@cp $(CURDIR)/.claude/statusline-command.sh $(HOME)/.claude/statusline-command.sh
+	@chmod +x $(HOME)/.claude/statusline-command.sh
 	@# ── Settings and global CLAUDE.md (with timestamped backup) ──
 	@set -e; ts=$$(date +%Y%m%d%H%M%S); \
 	if [ -f "$(HOME)/.claude/settings.json" ]; then cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; fi; \
@@ -138,6 +141,7 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/ and ~/.agents/
 		rm -f "$(INSTALL_DIR)/$$skill_name"; \
 	done
 	@rm -f $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@rm -f $(HOME)/.claude/statusline-command.sh
 	@set -e; for agent in $(AGENTS_DIR)/*.md; do \
 		rm -f "$(AGENTS_INSTALL_DIR)/$$(basename "$$agent")"; \
 	done

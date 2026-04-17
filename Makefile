@@ -73,11 +73,13 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@set -e; ts=$$(date +%Y%m%d%H%M%S); \
 	if [ -f "$(HOME)/.claude/settings.json" ]; then cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; fi; \
 	if [ -f "$(HOME)/CLAUDE.md" ]; then cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.$$ts.bak"; fi
-	@# settings.json env values don't expand $HOME or ~ (#21551 Not Planned),
+	@# settings.json env values don't expand $$HOME or ~ (#21551 Not Planned),
 	@# so inject absolute paths at install time. Template stays public-safe.
-	@# Atomic write (tmp + mv) so a jq failure can't leave settings.json empty,
-	@# and --arg binds the path as a proper JSON string (safe vs. $HOME weirdness).
-	@tmp="$(HOME)/.claude/settings.json.tmp"; \
+	@# Atomic write via mktemp + mv so a jq failure can't leave settings.json
+	@# empty, and concurrent installs can't stomp the same temp file. --arg
+	@# binds the path as a proper JSON string (safe vs. weird path characters).
+	@tmp=$$(mktemp "$(HOME)/.claude/settings.json.XXXXXX"); \
+	trap 'rm -f "$$tmp"' EXIT; \
 	jq --arg obsidian_dir "$(HOME)/claude/obsidian" \
 		'.env.CLAUDE_OBSIDIAN_DIR = $$obsidian_dir' \
 		settings.template.json > "$$tmp" && \

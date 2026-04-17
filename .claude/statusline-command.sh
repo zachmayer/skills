@@ -118,9 +118,21 @@ for s in "${segments[@]}"; do
 done
 
 # ─── Pad apart ──────────────────────────────────────────────────────────────
-width="${COLUMNS:-}"
-[ -z "$width" ] && width=$(tput cols 2>/dev/null || true)
-[ -z "$width" ] && width=120
+# Claude Code invokes this script with stdin = JSON, so stdin is not a tty.
+# $COLUMNS isn't always exported into the subprocess, and `tput cols` /
+# `stty size` need a tty — so probe several sources and take the largest.
+detect_width() {
+    local w="${COLUMNS:-}"
+    [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
+
+    w=$(stty size </dev/tty 2>/dev/null | awk '{print $2}')
+    [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
+
+    w=$(tput cols </dev/tty 2>/dev/null)
+    [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
+}
+width=$(detect_width | sort -n | tail -1)
+[ -z "$width" ] && width=200
 
 strip_ansi() {
     printf '%s' "$1" | sed $'s/\033\\[[0-9;]*m//g'

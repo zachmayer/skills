@@ -79,9 +79,9 @@ Format: `Tool` or `Tool(specifier)` with glob wildcards.
 
 ### Bash wildcard bypass warning
 
-Permission rules like `Bash(safe-cmd *)` use simple prefix matching on the command string — they do NOT parse shell operators. This means `Bash(safe-cmd *)` WILL match `safe-cmd ; evil-cmd` or `safe-cmd && evil-cmd` because the pattern matches the prefix.
+Permission rules like `Bash(safe-cmd *)` use simple prefix matching on the command string — they do NOT parse shell operators. `Bash(safe-cmd *)` WILL match `safe-cmd ; evil-cmd` or `safe-cmd && evil-cmd` because the pattern matches the prefix.
 
-**The deny list alone is not sufficient for security.** Use PreToolUse hooks (such as the shell operator hook in this repo) as the primary defense against command injection via `&&`, `||`, backticks, and `$()`.
+**Primary defense: auto mode's server-side classifier.** With `"permissions.defaultMode": "auto"` set, Claude Code evaluates the real-world impact of each command rather than the surface text, explicitly handling `&&` chains, write-then-execute patterns, and shell wrappers as a single action. See [Claude Code auto mode](https://www.anthropic.com/engineering/claude-code-auto-mode). The deny list is the second layer for specific operations you never want to allow regardless of classifier judgment (e.g. `git push --force`, `gh repo delete`).
 
 ### Additional permission keys
 

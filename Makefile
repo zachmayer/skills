@@ -75,13 +75,16 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	if [ -f "$(HOME)/CLAUDE.md" ]; then cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.$$ts.bak"; fi
 	@# settings.json env values don't expand $$HOME or ~ (#21551 Not Planned),
 	@# so inject absolute paths at install time. Template stays public-safe.
-	@# Atomic write via mktemp + mv so a jq failure can't leave settings.json
-	@# empty, and concurrent installs can't stomp the same temp file. --arg
-	@# binds the path as a proper JSON string (safe vs. weird path characters).
+	@# Source the vault path from the shell env first (so a user who exports
+	@# CLAUDE_OBSIDIAN_DIR in .zshrc keeps their override), falling back to
+	@# the default. Validate absolute before writing. Atomic write via
+	@# mktemp + mv so a jq failure can't leave settings.json empty.
 	@set -e; \
+	obsidian_dir="$${CLAUDE_OBSIDIAN_DIR:-$(HOME)/claude/obsidian}"; \
+	case "$$obsidian_dir" in /*) ;; *) echo "ERROR: CLAUDE_OBSIDIAN_DIR must be absolute, got: $$obsidian_dir" >&2; exit 1 ;; esac; \
 	tmp=$$(mktemp "$(HOME)/.claude/settings.json.XXXXXX"); \
 	trap 'rm -f "$$tmp"' EXIT; \
-	jq --arg obsidian_dir "$(HOME)/claude/obsidian" \
+	jq --arg obsidian_dir "$$obsidian_dir" \
 		'.env.CLAUDE_OBSIDIAN_DIR = $$obsidian_dir' \
 		settings.template.json > "$$tmp"; \
 	mv "$$tmp" "$(HOME)/.claude/settings.json"

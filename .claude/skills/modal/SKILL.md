@@ -226,7 +226,7 @@ image = (
     .apt_install("ffmpeg", "git")
     .uv_pip_install("torch==2.8.0", "transformers")  # pin versions
     .env({"MY_VAR": "value"})
-    .add_local_python_source("my_package")        # replaces deprecated mount=
+    .add_local_python_source("my_package")
 )
 ```
 

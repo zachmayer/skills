@@ -196,7 +196,7 @@ lint: ## Run linters and formatters
 .PHONY: lint
 
 typecheck: ## Run type checker
-	uv run ty check .claude/skills/ main/ --exclude '.claude/skills/pdf-to-markdown/' --exclude '.claude/skills/web-grab/scripts/browser.py' --exclude '.claude/skills/web-grab/scripts/fetch_page.py'
+	uv run ty check .claude/skills/ --exclude '.claude/skills/pdf-to-markdown/' --exclude '.claude/skills/web-grab/scripts/browser.py' --exclude '.claude/skills/web-grab/scripts/fetch_page.py'
 .PHONY: typecheck
 
 ci: lint typecheck ## CI checks: lint + typecheck + unit tests

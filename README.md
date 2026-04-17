@@ -102,8 +102,8 @@ Packages 17 web-compatible skills (no auth required) as `.zip` files in `build/c
 ### What install sets up
 
 **Global config** (applies to all repos):
-- `~/.claude/settings.json` — Permissions with targeted deny rules for destructive operations
-- `~/.claude/hooks/reject-shell-operators.sh` — Blocks shell injection (`&&`, `||`, backticks, `$()`)
+- `~/.claude/settings.json` — Permissions (default-mode `auto` + targeted deny rules for destructive operations)
+- `~/.claude/statusline-command.sh` — Colored status line showing model, context mode, effort, and ctx usage
 - `~/CLAUDE.md` — Global agent instructions: model preferences, git workflow, conventions
 - `~/.codex/AGENTS.md` — Symlink to `~/CLAUDE.md` so Codex reads the same global instructions
 - `~/.agents/skills/` — Symlinks to each skill so Codex discovers them globally

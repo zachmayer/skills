@@ -51,10 +51,24 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── Kaggle CLI ──
 	uv tool install kaggle || true
 	@# ── Directories ──
-	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(HOME)/.claude/hooks $(CODEX_SKILLS_DIR) $(CODEX_CONFIG_DIR)
-	@# ── Security hooks ──
-	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
-	@chmod +x $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(CODEX_SKILLS_DIR) $(CODEX_CONFIG_DIR)
+	@# ── Clean up orphan hook from previous installs (auto mode's classifier supersedes it) ──
+	@rm -f $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@rmdir $(HOME)/.claude/hooks 2>/dev/null || true
+	@# ── Validate required template files exist (fail early with a clear message) ──
+	@for f in \
+		.claude/statusline-command.sh \
+		settings.template.json \
+		CLAUDE.template.md; do \
+		if [ ! -f "$$f" ]; then \
+			echo "ERROR: Missing required template file: $$f"; \
+			echo "       Run 'git status' and 'git pull' to ensure your branch is up to date."; \
+			exit 1; \
+		fi; \
+	done
+	@# ── Status line ──
+	@cp $(CURDIR)/.claude/statusline-command.sh $(HOME)/.claude/statusline-command.sh
+	@chmod +x $(HOME)/.claude/statusline-command.sh
 	@# ── Settings and global CLAUDE.md (with timestamped backup) ──
 	@set -e; ts=$$(date +%Y%m%d%H%M%S); \
 	if [ -f "$(HOME)/.claude/settings.json" ]; then cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; fi; \
@@ -137,7 +151,7 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/ and ~/.agents/
 		skill_name=$$(basename "$$skill_dir"); \
 		rm -f "$(INSTALL_DIR)/$$skill_name"; \
 	done
-	@rm -f $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@rm -f $(HOME)/.claude/statusline-command.sh
 	@set -e; for agent in $(AGENTS_DIR)/*.md; do \
 		rm -f "$(AGENTS_INSTALL_DIR)/$$(basename "$$agent")"; \
 	done

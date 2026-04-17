@@ -73,7 +73,25 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@set -e; ts=$$(date +%Y%m%d%H%M%S); \
 	if [ -f "$(HOME)/.claude/settings.json" ]; then cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; fi; \
 	if [ -f "$(HOME)/CLAUDE.md" ]; then cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.$$ts.bak"; fi
-	@cp settings.template.json $(HOME)/.claude/settings.json
+	@# settings.json env values don't expand $$HOME or ~ (#21551 Not Planned),
+	@# so inject absolute paths at install time. Template stays public-safe.
+	@# Source the vault path from the shell env first (so a user who exports
+	@# CLAUDE_OBSIDIAN_DIR in .zshrc keeps their override), falling back to
+	@# the default. Validate absolute before writing. Atomic write via
+	@# mktemp + mv so a jq failure can't leave settings.json empty.
+	@# Also rewrite the Edit/Write permission patterns so custom vault
+	@# paths work end-to-end (env + permissions), not just the env var.
+	@set -e; \
+	obsidian_dir="$${CLAUDE_OBSIDIAN_DIR:-$(HOME)/claude/obsidian}"; \
+	while [ "$${obsidian_dir%/}" != "$$obsidian_dir" ]; do obsidian_dir="$${obsidian_dir%/}"; done; \
+	case "$$obsidian_dir" in /?*) ;; *) echo "ERROR: CLAUDE_OBSIDIAN_DIR must be an absolute path (got: $${CLAUDE_OBSIDIAN_DIR:-<unset>})" >&2; exit 1 ;; esac; \
+	echo "  Vault: $$obsidian_dir"; \
+	tmp=$$(mktemp "$(HOME)/.claude/settings.json.XXXXXX"); \
+	trap 'rm -f "$$tmp"' EXIT; \
+	jq --arg obsidian_dir "$$obsidian_dir" \
+		'.env.CLAUDE_OBSIDIAN_DIR = $$obsidian_dir | .permissions.allow |= map(if . == "Edit(~/claude/obsidian/**)" then "Edit(" + $$obsidian_dir + "/**)" elif . == "Write(~/claude/obsidian/**)" then "Write(" + $$obsidian_dir + "/**)" else . end)' \
+		settings.template.json > "$$tmp"; \
+	mv "$$tmp" "$(HOME)/.claude/settings.json"
 	@cp CLAUDE.template.md $(HOME)/CLAUDE.md
 	@# ── Symlink skills ──
 	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \

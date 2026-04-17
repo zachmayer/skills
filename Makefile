@@ -83,7 +83,9 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# paths work end-to-end (env + permissions), not just the env var.
 	@set -e; \
 	obsidian_dir="$${CLAUDE_OBSIDIAN_DIR:-$(HOME)/claude/obsidian}"; \
-	case "$$obsidian_dir" in /*) ;; *) echo "ERROR: CLAUDE_OBSIDIAN_DIR must be absolute, got: $$obsidian_dir" >&2; exit 1 ;; esac; \
+	obsidian_dir="$${obsidian_dir%/}"; \
+	case "$$obsidian_dir" in /?*) ;; *) echo "ERROR: CLAUDE_OBSIDIAN_DIR must be an absolute path (got: $${CLAUDE_OBSIDIAN_DIR:-<unset>})" >&2; exit 1 ;; esac; \
+	echo "  Vault: $$obsidian_dir"; \
 	tmp=$$(mktemp "$(HOME)/.claude/settings.json.XXXXXX"); \
 	trap 'rm -f "$$tmp"' EXIT; \
 	jq --arg obsidian_dir "$$obsidian_dir" \

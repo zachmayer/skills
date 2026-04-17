@@ -52,6 +52,18 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	uv tool install kaggle || true
 	@# ── Directories ──
 	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(HOME)/.claude/hooks $(CODEX_SKILLS_DIR) $(CODEX_CONFIG_DIR)
+	@# ── Validate required template files exist (fail early with a clear message) ──
+	@for f in \
+		.claude/hooks/reject-shell-operators.sh \
+		.claude/statusline-command.sh \
+		settings.template.json \
+		CLAUDE.template.md; do \
+		if [ ! -f "$$f" ]; then \
+			echo "ERROR: Missing required template file: $$f"; \
+			echo "       Run 'git status' and 'git pull' to ensure your branch is up to date."; \
+			exit 1; \
+		fi; \
+	done
 	@# ── Security hooks ──
 	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@chmod +x $(HOME)/.claude/hooks/reject-shell-operators.sh

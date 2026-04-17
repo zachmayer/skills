@@ -73,7 +73,10 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@set -e; ts=$$(date +%Y%m%d%H%M%S); \
 	if [ -f "$(HOME)/.claude/settings.json" ]; then cp "$(HOME)/.claude/settings.json" "$(HOME)/.claude/settings.json.$$ts.bak"; fi; \
 	if [ -f "$(HOME)/CLAUDE.md" ]; then cp "$(HOME)/CLAUDE.md" "$(HOME)/CLAUDE.md.$$ts.bak"; fi
-	@cp settings.template.json $(HOME)/.claude/settings.json
+	@# settings.json env values don't expand $HOME or ~ (#21551 Not Planned),
+	@# so inject absolute paths at install time. Template stays public-safe.
+	@jq '.env.CLAUDE_OBSIDIAN_DIR = "$(HOME)/claude/obsidian"' \
+		settings.template.json > $(HOME)/.claude/settings.json
 	@cp CLAUDE.template.md $(HOME)/CLAUDE.md
 	@# ── Symlink skills ──
 	@set -e; for skill_dir in $(SKILLS_DIR)/*/; do \

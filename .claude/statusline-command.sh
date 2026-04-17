@@ -125,10 +125,12 @@ detect_width() {
     local w="${COLUMNS:-}"
     [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
 
-    w=$(stty size </dev/tty 2>/dev/null | awk '{print $2}')
+    # exec 2>/dev/null in the subshell suppresses bash's own "Device not
+    # configured" when /dev/tty isn't available (e.g. non-interactive tests).
+    w=$(exec 2>/dev/null; stty size </dev/tty | awk '{print $2}')
     [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
 
-    w=$(tput cols </dev/tty 2>/dev/null)
+    w=$(exec 2>/dev/null; tput cols </dev/tty)
     [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
 }
 width=$(detect_width | sort -n | tail -1)
@@ -139,7 +141,9 @@ strip_ansi() {
 }
 left_len=$(strip_ansi "$left"  | wc -c | tr -d ' ')
 right_len=$(strip_ansi "$right" | wc -c | tr -d ' ')
-pad=$(( width - left_len - right_len ))
+# Reserve 6 cols: 2 for Claude Code's leading indent, 4 for a right-edge
+# margin so the final ctx:N% segment isn't truncated to `ctx:…`.
+pad=$(( width - left_len - right_len - 6 ))
 [ "$pad" -lt 1 ] && pad=1
 padding=$(printf '%*s' "$pad" '')
 

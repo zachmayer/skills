@@ -78,11 +78,12 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# Atomic write via mktemp + mv so a jq failure can't leave settings.json
 	@# empty, and concurrent installs can't stomp the same temp file. --arg
 	@# binds the path as a proper JSON string (safe vs. weird path characters).
-	@tmp=$$(mktemp "$(HOME)/.claude/settings.json.XXXXXX"); \
+	@set -e; \
+	tmp=$$(mktemp "$(HOME)/.claude/settings.json.XXXXXX"); \
 	trap 'rm -f "$$tmp"' EXIT; \
 	jq --arg obsidian_dir "$(HOME)/claude/obsidian" \
 		'.env.CLAUDE_OBSIDIAN_DIR = $$obsidian_dir' \
-		settings.template.json > "$$tmp" && \
+		settings.template.json > "$$tmp"; \
 	mv "$$tmp" "$(HOME)/.claude/settings.json"
 	@cp CLAUDE.template.md $(HOME)/CLAUDE.md
 	@# ── Symlink skills ──

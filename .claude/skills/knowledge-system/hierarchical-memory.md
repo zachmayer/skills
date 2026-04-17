@@ -119,13 +119,23 @@ Always run `status` first to see what needs work. Then launch sub-agents only fo
 
 Launch a sub-agent for each month that needs CREATE or UPDATE:
 
-> Read all daily notes in `$CLAUDE_OBSIDIAN_DIR/memory/` for YYYY-MM. Write a monthly summary to `$CLAUDE_OBSIDIAN_DIR/memory/YYYY-MM.md`. Include: key decisions, important events, learnings, and any facts that changed (new job, new tools, new preferences). Drop noise (test notes, trivial observations, routine operations). Organize by theme, not by date. More recent notes take priority over older ones. Tag each theme with `#topic` tags (e.g. `#skills`, `#architecture`, `#debugging`). Include `[[obsidian links]]` to related vault notes where appropriate. Keep it concise.
+> Read all daily notes in `$CLAUDE_OBSIDIAN_DIR/memory/` for YYYY-MM. Write a monthly summary to `$CLAUDE_OBSIDIAN_DIR/memory/YYYY-MM.md`. Include: key decisions, important events, learnings, and any facts that changed (new job, new tools, new preferences). Drop noise (test notes, trivial observations, routine operations). Organize by theme, not by date. More recent notes take priority over older ones. Tag each theme with `#topic` tags (e.g. `#skills`, `#architecture`, `#debugging`). Include `[[obsidian links]]` to related vault notes where appropriate.
+>
+> **Durability test**: for each candidate fact, ask "will this matter 6+ months from now?" If no, cut it. Transactional detail (exact times, addresses, phone numbers, record numbers, SSNs, specific dollar amounts, one-off emails sent) belongs in the linked knowledge_graph note, not here. If a fact already lives in a `knowledge_graph/` note, link to it — don't duplicate the content. A monthly summary is thematic highlights, not a changelog. Aim for ~30 lines.
 
 ### Overall working memory
 
 Launch a sub-agent only if `status` shows overall needs CREATE or UPDATE:
 
 > Read all monthly summaries in `$CLAUDE_OBSIDIAN_DIR/memory/` chronologically. Write `$CLAUDE_OBSIDIAN_DIR/memory/overall_memory.md` as a current-state working memory. Rules: (1) Facts use last-write-wins — if the user changed jobs, reflect only the current employer. (2) Key learnings and preferences persist across time. (3) Events compress — keep milestones, drop details. (4) The result should read like a living profile: big picture facts, preferences, context, and knowledge — "here is what I know about this user and their world right now." Not a changelog. Not granular details unless truly important. (5) Tag each section with `#topic` tags for obsidian graph discoverability. (6) Include `[[obsidian links]]` to related vault notes.
+>
+> **What NOT to include**:
+> - **No TODO lists.** Active todos live in the vault `README.md` — duplicating them here guarantees drift. A single line noting "active TODOs tracked in vault README" is fine if needed.
+> - **No narrow tooling tips.** Specific bug workarounds, error-recovery commands, library-version gotchas belong in `knowledge_graph/Technical/` notes. Overall memory is WHO the user is and WHAT their landscape looks like, not HOW to fix specific bugs. A `Key Learnings` section should only hold durable *principles* ("remove capabilities, don't add instructions"), not recipes.
+> - **No event residue.** "X delivered in Feb, Y happened in March" is a changelog. Compress to "X engagement delivered Q1 2026" or just link to the knowledge_graph note.
+> - **No exact numbers that age fast.** Prefer ranges. `~$240K salary` stays true through raises; `$243,800/yr` goes stale next cycle. Same for test counts, skill counts, file counts — use orders of magnitude or drop.
+>
+> **Durability test before each bullet**: if this fact would be wrong or misleading 6 months from now, either cut it, link to the living source instead, or generalize it.
 
 ### When to aggregate
 

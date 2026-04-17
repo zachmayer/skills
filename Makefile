@@ -51,10 +51,12 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# ── Kaggle CLI ──
 	uv tool install kaggle || true
 	@# ── Directories ──
-	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(HOME)/.claude/hooks $(CODEX_SKILLS_DIR) $(CODEX_CONFIG_DIR)
+	@mkdir -p $(INSTALL_DIR) $(AGENTS_INSTALL_DIR) $(HOME)/claude/scratch $(HOME)/claude/worktrees $(CODEX_SKILLS_DIR) $(CODEX_CONFIG_DIR)
+	@# ── Clean up orphan hook from previous installs (auto mode's classifier supersedes it) ──
+	@rm -f $(HOME)/.claude/hooks/reject-shell-operators.sh
+	@rmdir $(HOME)/.claude/hooks 2>/dev/null || true
 	@# ── Validate required template files exist (fail early with a clear message) ──
 	@for f in \
-		.claude/hooks/reject-shell-operators.sh \
 		.claude/statusline-command.sh \
 		settings.template.json \
 		CLAUDE.template.md; do \
@@ -64,9 +66,6 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 			exit 1; \
 		fi; \
 	done
-	@# ── Security hooks ──
-	@cp $(CURDIR)/.claude/hooks/reject-shell-operators.sh $(HOME)/.claude/hooks/reject-shell-operators.sh
-	@chmod +x $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@# ── Status line ──
 	@cp $(CURDIR)/.claude/statusline-command.sh $(HOME)/.claude/statusline-command.sh
 	@chmod +x $(HOME)/.claude/statusline-command.sh
@@ -152,7 +151,6 @@ uninstall: ## Remove skills, agents, and hooks from ~/.claude/ and ~/.agents/
 		skill_name=$$(basename "$$skill_dir"); \
 		rm -f "$(INSTALL_DIR)/$$skill_name"; \
 	done
-	@rm -f $(HOME)/.claude/hooks/reject-shell-operators.sh
 	@rm -f $(HOME)/.claude/statusline-command.sh
 	@set -e; for agent in $(AGENTS_DIR)/*.md; do \
 		rm -f "$(AGENTS_INSTALL_DIR)/$$(basename "$$agent")"; \

@@ -4,30 +4,33 @@
 # Left:  ~/path  branch
 # Right: Model · ctx-mode · EFFORT · ctx:NN%
 #
-# The two halves are padded apart so identity stays on the left edge and
-# state sits on the right edge.
+# Palette uses ColorBrewer qualitative + sequential scales mapped to the
+# 256-color terminal palette. Green = good, gold = warn, red = bad, blue =
+# info; gray for identity/low-priority. Context % uses a YlOrRd sequential
+# gradient — never green, since context always trends one way.
 #
-# Color logic flags non-ideal state so you notice at a glance:
-#   - model:  green bold if Opus family, bright-yellow otherwise
-#   - ctx:    green "1M" if >=1M context, bright-yellow actual size (e.g. "200K") otherwise
-#   - effort: green "MAX" if CLAUDE_CODE_EFFORT_LEVEL=max, bright-yellow actual level otherwise
-#   - ctx %:  dim under 70%, yellow 70-89%, bright-red 90%+
+# Semantic color map:
+#   model:  Opus  = green (71)    | Sonnet = gold (178)    | Haiku = red (160)
+#   ctx:    1M    = green (71)    | other  = gold (178)
+#   effort: MAX   = green (71)    | xhigh  = sky blue (117) | high/medium = gold (178) | low = red (160)
+#   ctx %:  <20   = gray (244)    | 20-69  = gold (221)     | 70-89 = orange (208) | >=90 = dark red (124) bold
 #
 # Schema: https://code.claude.com/docs/en/statusline.md
 
 set -u
 
-# ─── ANSI palette ────────────────────────────────────────────────────────────
-# Identity uses neutral tones (cyan, bold default-fg) so it doesn't compete
-# with the semantic colors (green/yellow/red) that actually mean something.
+# ─── ANSI palette (ColorBrewer-derived 256-color) ───────────────────────────
 reset=$'\033[0m'
-dim=$'\033[2m'
 bold=$'\033[1m'
-cyan=$'\033[36m'
-yellow=$'\033[33m'
-green=$'\033[32m'
-bright_yellow=$'\033[93m'
-bright_red=$'\033[91m'
+path_blue=$'\033[38;5;67m'      # Set1 #377EB8
+gray=$'\033[38;5;244m'          # Greys mid
+good=$'\033[38;5;71m'           # Set1 green #4DAF4A
+warn=$'\033[38;5;178m'          # Dark2 #E6AB02
+bad=$'\033[38;5;160m'           # Set1 red #E41A1C
+info=$'\033[38;5;117m'          # Paired light blue #A6CEE3
+ctx_mid=$'\033[38;5;221m'       # YlOrRd mid
+ctx_high=$'\033[38;5;208m'      # YlOrRd orange
+ctx_crit=$'\033[38;5;124m'      # YlOrRd dark red
 
 # ─── Parse payload ──────────────────────────────────────────────────────────
 input=$(cat)
@@ -37,6 +40,9 @@ model_id=$(echo "$input" | jq -r '.model.id // ""')
 ctx_size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 
+# Strip " (1M context)" or similar parentheticals — we show 1M as its own segment.
+model="${model% (*}"
+
 short_cwd="${cwd/#$HOME/~}"
 
 # ─── Git branch ─────────────────────────────────────────────────────────────
@@ -45,58 +51,57 @@ if [ -n "$cwd" ] && git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
     branch=$(git -C "$cwd" -c core.fsmonitor=false symbolic-ref --short HEAD 2>/dev/null)
 fi
 
-# ─── Binary warnings ────────────────────────────────────────────────────────
+# ─── Semantic colors ────────────────────────────────────────────────────────
 case "$model_id" in
-    *opus*) model_color="$green$bold" ;;
-    *)      model_color="$bright_yellow$bold" ;;
+    *opus*)   model_color="${good}${bold}"   ;;
+    *sonnet*) model_color="${warn}${bold}"   ;;
+    *haiku*)  model_color="${bad}${bold}"    ;;
+    *)        model_color="${warn}${bold}"   ;;
 esac
 
 if [ -n "$ctx_size" ] && [ "$ctx_size" -ge 1000000 ] 2>/dev/null; then
     ctx_mode="1M"
-    ctx_mode_color="$green"
+    ctx_mode_color="$good"
 else
     case "${ctx_size:-}" in
         "")     ctx_mode="?" ;;
         200000) ctx_mode="200K" ;;
         *)      ctx_mode="$((ctx_size / 1000))K" ;;
     esac
-    ctx_mode_color="$bright_yellow"
+    ctx_mode_color="$warn"
 fi
 
 effort="${CLAUDE_CODE_EFFORT_LEVEL:-}"
-if [ "$effort" = "max" ]; then
-    effort_display="MAX"
-    effort_color="$green"
-elif [ -n "$effort" ]; then
-    effort_display=$(printf '%s' "$effort" | tr '[:lower:]' '[:upper:]')
-    effort_color="$bright_yellow"
-else
-    effort_display=""
-    effort_color=""
-fi
+case "$effort" in
+    max)           effort_display="MAX";    effort_color="$good" ;;
+    xhigh)         effort_display="XHIGH";  effort_color="$info" ;;
+    high|medium)   effort_display=$(printf '%s' "$effort" | tr '[:lower:]' '[:upper:]'); effort_color="$warn" ;;
+    low)           effort_display="LOW";    effort_color="$bad"  ;;
+    "")            effort_display="";       effort_color=""      ;;
+    *)             effort_display=$(printf '%s' "$effort" | tr '[:lower:]' '[:upper:]'); effort_color="$warn" ;;
+esac
 
 ctx_pct_part=""
 if [ -n "$used_pct" ]; then
     used_int=$(printf '%.0f' "$used_pct")
     if [ "$used_int" -ge 90 ]; then
-        ctx_pct_part="${bright_red}ctx:${used_int}%${reset}"
+        ctx_pct_part="${ctx_crit}${bold}ctx:${used_int}%${reset}"
     elif [ "$used_int" -ge 70 ]; then
-        ctx_pct_part="${yellow}ctx:${used_int}%${reset}"
+        ctx_pct_part="${ctx_high}ctx:${used_int}%${reset}"
+    elif [ "$used_int" -ge 20 ]; then
+        ctx_pct_part="${ctx_mid}ctx:${used_int}%${reset}"
     else
-        ctx_pct_part="${dim}ctx:${used_int}%${reset}"
+        ctx_pct_part="${gray}ctx:${used_int}%${reset}"
     fi
 fi
 
 # ─── Compose ────────────────────────────────────────────────────────────────
-sep=" ${dim}·${reset} "
+sep=" ${gray}·${reset} "
 
-# Left: path (cyan) + branch (bold, default fg — neutral, no hue bleed with
-# the semantic colors on the right).
 left=""
-[ -n "$short_cwd" ] && left+="${cyan}${bold}${short_cwd}${reset}"
-[ -n "$branch" ]    && left+="  ${bold}${branch}${reset}"
+[ -n "$short_cwd" ] && left+="${path_blue}${bold}${short_cwd}${reset}"
+[ -n "$branch" ]    && left+="  ${gray}${bold}${branch}${reset}"
 
-# Right: model · ctx_mode · effort · ctx%
 segments=()
 [ -n "$model" ]          && segments+=("${model_color}${model}${reset}")
 [ -n "$ctx_mode" ]       && segments+=("${ctx_mode_color}${ctx_mode}${reset}")

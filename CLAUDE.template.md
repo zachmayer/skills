@@ -2,11 +2,7 @@
 
 ## Model Preferences
 
-Default to **Sonnet or Opus** for all subagents and reasoning tasks. Never request Haiku directly — the `ANTHROPIC_DEFAULT_HAIKU_MODEL` env var remaps all Haiku calls to Sonnet, so specifying Haiku just adds confusion with no cost savings. When choosing a model for a subagent, use Sonnet (the floor) or Opus (for complex reasoning).
-
-## Shell Operators
-
-A pre-tool-use hook blocks `&&`, `||`, backticks, and `$()` in Bash commands. This prevents shell injection via permission bypass. Run commands sequentially (separate tool calls) instead of chaining them. Use `git commit -F file` instead of `git commit -m "$(cat file)"`. Pipes (`|`) and semicolons (`;`) are allowed.
+**Default to Opus for subagents.** Opus is the floor, not the ceiling. Use Sonnet only when you are near-certain Sonnet is sufficient: simple lookups, deterministic formatting, sub-1-minute tasks that don't require judgment. **Never request Haiku** — the capability gap vs. Sonnet is too large for the cost difference to matter.
 
 ## Temporary Files
 

@@ -79,13 +79,15 @@ install: ## Install everything: system deps, UV deps, skills, agents, config
 	@# CLAUDE_OBSIDIAN_DIR in .zshrc keeps their override), falling back to
 	@# the default. Validate absolute before writing. Atomic write via
 	@# mktemp + mv so a jq failure can't leave settings.json empty.
+	@# Also rewrite the Edit/Write permission patterns so custom vault
+	@# paths work end-to-end (env + permissions), not just the env var.
 	@set -e; \
 	obsidian_dir="$${CLAUDE_OBSIDIAN_DIR:-$(HOME)/claude/obsidian}"; \
 	case "$$obsidian_dir" in /*) ;; *) echo "ERROR: CLAUDE_OBSIDIAN_DIR must be absolute, got: $$obsidian_dir" >&2; exit 1 ;; esac; \
 	tmp=$$(mktemp "$(HOME)/.claude/settings.json.XXXXXX"); \
 	trap 'rm -f "$$tmp"' EXIT; \
 	jq --arg obsidian_dir "$$obsidian_dir" \
-		'.env.CLAUDE_OBSIDIAN_DIR = $$obsidian_dir' \
+		'.env.CLAUDE_OBSIDIAN_DIR = $$obsidian_dir | .permissions.allow |= map(if . == "Edit(~/claude/obsidian/**)" then "Edit(" + $$obsidian_dir + "/**)" elif . == "Write(~/claude/obsidian/**)" then "Write(" + $$obsidian_dir + "/**)" else . end)' \
 		settings.template.json > "$$tmp"; \
 	mv "$$tmp" "$(HOME)/.claude/settings.json"
 	@cp CLAUDE.template.md $(HOME)/CLAUDE.md

@@ -184,9 +184,9 @@ width=$(detect_width | sort -n | tail -1)
 strip_ansi() {
     printf '%s' "$1" | sed $'s/\033\\[[0-9;]*m//g'
 }
-left_len=$(strip_ansi "$left"   | wc -c | tr -d ' ')
-mid_len=$(strip_ansi "$middle"  | wc -c | tr -d ' ')
-right_len=$(strip_ansi "$right" | wc -c | tr -d ' ')
+left_len=$(strip_ansi "$left"   | wc -m | tr -d ' ')
+mid_len=$(strip_ansi "$middle"  | wc -m | tr -d ' ')
+right_len=$(strip_ansi "$right" | wc -m | tr -d ' ')
 
 # Reserve 6 cols: 2 for Claude Code's leading indent, 4 for a right-edge
 # margin so the final ctx:N% segment isn't truncated to `ctx:…`.
@@ -209,4 +209,4 @@ pad1_s=$(printf '%*s' "$pad1" '')
 pad2_s=""
 [ "$pad2" -gt 0 ] && pad2_s=$(printf '%*s' "$pad2" '')
 
-printf '%b' "${left}${pad1_s}${middle}${pad2_s}${right}"
+printf '%s' "${left}${pad1_s}${middle}${pad2_s}${right}"

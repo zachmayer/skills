@@ -5,6 +5,8 @@
 # Middle: 5h:NN% NhNm · 7d:NN% NdNh       (Claude.ai rate limits; each optional)
 # Right:  Model · ctx-mode · EFFORT · ctx:NN%
 #
+# Dependencies: jq, git.
+#
 # Palette uses ColorBrewer qualitative + sequential scales mapped to the
 # 256-color terminal palette. Green = good, gold = warn, red = bad, blue =
 # info; gray for identity/low-priority. Usage % (ctx and rate-limit) share a
@@ -34,27 +36,33 @@ pct_mid=$'\033[38;5;221m'       # YlOrRd mid
 pct_high=$'\033[38;5;208m'      # YlOrRd orange
 pct_crit=$'\033[38;5;124m'      # YlOrRd dark red
 
-# ─── Parse payload ──────────────────────────────────────────────────────────
+# ─── Parse payload (single jq pass → unit-separated fields → read) ──────────
+# Unit-separator (0x1F) delimiter so bash doesn't collapse adjacent empty
+# fields like it does with tab/space IFS. Process substitution (not a pipe
+# into read) keeps the variables in this shell.
 input=$(cat)
-cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // ""')
-model=$(echo "$input" | jq -r '.model.display_name // ""')
-model_id=$(echo "$input" | jq -r '.model.id // ""')
-ctx_size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
-used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
-five_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
-five_at=$(echo "$input"  | jq -r '.rate_limits.five_hour.resets_at // empty')
-week_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
-week_at=$(echo "$input"  | jq -r '.rate_limits.seven_day.resets_at // empty')
+IFS=$'\x1F' read -r cwd model model_id ctx_size used_pct five_pct five_at week_pct week_at < <(
+    jq -r '[(.workspace.current_dir // .cwd // ""),
+            (.model.display_name // ""),
+            (.model.id // ""),
+            (.context_window.context_window_size // ""),
+            (.context_window.used_percentage // ""),
+            (.rate_limits.five_hour.used_percentage // ""),
+            (.rate_limits.five_hour.resets_at // ""),
+            (.rate_limits.seven_day.used_percentage // ""),
+            (.rate_limits.seven_day.resets_at // "")]
+           | map(tostring) | join("\u001F")' <<< "$input"
+)
 
 # Strip " (1M context)" or similar parentheticals — we show 1M as its own segment.
 model="${model% (*}"
-
 short_cwd="${cwd/#$HOME/~}"
 
-# ─── Git branch ─────────────────────────────────────────────────────────────
+# ─── Git branch (short SHA fallback for detached HEAD) ──────────────────────
 branch=""
 if [ -n "$cwd" ] && git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
-    branch=$(git -C "$cwd" -c core.fsmonitor=false symbolic-ref --short HEAD 2>/dev/null)
+    branch=$(git -C "$cwd" -c core.fsmonitor=false symbolic-ref --short HEAD 2>/dev/null \
+             || git -C "$cwd" -c core.fsmonitor=false rev-parse --short HEAD 2>/dev/null)
 fi
 
 # ─── Semantic colors ────────────────────────────────────────────────────────
@@ -65,27 +73,29 @@ case "$model_id" in
     *)        model_color="${warn}${bold}"   ;;
 esac
 
-if [ -n "$ctx_size" ] && [ "$ctx_size" -ge 1000000 ] 2>/dev/null; then
-    ctx_mode="1M"
-    ctx_mode_color="$good"
-else
-    case "${ctx_size:-}" in
-        "")     ctx_mode="?" ;;
-        200000) ctx_mode="200K" ;;
-        *)      ctx_mode="$((ctx_size / 1000))K" ;;
-    esac
-    ctx_mode_color="$warn"
+ctx_mode=""
+ctx_mode_color="$warn"
+if [ -n "$ctx_size" ]; then
+    if [ "$ctx_size" -ge 1000000 ] 2>/dev/null; then
+        ctx_mode="1M"
+        ctx_mode_color="$good"
+    elif [ "$ctx_size" = "200000" ]; then
+        ctx_mode="200K"
+    else
+        ctx_mode="$((ctx_size / 1000))K"
+    fi
 fi
 
 effort="${CLAUDE_CODE_EFFORT_LEVEL:-}"
 case "$effort" in
-    max)           effort_display="MAX";    effort_color="$good" ;;
-    xhigh)         effort_display="XHIGH";  effort_color="$info" ;;
-    high|medium)   effort_display=$(printf '%s' "$effort" | tr '[:lower:]' '[:upper:]'); effort_color="$warn" ;;
-    low)           effort_display="LOW";    effort_color="$bad"  ;;
-    "")            effort_display="";       effort_color=""      ;;
-    *)             effort_display=$(printf '%s' "$effort" | tr '[:lower:]' '[:upper:]'); effort_color="$warn" ;;
+    max)   effort_color="$good" ;;
+    xhigh) effort_color="$info" ;;
+    low)   effort_color="$bad"  ;;
+    "")    effort_color=""      ;;
+    *)     effort_color="$warn" ;;
 esac
+effort_display=""
+[ -n "$effort" ] && effort_display=$(printf '%s' "$effort" | tr '[:lower:]' '[:upper:]')
 
 # YlOrRd gradient shared by ctx% and rate-limit %.
 pct_color() {
@@ -165,21 +175,22 @@ right=""
 
 # ─── Pad apart ──────────────────────────────────────────────────────────────
 # Claude Code invokes this script with stdin = JSON, so stdin is not a tty.
-# $COLUMNS isn't always exported into the subprocess, and `tput cols` /
-# `stty size` need a tty — so probe several sources and take the largest.
+# Prefer $COLUMNS (Claude Code sets it correctly), then tty probes. Return on
+# first valid source — the previous "take the largest" logic was wrong when a
+# stale $COLUMNS overshot the actual terminal and pushed content off-screen.
 detect_width() {
     local w="${COLUMNS:-}"
-    [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
+    if [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null; then printf '%s\n' "$w"; return; fi
 
     # exec 2>/dev/null in the subshell suppresses bash's own "Device not
     # configured" when /dev/tty isn't available (e.g. non-interactive tests).
     w=$(exec 2>/dev/null; stty size </dev/tty | awk '{print $2}')
-    [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
+    if [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null; then printf '%s\n' "$w"; return; fi
 
     w=$(exec 2>/dev/null; tput cols </dev/tty)
-    [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null && printf '%s\n' "$w"
+    if [ -n "$w" ] && [ "$w" -ge 40 ] 2>/dev/null; then printf '%s\n' "$w"; return; fi
 }
-width=$(detect_width | sort -n | tail -1)
+width=$(detect_width)
 [ -z "$width" ] && width=200
 
 strip_ansi() {

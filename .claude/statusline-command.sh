@@ -127,7 +127,8 @@ build_rate() {
     p=$(LC_NUMERIC=C printf '%.0f' "$pct_raw")
     seg="$(pct_color "$p")${label}:${p}%${reset}"
     if [ -n "$at" ]; then
-        seg="${seg} ${gray}$(fmt_dur $(( at - now_s )))${reset}"
+        # Strip any fractional part — jq preserves floats, but bash arithmetic doesn't.
+        seg="${seg} ${gray}$(fmt_dur $(( ${at%.*} - now_s )))${reset}"
     fi
     rate_segs+=("$seg")
 }

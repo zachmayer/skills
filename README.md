@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of 33 AI agent skills for Claude Code and OpenAI Codex. Built on the [Agent Skills](https://agentskills.io) open standard.
+A collection of 36 AI agent skills for Claude Code and OpenAI Codex. Built on the [Agent Skills](https://agentskills.io) open standard.
 
 ## What's Here
 
@@ -18,6 +18,8 @@ There's also an optional personal knowledge management layer built on Obsidian a
 | [ultra-think](.claude/skills/ultra-think/) | Activate deep extended thinking for complex decisions |
 | [ask-questions](.claude/skills/ask-questions/) | Structured questioning — clarify before acting |
 | [rlm](.claude/skills/rlm/) | Phased reasoning for large context (100K+ tokens) |
+| [heavy](.claude/skills/heavy/) | Parallel multi-territory analysis with synthesized recommendation |
+| [melt](.claude/skills/melt/) | Single-shot end-to-end execution for one bounded task |
 
 ### Code Quality & Development
 

@@ -130,6 +130,26 @@ fi
 now_s=$(date +%s)
 rate_segs=()
 
+# Rate-limit fields only appear in Claude Code's JSON after the first API
+# response in a session. Cache them so timers survive session starts and
+# idle/sleep gaps (refreshInterval recomputes time-left from the stored
+# resets_at epoch each tick).
+cache_file="${HOME}/.claude/cache/statusline-rate-limits.json"
+if [ -n "$five_pct" ] || [ -n "$week_pct" ]; then
+    mkdir -p "${cache_file%/*}"
+    jq -n --arg fp "$five_pct" --arg fa "$five_at" \
+          --arg wp "$week_pct" --arg wa "$week_at" \
+          '{five_pct:$fp, five_at:$fa, week_pct:$wp, week_at:$wa}' \
+          > "$cache_file.tmp.$$" 2>/dev/null \
+        && mv "$cache_file.tmp.$$" "$cache_file"
+elif [ -r "$cache_file" ]; then
+    IFS=$'\x1F' read -r five_pct five_at week_pct week_at < <(
+        jq -r '[(.five_pct // ""), (.five_at // ""),
+                (.week_pct // ""), (.week_at // "")]
+               | map(tostring) | join("")' "$cache_file" 2>/dev/null
+    )
+fi
+
 build_rate() {
     local label=$1 pct_raw=$2 at=$3
     [ -z "$pct_raw" ] && return
@@ -138,7 +158,10 @@ build_rate() {
     seg="$(pct_color "$p")${label}:${p}%${reset}"
     if [ -n "$at" ]; then
         # Strip any fractional part — jq preserves floats, but bash arithmetic doesn't.
-        seg="${seg} ${gray}$(fmt_dur $(( ${at%.*} - now_s )))${reset}"
+        local secs_left=$(( ${at%.*} - now_s ))
+        # Skip windows whose reset has already passed (stale cache from a previous day).
+        [ "$secs_left" -le 0 ] && return
+        seg="${seg} ${gray}$(fmt_dur "$secs_left")${reset}"
     fi
     rate_segs+=("$seg")
 }

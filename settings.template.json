@@ -141,6 +141,6 @@
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh",
-    "refreshInterval": 60
+    "refreshInterval": 10
   }
 }

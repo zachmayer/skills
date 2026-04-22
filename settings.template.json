@@ -1,7 +1,7 @@
 {
   "model": "opus[1m]",
+  "effortLevel": "xhigh",
   "env": {
-    "CLAUDE_CODE_EFFORT_LEVEL": "max",
     "CLAUDE_OBSIDIAN_DIR": ""
   },
   "permissions": {

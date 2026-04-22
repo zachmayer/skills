@@ -86,7 +86,7 @@ if [ -n "$ctx_size" ]; then
     fi
 fi
 
-effort="${CLAUDE_CODE_EFFORT_LEVEL:-}"
+effort="${CLAUDE_CODE_EFFORT_LEVEL:-$(jq -r '.effortLevel // empty' "$HOME/.claude/settings.json" 2>/dev/null)}"
 case "$effort" in
     max)   effort_color="$good" ;;
     xhigh) effort_color="$info" ;;

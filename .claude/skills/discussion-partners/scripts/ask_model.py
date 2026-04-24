@@ -37,7 +37,7 @@ PROVIDER_CONFIG: dict[str, tuple[str, dict[str, Any]]] = {
     ),
     "google-gla": (
         "GOOGLE_API_KEY",
-        {"google_thinking_config": {"include_thoughts": True}},
+        {"google_thinking_config": {"include_thoughts": True, "thinking_level": "high"}},
     ),
 }
 
@@ -86,6 +86,13 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
         click.echo("Check the key value and run: source ~/.zshrc", err=True)
     elif "rate_limit" in msg or "429" in msg:
         click.echo(f"Error: Rate limited by {prefix}. Wait and retry.", err=True)
+    elif "model_not_found" in msg or "does not exist" in msg or "404" in msg:
+        click.echo(f"Error: Model not found via {prefix} API.", err=True)
+        click.echo(
+            "This model may not be rolled out to the API yet. "
+            "For gpt-5.5, use Codex CLI. For gpt-5.5-pro, fall back to openai-responses:gpt-5.4-pro.",
+            err=True,
+        )
     else:
         click.echo(f"Error from {prefix}: {msg}", err=True)
     raise SystemExit(1)

@@ -1,174 +1,138 @@
 ---
 name: discussion-partners
 description: >
-  Queries another AI model (GPT-5.5, Gemini 3.1 Pro, Claude Opus, Codex)
-  with extended thinking for an outside perspective. Use when stuck on a
-  hard problem, spinning wheels, want a second opinion, need a code review
-  from another model, or sense a blind spot. Trigger phrases: "ask GPT",
-  "get another opinion", "second opinion", "what would GPT say", "ask
-  another model", "discussion partner". Sends one message, gets one
-  response — no multi-turn. Do NOT use for routine tasks, simple questions
-  Claude can answer directly, or when no external API key is configured.
-allowed-tools: Bash(uv run *), Bash(codex exec *), Agent
+  Queries other frontier AI models (GPT-5.5, Gemini 3.1 Pro, Claude Opus)
+  for an outside perspective on a hard problem. Use when stuck, spinning
+  wheels, want a second opinion, need a code review from another model, or
+  sense a blind spot. Trigger phrases: "ask GPT", "get another opinion",
+  "second opinion", "what would GPT say", "ask another model", "discussion
+  partner". Default: fires all three paths in parallel (background) for
+  diverse perspectives. Do NOT use for routine questions Claude can answer
+  directly.
+allowed-tools: Bash(uv run *), Bash(codex exec *), Task
 ---
 
-Query another AI model for an outside perspective on a difficult problem. One message out, one message back — make it count.
+Query other frontier AI models for an outside perspective on a hard problem. One message out, one message back per model — make the context count.
 
-## Default invocation: three models in parallel
+## Default: three models in parallel, all in background
 
-When invoked for a second opinion, **run all three paths concurrently** — one model per family, three independent perspectives. Fire them in a single message (parallel tool calls, not sequential); triage agreements vs disagreements when they return.
+The default invocation fires **all three paths concurrently in the background**, max thinking, latest versions. Diverse opinions from independent models catch blind spots a single model papers over.
 
-1. **OpenAI GPT-5.5 xhigh fast** via Codex CLI (`run_in_background: true` — can take 5–30 min at xhigh)
-2. **Google Gemini 3.1 Pro** via `ask_model.py`
-3. **Anthropic Opus** via an Opus sub-agent (Agent tool, `model="opus"`)
+| Path | Model | Thinking | Typical wall time |
+|------|-------|----------|-------------------|
+| **Codex CLI** (`codex exec`) | `gpt-5.5` | xhigh | 5–30 min |
+| **`ask_model.py`** | `google-gla:gemini-3.1-pro-preview` | max | ~1–5 min |
+| **Task sub-agent** | Claude Opus | adaptive max | ~1–5 min |
 
-Send the same prompt to all three. Differences in framing across families catch hand-waving that a single model would paper over.
+**All three run with `run_in_background: true`.** Never foreground these — the Bash tool's 10 min timeout will SIGKILL Codex mid-thought, and `gpt-5.4-pro` via `ask_model.py` can run longer than that too.
 
-For a quick single opinion (not worth firing all three), **default to Codex CLI with GPT-5.5 xhigh fast** — it's the cheapest (subscription credits, no per-token), strongest OpenAI option, and the most common path.
+Synthesize the fast-returning paths (Gemini, Opus) as soon as they land; tell the user Codex is still in flight and surface its output when the notification arrives. Don't block the turn on the slowest model.
 
-For **maximum depth** on a hard correctness problem, add `openai-responses:gpt-5.4-pro` via `ask_model.py` (slow ~10–15 min, but extraordinary detail — currently the latest OpenAI pro model available via API).
+### Context budget per path (important)
 
-## Three invocation paths
+The three paths have different context capabilities. Brief each one accordingly:
 
-| Path | Models | Billing | Auth |
-|------|--------|---------|------|
-| **Codex CLI** (`codex exec`) — preferred for OpenAI | GPT-5.5 | ChatGPT subscription credits | `codex login` |
-| **`ask_model.py`** — Gemini, OpenAI pro (via Responses API) | Gemini 3.1 Pro *(default)*; `openai-responses:gpt-5.4-pro` | Pay-per-token | Provider API keys |
-| **Sub-agent** — preferred for Claude | Opus | — | Inherited from Claude Code |
+- **`ask_model.py`** — pure text in, text out. **Zero context.** Include everything inline: code, errors, what you tried, constraints. Treat it like a skill prompt: fully self-contained.
+- **Codex CLI** — can read the workspace it's launched in (via its own sandboxed tools) and has `--search` for live web search. **Pointers + question work**; it can fetch what it needs.
+- **Task sub-agent** — has full Claude Code tool access (Read, Grep, Glob, Bash, etc.) but **does not inherit the parent conversation's context.** Pass it the question + file paths; let it read and search itself.
 
-- **Codex CLI** (preferred for OpenAI): uses subscription credits — cheapest option. GPT-5.5 xhigh fast is the default recommendation.
-- **`ask_model.py`**: the only programmatic path to OpenAI **pro** models. As of 2026-04-24, `openai-responses:gpt-5.4-pro` is the latest pro available via API; `gpt-5.5-pro` is ChatGPT-only pending API rollout. Also the path to Gemini.
-- **Sub-agent** (preferred for Claude): use the Agent tool with `model="opus"`. Better than `ask_model.py -m anthropic:...` — the sub-agent inherits Claude Code's auth, has full tool access (can read files, search the codebase, run commands), and integrates with your conversation context.
+Send each path a prompt tuned to its capability, not the same blob. Three separate `Write` calls to `~/claude/scratch/prompt_{codex,gemini,opus}.md` is fine and the right shape.
 
-### Codex CLI — GPT-5.5
+## Quick-question alternatives (judgment call)
 
-| Model | When to use |
-|-------|-------------|
-| `gpt-5.5` **(default)** | Primary OpenAI partner. `xhigh` for depth, `low` for speed on large prompts |
+When a full three-way is overkill — a quick sanity check, simple "does this look right", thinking-aloud with one other brain — pick one of these and skip the parallel default:
 
-- **Reasoning effort**: `-c model_reasoning_effort="xhigh"` (values: `low`/`medium`/`high`/`xhigh`; config default is `xhigh`).
-- **Fast mode**: `-c service_tier="fast"` (or set in config). 2× credits, ~2× faster — clear win at xhigh.
-- **Model-upgrade caveat**: Codex resets reasoning to the new model's default when you accept an upgrade. Re-apply xhigh, or rely on `config.toml`.
-- **GPT-5.5 Pro is not in Codex CLI** (no `*-pro` variants in the Codex picker). Use `ask_model.py` with `openai-responses:gpt-5.5-pro` once OpenAI ships it to the API; for now, `openai-responses:gpt-5.4-pro` is the latest available.
+- **Opus sub-agent** (fastest, least diversity). Same family as you, but different fresh context. Best when the question is localized and you want an immediate outside read.
+- **`gpt-5.5 reasoning low` via Codex CLI** (fast, different family). Good for quick OpenAI-side sanity checks.
+- **Gemini 3.1 Pro with `-t low`** (fast, different family). Good for quick Google-side sanity checks.
 
-### ask_model.py — Gemini + OpenAI pro
+All three are still reasonable to `run_in_background: true`; "quick" here means 30s–2min rather than 10+ min.
 
-| Model | When to use | API key needed |
-|-------|-------------|----------------|
-| `google-gla:gemini-3.1-pro-preview` **(default)** | Brilliantly intelligent, fast. Google family | `GOOGLE_API_KEY` |
-| `openai-responses:gpt-5.4-pro` | Maximum depth. Slow (~10-15 min), extraordinary detail. Latest OpenAI pro model available via API. Responses API only — **not** Chat Completions, **not** Codex CLI | `OPENAI_API_KEY` |
+## Deep / pro-tier correctness option
 
-When OpenAI ships `gpt-5.5` and `gpt-5.5-pro` to the API, `ask_model.py -m openai:gpt-5.5` and `-m openai-responses:gpt-5.5-pro` will work transparently — no skill change needed.
-
-Thinking effort is auto-set to max for each provider.
-
-### Sub-agent — Opus
-
-Use the Agent tool with `model="opus"` for a Claude-side perspective:
-
-```
-Agent(
-  subagent_type="general-purpose",
-  model="opus",
-  description="Discussion partner review",
-  prompt="<full context and question>"
-)
-```
-
-The sub-agent inherits your Claude Code auth, so no API key is required. It also gets tool access, so for questions where it'd help to read files or search the codebase, the sub-agent can do that — unlike `ask_model.py` which is pure text in/text out.
+For hard correctness problems where max depth beats max speed, **add** `openai-responses:gpt-5.5-pro` via `ask_model.py` (OpenAI announced it's coming to the API after staged safety testing; use `openai-responses:gpt-5.4-pro` as the stand-in until the 5.5-pro API rollout lands). 10–15+ min runtime at max thinking. **Always background this one** — it will always hit the 10 min Bash timeout otherwise.
 
 ## Framing Your Question
 
-You get **one message out and one message back**. There is no follow-up. Your partner has ZERO context about what you're working on — they see only what you send. The context window is finite and expensive, so treat it like a skill prompt: include everything needed, nothing that isn't.
+Each model you invoke gets **one message out and one response back** — no follow-up. The *Context budget* section above tells you what each path already knows; everything else it needs must be in the prompt.
 
-**Your partner needs all context to answer your question.** They cannot read your files, see your conversation, or infer your situation. If you don't include it, they don't know it. But context is limited, so be surgical:
-
-1. **Include all relevant context**: code, errors, constraints, what you tried. Use `mental-models` to structure your thinking before asking.
-2. **State what you're stuck on**: "I tried A, B, C and none work because D" — not just "help me with X"
-3. **Ask a specific question and set the frame**: what kind of answer you need (diagnosis, alternative approach, code review).
-4. **Never include secrets**: API keys, credentials, tokens, or private repo URLs. Your question goes to an external API.
+1. **State what you're stuck on.** "I tried A, B, C and none work because D" — not just "help me with X".
+2. **Ask a specific question and set the frame.** What kind of answer do you want: diagnosis, alternative approach, code review, sanity check?
+3. **Include all relevant context** (for `ask_model.py`; pointers for Codex / sub-agent). Use the `mental-models` skill to structure your thinking first if the question is fuzzy.
+4. **Never include secrets.** API keys, credentials, tokens. Beyond that, the user makes their own judgment calls on what to share externally — the skill doesn't enforce content rules.
 
 Bad: "How do I fix this auth bug?"
 Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 instead of 401. I have verified the token validation logic is correct and the error handler is registered. The 500 comes from [stack trace]. What could cause the error handler to be bypassed?"
 
-## Usage: Codex CLI (preferred)
+## Invoking each path
 
-Uses OpenAI subscription credits — no per-token billing. **For short questions**, pass inline. **For long prompts, write to a file and pipe via stdin** — this avoids shell escaping issues with backticks and special characters.
+All examples assume prompts have been written to `~/claude/scratch/prompt_*.md`. `SKILL_DIR` is this skill's directory — the absolute path is `/Users/zach/source/skills/.claude/skills/discussion-partners` on this machine; `uv run --directory <that-path>` finds the script and its PEP 723 deps.
 
-```bash
-# GPT-5.5 xhigh fast (default recommendation) — short question
-codex exec --full-auto -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="xhigh" "Your question" -o ~/claude/scratch/codex_output.txt
-
-# GPT-5.5 xhigh fast — long prompt from file
-codex exec --full-auto -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
-
-# GPT-5.5 with low reasoning fast (faster still, good for large prompts)
-codex exec --full-auto -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="low" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
-
-# Enable web search (--search gives the model a web_search tool)
-codex exec --full-auto --search -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="xhigh" -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt.txt
-```
-
-The `-o` flag writes the final agent message to a file for easy consumption. Use `--full-auto` for non-interactive execution with workspace-write sandboxing.
-
-**Timeouts**: Deep thinking models can take 5-30+ minutes on complex prompts. The Bash tool's max timeout is 600,000ms (10 min) — not enough. **Always use `run_in_background: true`** for discussion partner calls. This has no timeout limit; you get notified when it finishes. Never use a foreground Bash call for these — it will SIGKILL the process mid-thought.
-
-**Additional capabilities**: `--search` enables live web search (native Responses `web_search` tool, no per-call approval). Codex also supports MCP servers for additional tools (`codex mcp add`), and has a built-in `codex review` command for code review. Run `codex --help` and `codex exec --help` to see all available options.
-
-### Codex CLI Setup
-
-Install: `npm install -g @openai/codex` (requires Node.js). Configure `~/.codex/config.toml`:
-
-```toml
-model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
-service_tier = "fast"
-```
-
-Auth: `codex login` (uses your OpenAI account). No `OPENAI_API_KEY` needed — Codex CLI authenticates separately.
-
-## Usage: ask_model.py
-
-Pay-per-token via provider API keys. For short questions, pass inline. **For long prompts, always use `--file`** — long shell arguments break unpredictably.
-
-`SKILL_DIR` is the directory containing this skill. `-m` takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/).
+### Codex CLI (GPT-5.5)
 
 ```bash
-# Gemini 3.1 Pro — brilliantly intelligent, fast (default — just omit -m)
-uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/prompt.txt
+# Default: xhigh fast, background. Output written to a file for easy reading.
+codex exec --full-auto -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="xhigh" \
+  -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt_codex.md
 
-# Gemini with low thinking (fast, good for large prompts)
-uv run --directory SKILL_DIR python scripts/ask_model.py -t low -f ~/claude/scratch/prompt.txt
+# Quick version: low reasoning for faster return
+codex exec --full-auto -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="low" \
+  -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt_codex.md
 
-# GPT-5.4 Pro — maximum depth, slow (~10-15 min). Latest OpenAI pro available via API
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5.4-pro -f ~/claude/scratch/prompt.txt
+# With web search enabled
+codex exec --full-auto --search -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="xhigh" \
+  -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt_codex.md
 ```
 
-For Claude Opus, use a sub-agent instead of `ask_model.py` (see "Sub-agent — Opus" above).
+Always `run_in_background: true` via the Bash tool. If `-m gpt-5.5` errors with "model does not exist", OpenAI's account-staged rollout hasn't reached you yet — fall back to `-m gpt-5.4`. See `troubleshooting.md`.
 
-### ask_model.py Options
+### ask_model.py (Gemini / OpenAI pro via Responses API)
+
+```bash
+# Gemini 3.1 Pro at max thinking (default — just omit -m)
+uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/prompt_gemini.md
+
+# Gemini low thinking (fast, good for large prompts)
+uv run --directory SKILL_DIR python scripts/ask_model.py -t low -f ~/claude/scratch/prompt_gemini.md
+
+# GPT-5.4 Pro via Responses API — latest OpenAI pro available via API today (~10–15 min)
+uv run --directory SKILL_DIR python scripts/ask_model.py \
+  -m openai-responses:gpt-5.4-pro -f ~/claude/scratch/prompt_pro.md
+
+# GPT-5.5 Pro — coming to the API per OpenAI (staged safeguard rollout); will work transparently once it lands
+uv run --directory SKILL_DIR python scripts/ask_model.py \
+  -m openai-responses:gpt-5.5-pro -f ~/claude/scratch/prompt_pro.md
+```
+
+Always `run_in_background: true`. Thinking effort is auto-set to max per provider; `-t low` overrides for speed.
+
+### Task sub-agent (Opus)
+
+```
+Task(
+  subagent_type="general-purpose",
+  description="Discussion partner review",
+  prompt="<question + file paths + what you've tried>"
+)
+```
+
+Per `~/CLAUDE.md`, sub-agents default to Opus in this environment. The sub-agent gets **fresh context** — only what you pass in `prompt=`. But it has full tool access (Read, Grep, Glob, Bash), so file paths + a question beats inlining code.
+
+`run_in_background: true` here too; the sub-agent may take several minutes on a thorough review.
+
+## `ask_model.py` options
 
 - `--model` / `-m`: Full pydantic-ai model string (default: `google-gla:gemini-3.1-pro-preview`)
-- `--thinking` / `-t`: Override thinking level. Gemini: `low`/`high` (default: max). OpenAI: `low`/`medium`/`high`/`xhigh` (default: `xhigh`). Use `low` for large prompts where speed matters more than depth.
+- `--thinking` / `-t`: Override thinking level. Gemini: `low`/`high` (default: max). OpenAI: `low`/`medium`/`high`/`xhigh` (default: `xhigh`).
 - `--system` / `-s`: Optional system prompt override
-- `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)
-- `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l google`, `-l openai`).
+- `--file` / `-f`: Read question from a file (use for long prompts — avoids shell-escape traps)
+- `--list-models` / `-l PREFIX`: List known model names filtered by prefix (e.g. `-l google-gla` or `-l ""` for all). Note: only prints pydantic-ai `KnownModelName` entries; `openai-responses:*` strings aren't listed but still work.
 
-## API Key Setup
+## Multiple calls
 
-```bash
-export GOOGLE_API_KEY="your-key"       # Required for google-gla: models (ask_model.py default)
-export OPENAI_API_KEY="your-key"       # Required for openai-responses:gpt-5.4-pro via ask_model.py
-```
+Each invocation gets zero context from previous calls. For follow-ups, include the prior exchange in the new prompt: "I asked X, you answered Y, help me understand Z."
 
-Codex CLI authenticates via `codex login` — no env var needed. Sub-agents inherit Claude Code's auth — no env var needed.
+## Setup and troubleshooting
 
-Common errors from `ask_model.py`:
-- **insufficient_quota (429)**: Billing issue — add credits at the provider's dashboard.
-- **invalid_api_key (401)**: Wrong key — check you exported the correct one and ran `source ~/.zshrc`.
-- **rate_limit (429)**: Too many requests — wait and retry.
-- **model_not_found (404)** for `openai:gpt-5.5` or `openai-responses:gpt-5.5-pro`: API rollout not complete yet — use Codex CLI (for 5.5) or `openai-responses:gpt-5.4-pro` (for a pro-tier fallback via API).
-
-## Multiple Calls
-
-Each call gets zero context from previous calls. For follow-ups, include the prior exchange: "I asked X, you answered Y, help me understand Z."
+- **If a path isn't installed/configured:** see `setup.md`.
+- **If a path errors** (`model_not_found`, `insufficient_quota`, `invalid_api_key`, etc.): see `troubleshooting.md`.

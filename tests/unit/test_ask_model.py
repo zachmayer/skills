@@ -30,15 +30,16 @@ class TestParseProvider:
     """Test _parse_provider model string parsing."""
 
     def test_openai_prefix(self) -> None:
-        key_name, prefix, thinking = ask_model._parse_provider("openai:gpt-5.5")
+        key_name, prefix, thinking = ask_model._parse_provider("openai:gpt-5.4")
         assert key_name == "OPENAI_API_KEY"
         assert prefix == "openai"
         assert "openai_reasoning_effort" in thinking
 
     def test_openai_responses_prefix(self) -> None:
-        key_name, prefix, thinking = ask_model._parse_provider("openai-responses:gpt-5.5")
+        key_name, prefix, thinking = ask_model._parse_provider("openai-responses:gpt-5.4-pro")
         assert key_name == "OPENAI_API_KEY"
         assert prefix == "openai-responses"
+        assert "openai_reasoning_effort" in thinking
 
     def test_anthropic_prefix(self) -> None:
         key_name, prefix, thinking = ask_model._parse_provider("anthropic:claude-opus-4-6")
@@ -71,7 +72,7 @@ class TestCapReasoningEffort:
 
     def test_non_mini_model_keeps_xhigh(self) -> None:
         thinking = {"openai_reasoning_effort": "xhigh"}
-        result = ask_model._cap_reasoning_effort("openai:gpt-5.5", thinking)
+        result = ask_model._cap_reasoning_effort("openai:gpt-5.4", thinking)
         assert result["openai_reasoning_effort"] == "xhigh"
 
     def test_mini_model_without_xhigh_unchanged(self) -> None:
@@ -115,7 +116,7 @@ class TestCLIMissingQuestion:
         assert result.exit_code != 0
 
     def test_no_question_with_model_flag(self) -> None:
-        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5"])
+        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4"])
         assert result.exit_code != 0
 
 
@@ -144,7 +145,7 @@ class TestCLIMissingApiKey:
 
     def test_missing_openai_key(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "What is 2+2?"])
+        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "What is 2+2?"])
         assert result.exit_code != 0
         assert "OPENAI_API_KEY not set" in result.output
 
@@ -187,7 +188,7 @@ class TestCLIStreamingCall:
 
         with patch.object(ask_model, "Agent", return_value=mock_agent) as mock_agent_cls:
             result = CliRunner().invoke(
-                ask_model.main, ["--model", "openai:gpt-5.5", "What is 2+2?"]
+                ask_model.main, ["--model", "openai:gpt-5.4", "What is 2+2?"]
             )
 
         assert result.exit_code == 0
@@ -232,7 +233,7 @@ class TestCLIErrorHandling:
         mock_agent.run_stream_sync.side_effect = Exception("insufficient_quota")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
-            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "test"])
 
         assert result.exit_code != 0
         assert "insufficient quota" in result.output
@@ -244,7 +245,7 @@ class TestCLIErrorHandling:
         mock_agent.run_stream_sync.side_effect = Exception("invalid_api_key")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
-            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "test"])
 
         assert result.exit_code != 0
         assert "invalid" in result.output
@@ -256,7 +257,7 @@ class TestCLIErrorHandling:
         mock_agent.run_stream_sync.side_effect = Exception("rate_limit exceeded")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
-            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "test"])
 
         assert result.exit_code != 0
         assert "Rate limited" in result.output
@@ -268,7 +269,7 @@ class TestCLIErrorHandling:
         mock_agent.run_stream_sync.side_effect = Exception("Something unexpected happened")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
-            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "test"])
 
         assert result.exit_code != 0
         assert "Something unexpected happened" in result.output
@@ -281,7 +282,7 @@ class TestCLIErrorHandling:
         mock_agent.run_stream_sync.side_effect = Exception("Incorrect API key provided")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
-            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "test"])
 
         assert result.exit_code != 0
         assert "invalid" in result.output
@@ -294,7 +295,7 @@ class TestCLIErrorHandling:
         mock_agent.run_stream_sync.side_effect = Exception("HTTP 429 Too Many Requests")
 
         with patch.object(ask_model, "Agent", return_value=mock_agent):
-            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "test"])
 
         assert result.exit_code != 0
         assert "Rate limited" in result.output
@@ -306,13 +307,13 @@ class TestCLIMissingApiKeyShellHint:
     def test_darwin_suggests_zshrc(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setattr(ask_model.sys, "platform", "darwin")
-        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "test"])
         assert "~/.zshrc" in result.output
 
     def test_linux_suggests_bashrc(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
         monkeypatch.setattr(ask_model.sys, "platform", "linux")
-        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+        result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.4", "test"])
         assert "~/.bashrc" in result.output
 
 
@@ -330,3 +331,33 @@ class TestGetKnownModels:
         prefixes = {m.split(":")[0] for m in models if ":" in m}
         assert "openai" in prefixes
         assert "anthropic" in prefixes
+
+
+class TestDocumentedDefaults:
+    """Catch drift: model strings the skill recommends must actually construct an Agent.
+
+    pydantic-ai accepts arbitrary openai-prefixed strings without validation, so this
+    won't catch API-level 404s (e.g. gpt-5.5 not being rolled out). It *does* catch:
+    removed providers, renamed prefixes, typos in documented defaults. If this fails,
+    the skill's recommended model strings have drifted from pydantic-ai's API.
+    """
+
+    def test_default_model_constructs(self) -> None:
+        """DEFAULT_MODEL must be a valid pydantic-ai model string."""
+        from pydantic_ai import Agent
+
+        agent = Agent(ask_model.DEFAULT_MODEL)
+        assert agent.model is not None
+
+    def test_all_documented_defaults_construct(self) -> None:
+        """Every model string the skill recommends must construct an Agent."""
+        from pydantic_ai import Agent
+
+        documented = [
+            ask_model.DEFAULT_MODEL,
+            "openai-responses:gpt-5.4-pro",
+            "anthropic:claude-opus-4-6",
+        ]
+        for model_str in documented:
+            agent = Agent(model_str)
+            assert agent.model is not None, f"Failed to construct Agent({model_str!r})"

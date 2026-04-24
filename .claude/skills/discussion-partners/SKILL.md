@@ -117,7 +117,7 @@ codex exec --full-auto --search -m gpt-5.5 -c service_tier="fast" -c model_reaso
   -o ~/claude/scratch/codex_output.txt - < ~/claude/scratch/prompt_codex.md
 ```
 
-Always `run_in_background: true` via the Bash tool. If `-m gpt-5.5` errors with "model does not exist", OpenAI's account-staged rollout hasn't reached you yet — fall back to `-m gpt-5.4`. See `troubleshooting.md`.
+Always `run_in_background: true` via the Bash tool. See `troubleshooting.md` for error handling.
 
 ### ask_model.py (Gemini / OpenAI pro via Responses API)
 

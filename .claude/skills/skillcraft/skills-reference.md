@@ -97,8 +97,8 @@ description: What this does and when to use it
 
 | Field | Required | Constraints |
 |:------|:---------|:------------|
-| `name` | Yes | Max 64 chars, lowercase letters/numbers/hyphens only. No XML tags. No reserved words ("anthropic", "claude") |
-| `description` | Yes | Max 1024 chars, non-empty, no XML tags. Include WHAT it does and WHEN to use it |
+| `name` | Yes | Lowercase kebab-case, length/format enforced by `tests/unit/test_skills.py`. No XML tags. No reserved words ("anthropic", "claude") |
+| `description` | Yes | Non-empty, max length enforced by `tests/unit/test_skills.py`, no XML tags. Include WHAT it does and WHEN to use it |
 
 **Claude Code extensions**:
 

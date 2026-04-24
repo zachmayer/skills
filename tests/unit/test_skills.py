@@ -52,14 +52,18 @@ class TestSkillStructure:
             f"description too long: {len(desc)} > {MAX_DESCRIPTION_LENGTH}"
         )
 
-    def test_snake_case_name(self, skill_dir: Path) -> None:
+    def test_kebab_case_name(self, skill_dir: Path) -> None:
         name = skill_dir.name
-        assert len(name) <= MAX_SKILL_NAME_LENGTH, (
-            f"directory name too long: {len(name)} > {MAX_SKILL_NAME_LENGTH}"
+        assert 0 < len(name) <= MAX_SKILL_NAME_LENGTH, (
+            f"directory name length {len(name)} must be in 1..{MAX_SKILL_NAME_LENGTH}"
         )
         assert name == name.lower(), "directory name must be lowercase"
-        assert " " not in name, "directory name must not contain spaces"
-        assert name.replace("-", "").isalnum(), "directory name must be alphanumeric with hyphens"
+        assert name[0].isalpha(), "directory name must start with a letter"
+        parts = name.split("-")
+        assert all(parts), "directory name must not have leading/trailing/consecutive hyphens"
+        assert all(p.isalnum() for p in parts), (
+            "directory name must be alphanumeric segments joined by single hyphens"
+        )
 
     def test_no_xml_angle_brackets_in_frontmatter(self, skill_dir: Path) -> None:
         text = (skill_dir / "SKILL.md").read_text()

@@ -1,21 +1,20 @@
 ---
 name: mental-models
 description: >
-  Applies mental models to decisions, failures, systems, tradeoffs,
-  complexity, biases, strategy, epistemology/software philosophy. Use when:
-  think through, trade-offs/pros/cons, should I, analyze decision, missing
-  angles, steel man, devil's advocate, root cause, five whys,
-  post/pre-mortem, what could go wrong. Triggers: too complex,
-  over-engineering, keep it simple/KISS, simplify, grug brain, premature
-  abstraction, clever code, Hoare, one/two-way door, opportunity cost,
-  exploit vs explore, decision paralysis, bottleneck, feedback loop,
-  leverage point, emergent, compounding, technical debt, bias, sunk cost,
-  anchoring, confirmation bias, incentives, Goodhart, Chesterton's fence,
-  antifragile, Lindy, margin of safety, hidden assumptions, framing, bad
-  faith, reframe, first principles, 80/20, Pareto, Occam, OODA, defense in
-  depth, wrong framework, circle of competence, pattern language, scout
-  mindset, countermeasure not caveat, second order effects, unintended
-  consequences. Do NOT use for implementation tasks.
+  Applies mental models to decisions, tradeoffs, failures, biases, complexity,
+  epistemology. Use when: think through, trade-offs/pros/cons, should I,
+  analyze decision, missing angles, steel man, devil's advocate, debug this,
+  root cause, five whys, post/pre-mortem, overthinking, analysis paralysis,
+  what went wrong, why did this fail, what could go wrong. Triggers: too
+  complex, over-engineering, keep it simple/KISS, simplify, grug brain,
+  premature abstraction, clever code, one/two-way door, opportunity cost,
+  exploit vs explore, decision paralysis, bottleneck, feedback loop, leverage
+  point, emergent, compounding, technical debt, bias, sunk cost, anchoring,
+  confirmation bias, Dunning-Kruger, impostor syndrome, incentives, Goodhart,
+  Chesterton's fence, antifragile, margin of safety, hidden assumptions,
+  framing, bad faith, reframe, first principles, defense in depth, wrong
+  framework, circle of competence, scout mindset, second order effects,
+  unintended consequences. Do NOT use for implementation tasks.
 ---
 
 Select and apply the most relevant mental models from this toolkit. For models with full protocols, read the linked file before applying.

@@ -16,38 +16,36 @@ Query another AI model for an outside perspective on a difficult problem. One me
 
 ## Recommended Models
 
-**Default: GPT-5.5 xhigh fast via Codex CLI** — uses OpenAI subscription credits (no per-token billing), cheapest option. GPT-5.5 (Apr 2026) is the first fully retrained base model since GPT-4.5; it delivers better results than GPT-5.4 with fewer tokens in Codex.
+**Default: GPT-5.5 xhigh fast via Codex CLI.** GPT-5.5 (released 2026-04-23) is the first fully retrained base model since GPT-4.5 — 1M context, stronger coding than 5.4, and fewer tokens for the same results in Codex.
 
-There are two invocation methods: the **Codex CLI** (preferred, uses subscription credits) and the **pydantic-ai script** (for non-OpenAI models and gpt-5.5-pro).
+### Two invocation paths
 
-### Codex CLI Models (via `codex exec`) — preferred
+| Path | Models | Billing | Auth |
+|------|--------|---------|------|
+| **Codex CLI** (`codex exec`) — OpenAI models | GPT-5.5 | ChatGPT subscription credits | `codex login` |
+| **`ask_model.py`** — non-OpenAI models | Gemini 3.1 Pro, Claude Opus 4.6 | Pay-per-token | Provider API keys |
 
-Uses credits from an OpenAI paid subscription (no per-token billing).
+**Why Codex CLI for OpenAI models:** GPT-5.5 and GPT-5.5 Pro are **not in the OpenAI public API** (neither Chat Completions nor Responses) as of the 2026-04-23 launch. OpenAI ships new models to ChatGPT/Codex first and the public API rollout is staged. Codex CLI authenticates via ChatGPT, so it works today. Once OpenAI enables GPT-5.5 in the API, `ask_model.py -m openai:gpt-5.5` will work transparently — no skill changes needed.
 
-| Model | When to use | Notes |
-|-------|-------------|-------|
-| `gpt-5.5` **(default)** | Primary partner. Full GPT-5.5 with xhigh thinking | Subscription credits, cheapest option |
+### Codex CLI Models (OpenAI)
 
-Set reasoning effort via `-c model_reasoning_effort="xhigh"` (values: `low`, `medium`, `high`, `xhigh`). Default from config is `xhigh`.
+| Model | When to use |
+|-------|-------------|
+| `gpt-5.5` **(default)** | Primary partner. `xhigh` for depth, `low` for speed on large prompts |
 
-**Fast mode**: Always use `-c service_tier="fast"` (or set `service_tier = "fast"` in config). Uses 2x credits but halves latency — a clear win since Codex can be slow at xhigh reasoning.
+- **Reasoning effort**: `-c model_reasoning_effort="xhigh"` (values: `low`/`medium`/`high`/`xhigh`; config default is `xhigh`).
+- **Fast mode**: `-c service_tier="fast"` (or set in config). 2× credits, ~2× faster — clear win at xhigh.
+- **Model-upgrade caveat**: Codex resets reasoning to the new model's default when you accept an upgrade. Re-apply xhigh, or rely on `config.toml`.
+- **GPT-5.5 Pro is ChatGPT-only** — not selectable in Codex CLI and not in the API. Skip it for programmatic use until OpenAI ships it somewhere callable.
 
-**Model upgrade caveat**: when Codex accepts a model upgrade mid-session, it resets reasoning to the new model's default. Re-apply `model_reasoning_effort="xhigh"` after any upgrade, or just rely on the config.toml default.
-
-### API Models (via `ask_model.py`)
-
-Pay-per-token. Use for non-OpenAI models, or gpt-5.5-pro which isn't available through Codex CLI.
+### ask_model.py Models (Gemini / Claude)
 
 | Model | When to use | API key needed |
 |-------|-------------|----------------|
-| `openai:gpt-5.5` **(default)** | Primary partner. xhigh thinking, exceptional detail | `OPENAI_API_KEY` |
-| `google-gla:gemini-3.1-pro-preview` | Brilliantly intelligent reasoning, fast | `GOOGLE_API_KEY` |
-| `openai-responses:gpt-5.5-pro` | Maximum depth. Slow (~10-15 min) but extraordinary detail-oriented analysis. Use when you're willing to wait for the strongest intelligence available | `OPENAI_API_KEY` |
+| `google-gla:gemini-3.1-pro-preview` **(default)** | Brilliantly intelligent, fast | `GOOGLE_API_KEY` |
 | `anthropic:claude-opus-4-6` | Third perspective, different reasoning style | `ANTHROPIC_API_KEY` |
 
-**API rollout note (Apr 2026)**: `gpt-5.5` and `gpt-5.5-pro` are live in ChatGPT and Codex but their Chat Completions / Responses API deployment is rolling out after ChatGPT. If a call via `ask_model.py` returns a 404/model-not-found, fall back to `openai:gpt-5.4` or `openai-responses:gpt-5.4-pro` until the API switch completes. The Codex CLI path (primary) is unaffected — it uses ChatGPT auth.
-
-**Note on gpt-5.5-pro**: Requires the `openai-responses:` prefix (Responses API). Does NOT work with `openai:` prefix (Chat Completions) or Codex CLI. Very slow but unmatched for deep, thoughtful analysis — use when correctness matters more than speed.
+Thinking effort is auto-set to max for each provider. For OpenAI models, use Codex CLI — not this script.
 
 ## Framing Your Question
 
@@ -99,24 +97,18 @@ service_tier = "fast"
 
 Auth: `codex login` (uses your OpenAI account). No `OPENAI_API_KEY` needed — Codex CLI authenticates separately.
 
-## Usage: API Models (ask_model.py)
+## Usage: ask_model.py (Gemini / Claude)
 
-Pay-per-token. Use for Gemini, Claude, gpt-5.5-pro, or when you need multi-provider diversity. For short questions, pass directly as an argument. **For long prompts, always use `--file`** — long shell arguments break unpredictably.
+Pay-per-token via provider API keys. For short questions, pass inline. **For long prompts, always use `--file`** — long shell arguments break unpredictably.
 
-Where `SKILL_DIR` is the directory containing this skill. The `-m` flag takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/). Thinking effort is automatically set to maximum for each provider.
+`SKILL_DIR` is the directory containing this skill. `-m` takes a full [pydantic-ai model string](https://ai.pydantic.dev/api/models/).
 
 ```bash
-# GPT-5.5 with xhigh reasoning (default — just omit -m)
+# Gemini 3.1 Pro — brilliantly intelligent, fast (default — just omit -m)
 uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/prompt.txt
 
-# GPT-5.5 with low reasoning (fast, good for large prompts)
+# Gemini with low thinking (fast, good for large prompts)
 uv run --directory SKILL_DIR python scripts/ask_model.py -t low -f ~/claude/scratch/prompt.txt
-
-# GPT-5.5 Pro — maximum depth, slow (~10-15 min), extraordinary analysis
-uv run --directory SKILL_DIR python scripts/ask_model.py -m openai-responses:gpt-5.5-pro -f ~/claude/scratch/prompt.txt
-
-# Gemini 3.1 Pro — brilliantly intelligent, fast
-uv run --directory SKILL_DIR python scripts/ask_model.py -m google-gla:gemini-3.1-pro-preview -f ~/claude/scratch/prompt.txt
 
 # Claude Opus 4.6 with adaptive thinking at max effort
 uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opus-4-6 -f ~/claude/scratch/prompt.txt
@@ -124,33 +116,26 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -m anthropic:claude-opu
 
 ### ask_model.py Options
 
-- `--model` / `-m`: Full pydantic-ai model string (default: `openai:gpt-5.5`)
-- `--thinking` / `-t`: Override thinking level. OpenAI: `low`/`medium`/`high`/`xhigh` (default: `xhigh`). Gemini: `low`/`high`. Use `low` for large prompts where speed matters more than depth.
+- `--model` / `-m`: Full pydantic-ai model string (default: `google-gla:gemini-3.1-pro-preview`)
+- `--thinking` / `-t`: Override thinking level. Gemini: `low`/`high` (default: max). OpenAI: `low`/`medium`/`high`/`xhigh` (once GPT-5.5 ships to the API). Use `low` for large prompts where speed matters more than depth.
 - `--system` / `-s`: Optional system prompt override
 - `--file` / `-f`: Read question from a file instead of a CLI argument (use for long prompts)
-- `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l openai`, `-l anthropic`).
-
-### When to Use Codex CLI vs ask_model.py
-
-- **Codex CLI** (preferred): Uses subscription credits. GPT-5.5 xhigh fast is the default recommendation.
-- **ask_model.py**: For Gemini, Claude, gpt-5.5-pro, or when you need multi-provider opinions. Pay-per-token.
+- `--list-models` / `-l`: List known model names, optionally filtered by prefix (e.g. `-l google`, `-l anthropic`).
 
 ## API Key Setup
 
-Add keys to your shell profile (`~/.zshrc` or `~/.bashrc`):
 ```bash
-export OPENAI_API_KEY="your-key"      # Required for openai: models via ask_model.py
-export ANTHROPIC_API_KEY="your-key"   # Required for anthropic: models
-export GOOGLE_API_KEY="your-key"      # Required for google-gla: models
+export GOOGLE_API_KEY="your-key"       # Required for google-gla: models (ask_model.py default)
+export ANTHROPIC_API_KEY="your-key"    # Required for anthropic: models
 ```
 
 Codex CLI authenticates via `codex login` — no env var needed.
 
-The script checks for the key before calling the API. If missing, it tells you which
-variable to set. If the key exists but the call fails, common errors:
+Common errors from `ask_model.py`:
 - **insufficient_quota (429)**: Billing issue — add credits at the provider's dashboard.
 - **invalid_api_key (401)**: Wrong key — check you exported the correct one and ran `source ~/.zshrc`.
 - **rate_limit (429)**: Too many requests — wait and retry.
+- **model_not_found (404)** for `openai:gpt-5.5` / `openai-responses:gpt-5.5-pro`: API rollout not complete yet — use Codex CLI instead (for 5.5) or wait (for 5.5 Pro).
 
 ## Multiple Calls
 

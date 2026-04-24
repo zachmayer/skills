@@ -29,14 +29,14 @@ fast_mode = true
 
 Both `service_tier = "fast"` and `[features].fast_mode = true` are required for persistent fast mode. Fast mode costs ~2.5× credits on GPT-5.5 in exchange for ~1.5× speed.
 
-Verify `gpt-5.5` is available to your account by sending a trivial smoke-test:
+Smoke-test with a trivial prompt:
 
 ```bash
-codex exec --full-auto -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="low" "Say OK." -o /tmp/codex_smoketest.txt
-cat /tmp/codex_smoketest.txt
+codex exec --full-auto -m gpt-5.5 -c service_tier="fast" -c model_reasoning_effort="low" "Say OK." -o ~/claude/scratch/codex_smoketest.txt
+cat ~/claude/scratch/codex_smoketest.txt
 ```
 
-If this errors with `model "gpt-5.5" does not exist or you do not have access`, OpenAI's staged rollout hasn't reached this account yet — fall back to `-m gpt-5.4` in all examples until it does. (`codex --version` only prints the CLI version, not the model picker, so it can't verify model availability on its own.)
+If this errors with `model "gpt-5.5" does not exist or you do not have access`, your ChatGPT tier may not include Codex — see `troubleshooting.md`.
 
 ## ask_model.py (Gemini + OpenAI pro via Responses API)
 

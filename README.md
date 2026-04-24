@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of 36 AI agent skills for Claude Code and OpenAI Codex. Built on the [Agent Skills](https://agentskills.io) open standard.
+A collection of 37 AI agent skills for Claude Code and OpenAI Codex. Built on the [Agent Skills](https://agentskills.io) open standard.
 
 ## What's Here
 
@@ -31,6 +31,7 @@ There's also an optional personal knowledge management layer built on Obsidian a
 | [prior-art-review](.claude/skills/prior-art-review/) | Search existing issues and PRs before acting |
 | [orchestrate](.claude/skills/orchestrate/) | Decompose tasks into a dependency DAG, route to specialized sub-agents |
 | [concise-writing](.claude/skills/concise-writing/) | Writing principles for tight, scannable prose |
+| [speak-to-zach](.claude/skills/speak-to-zach/) | Communication protocol: bottom-line-at-bottom, assumption surfacing, read-mode tags |
 | [constitution](.claude/skills/constitution/) | User values and principles for ambiguous tradeoffs |
 
 ### Multi-Model & Evaluation

@@ -36,9 +36,10 @@ class TestParseProvider:
         assert "openai_reasoning_effort" in thinking
 
     def test_openai_responses_prefix(self) -> None:
-        key_name, prefix, thinking = ask_model._parse_provider("openai-responses:gpt-5.4")
+        key_name, prefix, thinking = ask_model._parse_provider("openai-responses:gpt-5.4-pro")
         assert key_name == "OPENAI_API_KEY"
         assert prefix == "openai-responses"
+        assert "openai_reasoning_effort" in thinking
 
     def test_anthropic_prefix(self) -> None:
         key_name, prefix, thinking = ask_model._parse_provider("anthropic:claude-opus-4-6")
@@ -196,7 +197,7 @@ class TestCLIStreamingCall:
         mock_agent.run_stream_sync.assert_called_once()
 
     def test_custom_system_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+        monkeypatch.setenv("GOOGLE_API_KEY", "test-key-123")
 
         mock_agent = _make_stream_mock(["Done."])
 
@@ -211,7 +212,7 @@ class TestCLIStreamingCall:
         assert call_kwargs[1]["system_prompt"] == "You are a math tutor."
 
     def test_default_system_prompt(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+        monkeypatch.setenv("GOOGLE_API_KEY", "test-key-123")
 
         mock_agent = _make_stream_mock(["Response."])
 
@@ -299,6 +300,37 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "Rate limited" in result.output
 
+    def test_model_not_found_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """model_not_found triggers a helpful pointer to fallback models."""
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = MagicMock()
+        mock_agent.run_stream_sync.side_effect = Exception(
+            "The model `gpt-5.5` does not exist or you do not have access to it."
+        )
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent):
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+
+        assert result.exit_code != 0
+        assert "Model not found" in result.output
+        assert "Codex CLI" in result.output or "gpt-5.4-pro" in result.output
+
+    def test_model_not_found_404(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Bare 404 in the error also routes to the model_not_found branch."""
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = MagicMock()
+        mock_agent.run_stream_sync.side_effect = Exception("HTTP 404 Not Found")
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent):
+            result = CliRunner().invoke(
+                ask_model.main, ["--model", "openai-responses:gpt-5.5-pro", "test"]
+            )
+
+        assert result.exit_code != 0
+        assert "Model not found" in result.output
+
 
 class TestCLIMissingApiKeyShellHint:
     """Test that the missing API key message shows the right shell config file."""
@@ -330,3 +362,49 @@ class TestGetKnownModels:
         prefixes = {m.split(":")[0] for m in models if ":" in m}
         assert "openai" in prefixes
         assert "anthropic" in prefixes
+
+
+class TestDocumentedDefaults:
+    """Catch drift: model strings the skill recommends must actually construct an Agent.
+
+    pydantic-ai accepts arbitrary openai-prefixed strings without validation, so this
+    won't catch API-level 404s (e.g. gpt-5.5 not being rolled out). It *does* catch:
+    removed providers, renamed prefixes, typos in documented defaults. If this fails,
+    the skill's recommended model strings have drifted from pydantic-ai's API.
+    """
+
+    def test_default_model_constructs(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """DEFAULT_MODEL must be a valid pydantic-ai model string.
+
+        pydantic-ai's Google provider validates GOOGLE_API_KEY at Agent()
+        construction time (not at first call), so we set dummy values.
+        No network is hit — we're only testing that the model-string shape
+        is recognized by pydantic-ai.
+        """
+        from pydantic_ai import Agent
+
+        monkeypatch.setenv("GOOGLE_API_KEY", "dummy-for-construction-only")
+        monkeypatch.setenv("OPENAI_API_KEY", "dummy-for-construction-only")
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "dummy-for-construction-only")
+
+        agent = Agent(ask_model.DEFAULT_MODEL)
+        assert agent.model is not None
+
+    def test_all_documented_defaults_construct(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Every model string the skill recommends must construct an Agent."""
+        from pydantic_ai import Agent
+
+        monkeypatch.setenv("GOOGLE_API_KEY", "dummy-for-construction-only")
+        monkeypatch.setenv("OPENAI_API_KEY", "dummy-for-construction-only")
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "dummy-for-construction-only")
+
+        # Only include paths the skill actually recommends. Claude Opus is reached
+        # via the Task sub-agent (different path), not via ask_model.py's
+        # anthropic: prefix, so it's intentionally not here.
+        documented = [
+            ask_model.DEFAULT_MODEL,
+            "openai-responses:gpt-5.4-pro",
+        ]
+        for model_str in documented:
+            agent = Agent(model_str)
+            assert agent.model is not None, f"Failed to construct Agent({model_str!r})"

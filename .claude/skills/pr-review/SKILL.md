@@ -1,63 +1,41 @@
 ---
 name: pr-review
 description: >
-  Reviews a GitHub pull request for bugs, security issues, and design problems
-  using multi-model parallel review. Use when the user says "review this PR",
-  "check this pull request", "review PR #123", "is this PR ready to merge",
-  or provides a GitHub PR URL. Also use before merging any PR.
-  Do NOT use for local code review without a PR or for reviewing uncommitted changes.
-allowed-tools: Bash(gh pr *), Bash(git diff *), Bash(git log *), Bash(uv run *)
+  Reviews a GitHub pull request by running discussion-partners on the diff
+  in parallel, then posting the result to GitHub. Use when the user says
+  "review this PR", "check this pull request", "review PR #123", "is this
+  PR ready to merge", or provides a GitHub PR URL. Also use before merging
+  any PR. Do NOT use for local code review without a PR or for reviewing
+  uncommitted changes.
+allowed-tools: Bash(gh pr *), Bash(git diff *), Bash(git log *), Bash(uv run *), Task, Write
 ---
 
-## Step 1: Fetch Context
+Thin wrapper around `discussion-partners`. That skill handles the parallel
+multi-model review; this one stages the PR context and posts the result.
 
-Given a PR reference (number, URL, or `owner/repo#123`), fetch everything the reviewers will need:
+## 1. Fetch PR context
 
 ```bash
-gh pr view <N> [--repo owner/repo] --json title,body,author,state,baseRefName,headRefName,files,url
+gh pr view <N> [--repo owner/repo] --json title,body,author,baseRefName,headRefName,files,url
 gh pr diff <N> [--repo owner/repo]
 ```
 
-Also read `CLAUDE.md` and any relevant project docs so reviewers understand repo conventions.
+Also read `CLAUDE.md` for repo conventions.
 
-Capture the PR owner, repo, and number for Step 4.
+## 2. Run discussion-partners
 
-## Step 2: Parallel Review
+Pass PR metadata + full diff + repo conventions as shared context. Invoke
+`discussion-partners` in its default config. Framing: review for correctness,
+security, design; skip style nits; LGTM is fine.
 
-Launch BOTH in parallel — do not wait for one before starting the other.
+## 3. Triage and post
 
-**Subagent** (Task tool, `general-purpose`): Pass all context from Step 1 with this system prompt:
-
-> You are an expert code reviewer. Review the PR diff. Focus on correctness, bugs, security, and design. Skip style nits, formatting, and naming unless they cause real confusion. Each finding: severity (critical/warning/note), file, line, issue, suggested fix. If the code is clean, say so. Be direct. No filler.
-
-**discussion-partners**: Use the `discussion-partners` skill for independent external reviews. Write the prompt (system context + PR metadata + diff + repo conventions) to `~/claude/scratch/pr-review-prompt.txt`, then call with `--file`. Run multiple models in parallel — see `discussion-partners` for available models and defaults.
-
-## Step 3: Synthesize and Triage
-
-Combine findings from both sources. For each finding, classify:
-
-- **Real issue** — bugs, security holes, logic errors, design problems, correctness failures
-- **False positive** — reviewer misread the code or missed context. Drop it.
-- **Style nit** — formatting, naming, style. Drop it unless it causes genuine confusion.
-
-Priority order: correctness > security > design > performance. Apply the staff engineer lens: is this a real problem, or is the reviewer inventing work? If both reviewers flag the same thing, it is almost certainly real. If only one flags it and the reasoning is weak, it is probably noise.
-
-Only real issues survive triage.
-
-## Step 4: Post Review to GitHub
-
-Post a summary review that calls out specific files and lines in the body text.
-
-If there are real issues, post a comment review:
+Drop false positives and style nits. Priority: correctness > security > design
+> performance. If all reviewers flag the same thing, it's real.
 
 ```bash
-gh pr review <N> --comment --body "review body"
+gh pr review <N> --comment --body "..."   # issues found
+gh pr review <N> --approve --body "..."   # clean
 ```
 
-If the PR has no real issues, approve it:
-
-```bash
-gh pr review <N> --approve --body "Clean PR. No issues found."
-```
-
-Do not invent issues. Do not add "great work" filler. If it is clean, approve and move on.
+Don't invent issues. Don't pad with filler.

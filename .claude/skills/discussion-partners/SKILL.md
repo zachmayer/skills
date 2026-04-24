@@ -6,9 +6,7 @@ description: >
   wheels, want a second opinion, need a code review from another model, or
   sense a blind spot. Trigger phrases: "ask GPT", "get another opinion",
   "second opinion", "what would GPT say", "ask another model", "discussion
-  partner". Default: fires all three paths in parallel (background) for
-  diverse perspectives. Do NOT use for routine questions Claude can answer
-  directly.
+  partner". Do NOT use for routine questions Claude can answer directly.
 allowed-tools: Bash(uv run *), Bash(codex exec *), Task, Write
 ---
 
@@ -24,34 +22,50 @@ The default invocation fires **all three paths concurrently in the background**,
 | **`ask_model.py`** | `google-gla:gemini-3.1-pro-preview` | max | ~1–5 min |
 | **Task sub-agent** | Claude Opus | adaptive max | ~1–5 min |
 
-**All three run with `run_in_background: true`.** Never foreground the Codex path — the Bash tool's 10 min timeout will SIGKILL it mid-thought at xhigh. Background is the default for the other two as well since their thinking time can approach the timeout.
+**All three run with `run_in_background: true`.** Never foreground any path — Codex at xhigh will SIGKILL at the Bash tool's 10 min timeout, and the other two can approach or exceed that too.
 
-Synthesize the fast-returning paths (Gemini, Opus) as soon as they land; tell the user Codex is still in flight and surface its output when the notification arrives. Don't block the turn on the slowest model.
+Synthesize the fast-returning paths (Gemini, Opus) as soon as they land; tell the user Codex is still in flight. **But do wait for all three before advancing to the next phase of work** — the whole point of three-way review is the diversity of opinion. Don't ship a change or move on until you've heard from all three. "Don't block the turn" ≠ "don't wait at all"; it means surface partial results so the user isn't staring at a blank screen for 20 minutes.
 
 **Missing one provider?** If `GOOGLE_API_KEY` or `OPENAI_API_KEY` isn't configured, run the paths that work and note which was skipped. See `troubleshooting.md`.
 
-### Context budget and strengths per path (important)
+### Build one shared context + thin per-path framing
 
-The three paths have very different capabilities and sweet spots. Brief each one accordingly, and lean into what each does best.
+**All three models should see the same problem, same code, same evidence, same question.** That's the whole point of three-way review — if one gets a thinner prompt, they're not running the same race. Don't undercontext one to play to another's strengths.
 
-**`ask_model.py` → Gemini 3.1 Pro** — a sealed room with a whiteboard. **Zero tool access, zero context.** Inline everything: code, error traces, type/helper definitions, constraints. Heavy Markdown with fenced code blocks and language tags; unified diffs where applicable. Structure: question at top, code middle, constraints at bottom.
-- **Routes to:** isolated algorithmic puzzles, concurrency/state bugs, edge-case enumeration, architectural tear-downs. Deep logical simulation when you have all the code in one place.
-- **Routes away from:** "where is X defined" (no grep), fresh library APIs (no web), repo-wide questions (no filesystem).
+The shape:
 
-**Codex CLI → GPT-5.5 xhigh** — workspace sandbox + web search. **Pointers + sharp question beat bulk inlining.**  Prompt structure: `Task / Question / Context / Artifacts / Constraints` in that order. Send file paths, function names, log snippets, failing tests — not entire files.
-- **Routes to:** tool-grounded technical judgment. Tracing a bug across multiple files, evaluating whether a proposed fix matches the real codebase, producing concrete alternatives (not just commentary), pressure-testing assumptions with local inspection.
-- **Routes away from:** pure text-only asks, rhetoric/messaging, abstract brainstorming.
+1. **Write a single `context.md`** with everything needed to answer: problem statement, the actual question, relevant code inline (fenced blocks, unified diffs for changes), error traces verbatim, repro steps, constraints, what you've already tried and rejected with reasons. Heavy Markdown — it parses cleanly for all three.
+2. **Per-path prompt files reference or inline `context.md`** plus a thin framing header tuned to each path:
+   - **`prompt_gemini.md`** = the full context inlined. Gemini has no tools — if it's not in the prompt, Gemini can't see it.
+   - **`prompt_codex.md`** = the full context, plus "feel free to inspect the repo at `<abs-path>` to verify or cross-reference." Codex has workspace tools + web search; pointers let it verify rather than argue from the prompt.
+   - **`prompt_opus.md`** = the full context, plus file paths to read if helpful: `<paths>`. Opus has full Claude Code tool access and fresh conversation context — give it the same blob as the others, let it fetch more if needed.
 
-**Task sub-agent → Claude Opus** — full Claude Code tool access, fresh conversation. **Problem first, ask last.** Two-line TL;DR at top, then details. Pass file paths rather than inlining long files.
-- **Routes to:** design/taste calls (naming, boundary placement, whether complexity is earning its keep), long multi-file refactors (1M context), prose artifacts (PR descriptions, API docs, error messages), adversarial self-review of Claude Code output, subtle state/concurrency bugs that pattern-match.
-- **Routes away from:** hard math / novel algorithms (GPT wins), fresh-knowledge questions about recent library releases, exhaustive "find-every-bug-in-500-lines" (Gemini's deep-trace wins), pure numeric/statistical reasoning.
+That way each model gets a fair shot, and the two with tools can verify/extend without being starved.
 
-**Framing directives that actually matter (all three):**
-- "Critique" → adversarial, design-flaw-hunting. "Review" → balanced. "What would you do differently" → constructive alternatives. Pick on purpose.
-- "Be direct, skip praise, lead with strongest objections" genuinely improves output quality (especially for Opus, which hedges by default).
-- "You are a senior engineer" role prompts are mostly fluff. Skip them.
+### Routing and strengths per path
 
-Write three separate files (e.g. `~/claude/scratch/prompt_{codex,gemini,opus}.md`) tuned per path — not one blob sent three ways.
+When a full three-way is warranted, send to all three. Use these notes to tune the framing header and to decide quick-question alternatives (below).
+
+**`ask_model.py` → Gemini 3.1 Pro** — sealed room with a whiteboard. No tools, max thinking.
+- **Strong at:** isolated algorithmic puzzles, concurrency/state bugs, edge-case enumeration, architectural tear-downs, deep logical simulation when the code fits in the prompt.
+- **Weak at:** anything requiring lookup ("where is X defined", recent library APIs, repo-wide questions). It will hallucinate rather than admit it can't see.
+
+**Codex CLI → GPT-5.5 xhigh** — workspace sandbox + web search + 1M context.
+- **Strong at:** tool-grounded technical judgment — tracing a bug across files, evaluating a fix against the real codebase, producing concrete verified alternatives, pressure-testing assumptions with local inspection.
+- **Weak at:** pure rhetoric / abstract brainstorming with no artifacts to ground on.
+
+**Task sub-agent → Claude Opus** — full Claude Code tool access, fresh conversation, 1M context.
+- **Strong at:** design/taste calls (naming, boundary placement, whether complexity is earning its keep), prose artifacts (PR descriptions, API docs), adversarial self-review of Claude Code output, subtle state/concurrency patterns.
+- **Weak at:** hard math / novel algorithms (GPT wins), exhaustive "find-every-bug-in-500-lines" (Gemini's deep-trace wins).
+
+**Large multi-file refactors:** both Codex and Opus have 1M context and can read the workspace — either works. If firing both, split the surface explicitly ("Codex: focus on module A. Opus: focus on module B.") so they don't step on each other.
+
+### Framing directives
+
+- **"Critique"** → adversarial, design-flaw-hunting. **"Review"** → balanced. **"What would you do differently"** → constructive alternatives. Pick on purpose.
+- **"Be direct, skip praise, lead with strongest objections. If you have no objections, say so — LGTM is a fine answer."** This works (especially on Opus, which hedges by default) *and* it prevents anti-sycophancy from manufacturing concerns where none exist. You want calibrated honesty, not forced objection.
+- **"You are a senior engineer" role prompts** — fluff at this capability level. Skip.
+- **Watch for leading the witness.** Present evidence and ask the question; don't state your hypothesis as a conclusion the model should validate. Scout mindset: what are you trying to find out, not prove? If you already believe the bug is in `auth.py`, saying so anchors all three models. Ask what *could* cause the observed behavior and let them find it independently.
 
 ## Quick-question alternatives (judgment call)
 
@@ -73,7 +87,7 @@ Each model you invoke gets **one message out and one response back** — no foll
 
 1. **State what you're stuck on.** "I tried A, B, C and none work because D" — not just "help me with X".
 2. **Ask a specific question and set the frame.** What kind of answer do you want: diagnosis, alternative approach, code review, sanity check?
-3. **Include all relevant context** (for `ask_model.py`; pointers for Codex / sub-agent). Use the `mental-models` skill to structure your thinking first if the question is fuzzy.
+3. **Include all relevant context** — the full shared context, as described above. Use the `mental-models` skill to structure your thinking before writing the prompt if the question is fuzzy.
 4. **Never include secrets.** API keys, credentials, tokens. Beyond that, the user makes their own judgment calls on what to share externally — the skill doesn't enforce content rules.
 
 Bad: "How do I fix this auth bug?"
@@ -81,7 +95,11 @@ Good: "Here is my auth middleware [code]. Users with expired tokens get a 500 in
 
 ## Invoking each path
 
-All examples assume prompts have been written to `~/claude/scratch/prompt_*.md`. `SKILL_DIR` is this skill's directory — the absolute path is `/Users/zach/source/skills/.claude/skills/discussion-partners` on this machine; `uv run --directory <that-path>` finds the script and its PEP 723 deps.
+Examples assume prompts are at `~/claude/scratch/prompt_{codex,gemini,opus}.md` and `context.md`. `SKILL_DIR` is this skill's directory — resolve to its absolute path via Claude Code's skill location (see MEMORY.md for the current machine's path).
+
+**Before writing**: `~/claude/scratch/` is shared; if files from a prior run exist they'll be overwritten. Either accept that (fine for a fresh three-way) or use unique suffixes (`_$(date +%s)`) when two reviews are in flight concurrently.
+
+**While running**: the Codex `-o` output file is populated as Codex streams. You can `Read` it mid-run to peek at partial output — useful if Codex takes 20+ min and you want to know if it's on-track. Task sub-agent output is opaque until completion.
 
 ### Codex CLI (GPT-5.5)
 

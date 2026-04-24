@@ -373,16 +373,30 @@ class TestDocumentedDefaults:
     the skill's recommended model strings have drifted from pydantic-ai's API.
     """
 
-    def test_default_model_constructs(self) -> None:
-        """DEFAULT_MODEL must be a valid pydantic-ai model string."""
+    def test_default_model_constructs(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """DEFAULT_MODEL must be a valid pydantic-ai model string.
+
+        pydantic-ai's Google provider validates GOOGLE_API_KEY at Agent()
+        construction time (not at first call), so we set dummy values.
+        No network is hit — we're only testing that the model-string shape
+        is recognized by pydantic-ai.
+        """
         from pydantic_ai import Agent
+
+        monkeypatch.setenv("GOOGLE_API_KEY", "dummy-for-construction-only")
+        monkeypatch.setenv("OPENAI_API_KEY", "dummy-for-construction-only")
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "dummy-for-construction-only")
 
         agent = Agent(ask_model.DEFAULT_MODEL)
         assert agent.model is not None
 
-    def test_all_documented_defaults_construct(self) -> None:
+    def test_all_documented_defaults_construct(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Every model string the skill recommends must construct an Agent."""
         from pydantic_ai import Agent
+
+        monkeypatch.setenv("GOOGLE_API_KEY", "dummy-for-construction-only")
+        monkeypatch.setenv("OPENAI_API_KEY", "dummy-for-construction-only")
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "dummy-for-construction-only")
 
         # Only include paths the skill actually recommends. Claude Opus is reached
         # via the Task sub-agent (different path), not via ask_model.py's

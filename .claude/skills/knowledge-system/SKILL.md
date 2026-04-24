@@ -1,27 +1,20 @@
 ---
 name: knowledge-system
 description: >
-  Persistent knowledge management for the Obsidian vault, notes, memories,
+  Persistent knowledge management for Obsidian vault, notes, memories,
   reminders, and vault maintenance. Use when the user wants to save, recall,
-  search, or organize information in the knowledge base, vault, or memory.
-  Triggers: "obsidian", "vault", "knowledge base", "knowledge graph",
-  "remember", "remember this", "remember this for later", "save to vault",
-  "save a note", "save this", "capture this", "inbox", "route this",
-  "file this", "log this", "note this down", "create a note", "daily note",
-  "monthly note", "overall memory", "what do you know about X from our notes",
-  "what do you remember about X", "recall", "what did we discuss",
-  "what do I have on", "aggregate", "aggregate memories", "aggregation",
-  "check memory", "find my notes on", "search my vault", "search notes",
-  "add to my knowledge base", "link notes", "organize knowledge", "MOC",
-  "map of content", "wiki-links", "remind me", "set a reminder",
-  "don't let me forget", "follow up on", "vault maintenance", "tidy up",
-  "clean the vault", "prune branches", "run maintenance", "staleness",
-  "stale notes", "orphan notes", "broken links". Also triggers on any
-  mention of the obsidian vault path or knowledge_graph directory.
-  Do NOT use for code-specific documentation (CLAUDE.md, AGENTS.md),
-  codebase questions about how code works (use staff-engineer), live status
-  questions, or session-wide briefings and wrap-ups like "remember this
-  session" or "save what we did today" (use session-lifecycle for those).
+  search, aggregate, link, organize, or clean up knowledge base/vault/memory
+  information. Triggers: obsidian, vault, knowledge base/graph, remember,
+  save to vault, save a note, capture this, inbox, route/file/log/note this,
+  create a note, daily/monthly/overall memory, what do you know/remember
+  about X, recall, what did we discuss, what do I have on, aggregate
+  memories, check memory, find/search my notes/vault, link notes,
+  organize knowledge, MOC, map of content, wiki-links, remind me, set a
+  reminder, don't let me forget, follow up on, vault maintenance, tidy up,
+  clean the vault, run maintenance, stale/orphan notes, broken links, or any
+  obsidian vault path or knowledge_graph mention. Do NOT use for code docs
+  (CLAUDE.md, AGENTS.md), codebase behavior (use staff-engineer), live status,
+  or session briefings/wrap-ups (use session-lifecycle).
 allowed-tools: Bash(uv run *), Bash(git *), Bash(gh *), Bash(obsidian *), Read, Write, Glob, Grep
 ---
 

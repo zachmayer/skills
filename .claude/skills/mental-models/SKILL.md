@@ -1,44 +1,21 @@
 ---
 name: mental-models
 description: >
-  Applies mental models and structured thinking frameworks to reason about
-  problems, decisions, and systems.
-
-  Use when the user says or implies:
-  "think through", "trade-offs", "should I", "pros and cons",
-  "analyze this decision", "what am I missing", "steel man",
-  "devil's advocate", "structured way to think about this",
-  "why did this fail", "what went wrong", "root cause", "debug this",
-  "five whys", "post-mortem", "pre-mortem", "what could go wrong",
-  "too complex", "over-engineering", "keep it simple", "KISS", "simplify",
-  "complexity", "complexity demon", "grug brain", "premature abstraction",
-  "clever code", "too many layers", "spaghetti code", "worse is better",
-  "obviously correct", "Hoare",
-  "one-way door", "two-way door", "reversible", "can we undo this",
-  "opportunity cost", "exploit vs explore", "diminishing returns",
-  "decision paralysis", "analysis paralysis", "overthinking",
-  "bottleneck", "feedback loop", "leverage point", "emergent",
-  "compounding", "technical debt", "slow drift", "accumulation",
-  "bias", "am I biased", "cognitive bias", "sunk cost", "anchoring",
-  "Dunning-Kruger", "confirmation bias", "impostor syndrome",
-  "incentives", "principal-agent", "Goodhart", "gaming the metric",
-  "Chesterton's fence", "why does this exist", "before removing",
-  "antifragile", "Lindy", "margin of safety",
-  "hidden assumptions", "what's not being said", "framing", "rhetoric",
-  "bad faith", "reframe", "Kirby frame",
-  "first principles", "80/20", "Pareto", "Occam", "OODA",
-  "defense in depth", "Swiss cheese",
-  "limits of rationality", "get out of the car", "cactus person",
-  "wrong framework", "not quantifiable", "beyond analysis",
-  "circle of competence", "out of my depth", "new domain",
-  "pattern language", "scout mindset", "make this actionable",
-  "countermeasure not caveat", "second order effects",
-  "unintended consequences", "downstream effects".
-
-  Covers decision making, systems thinking, problem solving, critical analysis,
-  cognitive biases, strategic reasoning, complexity management, epistemology,
-  and software philosophy. Do NOT use for straightforward implementation tasks
-  with clear requirements.
+  Applies mental models to decisions, failures, systems, tradeoffs,
+  complexity, biases, strategy, epistemology/software philosophy. Use when:
+  think through, trade-offs/pros/cons, should I, analyze decision, missing
+  angles, steel man, devil's advocate, root cause, five whys,
+  post/pre-mortem, what could go wrong. Triggers: too complex,
+  over-engineering, keep it simple/KISS, simplify, grug brain, premature
+  abstraction, clever code, Hoare, one/two-way door, opportunity cost,
+  exploit vs explore, decision paralysis, bottleneck, feedback loop,
+  leverage point, emergent, compounding, technical debt, bias, sunk cost,
+  anchoring, confirmation bias, incentives, Goodhart, Chesterton's fence,
+  antifragile, Lindy, margin of safety, hidden assumptions, framing, bad
+  faith, reframe, first principles, 80/20, Pareto, Occam, OODA, defense in
+  depth, wrong framework, circle of competence, pattern language, scout
+  mindset, countermeasure not caveat, second order effects, unintended
+  consequences. Do NOT use for implementation tasks.
 ---
 
 Select and apply the most relevant mental models from this toolkit. For models with full protocols, read the linked file before applying.

@@ -10,6 +10,8 @@ import pytest
 SKILLS_DIR = Path(__file__).resolve().parents[2] / ".claude" / "skills"
 SKILL_DIRS = sorted(d for d in SKILLS_DIR.iterdir() if d.is_dir() and d.name != "__pycache__")
 SKILL_DIRS_WITH_SCRIPTS = sorted(d for d in SKILL_DIRS if (d / "scripts").exists())
+MAX_SKILL_NAME_LENGTH = 64
+MAX_DESCRIPTION_LENGTH = 1024
 
 
 @pytest.fixture(params=[d.name for d in SKILL_DIRS], ids=lambda n: n)
@@ -35,22 +37,38 @@ class TestSkillStructure:
     def test_name_matches_directory(self, skill_dir: Path) -> None:
         text = (skill_dir / "SKILL.md").read_text()
         post = frontmatter.loads(text)
-        assert post.metadata.get("name") == skill_dir.name, (
-            f"name '{post.metadata.get('name')}' doesn't match directory '{skill_dir.name}'"
-        )
+        name = post.metadata["name"]
+        assert isinstance(name, str), "frontmatter 'name' must be a string"
+        assert name == skill_dir.name, f"name '{name}' doesn't match directory '{skill_dir.name}'"
 
     def test_description_not_empty(self, skill_dir: Path) -> None:
         text = (skill_dir / "SKILL.md").read_text()
         post = frontmatter.loads(text)
-        desc = post.metadata.get("description", "").strip()
+        desc = post.metadata["description"]
+        assert isinstance(desc, str), "frontmatter 'description' must be a string"
+        desc = desc.strip()
         assert len(desc) > 20, "description too short — should explain when to use"
+        assert len(desc) <= MAX_DESCRIPTION_LENGTH, (
+            f"description too long: {len(desc)} > {MAX_DESCRIPTION_LENGTH}"
+        )
 
     def test_snake_case_name(self, skill_dir: Path) -> None:
         name = skill_dir.name
+        assert len(name) <= MAX_SKILL_NAME_LENGTH, (
+            f"directory name too long: {len(name)} > {MAX_SKILL_NAME_LENGTH}"
+        )
         assert name == name.lower(), "directory name must be lowercase"
         assert " " not in name, "directory name must not contain spaces"
-        assert name.replace("-", "").replace("_", "").isalnum(), (
-            "directory name must be alphanumeric with hyphens/underscores"
+        assert name.replace("-", "").isalnum(), "directory name must be alphanumeric with hyphens"
+
+    def test_no_xml_angle_brackets_in_frontmatter(self, skill_dir: Path) -> None:
+        text = (skill_dir / "SKILL.md").read_text()
+        post = frontmatter.loads(text)
+        name = post.metadata["name"]
+        desc = post.metadata["description"]
+        assert "<" not in name and ">" not in name, "name must not contain XML angle brackets"
+        assert "<" not in desc and ">" not in desc, (
+            "description must not contain XML angle brackets"
         )
 
     def test_description_uses_standard_pattern(self, skill_dir: Path) -> None:

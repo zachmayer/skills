@@ -9,7 +9,7 @@ description: >
   partner". Default: fires all three paths in parallel (background) for
   diverse perspectives. Do NOT use for routine questions Claude can answer
   directly.
-allowed-tools: Bash(uv run *), Bash(codex exec *), Task
+allowed-tools: Bash(uv run *), Bash(codex exec *), Task, Write
 ---
 
 Query other frontier AI models for an outside perspective on a hard problem. One message out, one message back per model — make the context count.
@@ -24,19 +24,34 @@ The default invocation fires **all three paths concurrently in the background**,
 | **`ask_model.py`** | `google-gla:gemini-3.1-pro-preview` | max | ~1–5 min |
 | **Task sub-agent** | Claude Opus | adaptive max | ~1–5 min |
 
-**All three run with `run_in_background: true`.** Never foreground these — the Bash tool's 10 min timeout will SIGKILL Codex mid-thought, and `gpt-5.4-pro` via `ask_model.py` can run longer than that too.
+**All three run with `run_in_background: true`.** Never foreground the Codex path — the Bash tool's 10 min timeout will SIGKILL it mid-thought at xhigh. Background is the default for the other two as well since their thinking time can approach the timeout.
 
 Synthesize the fast-returning paths (Gemini, Opus) as soon as they land; tell the user Codex is still in flight and surface its output when the notification arrives. Don't block the turn on the slowest model.
 
-### Context budget per path (important)
+**Missing one provider?** If `GOOGLE_API_KEY` or `OPENAI_API_KEY` isn't configured, run the paths that work and note which was skipped. See `troubleshooting.md`.
 
-The three paths have different context capabilities. Brief each one accordingly:
+### Context budget and strengths per path (important)
 
-- **`ask_model.py`** — pure text in, text out. **Zero context.** Include everything inline: code, errors, what you tried, constraints. Treat it like a skill prompt: fully self-contained.
-- **Codex CLI** — can read the workspace it's launched in (via its own sandboxed tools) and has `--search` for live web search. **Pointers + question work**; it can fetch what it needs.
-- **Task sub-agent** — has full Claude Code tool access (Read, Grep, Glob, Bash, etc.) but **does not inherit the parent conversation's context.** Pass it the question + file paths; let it read and search itself.
+The three paths have very different capabilities and sweet spots. Brief each one accordingly, and lean into what each does best.
 
-Send each path a prompt tuned to its capability, not the same blob. Three separate `Write` calls to `~/claude/scratch/prompt_{codex,gemini,opus}.md` is fine and the right shape.
+**`ask_model.py` → Gemini 3.1 Pro** — a sealed room with a whiteboard. **Zero tool access, zero context.** Inline everything: code, error traces, type/helper definitions, constraints. Heavy Markdown with fenced code blocks and language tags; unified diffs where applicable. Structure: question at top, code middle, constraints at bottom.
+- **Routes to:** isolated algorithmic puzzles, concurrency/state bugs, edge-case enumeration, architectural tear-downs. Deep logical simulation when you have all the code in one place.
+- **Routes away from:** "where is X defined" (no grep), fresh library APIs (no web), repo-wide questions (no filesystem).
+
+**Codex CLI → GPT-5.5 xhigh** — workspace sandbox + web search. **Pointers + sharp question beat bulk inlining.**  Prompt structure: `Task / Question / Context / Artifacts / Constraints` in that order. Send file paths, function names, log snippets, failing tests — not entire files.
+- **Routes to:** tool-grounded technical judgment. Tracing a bug across multiple files, evaluating whether a proposed fix matches the real codebase, producing concrete alternatives (not just commentary), pressure-testing assumptions with local inspection.
+- **Routes away from:** pure text-only asks, rhetoric/messaging, abstract brainstorming.
+
+**Task sub-agent → Claude Opus** — full Claude Code tool access, fresh conversation. **Problem first, ask last.** Two-line TL;DR at top, then details. Pass file paths rather than inlining long files.
+- **Routes to:** design/taste calls (naming, boundary placement, whether complexity is earning its keep), long multi-file refactors (1M context), prose artifacts (PR descriptions, API docs, error messages), adversarial self-review of Claude Code output, subtle state/concurrency bugs that pattern-match.
+- **Routes away from:** hard math / novel algorithms (GPT wins), fresh-knowledge questions about recent library releases, exhaustive "find-every-bug-in-500-lines" (Gemini's deep-trace wins), pure numeric/statistical reasoning.
+
+**Framing directives that actually matter (all three):**
+- "Critique" → adversarial, design-flaw-hunting. "Review" → balanced. "What would you do differently" → constructive alternatives. Pick on purpose.
+- "Be direct, skip praise, lead with strongest objections" genuinely improves output quality (especially for Opus, which hedges by default).
+- "You are a senior engineer" role prompts are mostly fluff. Skip them.
+
+Write three separate files (e.g. `~/claude/scratch/prompt_{codex,gemini,opus}.md`) tuned per path — not one blob sent three ways.
 
 ## Quick-question alternatives (judgment call)
 
@@ -50,7 +65,7 @@ All three are still reasonable to `run_in_background: true`; "quick" here means 
 
 ## Deep / pro-tier correctness option
 
-For hard correctness problems where max depth beats max speed, **add** `openai-responses:gpt-5.5-pro` via `ask_model.py` (OpenAI announced it's coming to the API after staged safety testing; use `openai-responses:gpt-5.4-pro` as the stand-in until the 5.5-pro API rollout lands). 10–15+ min runtime at max thinking. **Always background this one** — it will always hit the 10 min Bash timeout otherwise.
+For hard correctness problems where max depth beats max speed, **add** `openai-responses:gpt-5.4-pro` via `ask_model.py` — the latest OpenAI pro model currently served by the Responses API. 10–15+ min runtime; **always `run_in_background: true`**. Once OpenAI ships `gpt-5.5-pro` to the API (announced; staged safeguard rollout), the same flag pattern picks it up (`-m openai-responses:gpt-5.5-pro`) — no skill change needed.
 
 ## Framing Your Question
 
@@ -96,12 +111,9 @@ uv run --directory SKILL_DIR python scripts/ask_model.py -f ~/claude/scratch/pro
 uv run --directory SKILL_DIR python scripts/ask_model.py -t low -f ~/claude/scratch/prompt_gemini.md
 
 # GPT-5.4 Pro via Responses API — latest OpenAI pro available via API today (~10–15 min)
+# When 5.5-pro ships to the API, swap to -m openai-responses:gpt-5.5-pro (same flag pattern)
 uv run --directory SKILL_DIR python scripts/ask_model.py \
   -m openai-responses:gpt-5.4-pro -f ~/claude/scratch/prompt_pro.md
-
-# GPT-5.5 Pro — coming to the API per OpenAI (staged safeguard rollout); will work transparently once it lands
-uv run --directory SKILL_DIR python scripts/ask_model.py \
-  -m openai-responses:gpt-5.5-pro -f ~/claude/scratch/prompt_pro.md
 ```
 
 Always `run_in_background: true`. Thinking effort is auto-set to max per provider; `-t low` overrides for speed.

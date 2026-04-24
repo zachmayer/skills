@@ -300,6 +300,37 @@ class TestCLIErrorHandling:
         assert result.exit_code != 0
         assert "Rate limited" in result.output
 
+    def test_model_not_found_error(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """model_not_found triggers a helpful pointer to fallback models."""
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = MagicMock()
+        mock_agent.run_stream_sync.side_effect = Exception(
+            "The model `gpt-5.5` does not exist or you do not have access to it."
+        )
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent):
+            result = CliRunner().invoke(ask_model.main, ["--model", "openai:gpt-5.5", "test"])
+
+        assert result.exit_code != 0
+        assert "Model not found" in result.output
+        assert "Codex CLI" in result.output or "gpt-5.4-pro" in result.output
+
+    def test_model_not_found_404(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Bare 404 in the error also routes to the model_not_found branch."""
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key-123")
+
+        mock_agent = MagicMock()
+        mock_agent.run_stream_sync.side_effect = Exception("HTTP 404 Not Found")
+
+        with patch.object(ask_model, "Agent", return_value=mock_agent):
+            result = CliRunner().invoke(
+                ask_model.main, ["--model", "openai-responses:gpt-5.5-pro", "test"]
+            )
+
+        assert result.exit_code != 0
+        assert "Model not found" in result.output
+
 
 class TestCLIMissingApiKeyShellHint:
     """Test that the missing API key message shows the right shell config file."""
@@ -353,10 +384,12 @@ class TestDocumentedDefaults:
         """Every model string the skill recommends must construct an Agent."""
         from pydantic_ai import Agent
 
+        # Only include paths the skill actually recommends. Claude Opus is reached
+        # via the Task sub-agent (different path), not via ask_model.py's
+        # anthropic: prefix, so it's intentionally not here.
         documented = [
             ask_model.DEFAULT_MODEL,
             "openai-responses:gpt-5.4-pro",
-            "anthropic:claude-opus-4-6",
         ]
         for model_str in documented:
             agent = Agent(model_str)

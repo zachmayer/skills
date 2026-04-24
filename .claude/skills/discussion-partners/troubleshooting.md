@@ -4,16 +4,6 @@ Reference for when one of the three paths errors. Read this after checking `setu
 
 ## Codex CLI
 
-### `The model "gpt-5.5" does not exist or you do not have access to it.`
-
-OpenAI's GPT-5.5 rollout to Codex CLI is account-staged — even on Codex CLI ≥ 0.28.0, some accounts see the model before others. Temporary fallback:
-
-```bash
-codex exec --full-auto -m gpt-5.4 -c service_tier="fast" -c model_reasoning_effort="xhigh" ...
-```
-
-Retry `gpt-5.5` periodically; update `~/.codex/config.toml` once the picker shows it.
-
 ### `codex: command not found`
 
 Codex CLI isn't installed. See `setup.md`.

@@ -97,7 +97,7 @@ def _handle_api_error(e: Exception, prefix: str, key_name: str) -> None:
     "-m",
     default=DEFAULT_MODEL,
     show_default=True,
-    help="Full pydantic-ai model string (e.g. google-gla:gemini-3.1-pro-preview, anthropic:claude-opus-4-6). For OpenAI models, use Codex CLI instead.",
+    help="Full pydantic-ai model string (e.g. google-gla:gemini-3.1-pro-preview, openai-responses:gpt-5.4-pro). For GPT-5.5 use Codex CLI; for Claude Opus use a sub-agent.",
 )
 @click.option("--system", "-s", default=None, help="System prompt")
 @click.option(

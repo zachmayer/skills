@@ -1,11 +1,13 @@
 #!/bin/bash
 # Claude Code status line.
 #
-# Left:   ~/path   branch
+# Left:   ~/path  ⎇ branch
 # Middle: 5h:NN% NhNm · 7d:NN% NdNh       (Claude.ai rate limits; each optional)
-# Right:   Model · ctx-mode · EFFORT · ctx:NN%
+# Right:  ❋ Model · ctx-mode · EFFORT · ctx:NN%
 #
-# Dependencies: jq, git, a Nerd Font (for the  branch and  alien glyphs).
+# Dependencies: jq, git. The ⎇ and ❋ glyphs are standard Unicode (Misc
+# Technical / Dingbats); render in any reasonable monospace font — no
+# Nerd Font needed.
 #
 # Palette uses ColorBrewer qualitative + sequential scales mapped to the
 # 256-color terminal palette. Green = good, gold = warn, red = bad, blue =
@@ -159,13 +161,13 @@ join_segs() {
 
 left=""
 [ -n "$short_cwd" ] && left+="${path_blue}${bold}${short_cwd}${reset}"
-[ -n "$branch" ]    && left+="  ${gray}${bold} ${branch}${reset}"
+[ -n "$branch" ]    && left+="  ${gray}${bold}⎇ ${branch}${reset}"
 
 middle=""
 [ "${#rate_segs[@]}" -gt 0 ] && middle=$(join_segs "${rate_segs[@]}")
 
 right_segs=()
-[ -n "$model" ]          && right_segs+=("${model_color} ${model}${reset}")
+[ -n "$model" ]          && right_segs+=("${model_color}❋ ${model}${reset}")
 [ -n "$ctx_mode" ]       && right_segs+=("${ctx_mode_color}${ctx_mode}${reset}")
 [ -n "$effort_display" ] && right_segs+=("${effort_color}${effort_display}${reset}")
 [ -n "$ctx_pct_part" ]   && right_segs+=("$ctx_pct_part")

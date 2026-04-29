@@ -1,13 +1,14 @@
 #!/bin/bash
 # Claude Code status line.
 #
-# Left:   ~/path  ⎇ branch
-# Middle: 5h:NN% NhNm · 7d:NN% NdNh       (Claude.ai rate limits; each optional)
-# Right:  ❋ Model · ctx-mode · EFFORT · ctx:NN%
+# Left:   📁 ~/path  🌿 branch ✅
+# Middle: ⏰ 5h:NN% NhNm · 7d:NN% NdNh    (Claude.ai rate limits; each optional)
+# Right:  🤖 Model · ctx-mode · EFFORT · ctx:NN%
 #
-# Dependencies: jq, git. The ⎇ and ❋ glyphs are standard Unicode (Misc
-# Technical / Dingbats); render in any reasonable monospace font — no
-# Nerd Font needed.
+# The ✅ appears only when the branch is fully in sync with its upstream
+# (no uncommitted/staged changes, no unpushed commits).
+#
+# Dependencies: jq, git, and an emoji-capable terminal font.
 #
 # Palette uses ColorBrewer qualitative + sequential scales mapped to the
 # 256-color terminal palette. Green = good, gold = warn, red = bad, blue =
@@ -63,9 +64,17 @@ short_cwd="${cwd/#$HOME/~}"
 
 # ─── Git branch (short SHA fallback for detached HEAD) ──────────────────────
 branch=""
+synced=""
 if [ -n "$cwd" ] && git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
     branch=$(git -C "$cwd" -c core.fsmonitor=false symbolic-ref --short HEAD 2>/dev/null \
              || git -C "$cwd" -c core.fsmonitor=false rev-parse --short HEAD 2>/dev/null)
+
+    # ✅ when working tree is clean AND HEAD == upstream (no unpushed commits).
+    if [ -z "$(git -C "$cwd" -c core.fsmonitor=false status --porcelain 2>/dev/null)" ]; then
+        local_sha=$(git -C "$cwd" -c core.fsmonitor=false rev-parse HEAD 2>/dev/null)
+        upstream_sha=$(git -C "$cwd" -c core.fsmonitor=false rev-parse '@{u}' 2>/dev/null)
+        [ -n "$upstream_sha" ] && [ "$local_sha" = "$upstream_sha" ] && synced="✅"
+    fi
 fi
 
 # ─── Semantic colors ────────────────────────────────────────────────────────
@@ -160,14 +169,15 @@ join_segs() {
 }
 
 left=""
-[ -n "$short_cwd" ] && left+="${path_blue}${bold}${short_cwd}${reset}"
-[ -n "$branch" ]    && left+="  ${gray}${bold}⎇ ${branch}${reset}"
+[ -n "$short_cwd" ] && left+="📁 ${path_blue}${bold}${short_cwd}${reset}"
+[ -n "$branch" ]    && left+="  🌿 ${gray}${bold}${branch}${reset}"
+[ -n "$synced" ]    && left+=" ${synced}"
 
 middle=""
-[ "${#rate_segs[@]}" -gt 0 ] && middle=$(join_segs "${rate_segs[@]}")
+[ "${#rate_segs[@]}" -gt 0 ] && middle="⏰ $(join_segs "${rate_segs[@]}")"
 
 right_segs=()
-[ -n "$model" ]          && right_segs+=("${model_color}❋ ${model}${reset}")
+[ -n "$model" ]          && right_segs+=("🤖 ${model_color}${model}${reset}")
 [ -n "$ctx_mode" ]       && right_segs+=("${ctx_mode_color}${ctx_mode}${reset}")
 [ -n "$effort_display" ] && right_segs+=("${effort_color}${effort_display}${reset}")
 [ -n "$ctx_pct_part" ]   && right_segs+=("$ctx_pct_part")
@@ -198,9 +208,20 @@ width=$(detect_width)
 strip_ansi() {
     printf '%s' "$1" | sed $'s/\033\\[[0-9;]*m//g'
 }
-left_len=$(strip_ansi "$left"   | wc -m | tr -d ' ')
-mid_len=$(strip_ansi "$middle"  | wc -m | tr -d ' ')
-right_len=$(strip_ansi "$right" | wc -m | tr -d ' ')
+# Display width: wc -m counts code points, but our emojis render as 2 cells.
+# Add 1 per emoji occurrence so padding lines up.
+display_len() {
+    local s chars extra=0
+    s=$(strip_ansi "$1")
+    chars=$(printf '%s' "$s" | wc -m | tr -d ' ')
+    for emoji in 📁 🌿 ✅ ⏰ 🤖; do
+        extra=$(( extra + $(printf '%s' "$s" | grep -o "$emoji" | wc -l | tr -d ' ') ))
+    done
+    printf '%d' $(( chars + extra ))
+}
+left_len=$(display_len "$left")
+mid_len=$(display_len "$middle")
+right_len=$(display_len "$right")
 
 # Reserve 6 cols: 2 for Claude Code's leading indent, 4 for a right-edge
 # margin so the final ctx:N% segment isn't truncated to `ctx:…`.
